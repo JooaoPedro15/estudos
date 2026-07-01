@@ -670,11 +670,149 @@ pre {
   text-transform: uppercase;
 }
 
+/* ==== Canvas compartilhado (DiagramShell) ==== */
+
+.diagram-shell {
+  position: relative;
+  min-width: 0;
+}
+
+.diagram-shell svg {
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+
+.diagram-shell svg:active {
+  cursor: grabbing;
+}
+
+.diagram-viewport {
+  transition: transform 260ms var(--ease);
+}
+
+.diagram-zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.diagram-zoom button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: var(--ink-700);
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 850;
+  box-shadow: var(--sh-sm);
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.diagram-zoom button:hover:not(:disabled) {
+  color: var(--brand-700);
+  border-color: var(--brand-500);
+}
+
+.diagram-caption-overlay {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  right: 52px;
+  margin: 0;
+  padding: 4px 10px;
+  color: var(--ink-700);
+  background: rgb(255 255 255 / 82%);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-pill);
+  font-size: 0.76rem;
+  font-weight: 750;
+  line-height: 1.35;
+  width: fit-content;
+  max-width: calc(100% - 64px);
+  pointer-events: none;
+  backdrop-filter: blur(3px);
+}
+
+/* Arestas de arvore/TRIE: atras dos nos, com seta na ponta. */
+.tree-edge {
+  stroke: #69788f;
+  stroke-width: 2.4;
+  transition: d 500ms var(--ease);
+}
+
+.edge-arrowhead {
+  fill: #69788f;
+  stroke: none;
+}
+
+/* Nos deslizam quando o layout muda (posicionados via transform). */
+.diagram-node {
+  transition: transform 550ms var(--ease);
+}
+
 .diagram-node.is-active circle,
 .diagram-node.is-active rect {
   fill: var(--accent-300);
   stroke: #a9760f;
   animation: node-pulse 1100ms ease-in-out infinite alternate;
+}
+
+/*
+ * Caminho percorrido em sequencia: cada no do activePath acende na sua vez
+ * (450ms por no), imitando a visita passo a passo dos visualizadores de
+ * referencia. `both` mantem o no aceso apos a visita.
+ */
+.diagram-node.on-path circle,
+.diagram-node.on-path rect,
+.array-cell.on-path rect {
+  animation: path-visit 480ms var(--ease) both;
+  animation-delay: calc(var(--path-i, 0) * 450ms);
+}
+
+.diagram-node.on-path.is-active circle,
+.diagram-node.on-path.is-active rect {
+  animation:
+    path-visit 480ms var(--ease) both,
+    node-pulse 1100ms ease-in-out infinite alternate;
+  animation-delay: calc(var(--path-i, 0) * 450ms), calc(var(--path-i, 0) * 450ms + 480ms);
+}
+
+/* Tom semantico do resultado: acerto pinta o destaque de verde, erro de vermelho. */
+.diagram-shell.tone-success .diagram-node.is-active circle,
+.diagram-shell.tone-success .diagram-node.is-active rect,
+.diagram-shell.tone-success .array-cell.is-active rect,
+.diagram-shell.tone-success .pointer-cell.is-active circle {
+  fill: #bfe9d4;
+  stroke: var(--ok-ink);
+}
+
+.diagram-shell.tone-error .diagram-node.is-active circle,
+.diagram-shell.tone-error .diagram-node.is-active rect,
+.diagram-shell.tone-error .array-cell.is-active rect,
+.diagram-shell.tone-error .pointer-cell.is-active circle {
+  fill: #f6c5bf;
+  stroke: var(--err-ink);
+}
+
+@keyframes path-visit {
+  from {
+    fill: #e9f2ef;
+    stroke: #3f6a61;
+  }
+
+  to {
+    fill: var(--accent-300);
+    stroke: #a9760f;
+  }
 }
 
 .diagram-node.is-clickable {
@@ -943,6 +1081,12 @@ pre {
   min-height: 170px;
   border-radius: var(--r-xs);
   box-shadow: none;
+}
+
+/* Miniaturas de alternativa nao mostram zoom nem narracao. */
+.choice-diagram .diagram-zoom,
+.choice-diagram .diagram-caption-overlay {
+  display: none;
 }
 
 .node-choice.is-selected {

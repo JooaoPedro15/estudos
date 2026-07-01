@@ -55,6 +55,13 @@ e trilhas jogaveis para todas elas em um primeiro recorte de conteudo.
   numero de nos e da profundidade. Isso evita sobreposicao e centraliza cada pai entre suas
   subarvores, deixando ABB/AVL/2-3-4/alvinegra muito mais legiveis. O diagrama de hash separa
   visualmente area principal e reserva.
+- Todos os diagramas agora vivem dentro do `DiagramShell` (canvas compartilhado): zoom +/-,
+  pan por arrasto, "ajustar a tela" e narracao do passo sobreposta ao desenho. Inspirado nos
+  visualizadores de Galles (USFCA), mantendo a identidade visual do jogo.
+- As trilhas sao animadas: quando uma etapa devolve `activePath`, os nos acendem em sequencia
+  (um por vez, 450ms de intervalo), as arestas tem setas e os nos deslizam com transicao
+  quando o layout muda. O resultado da resposta aplica tom semantico (verde/vermelho) ao
+  destaque. O Laboratorio mostra a narracao "Passo X/N: titulo" dentro do proprio canvas.
 
 ## Tecnologias
 

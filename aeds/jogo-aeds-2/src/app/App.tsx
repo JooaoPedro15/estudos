@@ -344,6 +344,10 @@ function TrailView({
                   activeNodeId={lastResult?.activeNodeId ?? activeChallenge.activeNodeId}
                   selectedNodeIds={isClickStep ? clickSelection : undefined}
                   onNodeClick={isClickStep ? handleToggleClickNode : undefined}
+                  tone={lastResult ? (lastResult.correct ? 'success' : 'error') : undefined}
+                  caption={
+                    lastResult?.activePath ? 'Acompanhe o caminho visitado no diagrama.' : undefined
+                  }
                 />
               </div>
 
@@ -476,6 +480,11 @@ function LabView({ selectedStructure }: { selectedStructure: StructureKind }) {
           visualState={activeStep?.visualState ?? getLabInitialVisualState(selectedStructure, labTree)}
           activePath={activeStep?.activePath}
           activeNodeId={activeStep?.activeNodeId}
+          caption={
+            activeOperation && activeStep
+              ? `Passo ${activeStepIndex + 1}/${activeOperation.steps.length}: ${activeStep.title}`
+              : undefined
+          }
         />
         <div className="lab-workspace">
           <label className="lab-input" htmlFor={inputId}>
