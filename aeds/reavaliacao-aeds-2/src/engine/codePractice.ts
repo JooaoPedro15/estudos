@@ -5,12 +5,17 @@ import type { PracticeMode, PracticeSession, StepAttempt } from '../types/progre
 type PracticeSessionOptions = {
   mode: PracticeMode;
   targetCount?: number;
+  drillOrder?: string[];
+  random?: () => number;
 };
 
 export function createPracticeSession(drills: CodeDrill[], options: PracticeSessionOptions): PracticeSession {
+  const drillOrder = options.drillOrder ?? shuffleDrillIds(drills, options.random ?? Math.random);
+
   return {
     mode: options.mode,
     targetCount: options.mode === 'quick' ? (options.targetCount ?? 2) : undefined,
+    drillOrder,
     currentDrillIndex: 0,
     completedCount: 0,
     score: 0,
@@ -25,6 +30,13 @@ export function getCurrentPracticeDrill(
 ): CodeDrill | undefined {
   if (session.completed || drills.length === 0) {
     return undefined;
+  }
+
+  const drillOrder = getSessionDrillOrder(drills, session);
+  const drillId = drillOrder[session.currentDrillIndex % drillOrder.length];
+
+  if (drillId) {
+    return drills.find((drill) => drill.id === drillId) ?? drills[session.currentDrillIndex % drills.length];
   }
 
   return drills[session.currentDrillIndex % drills.length];
@@ -44,6 +56,9 @@ export function answerCurrentPracticeStep(
   const result = evaluateStep(drill.step, answer);
   const completedCount = session.completedCount + 1;
   const completed = session.mode === 'quick' && completedCount >= (session.targetCount ?? 2);
+  const currentDrillOrder = getSessionDrillOrder(drills, session);
+  const nextDrillIndex = session.currentDrillIndex + 1;
+  const shouldReshuffleDeck = !completed && session.mode === 'marathon' && nextDrillIndex >= currentDrillOrder.length;
   const attempt: StepAttempt = {
     questionId: drill.id,
     stepId: drill.step.id,
@@ -58,7 +73,8 @@ export function answerCurrentPracticeStep(
 
   return {
     ...session,
-    currentDrillIndex: completed ? session.currentDrillIndex : session.currentDrillIndex + 1,
+    drillOrder: shouldReshuffleDeck ? shuffleDrillIds(drills, Math.random) : currentDrillOrder,
+    currentDrillIndex: completed ? session.currentDrillIndex : shouldReshuffleDeck ? 0 : nextDrillIndex,
     completedCount,
     score: session.score + result.scoreDelta,
     attempts: [...session.attempts, attempt],
@@ -72,4 +88,19 @@ export function getPracticeProgressLabel(session: PracticeSession): string {
   }
 
   return `${session.completedCount}/${session.targetCount ?? 2}`;
+}
+
+function shuffleDrillIds(drills: CodeDrill[], random: () => number): string[] {
+  const drillIds = drills.map((drill) => drill.id);
+
+  for (let index = drillIds.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [drillIds[index], drillIds[swapIndex]] = [drillIds[swapIndex], drillIds[index]];
+  }
+
+  return drillIds;
+}
+
+function getSessionDrillOrder(drills: CodeDrill[], session: PracticeSession): string[] {
+  return session.drillOrder?.length ? session.drillOrder : drills.map((drill) => drill.id);
 }

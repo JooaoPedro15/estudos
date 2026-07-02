@@ -52,6 +52,7 @@ export type PracticeMode = 'quick' | 'marathon';
 export type PracticeSession = {
   mode: PracticeMode;
   targetCount?: number;
+  drillOrder: string[];
   currentDrillIndex: number;
   completedCount: number;
   score: number;

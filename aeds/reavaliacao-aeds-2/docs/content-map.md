@@ -25,7 +25,8 @@ implementar ou modificar metodos. Os padroes iniciais do treino de codigo sao:
 O catalogo jogavel atual possui 30 treinos de codigo, com cinco exercicios de
 funcao inteira para cada um dos 6 dominios do simulado. Cada dominio mistura
 repeticao de padrao com pelo menos uma modificacao logica para obrigar o aluno a
-reescrever a estrutura completa com uma regra nova.
+reescrever a estrutura completa com uma regra nova. A ordem de entrega no treino
+e aleatoria por sessao, para evitar que o aluno decore a sequencia do catalogo.
 
 ## Dominios
 

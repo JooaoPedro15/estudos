@@ -1,10 +1,16 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { afterEach, vi } from 'vitest';
 
 import { App } from './App';
 
 beforeEach(() => {
   window.localStorage.clear();
+  vi.spyOn(Math, 'random').mockReturnValue(0.999);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 test('renderiza a experiencia principal da Reavaliacao AEDS II', () => {

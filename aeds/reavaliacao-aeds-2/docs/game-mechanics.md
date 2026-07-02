@@ -40,6 +40,8 @@ O treino de codigo existe para uso casual e para estudo longo:
 
 - `Pegar 2 questoes`: sessao curta para fazer quando a pessoa tem pouco tempo.
 - `Maratona`: fluxo continuo para resolver varias questoes em sequencia.
+- `Baralho aleatorio`: cada nova sessao embaralha o banco de questoes; na
+  maratona, ao terminar o baralho, ele e embaralhado novamente.
 - `Repeticao`: refazer padroes fundamentais ate automatizar a estrutura.
 - `Modificacao`: depois da repeticao, adaptar a estrutura para uma regra nova,
   reescrevendo a funcao completa modificada.
