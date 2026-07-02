@@ -4,20 +4,21 @@ Inventario tecnico dos projetos do repositorio. Ultima atualizacao: 2026-07-01.
 
 ---
 
-## Projeto 1: Estruturas
+## Projeto 1: Estruturas - versao antiga preservada
 
 | Campo | Valor |
 | --- | --- |
 | Nome | Estruturas |
-| Pasta | `aeds/jogo-aeds-2/` |
+| Pasta | `nao_utilizados/jogo-aeds-2-antigo/` |
 | Materia | AEDS II |
 | Tecnologia | React, TypeScript, Vite, Vitest, Testing Library |
-| Estado | Em desenvolvimento |
+| Estado | Versao antiga preservada, nao utilizada |
 
 ### Objetivo
 
-Jogo geral de estruturas de dados para AEDS II, organizado por biblioteca,
-trilhas, laboratorio, caderno de erros e simulado.
+Versao antiga do jogo geral de estruturas de dados para AEDS II. Foi mantida
+apenas como historico e referencia; o desenvolvimento atual foi reiniciado em
+`aeds/reavaliacao-aeds-2/`.
 
 ### Conteudos
 
@@ -26,7 +27,7 @@ TRIE, PATRICIA e Doidona.
 
 ### Comandos
 
-Dentro de `aeds/jogo-aeds-2/`:
+Dentro de `nao_utilizados/jogo-aeds-2-antigo/`:
 
 | Acao | Comando |
 | --- | --- |
@@ -38,8 +39,7 @@ Dentro de `aeds/jogo-aeds-2/`:
 
 ### Documentacao
 
-- `aeds/jogo-aeds-2/README.md`
-- `aeds/jogo-aeds-2/docs/`
+- `nao_utilizados/jogo-aeds-2-antigo/README.md`
 
 ---
 
@@ -151,4 +151,5 @@ Abrir `mips-datapath-quest.html` no navegador.
 | HTML avulso duplicado | `arquivos-avulsos/mips-datapath-quest.html` | Copia preservada do legacy |
 | Specs formais | `docs/superpowers/specs/` | Specs geradas no fluxo de design |
 | Materiais de AEDS | `aeds/materiais/` | Slides, provas e referencias usadas pelos jogos de AEDS |
+| Versoes antigas preservadas | `nao_utilizados/` | Projetos antigos mantidos apenas como historico e referencia |
 

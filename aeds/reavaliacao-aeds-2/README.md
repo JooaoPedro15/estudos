@@ -1,51 +1,81 @@
 # Reavaliacao AEDS II
 
-Jogo educativo focado em preparar para a reavaliacao de AEDS II. Diferente do
-`jogo-aeds-2`, que funciona como biblioteca/trilha geral de estruturas, este
-projeto nasce com um objetivo mais fechado: treinar o formato real da prova de
-reavaliacao usando campanha, oficina de codigo, caderno adaptativo de erros e
-simulado final.
+Jogo educacional voltado ao aprendizado de estruturas de dados de AEDS II, com
+foco no formato real da reavaliacao. Este e o projeto atual de AEDS no
+repositorio.
 
-## Estado
+## Objetivo do jogo
 
-Primeira versao jogavel implementada. O app ja possui painel dos 6 dominios,
-simulado de 6 questoes, treino continuo de codigo com funcoes inteiras, visual
-de apoio nas questoes, botao `Me ensine`, caderno adaptativo de erros e
-persistencia local.
+Ajudar o aluno a praticar ate conseguir resolver questoes de reavaliacao que
+cobram simulacao, justificativa, codigo, complexidade e manipulacao de
+estruturas de dados.
 
-## Objetivo educacional
+## Principais funcionalidades
 
-Fazer o aluno praticar ate conseguir resolver questoes de reavaliacao que cobram:
+- Campanha com 6 dominios da reavaliacao.
+- Oficina de codigo com escolha, lacuna, blocos, correcao, codigo curto e
+  funcoes inteiras.
+- Treino de codigo em sessoes rapidas ou maratona continua.
+- Caderno adaptativo de erros com persistencia em `localStorage`.
+- Simulado final com 6 questoes no formato da reavaliacao.
+- Aba de estruturas com visualizacoes animadas, insercao, remocao, busca,
+  execucao passo a passo e visualizacao de codigo.
+- Visualizacoes dedicadas para estruturas como Doidona, TRIE e AVL.
+- Botao `Me ensine` para apoio durante as questoes.
 
-- contar execucoes de codigo e montar somatorios;
-- simular insercoes e operacoes em arvores;
-- provar ou refutar afirmacoes com justificativa;
-- adaptar algoritmos de ordenacao;
-- analisar melhor e pior caso de trechos de codigo;
-- implementar metodos em estruturas compostas, como Doidona.
+## Requisitos
 
-## Escopo da primeira versao
+- Node.js e npm.
+- Ambiente validado localmente com Node.js `v22.15.0` e npm `10.9.2`.
 
-A campanha inicial tera 6 dominios, alinhados ao que foi observado nas provas
-locais em `aeds/materiais/Provas`:
+## Instalar dependencias
 
-1. Estrutura Doidona.
-2. Arvore TRIE.
-3. Arvore AVL.
-4. Arvore normal / arvore binaria.
-5. Somatorios e contagem de custo.
-6. Algoritmos de ordenacao.
+```bash
+npm install
+```
 
-## Modos da primeira versao
+## Executar localmente
 
-| Modo | Papel no jogo |
-| --- | --- |
-| Campanha | Painel dos 6 dominios da reavaliacao. |
-| Oficina de codigo | Etapas de escolha, lacuna, blocos, correcao, codigo curto e funcao inteira. |
-| Treino de Codigo | Sessoes rapidas de 2 questoes ou maratona continua baseada na lista da prova 3, com repeticao de funcoes completas em ordem aleatoria. |
-| Caderno de erros | Revisao adaptativa dos erros mais repetidos. |
-| Simulado final | Prova curta com 6 questoes no formato da reavaliacao. |
-| Materiais | Referencias locais usadas para mapear conteudo e questoes. |
+```bash
+npm run dev
+```
+
+O Vite informa a URL local no terminal ao iniciar o servidor.
+
+## Testar e gerar build
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+O `package.json` nao define comando de preview.
+
+## Principais pastas
+
+```text
+reavaliacao-aeds-2/
+  docs/         Documentacao de produto, arquitetura, mecanicas e testes
+  src/app/      Telas principais da experiencia
+  src/content/  Dominios, questoes e treinos de codigo
+  src/engine/   Avaliadores, simulado, treino e revisao adaptativa
+  src/persistence/ Salvamento local em localStorage
+  src/styles/   Tema compartilhado
+  src/test/     Configuracao dos testes
+  src/types/    Tipos de conteudo e progresso
+  src/viz/      Visualizacoes e operacoes das estruturas
+```
+
+## Problemas comuns
+
+- Se `npm` falhar no PowerShell por politica de execucao, use `npm.cmd` no lugar
+  de `npm`, por exemplo `npm.cmd run dev`.
+- Se dependencias estiverem ausentes, execute `npm install` dentro desta pasta.
+- Se o progresso local ficar inconsistente durante desenvolvimento, limpe o
+  `localStorage` do navegador para este app.
+- Se o build falhar com erro de tipo, rode `npm run lint` para ver o erro do
+  TypeScript sem gerar build.
 
 ## Documentacao
 
@@ -58,31 +88,9 @@ locais em `aeds/materiais/Provas`:
 - [Estrategia de testes](docs/testing-strategy.md)
 - [Roadmap](docs/implementation-roadmap.md)
 
-## Tecnologia
+## Versao antiga
 
-Stack atual:
-
-- React
-- TypeScript
-- Vite
-- Vitest + Testing Library
-- Lucide React para icones
-- `localStorage` para progresso local na primeira versao
-
-## Comandos
-
-Dentro desta pasta:
-
-```bash
-npm install
-npm run dev
-npm test
-npm run lint
-npm run build
-```
-
-## Relacao com o jogo existente
-
-O `jogo-aeds-2` continua existindo como experiencia geral de biblioteca/trilha.
-Este projeto pode reaproveitar ideias, tipos e componentes, mas deve manter uma
-interface e um modelo de progresso proprios, centrados na reavaliacao.
+A versao antiga do jogo geral de AEDS foi preservada em
+[`../../nao_utilizados/jogo-aeds-2-antigo/`](../../nao_utilizados/jogo-aeds-2-antigo/).
+Ela nao esta mais em desenvolvimento e nao deve ser considerada a versao
+principal.

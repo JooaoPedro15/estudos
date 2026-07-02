@@ -1,4 +1,11 @@
-# Estruturas
+# Estruturas - versao antiga
+
+Esta e uma versao antiga e nao utilizada do jogo de AEDS. O projeto foi mantido
+apenas como historico e referencia.
+
+O desenvolvimento atual foi reiniciado em
+[`../../aeds/reavaliacao-aeds-2/`](../../aeds/reavaliacao-aeds-2/). Para
+executar ou modificar a versao atual, consulte o README desse projeto.
 
 Jogo educativo de AEDS II para praticar estruturas de dados por dominio:
 Biblioteca -> Trilha -> Laboratorio -> Caderno de erros -> Simulado.
@@ -7,7 +14,7 @@ O projeto substituiu a moldura antiga de roguelike/cartas por uma experiencia fo
 dominio progressivo. A primeira tela ja abre na Biblioteca, com 12 estruturas do material
 e trilhas jogaveis para todas elas em um primeiro recorte de conteudo.
 
-## Estado atual
+## Estado preservado
 
 - Biblioteca de 12 estruturas: Lista, Pilha, Ordenacao, Arvore Binaria, ABB, AVL,
   2-3-4, Alvinegra, Hash, TRIE, PATRICIA e Doidona.

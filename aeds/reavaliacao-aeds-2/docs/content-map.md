@@ -8,7 +8,8 @@ O conteudo deve ser guiado por:
 - `aeds/materiais/Provas/REAV2_incompleta` como referencia secundaria;
 - `aeds/materiais/Listas/lista-aeds2-prova3.pdf` como referencia principal para treinos de codigo;
 - `aeds/materiais/Slides AEDS 2` como base de conteudo;
-- desafios ja existentes em `aeds/jogo-aeds-2` como referencia de modelagem.
+- desafios da versao antiga em `nao_utilizados/jogo-aeds-2-antigo` apenas como
+  referencia historica de modelagem.
 
 ## Estilo da lista da prova 3
 

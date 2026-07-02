@@ -1,4 +1,4 @@
-﻿# AEDS - Algoritmos e Estruturas de Dados
+# AEDS - Algoritmos e Estruturas de Dados
 
 ## Objetivo
 
@@ -6,31 +6,16 @@ Reunir jogos educacionais voltados para o estudo de AEDS II. Os jogos abordam
 estruturas de dados, algoritmos de manipulacao, complexidade e propriedades,
 sempre de forma interativa e voltada para prova.
 
-## Jogos disponiveis
-
-### [jogo-aeds-2/](jogo-aeds-2/) - Estruturas
-
-**Estado:** Em desenvolvimento.
-
-Jogo educativo de AEDS II para praticar estruturas de dados por dominio:
-Biblioteca, Trilha, Laboratorio, Caderno de erros e Simulado.
-
-Conteudos trabalhados:
-
-- lista, pilha e ordenacao;
-- arvore binaria, ABB, AVL, 2-3-4 e alvinegra;
-- hash;
-- TRIE e PATRICIA;
-- Doidona.
+## Jogo atual
 
 ### [reavaliacao-aeds-2/](reavaliacao-aeds-2/) - Reavaliacao AEDS II
 
-**Estado:** Primeira versao jogavel.
+**Estado:** primeira versao jogavel e projeto principal de AEDS no momento.
 
-Jogo novo, em pasta separada, focado em preparar especificamente para a
-reavaliacao de AEDS II. A primeira versao combina painel de 6 dominios, oficina
-de codigo, caderno adaptativo de erros e simulado final no formato das
-reavaliacoes.
+Jogo educacional voltado ao aprendizado de estruturas de dados de AEDS, com foco
+no formato real da reavaliacao. A experiencia atual combina campanha de
+dominios, oficina de codigo, treino continuo, caderno adaptativo de erros,
+visualizacoes de estruturas e simulado final.
 
 Dominios iniciais:
 
@@ -41,14 +26,24 @@ Dominios iniciais:
 - Somatorios;
 - Algoritmos de ordenacao.
 
+As instrucoes para instalar, executar, testar e gerar build ficam no README do
+projeto atual: [`reavaliacao-aeds-2/README.md`](reavaliacao-aeds-2/README.md).
+
+## Versao antiga preservada
+
+A versao antiga do jogo geral de AEDS foi preservada fora da area principal do
+repositorio em [`../nao_utilizados/jogo-aeds-2-antigo/`](../nao_utilizados/jogo-aeds-2-antigo/).
+Ela nao esta mais em desenvolvimento e deve ser usada apenas como historico ou
+referencia.
+
 ## Onde encontrar
 
 | Pasta | Conteudo |
 | --- | --- |
-| [`jogo-aeds-2/`](jogo-aeds-2/) | Jogo geral de estruturas de dados |
-| [`reavaliacao-aeds-2/`](reavaliacao-aeds-2/) | Novo jogo focado na reavaliacao |
+| [`reavaliacao-aeds-2/`](reavaliacao-aeds-2/) | Jogo atual de AEDS II |
 | [`materiais/`](materiais/) | Materiais academicos e provas usadas como referencia |
 | [`docs/`](docs/) | Documentacao cruzada entre jogos da materia |
+| [`../nao_utilizados/jogo-aeds-2-antigo/`](../nao_utilizados/jogo-aeds-2-antigo/) | Versao antiga preservada |
 
 ## Materiais
 
@@ -56,4 +51,3 @@ Nesta materia, `aeds/materiais/` pode conter slides, provas, imagens e outros
 materiais de referencia que o dono do repositorio decidiu manter versionados.
 Materiais que nao devem subir para o Git ainda podem ficar em
 `aeds/materiais-privados/`.
-

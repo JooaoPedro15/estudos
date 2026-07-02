@@ -2,9 +2,10 @@
 
 ## Decisao
 
-Criar um app independente em `aeds/reavaliacao-aeds-2`, sem alterar o
-`jogo-aeds-2`. O novo app tem modelo de dominio, progresso e revisao proprios,
-centrados no formato da reavaliacao.
+Criar um app independente em `aeds/reavaliacao-aeds-2`. A versao antiga do jogo
+geral de AEDS fica preservada em `nao_utilizados/jogo-aeds-2-antigo/` e nao deve
+ser tratada como projeto principal. O novo app tem modelo de dominio, progresso
+e revisao proprios, centrados no formato da reavaliacao.
 
 ## Stack atual
 

@@ -25,7 +25,6 @@ jogos-estudos/
       specs/
   aeds/
     README.md
-    jogo-aeds-2/
     reavaliacao-aeds-2/
     materiais/
     docs/
@@ -35,6 +34,8 @@ jogos-estudos/
     jogo-arquitetura-legacy/
     primeira-versao/
   arquivos-avulsos/
+  nao_utilizados/
+    jogo-aeds-2-antigo/
 ```
 
 ## Padrao de nomes
@@ -46,6 +47,7 @@ jogos-estudos/
 | Docs do projeto | dentro do proprio jogo | `aeds/reavaliacao-aeds-2/docs/` |
 | Materiais versionados | dentro da materia | `aeds/materiais/` |
 | Materiais privados | pasta ignorada localmente | `aeds/materiais-privados/` |
+| Versoes antigas preservadas | dentro de `nao_utilizados/` | `nao_utilizados/jogo-aeds-2-antigo/` |
 
 ## Como adicionar um jogo
 
@@ -84,4 +86,6 @@ jogo `aeds/reavaliacao-aeds-2`.
 - Dependencias nao devem ser compartilhadas implicitamente entre jogos.
 - O `.gitignore` raiz cobre dependencias, builds, temporarios e pastas privadas.
 - Caminhos internos de um projeto devem funcionar a partir da propria pasta.
+- Pastas em `nao_utilizados/` sao historico preservado e nao devem ser tratadas
+  como projeto principal.
 

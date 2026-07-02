@@ -14,10 +14,12 @@ do jogo.
 
 ## Documentacao por projeto
 
-Cada jogo possui sua propria documentacao em sua pasta:
+Cada jogo ativo possui sua propria documentacao em sua pasta:
 
-- [`aeds/jogo-aeds-2/docs/`](../aeds/jogo-aeds-2/docs/) - specs e planos do jogo geral de AEDS;
-- [`aeds/reavaliacao-aeds-2/docs/`](../aeds/reavaliacao-aeds-2/docs/) - spec e documentacao do jogo de reavaliacao de AEDS II;
+- [`aeds/reavaliacao-aeds-2/docs/`](../aeds/reavaliacao-aeds-2/docs/) - spec e documentacao do jogo atual de AEDS II;
 - [`arquitetura-computadores/jogo-arquitetura-roguelike/docs/`](../arquitetura-computadores/jogo-arquitetura-roguelike/docs/) - decisoes de design do roguelike de arquitetura;
 - [`arquitetura-computadores/docs/superpowers/`](../arquitetura-computadores/docs/superpowers/) - spec e plano do modo roguelike legacy.
+
+Versoes antigas preservadas ficam em [`../nao_utilizados/`](../nao_utilizados/)
+e nao devem ser consideradas a versao principal de nenhum jogo.
 
