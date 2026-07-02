@@ -1,10 +1,11 @@
 import { domainCatalog } from './domains';
 
-test('lista os seis dominios da reavaliacao na ordem da campanha', () => {
+test('lista os dominios da reavaliacao na ordem da campanha', () => {
   expect(domainCatalog.map((domain) => domain.id)).toEqual([
     'doidona',
     'trie',
     'avl',
+    'hash',
     'arvore',
     'somatorio',
     'ordenacao',

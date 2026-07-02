@@ -1560,6 +1560,353 @@ class ArvoreTrie {
       explanation: 'Essa modificacao tambem muda a analise de melhor caso.',
     }),
   },
+  {
+    id: 'code-hash-funcao-hash-string',
+    domainId: 'hash',
+    title: 'Hash: funcao hash de String',
+    source: 'reav-style',
+    repetitionGroup: 'hash-reserva',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Fixar a funcao hash do laboratorio: soma dos ASCII modulo m.',
+    stem: 'Laboratorio de Tabela Hash: a chave e uma String (nome de pais). Implemente hash(chave) somando os codigos ASCII e aplicando modulo m. Ex.: hash("Brasil") = 605 % 7 = 3.',
+    scaffold: `class TabelaHashComReserva {
+  String[] tabela;
+  int m; // tamanho da tabela
+  int r; // tamanho da area de reserva
+  int nr; // elementos na area de reserva
+
+  private int hash(String chave) {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'hash',
+      title: 'Soma ASCII % m',
+      caption: 'Cada caractere vira um codigo; a soma modulo m aponta o indice.',
+      labels: ['B', 'r', 'a', 's', 'i', 'l'],
+    },
+    step: functionStep({
+      id: 'code-hash-funcao-hash-string-step',
+      prompt: 'Escreva a funcao hash completa.',
+      signature: 'private int hash(String chave)',
+      solution: `private int hash(String chave) {
+  int soma = 0;
+  for (int i = 0; i < chave.length(); i++) {
+    soma += (int) chave.charAt(i);
+  }
+  return soma % m;
+}`,
+      requiredFragments: [
+        { id: 'acc', label: 'acumulador da soma', code: 'int soma = 0;' },
+        { id: 'loop', label: 'percorre a chave', code: 'i < chave.length()' },
+        { id: 'ascii', label: 'soma o codigo ASCII', code: 'soma += (int) chave.charAt(i)' },
+        { id: 'mod', label: 'modulo do tamanho', code: 'return soma % m;', mistakeTag: 'wrong-summation-bound' },
+      ],
+      lineExplanations: [
+        { code: 'String chave', note: 'A chave e uma String, entao a funcao hash percorre os caracteres.' },
+        { code: 'soma += (int) chave.charAt(i);', note: 'O cast (int) da o codigo ASCII de cada caractere.' },
+        { code: 'return soma % m;', note: 'O modulo m converte a soma em um indice valido da tabela.' },
+      ],
+      mistakeTag: 'wrong-summation-bound',
+      explanation: 'Padrao do laboratorio: somar os ASCII de toda a String e reduzir com modulo m.',
+    }),
+  },
+  {
+    id: 'code-hash-inserir-reserva',
+    domainId: 'hash',
+    title: 'Hash: inserir com area de reserva',
+    source: 'reav-style',
+    repetitionGroup: 'hash-reserva',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Tratar colisao pela area de reserva e lancar excecao nos casos do roteiro.',
+    stem: 'Laboratorio de Tabela Hash (Parte 1): inserir(chave) posiciona a chave na tabela; havendo colisao, envia para a area de reserva. Deve lancar Exception em insercao duplicada ou em overflow da reserva.',
+    scaffold: `class TabelaHashComReserva {
+  String[] tabela;
+  int m, r, nr;
+
+  private int hash(String chave) { /* soma ASCII % m */ }
+  private boolean isPosicaoLivre(int pos) { return tabela[pos] == null; }
+  public String pesquisar(String chave) { /* ja implementado */ }
+
+  public void inserir(String chave) throws Exception {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'hash',
+      title: 'Colisao vai para a reserva',
+      caption: 'Posicao ocupada por outra chave desvia para tabela[m + nr].',
+      labels: ['Brasil', 'Canada', 'reserva'],
+    },
+    step: functionStep({
+      id: 'code-hash-inserir-reserva-step',
+      prompt: 'Escreva a funcao inserir completa.',
+      signature: 'public void inserir(String chave) throws Exception',
+      solution: `public void inserir(String chave) throws Exception {
+  if (pesquisar(chave) != null) {
+    throw new Exception("Insercao duplicada!");
+  }
+  int pos = hash(chave);
+  if (isPosicaoLivre(pos)) {
+    tabela[pos] = chave;
+  } else if (nr < r) {
+    tabela[m + nr] = chave;
+    nr++;
+  } else {
+    throw new Exception("Overflow da area de reserva!");
+  }
+}`,
+      requiredFragments: [
+        { id: 'dup', label: 'bloqueia duplicata', code: 'if (pesquisar(chave) != null)' },
+        { id: 'pos', label: 'calcula a posicao', code: 'int pos = hash(chave);' },
+        { id: 'livre', label: 'posicao livre insere direto', code: 'if (isPosicaoLivre(pos))' },
+        { id: 'principal', label: 'grava na tabela', code: 'tabela[pos] = chave;' },
+        { id: 'reserva', label: 'colisao vai para reserva', code: 'tabela[m + nr] = chave;', mistakeTag: 'incomplete-layer-search' },
+        { id: 'conta', label: 'atualiza contador da reserva', code: 'nr++;' },
+        { id: 'overflow', label: 'excecao de overflow', code: 'throw new Exception' },
+      ],
+      lineExplanations: [
+        { code: 'if (pesquisar(chave) != null)', note: 'O roteiro exige excecao em insercao duplicada.' },
+        { code: 'if (isPosicaoLivre(pos))', note: 'Sem colisao: a chave entra direto na tabela principal.' },
+        { code: 'tabela[m + nr] = chave;', note: 'Colisao nao e erro: desvia para a proxima posicao livre da reserva.' },
+        { code: 'nr++;', note: 'A area de reserva controla quantos elementos ja ocupou (limite r).' },
+      ],
+      mistakeTag: 'incomplete-layer-search',
+      explanation: 'Fluxo do laboratorio: duplicata -> excecao; posicao livre -> tabela; colisao -> reserva; reserva cheia -> excecao.',
+    }),
+  },
+  {
+    id: 'code-hash-pesquisar-reserva',
+    domainId: 'hash',
+    title: 'Hash: pesquisar na tabela e na reserva',
+    source: 'reav-style',
+    repetitionGroup: 'hash-reserva',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'So concluir ausencia depois de varrer a area de reserva.',
+    stem: 'Laboratorio de Tabela Hash: pesquisar(chave) retorna a chave encontrada ou null. Se a posicao principal estiver ocupada por outra chave, e preciso varrer a area de reserva antes de desistir.',
+    scaffold: `class TabelaHashComReserva {
+  String[] tabela;
+  int m, r, nr;
+
+  private int hash(String chave) { /* soma ASCII % m */ }
+
+  public String pesquisar(String chave) {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'hash',
+      title: 'Principal e depois reserva',
+      caption: 'Posicao ocupada por outra chave nao encerra a busca.',
+      labels: ['chave', 'principal', 'reserva'],
+    },
+    step: functionStep({
+      id: 'code-hash-pesquisar-reserva-step',
+      prompt: 'Escreva a funcao pesquisar completa.',
+      signature: 'public String pesquisar(String chave)',
+      solution: `public String pesquisar(String chave) {
+  int pos = hash(chave);
+  String resp = null;
+  if (chave.equals(tabela[pos])) {
+    resp = tabela[pos];
+  } else if (tabela[pos] != null) {
+    for (int i = 0; i < nr; i++) {
+      if (chave.equals(tabela[m + i])) {
+        resp = tabela[m + i];
+      }
+    }
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        { id: 'pos', label: 'calcula a posicao', code: 'int pos = hash(chave);' },
+        { id: 'hit', label: 'confere posicao principal', code: 'if (chave.equals(tabela[pos]))' },
+        { id: 'ocupada', label: 'posicao ocupada por outra chave', code: 'else if (tabela[pos] != null)', mistakeTag: 'incomplete-layer-search' },
+        { id: 'varre', label: 'varre a reserva', code: 'i < nr' },
+        { id: 'reserva', label: 'compara na reserva', code: 'chave.equals(tabela[m + i])' },
+      ],
+      lineExplanations: [
+        { code: 'if (chave.equals(tabela[pos]))', note: 'Comparacao de String usa equals, nao ==.' },
+        { code: 'else if (tabela[pos] != null)', note: 'Se ha outra chave na posicao, houve colisao: a chave pode estar na reserva.' },
+        { code: 'for (int i = 0; i < nr; i++)', note: 'Percorre apenas os nr elementos realmente usados da reserva.' },
+      ],
+      mistakeTag: 'incomplete-layer-search',
+      explanation: 'Se a posicao principal esta ocupada por outra chave, a busca so termina depois de varrer a reserva.',
+    }),
+  },
+  {
+    id: 'code-avl-set-nivel',
+    domainId: 'avl',
+    title: 'AVL: atualizar nivel do no',
+    source: 'reav-style',
+    repetitionGroup: 'avl-nivel',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Usar a convencao de nivel do laboratorio: nivel = 1 + MAX dos filhos.',
+    stem: 'Laboratorio de AVL: o no guarda o atributo nivel (quantidade de niveis abaixo dele, incluindo o proprio). getNivel(no) vale 0 para no nulo. Implemente setNivel() conforme a regra nivel = 1 + MAX(nivel esq, nivel dir).',
+    scaffold: `class No {
+  int elemento;
+  No esq, dir;
+  int nivel;
+
+  public static int getNivel(No no) {
+    return (no == null) ? 0 : no.nivel;
+  }
+
+  public void setNivel() {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'avl',
+      title: 'nivel = 1 + MAX(filhos)',
+      caption: 'Folha tem nivel 1; no nulo vale 0 por getNivel.',
+      labels: ['20', '10', '30', '5'],
+    },
+    step: functionStep({
+      id: 'code-avl-set-nivel-step',
+      prompt: 'Escreva a funcao setNivel completa.',
+      signature: 'public void setNivel()',
+      solution: `public void setNivel() {
+  this.nivel = 1 + Math.max(getNivel(esq), getNivel(dir));
+}`,
+      requiredFragments: [
+        { id: 'assign', label: 'atualiza o proprio nivel', code: 'this.nivel = 1 + Math.max' },
+        { id: 'esq', label: 'nivel do filho esquerdo', code: 'getNivel(esq)' },
+        { id: 'dir', label: 'nivel do filho direito', code: 'getNivel(dir)' },
+      ],
+      lineExplanations: [
+        { code: 'getNivel(esq)', note: 'getNivel devolve 0 quando o filho e nulo, entao a folha fica com nivel 1.' },
+        { code: '1 + Math.max(getNivel(esq), getNivel(dir))', note: 'O nivel do no e um a mais que o maior nivel entre os filhos.' },
+      ],
+      mistakeTag: 'wrong-rotation',
+      explanation: 'Convencao do professor: nivel do laboratorio usa base 0 para nulo (diferente da altura que usa -1).',
+    }),
+  },
+  {
+    id: 'code-avl-fator-balanceamento',
+    domainId: 'avl',
+    title: 'AVL: fator de balanceamento (nivel dir - esq)',
+    source: 'reav-style',
+    repetitionGroup: 'avl-nivel',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Fixar a convencao de fator do laboratorio: nivel(dir) - nivel(esq).',
+    stem: 'Laboratorio de AVL: o fator de balanceamento de um no e nivel(filho a direita) - nivel(filho a esquerda). Implemente getFatorBalanceamento() usando getNivel.',
+    scaffold: `class No {
+  int elemento;
+  No esq, dir;
+  int nivel;
+
+  public static int getNivel(No no) {
+    return (no == null) ? 0 : no.nivel;
+  }
+
+  public int getFatorBalanceamento() {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'avl',
+      title: 'fb = nivel(dir) - nivel(esq)',
+      caption: 'fb fora de [-1, 1] indica desbalanceamento.',
+      labels: ['20', '10', '30', '25', '40'],
+    },
+    step: functionStep({
+      id: 'code-avl-fator-balanceamento-step',
+      prompt: 'Escreva a funcao getFatorBalanceamento completa.',
+      signature: 'public int getFatorBalanceamento()',
+      solution: `public int getFatorBalanceamento() {
+  return getNivel(dir) - getNivel(esq);
+}`,
+      requiredFragments: [
+        { id: 'dir', label: 'nivel do filho direito', code: 'getNivel(dir)' },
+        { id: 'esq', label: 'nivel do filho esquerdo', code: 'getNivel(esq)' },
+        { id: 'diff', label: 'direita menos esquerda', code: 'getNivel(dir) - getNivel(esq)', mistakeTag: 'wrong-rotation' },
+      ],
+      lineExplanations: [
+        { code: 'getNivel(dir) - getNivel(esq)', note: 'Atencao a ordem: o laboratorio usa direita menos esquerda.' },
+      ],
+      mistakeTag: 'wrong-rotation',
+      explanation: 'Inverter a ordem (esq - dir) troca o sinal do fator e leva a escolher a rotacao errada.',
+    }),
+  },
+  {
+    id: 'code-ordenacao-quicksort-particionar',
+    domainId: 'ordenacao',
+    title: 'Ordenacao: quicksort com pivo do meio',
+    source: 'reav-style',
+    repetitionGroup: 'ordenacao-quicksort',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Reproduzir o quicksort do professor com particionamento por dois indices.',
+    stem: 'Laboratorio de Quicksort: implemente o quicksort recursivo usando o elemento do meio como pivo, particionando com os indices i e j e usando swap(i, j).',
+    scaffold: `class Quicksort {
+  int[] array;
+  int n;
+
+  private void swap(int i, int j) {
+    int tmp = array[i];
+    array[i] = array[j];
+    array[j] = tmp;
+  }
+
+  private void quicksort(int esq, int dir) {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Particionamento com pivo do meio',
+      caption: 'i avanca pela esquerda, j recua pela direita ate se cruzarem.',
+      labels: ['esq', 'i', 'pivo', 'j', 'dir'],
+    },
+    step: functionStep({
+      id: 'code-ordenacao-quicksort-particionar-step',
+      prompt: 'Escreva a funcao quicksort completa.',
+      signature: 'private void quicksort(int esq, int dir)',
+      solution: `private void quicksort(int esq, int dir) {
+  int i = esq, j = dir;
+  int pivo = array[(dir + esq) / 2];
+  while (i <= j) {
+    while (array[i] < pivo) i++;
+    while (array[j] > pivo) j--;
+    if (i <= j) {
+      swap(i, j);
+      i++;
+      j--;
+    }
+  }
+  if (esq < j) quicksort(esq, j);
+  if (i < dir) quicksort(i, dir);
+}`,
+      requiredFragments: [
+        { id: 'pivo', label: 'pivo do meio', code: 'int pivo = array[(dir + esq) / 2];' },
+        { id: 'scan-i', label: 'avanca i', code: 'while (array[i] < pivo) i++;' },
+        { id: 'scan-j', label: 'recua j', code: 'while (array[j] > pivo) j--;' },
+        { id: 'swap', label: 'troca e move indices', code: 'swap(i, j);' },
+        { id: 'rec-esq', label: 'recursao esquerda', code: 'quicksort(esq, j)', mistakeTag: 'algorithm-confusion' },
+        { id: 'rec-dir', label: 'recursao direita', code: 'quicksort(i, dir)' },
+      ],
+      lineExplanations: [
+        { code: 'int pivo = array[(dir + esq) / 2];', note: 'O professor usa o elemento do meio como pivo.' },
+        { code: 'while (array[i] < pivo) i++;', note: 'Avanca i enquanto os elementos forem menores que o pivo.' },
+        { code: 'swap(i, j);', note: 'Troca os dois elementos fora de lugar e move ambos os indices.' },
+        { code: 'if (esq < j) quicksort(esq, j);', note: 'Recorre apenas nas particoes que ainda tem mais de um elemento.' },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Quicksort do laboratorio: pivo do meio, particao por i/j e duas chamadas recursivas.',
+    }),
+  },
 ];
 
 export function getDrillsByGroup(repetitionGroup: string): CodeDrill[] {

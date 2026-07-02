@@ -1,15 +1,37 @@
 import { codeDrillCatalog, getDrillsByGroup } from './codeDrills';
+import { evaluateStep } from '../engine/evaluator';
 
 test('cataloga treinos de codigo inspirados na lista da prova 3', () => {
   expect(codeDrillCatalog.length).toBeGreaterThanOrEqual(24);
   expect(new Set(codeDrillCatalog.map((drill) => drill.domainId))).toEqual(
-    new Set(['arvore', 'avl', 'trie', 'doidona', 'somatorio', 'ordenacao']),
+    new Set(['arvore', 'avl', 'trie', 'doidona', 'hash', 'somatorio', 'ordenacao']),
   );
   expect(codeDrillCatalog.every((drill) => drill.scaffold.includes('class') || drill.scaffold.includes('void'))).toBe(
     true,
   );
   expect(codeDrillCatalog.every((drill) => drill.visual)).toBe(true);
   expect(codeDrillCatalog.filter((drill) => drill.step.kind === 'function').length).toBeGreaterThanOrEqual(18);
+});
+
+test('a solucao modelo de cada treino satisfaz seus proprios fragmentos', () => {
+  for (const drill of codeDrillCatalog) {
+    if (drill.step.kind !== 'function') {
+      continue;
+    }
+
+    const result = evaluateStep(drill.step, { kind: 'text', text: drill.step.solution });
+    expect(result.correct, `${drill.id}: ${result.feedback}`).toBe(true);
+  }
+});
+
+test('inclui treinos novos vindos dos laboratorios do professor', () => {
+  const ids = new Set(codeDrillCatalog.map((drill) => drill.id));
+
+  expect(ids.has('code-hash-funcao-hash-string')).toBe(true);
+  expect(ids.has('code-hash-inserir-reserva')).toBe(true);
+  expect(ids.has('code-avl-set-nivel')).toBe(true);
+  expect(ids.has('code-avl-fator-balanceamento')).toBe(true);
+  expect(ids.has('code-ordenacao-quicksort-particionar')).toBe(true);
 });
 
 test('organiza cada estrutura como repeticao antes de modificacao logica', () => {

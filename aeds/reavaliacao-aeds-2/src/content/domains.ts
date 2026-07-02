@@ -25,6 +25,13 @@ export const domainCatalog: Domain[] = [
     skills: reavaliacaoSkills,
   },
   {
+    id: 'hash',
+    title: 'Tabela hash',
+    shortTitle: 'Hash',
+    examRole: 'Espalhar chaves com funcao hash e tratar colisoes por area de reserva.',
+    skills: reavaliacaoSkills,
+  },
+  {
     id: 'arvore',
     title: 'Arvore normal',
     shortTitle: 'Arvore',
