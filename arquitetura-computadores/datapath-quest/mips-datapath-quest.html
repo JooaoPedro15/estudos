@@ -231,7 +231,7 @@ select.pick{background:var(--bg);border:1px solid var(--line);border-radius:8px;
 
 /* ---- Feedback ---- */
 .feedback{border-radius:12px;padding:12px 14px;margin:10px 0;font-size:14px;display:none;}
-.feedback.show{display:block;animation:fade .25s;}
+.feedback.show{display:block;animation:fade .25s;overflow-x:auto;}
 .feedback.ok{background:rgba(34,197,94,.10);border:1px solid var(--green);}
 .feedback.err{background:rgba(239,68,68,.10);border:1px solid var(--red);}
 .feedback.hint{background:rgba(250,204,21,.08);border:1px solid var(--yellow);}
@@ -377,7 +377,7 @@ table.ctl td.x{color:var(--muted);}
   border-radius:10px;padding:10px 12px;margin:8px 0 12px;font-size:13px;}
 .time-context .timesgrid{margin-top:8px;}
 .program-card{background:#0a0a0c;border:1px solid var(--line);border-left:3px solid var(--accent);
-  border-radius:12px;padding:12px;margin:8px 0 12px;}
+  border-radius:12px;padding:12px;margin:8px 0 12px;overflow-x:auto;}
 .program-title{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--accent2);margin-bottom:8px;}
 .program-code{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
   overflow:auto;font-family:var(--mono);font-size:12px;line-height:1.55;color:#fff;margin:8px 0;}
@@ -642,7 +642,7 @@ const DEFAULT_SAVE = {
   // simulado / modo prova
   simBest:0,           // melhor nota no simulado (0–10)
   simHistory:[],       // últimas 3 tentativas: {date, score, perTopic}
-  provaMastery:{Q2:0,Q3a:0,Q3b:0,Q4:0,QProg:0}  // taxa de acerto por tópico da Lista 3
+  provaMastery:{Q2:0,Q3a:0,Q3b:0,Q4:0,QProg:0,QISA:0,QStack:0,QTimeExt:0}  // taxa de acerto por tópico da Lista 3/provas
 };
 let save = loadSave();
 
@@ -932,18 +932,120 @@ function q5(sub, diff, params){
     {hint: params?.hint || 'Pense no conceito e nas regras da Lista 3.'});
 }
 
+// Questões fixas inspiradas nas provas anexadas.
+// Entram no Modo 5 sem criar novo visual: usam os mesmos cards, botões e feedback.
+const PROVA_FIXED_Q5 = {
+  vet_trinta: {
+    topic:'QISA',
+    question:'O endereço-base do vetor <b>vet</b> está em <b>$s1</b>, e cada inteiro ocupa 4 bytes. Qual instrução carrega <b>vet[30]</b> em <b>$s0</b>?',
+    options:['lw $s0, 30($s1)','lw $s0, 29($s1)','lw $s0, 120($s1)','lw $s1, 120($s0)','sw $s0, 120($s1)'],
+    correct:2,
+    hint:'Índice de vetor em MIPS vira deslocamento em bytes: índice × 4.',
+    explain:'vet[30] está a <b>30 × 4 = 120 bytes</b> da base. Como queremos carregar em $s0, a instrução é <span class="mono">lw $s0, 120($s1)</span>.'
+  },
+  vet_ultimo: {
+    topic:'QISA',
+    question:'O registrador <b>$s0</b> contém o endereço inicial de 5 inteiros consecutivos na memória. Qual instrução carrega o <b>último</b> inteiro em <b>$s2</b>?',
+    options:['lw $s2, 20($s0)','lw $s2, 16($s0)','lw $s0, 16($s2)','lw $s2, 4($s0)','addi $s2, $s0, 16'],
+    correct:1,
+    hint:'Com 5 elementos, o último tem índice 4 se a contagem começa em zero.',
+    explain:'Os deslocamentos são 0, 4, 8, 12 e <b>16</b>. O último inteiro é carregado com <span class="mono">lw $s2, 16($s0)</span>.'
+  },
+  const_0x10000000: {
+    topic:'QISA',
+    question:'O registrador <b>$s1</b> vale 2. Qual instrução coloca <b>0x10000000</b> em <b>$s0</b> usando deslocamento?',
+    options:['sll $s0, $s1, 31','sll $s0, $s1, 29','sll $s0, $s1, 24','sll $s0, $s1, 30','sll $s0, $s1, 27'],
+    correct:4,
+    hint:'0x10000000 = 2^28, e $s1 já contém 2^1.',
+    explain:'Como $s1 = 2 = 2^1 e 0x10000000 = 2^28, faltam <b>27</b> deslocamentos à esquerda: <span class="mono">sll $s0, $s1, 27</span>.'
+  },
+  vet_centesimo: {
+    topic:'QISA',
+    question:'O registrador <b>$s0</b> contém a base de um vetor de inteiros. Qual instrução carrega em <b>$s1</b> o <b>centésimo elemento</b> do vetor?',
+    options:['lw $s1, 396($s0)','lw $s1, 100($s0)','lw $s1, 400($s0)','lw $s0, 396($s1)','lw $s1, 99($s0)'],
+    correct:0,
+    hint:'Centésimo elemento = posição 100 na contagem humana, índice 99 no vetor.',
+    explain:'O centésimo elemento é <b>vet[99]</b>. Como cada inteiro tem 4 bytes, o deslocamento é <b>99 × 4 = 396</b>: <span class="mono">lw $s1, 396($s0)</span>.'
+  },
+  div_signed_1024: {
+    topic:'QISA',
+    question:'Como dividir um número <b>com sinal</b> que está em <b>$s1</b> por 1024 e armazenar o resultado em <b>$s0</b>?',
+    options:['srl $s0, $s1, 10','sra $s0, $s1, 10','sra $s0, $s1, 9','sll $s0, $s1, 10','lw $s1, 400($s0)'],
+    correct:1,
+    hint:'Dividir por 2^n usa shift à direita; com sinal, o shift precisa ser aritmético.',
+    explain:'1024 = 2^10. Para número com sinal, use <b>sra</b>, que preserva o bit de sinal: <span class="mono">sra $s0, $s1, 10</span>.'
+  },
+  addi_path: {
+    topic:'QTimeExt',
+    question:'No datapath uniciclo, qual alternativa descreve corretamente a execução de <b>addi $s0, $s1, 4</b>?',
+    options:[
+      'Busca a instrução, lê $s1, estende o imediato, a ULA soma e o resultado é escrito em $s0',
+      'Busca a instrução, lê dois registradores, acessa a memória de dados e não escreve registrador',
+      'Usa apenas a memória de instruções e atualiza o PC, sem passar pela ULA',
+      'Lê a memória de dados antes da ULA para obter o imediato',
+      'É igual a sw: calcula endereço e grava na memória'
+    ],
+    correct:0,
+    hint:'addi é uma operação aritmética com imediato: usa ULA e escreve registrador, mas não usa Memória de Dados.',
+    explain:'A <b>addi</b> usa o imediato estendido como segundo operando da ULA (<b>ALUSrc=1</b>) e grava o resultado no registrador destino (<b>RegWrite=1</b>). Não lê nem escreve a Memória de Dados.'
+  },
+  bne_branch: {
+    sub:'tf',
+    topic:'QTimeExt',
+    statement:'A instrução <b>bne</b> usa praticamente o mesmo caminho estrutural da <b>beq</b>: a ULA compara os registradores, e a diferença principal é a condição do desvio.',
+    correct:true,
+    hint:'beq desvia quando são iguais; bne desvia quando são diferentes.',
+    explain:'Verdadeiro. Em ambas, a ULA compara os registradores. Na <b>beq</b> o desvio usa Zero=1; na <b>bne</b> o desvio ocorre quando o resultado indica diferença.'
+  },
+  slt_tipo_r: {
+    sub:'tf',
+    topic:'QTimeExt',
+    statement:'A instrução <b>slt</b> se comporta como uma instrução tipo-R no datapath: lê dois registradores, usa a ULA e escreve o resultado em <b>rd</b>.',
+    correct:true,
+    hint:'slt é operação registrador-registrador; a diferença está na operação feita pela ULA.',
+    explain:'Verdadeiro. A <b>slt</b> é tipo-R: RegDst=1, ALUSrc=0, MemtoReg=0 e RegWrite=1. O caminho é o mesmo de add/sub; muda apenas a operação da ULA.'
+  },
+  jump_pc: {
+    topic:'QTimeExt',
+    question:'Para uma instrução <b>j</b>, quais blocos são essenciais no datapath?',
+    options:[
+      'Memória de Instruções e caminho de atualização do PC para o alvo do salto',
+      'Banco de Registradores, ULA, Memória de Dados e escrita em registrador',
+      'Banco de Registradores e Memória de Dados, sem usar o PC',
+      'Apenas a ULA, porque jump é uma operação aritmética',
+      'Memória de Dados e MUX MemtoReg'
+    ],
+    correct:0,
+    hint:'jump não precisa ler registradores, calcular endereço de dados nem acessar a memória de dados.',
+    explain:'A instrução <b>j</b> é buscada na Memória de Instruções e altera o próximo PC para o alvo do salto. Ela não usa Banco de Registradores, ULA ou Memória de Dados.'
+  },
+  stack_minimo: {
+    topic:'QStack',
+    question:'Uma função <b>faz0</b> chama outra função com <b>jal</b> e depois precisa retornar para quem a chamou. Com a menor utilização possível, quantos acessos à pilha bastam para preservar o retorno de <b>faz0</b>?',
+    options:['1','2','3','4','5'],
+    correct:1,
+    hint:'jal sobrescreve $ra; uma função que chama outra precisa salvar e depois restaurar o próprio $ra.',
+    explain:'Bastam <b>2 acessos</b>: um <span class="mono">sw $ra, ...($sp)</span> antes do jal interno e um <span class="mono">lw $ra, ...($sp)</span> antes de retornar. Função folha não precisa salvar $ra.'
+  }
+};
+
+function qProva(key, diff){
+  const base=PROVA_FIXED_Q5[key];
+  return q5(base.sub||'mc', diff, Object.assign({examKey:key}, base));
+}
+
 // --------- Montagem dos 10 níveis (lista de instâncias por nível) ----------
 const LEVELS = [
   /* 1  */ { tier:'easy', label:'Sinais básicos', qs:[ q2('lw','easy'), q2('R','easy'), q1('R','easy') ] },
-  /* 2  */ { tier:'easy', label:'Load & Store',   qs:[ q2('sw','easy'), q3('single',{instr:'lw'},'easy'), q1('lw','easy') ] },
-  /* 3  */ { tier:'easy', label:'Desvio & fases', qs:[ q2('beq','easy'), q3('single',{instr:'R'},'easy'), q4('easy') ] },
+  /* 2  */ { tier:'easy', label:'Load & Store',   qs:[ q2('sw','easy'), q3('single',{instr:'lw'},'easy'), q1('lw','easy'), qProva('vet_trinta','easy') ] },
+  /* 3  */ { tier:'easy', label:'Desvio & fases', qs:[ q2('beq','easy'), q3('single',{instr:'R'},'easy'), q4('easy'), qProva('vet_ultimo','easy') ] },
   /* 4  */ { tier:'med',  label:'Store completo', qs:[ q1('sw','med'), q2('R','med'), q3('period',{},'med') ] },
-  /* 5  */ { tier:'med',  label:'Comparando',     qs:[ q3('single',{instr:'beq'},'med'), q1('beq','med'), q2('sw','med') ] },
-  /* 6  */ { tier:'med',  label:'Pipeline+tempo', qs:[ q4('med'), q3('single',{instr:'sw'},'med'), q2('beq','med'), q5('mc','med',{topic:'Q4',question:'Em qual fase do pipeline a ULA executa a operação?',options:['IF','ID','EX','MEM','WB'],correct:2,explain:'ULA está na fase EX (Execute). É nela que a operação aritmética/lógica é realizada.'}) ] },
-  /* 7  */ { tier:'med',  label:'Caminho do lw',  qs:[ q1('lw','med'), q3('period',{times:{imem:5,regread:1,alu:3,dmem:5,control:1,adder:1,regwrite:1}},'med'), q2('lw','med'), q5('tf','med',{topic:'Q3a',statement:'A instrução beq é mais rápida que a tipo-R porque não passa pela ULA.',correct:false,explain:'Falso. A beq passa pela ULA (subtrai rs−rt para verificar se são iguais). Ela é mais rápida porque não escreve no registrador e não acessa memória de dados, logo tem um caminho crítico menor.'}) ] },
-  /* 8  */ { tier:'hard', label:'Benchmark GCC',  qs:[ q3('benchmark',{name:'GCC',fromList:true,mix:{lw:22,sw:11,R:49,beq:16,j:2}},'hard'), q2('sw','hard'), q1('beq','hard'), q5('mc','hard',{topic:'Q2',question:'Qual sinal de controle diferencia a lw da sw?',options:['RegDst','MemtoReg','RegWrite','MemRead','Branch'],correct:3,explain:'MemRead=1 na lw (precisa ler a memória de dados), MemRead=0 na sw. Ambas usam MemWrite diferentemente (lw=0, sw=1), mas MemRead é o que distingue que uma LE e a outra ESCREVE.'}) ] },
-  /* 9  */ { tier:'hard', label:'Benchmark ABC',  qs:[ q3('benchmark',{name:'ABC',fromList:true,mix:{lw:11,sw:49,R:22,beq:2,j:16}},'hard'), q4('hard'), q3('single',{instr:'lw'},'hard'), q5('tbl','hard',{topic:'Q2',instruction:'sw',blanks:['RegDst','ALUSrc','MemtoReg'],explain:'sw: RegDst=X (não escreve em reg.), ALUSrc=1 (usa imediato), MemtoReg=X (não escreve em reg.).'}) ] },
-  /* 10 */ { tier:'hard', label:'Prova final',    qs:[ q3('benchmark',{name:'GCC',fromList:true,mix:{lw:22,sw:11,R:49,beq:16,j:2}},'hard'), q2('beq','hard'), q3('period',{times:{imem:6,regread:2,alu:3,dmem:6,control:1,adder:1,regwrite:2}},'hard'), q5('ar','hard',{topic:'Q3b',statement:'O speedup do multiciclo ideal sobre o uniciclo é sempre maior que 1 porque cada instrução usa apenas o tempo que precisa.',correct:true,explain:'Verdadeiro. No uniciclo o clock é determinado pela instrução mais lenta (lw). No multiciclo ideal cada instrução leva seu próprio tempo, logo a média ponderada é sempre menor que o período uniciclo. Speedup = uniciclo/multiciclo > 1.'}) ] }
+  /* 5  */ { tier:'med',  label:'Comparando',     qs:[ q3('single',{instr:'beq'},'med'), q1('beq','med'), q2('sw','med'), qProva('addi_path','med'), qProva('bne_branch','med') ] },
+  /* 6  */ { tier:'med',  label:'Pipeline+tempo', qs:[ q4('med'), q3('single',{instr:'sw'},'med'), q2('beq','med'), q5('mc','med',{topic:'Q4',question:'Em qual fase do pipeline a ULA executa a operação?',options:['IF','ID','EX','MEM','WB'],correct:2,explain:'ULA está na fase EX (Execute). É nela que a operação aritmética/lógica é realizada.'}), qProva('slt_tipo_r','med') ] },
+  /* 7  */ { tier:'med',  label:'Caminho do lw',  qs:[ q1('lw','med'), q3('period',{times:{imem:5,regread:1,alu:3,dmem:5,control:1,adder:1,regwrite:1}},'med'), q2('lw','med'), q5('tf','med',{topic:'Q3a',statement:'A instrução beq é mais rápida que a tipo-R porque não passa pela ULA.',correct:false,explain:'Falso. A beq passa pela ULA (subtrai rs−rt para verificar se são iguais). Ela é mais rápida porque não escreve no registrador e não acessa memória de dados, logo tem um caminho crítico menor.'}), qProva('const_0x10000000','med') ] },
+  /* 8  */ { tier:'hard', label:'Benchmark GCC',  qs:[ q3('benchmark',{name:'GCC',fromList:true,mix:{lw:22,sw:11,R:49,beq:16,j:2}},'hard'), q2('sw','hard'), q1('beq','hard'), q5('mc','hard',{topic:'Q2',question:'Qual sinal de controle diferencia a lw da sw?',options:['RegDst','MemtoReg','RegWrite','MemRead','Branch'],correct:3,explain:'MemRead=1 na lw (precisa ler a memória de dados), MemRead=0 na sw. Ambas usam MemWrite diferentemente (lw=0, sw=1), mas MemRead é o que distingue que uma LE e a outra ESCREVE.'}), qProva('vet_centesimo','hard') ] },
+  /* 9  */ { tier:'hard', label:'Benchmark ABC',  qs:[ q3('benchmark',{name:'ABC',fromList:true,mix:{lw:11,sw:49,R:22,beq:2,j:16}},'hard'), q4('hard'), q3('single',{instr:'lw'},'hard'), q5('tbl','hard',{topic:'Q2',instruction:'sw',blanks:['RegDst','ALUSrc','MemtoReg'],explain:'sw: RegDst=X (não escreve em reg.), ALUSrc=1 (usa imediato), MemtoReg=X (não escreve em reg.).'}), qProva('div_signed_1024','hard'), qProva('jump_pc','hard') ] },
+  /* 10 */ { tier:'hard', label:'Prova final',    qs:[ q3('benchmark',{name:'GCC',fromList:true,mix:{lw:22,sw:11,R:49,beq:16,j:2}},'hard'), q2('beq','hard'), q3('period',{times:{imem:6,regread:2,alu:3,dmem:6,control:1,adder:1,regwrite:2}},'hard'), q5('ar','hard',{topic:'Q3b',statement:'O speedup do multiciclo ideal sobre o uniciclo é sempre maior que 1 porque cada instrução usa apenas o tempo que precisa.',correct:true,explain:'Verdadeiro. No uniciclo o clock é determinado pela instrução mais lenta (lw). No multiciclo ideal cada instrução leva seu próprio tempo, logo a média ponderada é sempre menor que o período uniciclo. Speedup = uniciclo/multiciclo > 1.'}), qProva('stack_minimo','hard') ] }
 ];
 const DIFF_POINTS = {easy:100, med:160, hard:260};
 const HINT_COST = 50;
@@ -2190,10 +2292,17 @@ function geraPipelineQ5(r){
     return q5('ar','med',{topic:'Q4',statement:stmt,correct:ok,explain:expl});
   }
 }
+// --- Sorteia uma questão fixa das provas anexadas ---
+function geraProvaFixaQ5(r){
+  const keys=Object.keys(PROVA_FIXED_Q5);
+  const key=rngPick(keys,r);
+  const hard=['vet_centesimo','div_signed_1024','jump_pc','stack_minimo'].includes(key);
+  return qProva(key, hard?'hard':'med');
+}
 // --- Gera uma questão fechada aleatória (topico sorteado) ---
 function geraQ5Random(r){
   r=r||Math.random;
-  const fns=[geraTempoQ5,geraControleQ5,geraPipelineQ5,geraProgramaQ5,geraProgramaQ5];
+  const fns=[geraTempoQ5,geraControleQ5,geraPipelineQ5,geraProgramaQ5,geraProgramaQ5,geraProvaFixaQ5,geraProvaFixaQ5];
   return rngPick(fns,r)(r);
 }
 
@@ -2387,8 +2496,8 @@ function buildSimQueue(r){
     geraBenchmarkQ3(r),
     q5('mc','hard',{topic:'Q3b',question:'O speedup do multiciclo sobre o uniciclo é:',options:['Sempre < 1','Sempre = 1','Sempre > 1','Depende, mas geralmente > 1'],correct:3,explain:'Depende da mistura, mas geralmente > 1 porque no multiciclo cada instrução usa só o tempo que precisa.'}),
     geraPipelineQ5(r),
-    q5('ar','hard',{topic:'Q4',statement:'No pipeline, após preenchido, termina em média 1 instrução por ciclo.',correct:true,explain:'V. As fases se sobrepõem; uma instrução completa por ciclo, em média.'}),
-    geraProgramaQ5(r),
+    geraProvaFixaQ5(r),
+    geraProvaFixaQ5(r),
     geraProgramaQ5(r)
   ]);
 }
@@ -2527,7 +2636,7 @@ function finishSim(){
   clearInterval(SIM.timer);
   // calcula nota: cada questão = 10/total; assistida = 0 (invalidada)
   const total=SIM.queue.length;
-  let correctCount=0; const perTopic={Q2:[0,0],Q3a:[0,0],Q3b:[0,0],Q4:[0,0],QProg:[0,0]};
+  let correctCount=0; const perTopic={Q2:[0,0],Q3a:[0,0],Q3b:[0,0],Q4:[0,0],QProg:[0,0],QISA:[0,0],QStack:[0,0],QTimeExt:[0,0]};
   SIM.results.forEach(r=>{
     const ok = r.assisted ? false : r.ok;
     if(ok) correctCount++;
