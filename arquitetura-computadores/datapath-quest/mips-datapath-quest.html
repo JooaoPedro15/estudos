@@ -205,6 +205,9 @@ svg.datapath{width:100%;height:auto;display:block;min-width:560px;}
   font-size:11px;font-weight:700;color:#000;font-family:var(--mono);}
 .toggle.on{background:linear-gradient(180deg,var(--accent2),var(--accent));}
 .toggle.on .knob{left:30px;background:#fff;}
+.aluop-select{background:var(--bg3);border:1px solid var(--line);border-radius:9px;color:#fff;
+  font-family:var(--mono);font-weight:800;font-size:13px;padding:6px 8px;min-width:64px;}
+.aluop-select:focus{outline:2px solid var(--accent);outline-offset:2px;}
 .sig-explain{font-size:12px;color:var(--muted);margin-top:6px;display:none;}
 .sig.wrong .sig-explain{display:block;color:#fca5a5;}
 
@@ -638,7 +641,7 @@ const DEFAULT_SAVE = {
   signalAssistVisible:true, // Ajuda visual dos sinais no Modo 2
   lessonsDone:[],      // ids de capítulos da Academia concluídos
   // contadores p/ conquistas
-  ctlPerfectInstr:[],  // instruções com os 7 sinais corretos sem dica
+  ctlPerfectInstr:[],  // instruções com os 8 sinais corretos sem dica
   // simulado / modo prova
   simBest:0,           // melhor nota no simulado (0–10)
   simHistory:[],       // últimas 3 tentativas: {date, score, perTopic}
@@ -728,13 +731,13 @@ const INSTR = {
         desc:'Salto incondicional.' }
 };
 
-// --- Sinais de controle (ordem fixa). 'X' = don't care ---
-const SIGNAL_NAMES = ['RegDst','ALUSrc','MemtoReg','RegWrite','MemRead','MemWrite','Branch'];
+// --- Sinais de controle (ordem fixa). 'X' = don't care. ALUOp tem 2 bits. ---
+const SIGNAL_NAMES = ['RegDst','ALUSrc','MemtoReg','RegWrite','MemRead','MemWrite','Branch','ALUOp'];
 const CONTROL = {                         // valores corretos por instrução
-  R:   [1,0,0,1,0,0,0],
-  lw:  [0,1,1,1,1,0,0],
-  sw:  ['X',1,'X',0,0,1,0],
-  beq: ['X',0,'X',0,0,0,1]
+  R:   [1,0,0,1,0,0,0,'10'],
+  lw:  [0,1,1,1,1,0,0,'00'],
+  sw:  ['X',1,'X',0,0,1,0,'00'],
+  beq: ['X',0,'X',0,0,0,1,'01']
 };
 // Explicação curta por sinal/instrução (para feedback do Modo 2)
 const SIG_WHY = {
@@ -744,7 +747,8 @@ const SIG_WHY = {
   RegWrite:{1:'a instrução grava resultado em um registrador.',0:'a instrução NÃO grava em registrador.'},
   MemRead:{1:'precisa LER a Memória de Dados (lw).',0:'não lê a memória.'},
   MemWrite:{1:'precisa ESCREVER na Memória de Dados (sw).',0:'não escreve na memória.'},
-  Branch:{1:'é um desvio condicional (beq).',0:'não é desvio.'}
+  Branch:{1:'é um desvio condicional (beq).',0:'não é desvio.'},
+  ALUOp:{'00':'a ULA deve somar (endereço de lw/sw).','01':'a ULA deve subtrair/comparar (beq).','10':'a operação vem do campo funct (tipo-R).'}
 };
 // O QUE CADA SINAL É (definição) + o que significa cada valor 0/1.
 // Usado para ENSINAR dentro do Modo 2 enquanto o jogador decide.
@@ -762,7 +766,11 @@ const SIG_INFO = {
   MemWrite:{what:'Habilita a ESCRITA na Memória de Dados.',
             v0:'não escreve na memória', v1:'escreve na Memória de Dados (instrução sw)'},
   Branch:  {what:'Marca que a instrução é um DESVIO condicional (combina com o Zero da ULA no MUX PCSrc).',
-            v0:'não é desvio → próximo PC = PC+4', v1:'é desvio (beq) → se ULA Zero=1, PC = endereço de desvio'}
+            v0:'não é desvio → próximo PC = PC+4', v1:'é desvio (beq) → se ULA Zero=1, PC = endereço de desvio'},
+  ALUOp:   {what:'Diz ao controle da ULA qual operação base executar ou como decodificar a operação.',
+            v00:'00 = soma fixa (lw/sw calculam base + offset)',
+            v01:'01 = subtração/comparação (beq compara rs−rt)',
+            v10:'10 = usa o campo funct para tipo-R (add, sub, and, or, slt...)'}
 };
 
 // --- Modelo de tempos do professor (ns) ---
@@ -906,10 +914,10 @@ function q1(instr, diff){
   return {mode:1, diff, instr,
     hint:`Pense no fluxo: PC → busca a instrução → lê registradores → ULA → (memória) → escreve. A ${INSTR[instr].name} percorre ${PATHS[instr].length} blocos.`};
 }
-// Factory Modo 2 (Engenheiro de Controle — 7 toggles)
+// Factory Modo 2 (Engenheiro de Controle — sinais de controle)
 function q2(instr, diff){
   return {mode:2, diff, instr,
-    hint:`Regra rápida: RegWrite=1 só se grava registrador (R, lw). ALUSrc=1 quando usa imediato (lw, sw). MemRead/MemWrite só em lw/sw. Branch só em beq.`};
+    hint:`Regra rápida: RegWrite=1 só se grava registrador (R, lw). ALUSrc=1 quando usa imediato (lw, sw). MemRead/MemWrite só em lw/sw. Branch só em beq. ALUOp: 00=lw/sw, 01=beq, 10=tipo-R.`};
 }
 // Factory Modo 3 (Calculadora de Tempos)
 //   t3type: 'single' (1 instr), 'period' (uniciclo), 'benchmark' (média + speedup)
@@ -1003,7 +1011,7 @@ const PROVA_FIXED_Q5 = {
     statement:'A instrução <b>slt</b> se comporta como uma instrução tipo-R no datapath: lê dois registradores, usa a ULA e escreve o resultado em <b>rd</b>.',
     correct:true,
     hint:'slt é operação registrador-registrador; a diferença está na operação feita pela ULA.',
-    explain:'Verdadeiro. A <b>slt</b> é tipo-R: RegDst=1, ALUSrc=0, MemtoReg=0 e RegWrite=1. O caminho é o mesmo de add/sub; muda apenas a operação da ULA.'
+    explain:'Verdadeiro. A <b>slt</b> é tipo-R: RegDst=1, ALUSrc=0, MemtoReg=0, RegWrite=1 e ALUOp=10. O caminho é o mesmo de add/sub; o campo funct informa à ULA qual operação tipo-R executar.'
   },
   jump_pc: {
     topic:'QTimeExt',
@@ -1254,7 +1262,7 @@ function renderMode2(q, body, act){
   body.innerHTML =
     `<div class="instr-box"><span class="lbl">Instrução</span>${INSTR[q.instr].label} <span style="color:var(--muted);font-size:12px">— ${INSTR[q.instr].name}</span></div>
      <div class="control-tools">
-       <p class="prompt">Ligue/desligue os <b>7 sinais de controle</b> corretos. Use a ajuda quando quiser lembrar <b>o que faz</b> e <b>o que aquele valor significa</b>. <span class="muted">(X = indiferente)</span></p>
+       <p class="prompt">Ajuste os <b>8 sinais de controle</b> corretos. Use a ajuda quando quiser lembrar <b>o que faz</b> e <b>o que aquele valor significa</b>. <span class="muted">(X = indiferente · ALUOp tem 2 bits)</span></p>
        <button class="btn ghost small" id="ctlAssistToggle" type="button"></button>
      </div>
      <div class="signals" id="m2sig"></div>`;
@@ -1270,27 +1278,43 @@ function renderMode2(q, body, act){
     save.signalAssistVisible=!save.signalAssistVisible;
     persist(); syncSignalAssist(); sfx.click();
   };
-  const state = SIGNAL_NAMES.map(()=>0);
+  const state = SIGNAL_NAMES.map(nm=>nm==='ALUOp'?'00':0);
   const valText=(nm,v)=>`${v} → ${SIG_INFO[nm]['v'+v]}`;   // significado do valor atual
+  const detailHTML=(nm,info)=> nm==='ALUOp'
+    ? `🟣 <b>=00:</b> ${info.v00}<br>🟡 <b>=01:</b> ${info.v01}<br>🔵 <b>=10:</b> ${info.v10}`
+    : `🔵 <b>=1:</b> ${info.v1}<br>⚪ <b>=0:</b> ${info.v0}`;
   SIGNAL_NAMES.forEach((nm,i)=>{
     const info=SIG_INFO[nm];
+    const controlHTML = nm==='ALUOp'
+      ? `<select class="aluop-select" aria-label="ALUOp"><option value="00">00</option><option value="01">01</option><option value="10">10</option></select>`
+      : `<div class="toggle"><div class="knob">0</div></div>`;
     const sig=document.createElement('div'); sig.className='sig'; sig.id='sig-'+i;
     sig.innerHTML=`<div class="sig-main">
-        <div class="nm-row"><span class="nm">${nm}</span><button class="sig-q" type="button" title="ver os dois valores">?</button></div>
+        <div class="nm-row"><span class="nm">${nm}</span><button class="sig-q" type="button" title="ver valores possíveis">?</button></div>
         <div class="sig-what">${info.what}</div>
-        <div class="sig-val" id="val-${i}">${valText(nm,0)}</div>
-        <div class="sig-detail">🔵 <b>=1:</b> ${info.v1}<br>⚪ <b>=0:</b> ${info.v0}</div>
+        <div class="sig-val" id="val-${i}">${valText(nm,state[i])}</div>
+        <div class="sig-detail">${detailHTML(nm,info)}</div>
         <div class="sig-explain"></div>
       </div>
-      <div class="toggle"><div class="knob">0</div></div>`;
+      ${controlHTML}`;
     wrap.appendChild(sig);
-    const tog=sig.querySelector('.toggle'), knob=tog.querySelector('.knob'), val=sig.querySelector('#val-'+i);
-    tog.onclick=()=>{
-      state[i]^=1; tog.classList.toggle('on',state[i]===1); knob.textContent=state[i];
-      val.textContent=valText(nm,state[i]);                 // atualiza o significado ao vivo
-      sfx.click();
-      sig.classList.remove('right','wrong'); sig.querySelector('.sig-explain').textContent='';
-    };
+    const val=sig.querySelector('#val-'+i);
+    const clearMark=()=>{ sig.classList.remove('right','wrong'); sig.querySelector('.sig-explain').textContent=''; };
+    if(nm==='ALUOp'){
+      const sel=sig.querySelector('.aluop-select');
+      sel.onchange=()=>{
+        state[i]=sel.value;
+        val.textContent=valText(nm,state[i]);                 // atualiza o significado ao vivo
+        sfx.click(); clearMark();
+      };
+    } else {
+      const tog=sig.querySelector('.toggle'), knob=tog.querySelector('.knob');
+      tog.onclick=()=>{
+        state[i]^=1; tog.classList.toggle('on',state[i]===1); knob.textContent=state[i];
+        val.textContent=valText(nm,state[i]);                 // atualiza o significado ao vivo
+        sfx.click(); clearMark();
+      };
+    }
     sig.querySelector('.sig-q').onclick=()=>{ sig.classList.toggle('expanded'); sfx.click(); };
   });
   syncSignalAssist();
@@ -1314,7 +1338,7 @@ function renderMode2(q, body, act){
     });
     const fb=$('feedback');
     if(allOk){
-      q.explainOK = `Todos os 7 sinais corretos para a ${INSTR[q.instr].name}. 🎛`;
+      q.explainOK = `Todos os 8 sinais corretos para a ${INSTR[q.instr].name}. 🎛`;
       q._noHintControl = !G.usedHint && !G.assisted;   // p/ conquista (sem nenhuma ajuda)
       questionSolved();
     } else {
@@ -1481,9 +1505,9 @@ function renderMode4(q, body, act){
    9. JS — SEÇÃO G: CONQUISTAS
    =========================================================================== */
 const ACHIEVEMENTS = [
-  {id:'lw_signals', ic:'🎛', nm:'Mestre do lw', ds:'Acertou todos os 7 sinais do lw sem usar dica.'},
+  {id:'lw_signals', ic:'🎛', nm:'Mestre do lw', ds:'Acertou todos os 8 sinais do lw sem usar dica.'},
   {id:'time_streak',ic:'⏱', nm:'Cronômetro humano', ds:'Calculou 5 tempos seguidos sem errar.'},
-  {id:'control_master', ic:'🧠', nm:'Decorou o controle', ds:'Acertou os 7 sinais de R, lw, sw e beq.'},
+  {id:'control_master', ic:'🧠', nm:'Decorou o controle', ds:'Acertou os 8 sinais de R, lw, sw e beq.'},
   {id:'first_level', ic:'🥇', nm:'Primeiros passos', ds:'Completou o nível 1.'},
   {id:'half_way', ic:'🚀', nm:'Na metade', ds:'Desbloqueou o nível 6.'},
   {id:'finish', ic:'👑', nm:'Arquiteto MIPS', ds:'Completou o nível 10.'},
@@ -1610,6 +1634,11 @@ function chipsHTML(instr,t){
   h+=`<span class="tplus">=</span><span class="teq">${total} ns</span></div>`;
   return h;
 }
+function signalBadgeClass(v){
+  if(v==='X') return 'x';
+  if(v===0 || v==='00') return 'off';
+  return 'on';
+}
 
 // --- "Me ensina" durante a prática (gratuito, repetível) ---
 function teachForQuestion(q){
@@ -1626,7 +1655,7 @@ function teachForQuestion(q){
     const c=CONTROL[q.instr];
     fb.innerHTML=`📖 <b>Como deduzir os sinais da ${INSTR[q.instr].name}:</b>
       <div class="sig-teach" style="margin-top:6px">`+
-      SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${c[i]==='X'?'x':c[i]?'on':'off'}">${nm}=${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')
+      SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${signalBadgeClass(c[i])}">${nm}=${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')
       +`</div>`;
   } else if(q.mode===3){
     fb.innerHTML='📖 '+teachTime(q);
@@ -1638,7 +1667,7 @@ function teachForQuestion(q){
     } else if(q.sub==='tbl'){
       const c=CONTROL[q.instruction];
       h+=`<b>Sinais completos da ${INSTR[q.instruction].name}:</b><div class="sig-teach" style="margin-top:4px">`+
-        SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${c[i]==='X'?'x':c[i]?'on':'off'}">${nm}=${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')+'</div>';
+        SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${signalBadgeClass(c[i])}">${nm}=${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')+'</div>';
     } else if(q.topic==='Q3b'){
       h+=teachTime({t3type:'benchmark',mix:q.mix,times:q.times});
     } else if(q.topic==='Q3a'){
@@ -1700,10 +1729,10 @@ const LESSONS = [
         <div class="callout">Próximo capítulo: como a <b>Unidade de Controle</b> liga/desliga os sinais. 🎛</div>`}
     ]},
 
-  { id:'sinais', ic:'🎛', title:'2 · Sinais de controle', desc:'Os 7 sinais e por que cada um liga.',
+  { id:'sinais', ic:'🎛', title:'2 · Sinais de controle', desc:'Os 8 sinais e por que cada um liga.',
     slides:[
       {t:'text', html:`<h3>A Unidade de Controle</h3>
-        <p>Ela lê o <b>opcode</b> (os 6 primeiros bits da instrução) e gera os sinais que comandam os MUXes e as memórias. São <b>7 sinais</b> principais:</p>
+        <p>Ela lê o <b>opcode</b> (os 6 primeiros bits da instrução) e gera os sinais que comandam os MUXes, as memórias e a ULA. São <b>8 sinais</b> principais:</p>
         <ul>
         <li><b>RegDst</b> — qual campo é o registrador destino (rt ou rd).</li>
         <li><b>ALUSrc</b> — 2º operando da ULA: registrador (0) ou imediato (1).</li>
@@ -1712,6 +1741,7 @@ const LESSONS = [
         <li><b>MemRead</b> — lê a memória de dados? (lw).</li>
         <li><b>MemWrite</b> — escreve na memória de dados? (sw).</li>
         <li><b>Branch</b> — é um desvio? (beq).</li>
+        <li><b>ALUOp</b> — indica para a ULA somar, subtrair ou usar o campo funct.</li>
         </ul>
         <p>Veja agora, sinal por sinal, como cada instrução é decodificada. 👉</p>`},
       {t:'signals', instr:'lw'},
@@ -1726,8 +1756,9 @@ const LESSONS = [
         <tr><td>RegWrite</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
         <tr><td>MemRead</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
         <tr><td>MemWrite</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
-        <tr><td>Branch</td><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
-        <div class="callout"><b>Regras pra decorar:</b> RegWrite=1 só se grava registrador (R, lw) · ALUSrc=1 quando há imediato (lw, sw) · MemRead/MemWrite só em lw/sw · Branch só em beq · <b>X</b> = indiferente (quando não escreve registrador, RegDst e MemtoReg não importam).</div>`}
+        <tr><td>Branch</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>ALUOp</td><td>10</td><td>00</td><td>00</td><td>01</td></tr></table>
+        <div class="callout"><b>Regras pra decorar:</b> RegWrite=1 só se grava registrador (R, lw) · ALUSrc=1 quando há imediato (lw, sw) · MemRead/MemWrite só em lw/sw · Branch só em beq · ALUOp=00 para lw/sw, 01 para beq e 10 para tipo-R · <b>X</b> = indiferente (quando não escreve registrador, RegDst e MemtoReg não importam).</div>`}
     ]},
 
   { id:'caminho', ic:'🛣️', title:'3 · Caminho de uma instrução', desc:'Demonstração animada de cada instrução.',
@@ -1858,7 +1889,7 @@ function renderSignalsLesson(body, instr){
   body.innerHTML=`<div class="instr-box"><span class="lbl">Decodificando os sinais</span>${INSTR[instr].label} <span class="muted" style="font-size:12px">— ${INSTR[instr].name}</span></div>
     <p class="prompt">A Unidade de Controle define cada sinal assim:</p>
     <div class="sig-teach">`+
-    SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${c[i]==='X'?'x':c[i]?'on':'off'}">${nm} = ${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')
+    SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${signalBadgeClass(c[i])}">${nm} = ${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')
     +`</div>`;
 }
 function renderWorked(body, s){
@@ -1941,7 +1972,7 @@ const TUTORIAL = [
     <p><b>Pipeline Master:</b> arraste as etiquetas <span class="mono">IF · ID · EX · MEM · WB</span> sobre as regiões certas do diagrama.</p>
     <p class="muted">Passe o mouse/toque numa unidade para ver o que ela faz.</p>`},
   {e:'🎛', h:'Modo 2 — Engenheiro de Controle', b:`
-    <p>Para cada instrução, ligue os <b>7 sinais de controle</b> corretos. Tabela-base:</p>
+    <p>Para cada instrução, ajuste os <b>8 sinais de controle</b> corretos. Tabela-base:</p>
     <table class="ctl"><tr><th>Sinal</th><th>R</th><th>lw</th><th>sw</th><th>beq</th></tr>
     <tr><td>RegDst</td><td>1</td><td>0</td><td class="x">X</td><td class="x">X</td></tr>
     <tr><td>ALUSrc</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
@@ -1949,8 +1980,9 @@ const TUTORIAL = [
     <tr><td>RegWrite</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
     <tr><td>MemRead</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
     <tr><td>MemWrite</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
-    <tr><td>Branch</td><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
-    <p class="muted" style="margin-top:6px">X = indiferente (não importa o valor).</p>`},
+    <tr><td>Branch</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+    <tr><td>ALUOp</td><td>10</td><td>00</td><td>00</td><td>01</td></tr></table>
+    <p class="muted" style="margin-top:6px">X = indiferente (não importa o valor). ALUOp: 00=soma, 01=subtrai/compara, 10=tipo-R usa funct.</p>`},
   {e:'⏱', h:'Modo 3 — Calculadora de Tempos', b:`
     <p>Modelo de tempos: <span class="mono">Memória 4 ns · Registradores 1 ns · ULA 2 ns · Controle 1 ns · Somadores 1 ns</span>.</p>
     <p>Tempos por instrução (caminho crítico):</p>
@@ -2248,9 +2280,10 @@ function geraControleQ5(r){
     const pairs=[['lw','sw','MemRead','MemRead=1 na lw (lê memória), =0 na sw.'],
                  ['lw','sw','MemWrite','MemWrite=1 na sw (escreve memória), =0 na lw.'],
                  ['R','lw','MemtoReg','MemtoReg=0 na R (vem da ULA), =1 na lw (vem da memória).'],
-                 ['R','lw','RegDst','RegDst=1 na R (usa rd), =0 na lw (usa rt).']];
+                 ['R','lw','RegDst','RegDst=1 na R (usa rd), =0 na lw (usa rt).'],
+                 ['R','beq','ALUOp','ALUOp=10 na tipo-R (funct decide a operação), mas ALUOp=01 na beq (subtrai/compara).']];
     const [a,b,sig,expl]=rngPick(pairs,r);
-    const opts=shuffle(['RegDst','ALUSrc','MemtoReg','MemRead','MemWrite','Branch']);
+    const opts=shuffle(['RegDst','ALUSrc','MemtoReg','MemRead','MemWrite','Branch','ALUOp']);
     const ci=opts.indexOf(sig);
     return q5('mc','med',{topic:'Q2',
       question:`Qual sinal de controle diferencia a instrução <b>${a}</b> da <b>${b}</b>?`,
@@ -2400,7 +2433,10 @@ function renderM5tbl(q,body,act){
     const tr=document.createElement('tr');
     const isBlank=blanks.includes(nm);
     if(isBlank){
-      tr.innerHTML=`<td>${nm}</td><td><select data-sig="${nm}"><option value="">?</option><option value="0">0</option><option value="1">1</option><option value="X">X</option></select></td>`;
+      const opts = nm==='ALUOp'
+        ? '<option value="">?</option><option value="00">00</option><option value="01">01</option><option value="10">10</option>'
+        : '<option value="">?</option><option value="0">0</option><option value="1">1</option><option value="X">X</option>';
+      tr.innerHTML=`<td>${nm}</td><td><select data-sig="${nm}">${opts}</select></td>`;
     } else {
       const v=correctVals[SIGNAL_NAMES.indexOf(nm)];
       tr.innerHTML=`<td>${nm}</td><td class="correct-val">${v}</td>`;

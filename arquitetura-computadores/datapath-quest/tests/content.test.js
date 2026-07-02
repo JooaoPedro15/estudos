@@ -63,12 +63,24 @@ const sandbox = {
 vm.createContext(sandbox);
 vm.runInContext(
   script.replace(/\nboot\(\);\s*$/, '') +
-    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue };',
+    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY };',
   sandbox,
   { filename: 'mips-datapath-quest.html' }
 );
 
-const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue } = sandbox.__dq;
+const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY } = sandbox.__dq;
+
+assert(SIGNAL_NAMES.includes('ALUOp'), 'Expected ALUOp to be part of the control signals.');
+assert.strictEqual(SIGNAL_NAMES.length, 8, 'Expected Modo 2 to teach 8 control signals.');
+
+const aluOpIndex = SIGNAL_NAMES.indexOf('ALUOp');
+assert.strictEqual(CONTROL.R[aluOpIndex], '10', 'R-type ALUOp should be 10.');
+assert.strictEqual(CONTROL.lw[aluOpIndex], '00', 'lw ALUOp should be 00.');
+assert.strictEqual(CONTROL.sw[aluOpIndex], '00', 'sw ALUOp should be 00.');
+assert.strictEqual(CONTROL.beq[aluOpIndex], '01', 'beq ALUOp should be 01.');
+assert(SIG_INFO.ALUOp.v00 && SIG_INFO.ALUOp.v01 && SIG_INFO.ALUOp.v10, 'Expected ALUOp explanations for 00, 01 and 10.');
+assert(SIG_WHY.ALUOp['00'] && SIG_WHY.ALUOp['01'] && SIG_WHY.ALUOp['10'], 'Expected ALUOp feedback for 00, 01 and 10.');
+assert(html.includes('8 sinais de controle'), 'Expected visible copy to mention 8 control signals.');
 const levelExamKeys = LEVELS.flatMap(level => level.qs)
   .filter(question => question.examKey)
   .map(question => question.examKey);
