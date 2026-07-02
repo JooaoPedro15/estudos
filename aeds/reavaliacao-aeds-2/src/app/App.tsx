@@ -15,6 +15,12 @@ import {
 
 import { codeDrillCatalog } from '../content/codeDrills';
 import { domainCatalog } from '../content/domains';
+import {
+  getDrillsForModule,
+  getModuleTitle,
+  getPracticeModules,
+  type PracticeModuleId,
+} from '../content/practiceModules';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
 import {
   createEmptyNotebook,
@@ -89,6 +95,7 @@ function loadInitialGame(): SavedGameState {
 export function App() {
   const [game, setGame] = useState<SavedGameState>(() => loadInitialGame());
   const [activeMode, setActiveMode] = useState<'exam' | 'practice' | 'explore'>('exam');
+  const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(null);
   const [selectedDomainId, setSelectedDomainId] = useState<DomainId>('somatorio');
   const [choiceAnswer, setChoiceAnswer] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
@@ -100,9 +107,10 @@ export function App() {
 
   const currentQuestion = reavaliacaoBlueprint.questions[game.session.currentQuestionIndex];
   const currentStep = getCurrentStep(reavaliacaoBlueprint, game.session);
+  const practiceDrills = getDrillsForModule(practiceModuleId ?? 'all');
   const practiceSession =
-    game.practiceSession ?? createPracticeSession(codeDrillCatalog, { mode: 'quick', targetCount: 2 });
-  const currentPracticeDrill = getCurrentPracticeDrill(codeDrillCatalog, practiceSession);
+    game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
+  const currentPracticeDrill = getCurrentPracticeDrill(practiceDrills, practiceSession);
   const activeStep = activeMode === 'exam' ? currentStep : currentPracticeDrill?.step;
   const selectedDomain = domainCatalog.find((domain) => domain.id === selectedDomainId) ?? domainCatalog[0];
   const currentDomain =
@@ -153,7 +161,7 @@ export function App() {
       return;
     }
 
-    const nextPracticeSession = answerCurrentPracticeStep(codeDrillCatalog, practiceSession, answer);
+    const nextPracticeSession = answerCurrentPracticeStep(practiceDrills, practiceSession, answer);
     const attempt = nextPracticeSession.attempts[nextPracticeSession.attempts.length - 1] ?? null;
     const nextNotebook = attempt ? recordStepAttempt(game.notebook, attempt) : game.notebook;
 
@@ -178,7 +186,7 @@ export function App() {
     setActiveMode('practice');
     setGame((currentGame) => ({
       ...currentGame,
-      practiceSession: createPracticeSession(codeDrillCatalog, { mode: 'quick', targetCount: 2 }),
+      practiceSession: createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 }),
     }));
   }
 
@@ -187,7 +195,38 @@ export function App() {
     setActiveMode('practice');
     setGame((currentGame) => ({
       ...currentGame,
-      practiceSession: createPracticeSession(codeDrillCatalog, { mode: 'marathon' }),
+      practiceSession: createPracticeSession(practiceDrills, { mode: 'marathon' }),
+    }));
+  }
+
+  function selectPracticeModule(moduleId: PracticeModuleId) {
+    const moduleDrills = getDrillsForModule(moduleId);
+    setLastAttempt(null);
+    setPracticeModuleId(moduleId);
+
+    if (moduleDrills.length === 0) {
+      return;
+    }
+
+    setGame((currentGame) => ({
+      ...currentGame,
+      practiceSession: createPracticeSession(moduleDrills, { mode: 'quick', targetCount: 2 }),
+    }));
+  }
+
+  function backToModuleSelection() {
+    setLastAttempt(null);
+    setPracticeModuleId(null);
+  }
+
+  function restartPracticeModule() {
+    setLastAttempt(null);
+    setGame((currentGame) => ({
+      ...currentGame,
+      practiceSession: createPracticeSession(practiceDrills, {
+        mode: practiceSession.mode,
+        targetCount: practiceSession.targetCount,
+      }),
     }));
   }
 
@@ -294,29 +333,46 @@ export function App() {
           </div>
 
           {activeMode === 'practice' ? (
-            <PracticeExperience
-              answer={answer}
-              blockOrder={blockOrder}
-              choiceAnswer={choiceAnswer}
-              currentPracticeDrill={currentPracticeDrill}
-              fixId={fixId}
-              fixLineIndex={fixLineIndex}
-              lastAttempt={lastAttempt}
-              onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
-              onChoice={setChoiceAnswer}
-              onFixId={setFixId}
-              onFixLine={setFixLineIndex}
-              onResetBlocks={() => setBlockOrder([])}
-              onResetDrafts={resetAnswerDrafts}
-              onStartMarathon={startMarathonPractice}
-              onStartQuick={startQuickPractice}
-              onSubmit={submitAnswer}
-              onText={setTextAnswer}
-              onToggleTeaching={() => setShowTeaching((value) => !value)}
-              practiceSession={practiceSession}
-              showTeaching={showTeaching}
-              textAnswer={textAnswer}
-            />
+            practiceModuleId === null ? (
+              <ModuleSelection onSelect={selectPracticeModule} />
+            ) : practiceDrills.length === 0 ? (
+              <div className="complete-state">
+                <Code2 aria-hidden="true" size={42} />
+                <h3>Modulo sem exercicios</h3>
+                <p>Este modulo ainda nao tem exercicios cadastrados.</p>
+                <button className="primary-button" onClick={backToModuleSelection} type="button">
+                  <RotateCcw aria-hidden="true" size={18} />
+                  Voltar aos modulos
+                </button>
+              </div>
+            ) : (
+              <PracticeExperience
+                answer={answer}
+                blockOrder={blockOrder}
+                choiceAnswer={choiceAnswer}
+                currentPracticeDrill={currentPracticeDrill}
+                fixId={fixId}
+                fixLineIndex={fixLineIndex}
+                lastAttempt={lastAttempt}
+                moduleTitle={getModuleTitle(practiceModuleId)}
+                onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
+                onChangeModule={backToModuleSelection}
+                onChoice={setChoiceAnswer}
+                onFixId={setFixId}
+                onFixLine={setFixLineIndex}
+                onResetBlocks={() => setBlockOrder([])}
+                onResetDrafts={resetAnswerDrafts}
+                onRestartModule={restartPracticeModule}
+                onStartMarathon={startMarathonPractice}
+                onStartQuick={startQuickPractice}
+                onSubmit={submitAnswer}
+                onText={setTextAnswer}
+                onToggleTeaching={() => setShowTeaching((value) => !value)}
+                practiceSession={practiceSession}
+                showTeaching={showTeaching}
+                textAnswer={textAnswer}
+              />
+            )
           ) : game.session.completed || !currentQuestion || !currentStep ? (
             <div className="complete-state">
               <CheckCircle2 aria-hidden="true" size={42} />
@@ -471,6 +527,35 @@ export function App() {
   );
 }
 
+function ModuleSelection({ onSelect }: { onSelect: (moduleId: PracticeModuleId) => void }) {
+  const modules = getPracticeModules();
+
+  return (
+    <div className="module-select">
+      <p className="question-stem">
+        Escolha um modulo para treinar. "Conteudo inteiro" mistura todos os conteudos em ordem aleatoria; os demais
+        trazem so as questoes daquele assunto.
+      </p>
+      <div className="domain-list">
+        {modules.map((module) => (
+          <button
+            className={`domain-button ${module.id === 'all' ? 'is-active' : ''}`}
+            key={module.id}
+            onClick={() => onSelect(module.id)}
+            type="button"
+          >
+            <strong>{module.title}</strong>
+            <span>{module.description}</span>
+            <span>
+              {module.count} {module.count === 1 ? 'exercicio' : 'exercicios'}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type PracticeExperienceProps = {
   currentPracticeDrill: CodeDrill | undefined;
   practiceSession: NonNullable<SavedGameState['practiceSession']>;
@@ -481,6 +566,7 @@ type PracticeExperienceProps = {
   fixLineIndex: number | null;
   fixId: string;
   lastAttempt: StepAttempt | null;
+  moduleTitle: string;
   onChoice: (optionId: string) => void;
   onText: (text: string) => void;
   onAddBlock: (blockId: string) => void;
@@ -489,6 +575,8 @@ type PracticeExperienceProps = {
   onFixId: (fixId: string) => void;
   onResetDrafts: () => void;
   onSubmit: () => void;
+  onChangeModule: () => void;
+  onRestartModule: () => void;
   onStartQuick: () => void;
   onStartMarathon: () => void;
   onToggleTeaching: () => void;
@@ -503,12 +591,15 @@ function PracticeExperience({
   fixId,
   fixLineIndex,
   lastAttempt,
+  moduleTitle,
   onAddBlock,
+  onChangeModule,
   onChoice,
   onFixId,
   onFixLine,
   onResetBlocks,
   onResetDrafts,
+  onRestartModule,
   onStartMarathon,
   onStartQuick,
   onSubmit,
@@ -523,7 +614,9 @@ function PracticeExperience({
       <div className="complete-state">
         <CheckCircle2 aria-hidden="true" size={42} />
         <h3>Sessao rapida concluida</h3>
-        <p>{practiceSession.completedCount} questoes feitas neste ciclo.</p>
+        <p>
+          {practiceSession.completedCount} questoes feitas neste ciclo · Modulo: {moduleTitle}
+        </p>
         <div className="practice-actions">
           <button className="primary-button" onClick={onStartQuick} type="button">
             <Code2 aria-hidden="true" size={18} />
@@ -532,6 +625,10 @@ function PracticeExperience({
           <button className="ghost-button" onClick={onStartMarathon} type="button">
             <RotateCcw aria-hidden="true" size={18} />
             Maratona
+          </button>
+          <button className="ghost-button" onClick={onChangeModule} type="button">
+            <ListChecks aria-hidden="true" size={18} />
+            Trocar modulo
           </button>
         </div>
       </div>
@@ -542,10 +639,21 @@ function PracticeExperience({
     <>
       <div className="practice-toolbar">
         <div>
-          <strong>{practiceSession.mode === 'quick' ? 'Sessao rapida' : 'Maratona'}</strong>
-          <span>{getPracticeProgressLabel(practiceSession)} questoes</span>
+          <strong>Modulo: {moduleTitle}</strong>
+          <span>
+            {practiceSession.mode === 'quick' ? 'Sessao rapida' : 'Maratona'} ·{' '}
+            {getPracticeProgressLabel(practiceSession)} questoes
+          </span>
         </div>
         <div className="practice-actions">
+          <button className="ghost-button compact" onClick={onChangeModule} type="button">
+            <ListChecks aria-hidden="true" size={16} />
+            Trocar modulo
+          </button>
+          <button className="ghost-button compact" onClick={onRestartModule} type="button">
+            <RotateCcw aria-hidden="true" size={16} />
+            Reiniciar
+          </button>
           <button className="ghost-button compact" onClick={onStartQuick} type="button">
             Pegar 2 questoes
           </button>
