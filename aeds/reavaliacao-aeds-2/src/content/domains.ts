@@ -39,6 +39,13 @@ export const domainCatalog: Domain[] = [
     skills: reavaliacaoSkills,
   },
   {
+    id: 'vetores',
+    title: 'Vetores',
+    shortTitle: 'Vetores',
+    examRole: 'Percorrer, buscar, alterar e deslocar elementos em vetores estaticos (array + n).',
+    skills: reavaliacaoSkills,
+  },
+  {
     id: 'somatorio',
     title: 'Somatorios',
     shortTitle: 'Somatorio',

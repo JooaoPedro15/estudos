@@ -1,4 +1,4 @@
-export type DomainId = 'doidona' | 'trie' | 'avl' | 'arvore' | 'hash' | 'somatorio' | 'ordenacao';
+export type DomainId = 'doidona' | 'trie' | 'avl' | 'arvore' | 'hash' | 'vetores' | 'somatorio' | 'ordenacao';
 
 export type QuestionFormat =
   | 'summation-from-code'

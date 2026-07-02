@@ -1907,6 +1907,375 @@ class ArvoreTrie {
       explanation: 'Quicksort do laboratorio: pivo do meio, particao por i/j e duas chamadas recursivas.',
     }),
   },
+  {
+    id: 'code-vetores-soma',
+    domainId: 'vetores',
+    title: 'Vetores: somar os elementos',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-percurso',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Fixar o percurso basico de um vetor com acumulador.',
+    stem: 'Dado o vetor array com n posicoes uteis (padrao array + n da disciplina), implemente soma(), que retorna a soma dos n primeiros elementos. Percorra apenas de 0 ate n-1.',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public int soma() {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Percurso com acumulador',
+      caption: 'Uma passada de i = 0 ate n-1 somando cada posicao.',
+      labels: ['v[0]', 'v[1]', 'v[2]', 'v[3]', 'v[n-1]'],
+    },
+    step: functionStep({
+      id: 'code-vetores-soma-step',
+      prompt: 'Escreva a funcao soma completa. Complexidade O(n).',
+      signature: 'public int soma()',
+      solution: `public int soma() {
+  int soma = 0;
+  for (int i = 0; i < n; i++) {
+    soma += array[i];
+  }
+  return soma;
+}`,
+      requiredFragments: [
+        { id: 'acc', label: 'acumulador inicia em zero', code: 'int soma = 0;' },
+        { id: 'loop', label: 'percorre ate n-1', code: 'i < n' },
+        { id: 'add', label: 'soma a posicao atual', code: 'soma += array[i]' },
+        { id: 'ret', label: 'retorna a soma', code: 'return soma;' },
+      ],
+      lineExplanations: [
+        { code: 'i < n', note: 'O limite e n (elementos uteis), nao array.length.' },
+        { code: 'soma += array[i];', note: 'Cada iteracao acumula um elemento no total.' },
+      ],
+      mistakeTag: 'wrong-summation-bound',
+      explanation: 'Percurso classico: uma unica passada O(n) sobre as n posicoes uteis.',
+    }),
+  },
+  {
+    id: 'code-vetores-maior',
+    domainId: 'vetores',
+    title: 'Vetores: encontrar o maior valor',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-percurso',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Buscar um extremo mantendo o melhor candidato durante o percurso.',
+    stem: 'Implemente maiorValor(), que retorna o maior elemento entre as n posicoes uteis do vetor array. Suponha n >= 1. Retorne o VALOR, nao o indice.',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public int maiorValor() {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Melhor candidato',
+      caption: 'Guarda o maior visto ate agora e atualiza quando achar outro maior.',
+      labels: ['v[0]', 'v[1]', 'v[2]', 'v[3]', 'v[n-1]'],
+    },
+    step: functionStep({
+      id: 'code-vetores-maior-step',
+      prompt: 'Escreva a funcao maiorValor completa. Complexidade O(n).',
+      signature: 'public int maiorValor()',
+      solution: `public int maiorValor() {
+  int maior = array[0];
+  for (int i = 1; i < n; i++) {
+    if (array[i] > maior) {
+      maior = array[i];
+    }
+  }
+  return maior;
+}`,
+      requiredFragments: [
+        { id: 'init', label: 'inicia com o primeiro', code: 'int maior = array[0];' },
+        { id: 'loop', label: 'percorre a partir de 1', code: 'i < n' },
+        { id: 'cmp', label: 'compara com o maior atual', code: 'if (array[i] > maior)' },
+        { id: 'upd', label: 'atualiza o maior', code: 'maior = array[i]' },
+        { id: 'ret', label: 'retorna o maior', code: 'return maior;' },
+      ],
+      lineExplanations: [
+        { code: 'int maior = array[0];', note: 'O candidato inicial e o primeiro elemento (por isso n >= 1).' },
+        { code: 'if (array[i] > maior)', note: 'So troca quando encontra um valor estritamente maior.' },
+      ],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: 'Um unico percurso O(n) mantendo o melhor candidato ja visto.',
+    }),
+  },
+  {
+    id: 'code-vetores-contar-ocorrencias',
+    domainId: 'vetores',
+    title: 'Vetores: contar ocorrencias de um valor',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-busca',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Percorrer contando quantas vezes uma condicao ocorre.',
+    stem: 'Implemente contarOcorrencias(x), que retorna quantas vezes o valor x aparece nas n posicoes uteis do vetor array.',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public int contarOcorrencias(int x) {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Contagem condicional',
+      caption: 'Incrementa um contador sempre que array[i] == x.',
+      labels: ['v[0]', 'v[1]', 'v[2]', 'v[3]', 'v[n-1]'],
+    },
+    step: functionStep({
+      id: 'code-vetores-contar-ocorrencias-step',
+      prompt: 'Escreva a funcao contarOcorrencias completa. Complexidade O(n).',
+      signature: 'public int contarOcorrencias(int x)',
+      solution: `public int contarOcorrencias(int x) {
+  int cont = 0;
+  for (int i = 0; i < n; i++) {
+    if (array[i] == x) {
+      cont++;
+    }
+  }
+  return cont;
+}`,
+      requiredFragments: [
+        { id: 'acc', label: 'contador inicia em zero', code: 'int cont = 0;' },
+        { id: 'loop', label: 'percorre ate n-1', code: 'i < n' },
+        { id: 'cmp', label: 'compara com x', code: 'if (array[i] == x)' },
+        { id: 'inc', label: 'incrementa o contador', code: 'cont++' },
+        { id: 'ret', label: 'retorna a contagem', code: 'return cont;' },
+      ],
+      lineExplanations: [
+        { code: 'if (array[i] == x)', note: 'A contagem so avanca quando a posicao casa com x.' },
+        { code: 'return cont;', note: 'Sem parada antecipada: e preciso ver todo o vetor para contar.' },
+      ],
+      mistakeTag: 'missing-base-case',
+      explanation: 'Contagem exige percorrer o vetor inteiro; nao ha parada antecipada.',
+    }),
+  },
+  {
+    id: 'code-vetores-pesquisar',
+    domainId: 'vetores',
+    title: 'Vetores: pesquisa sequencial',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-busca',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Reproduzir a pesquisa sequencial da disciplina com parada antecipada.',
+    stem: 'Implemente pesquisar(x) seguindo o padrao da disciplina (classe Lista estatica): retorna true se x existir entre as n posicoes uteis. Use uma unica variavel de retorno e pare a varredura ao encontrar (sem break).',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public boolean pesquisar(int x) {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Parada ao encontrar',
+      caption: 'A condicao do laco encerra a varredura assim que acha x.',
+      labels: ['v[0]', 'v[1]', 'v[2]', 'v[3]', 'v[n-1]'],
+    },
+    step: functionStep({
+      id: 'code-vetores-pesquisar-step',
+      prompt: 'Escreva a funcao pesquisar completa. Melhor caso O(1), pior caso O(n).',
+      signature: 'public boolean pesquisar(int x)',
+      solution: `public boolean pesquisar(int x) {
+  boolean retorno = false;
+  for (int i = 0; i < n && retorno == false; i++) {
+    retorno = (array[i] == x);
+  }
+  return retorno;
+}`,
+      requiredFragments: [
+        { id: 'flag', label: 'variavel de retorno unica', code: 'boolean retorno = false;' },
+        { id: 'stop', label: 'para ao encontrar', code: 'i < n && retorno == false' },
+        { id: 'cmp', label: 'atualiza pelo teste', code: 'retorno = (array[i] == x)' },
+        { id: 'ret', label: 'retorna o resultado', code: 'return retorno;' },
+      ],
+      lineExplanations: [
+        { code: 'i < n && retorno == false', note: 'A propria condicao do for encerra a busca quando acha x (sem break).' },
+        { code: 'retorno = (array[i] == x);', note: 'Padrao do professor: uma unica variavel booleana de retorno.' },
+      ],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: 'Pesquisa sequencial da disciplina: para no primeiro acerto, pior caso O(n).',
+    }),
+  },
+  {
+    id: 'code-vetores-inverter',
+    domainId: 'vetores',
+    title: 'Vetores: inverter no proprio vetor',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-alterar',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Manipular indices simetricos trocando elementos in-place.',
+    stem: 'Implemente inverter(), que inverte a ordem das n posicoes uteis do vetor array SEM usar um vetor auxiliar. Troque o elemento i com o elemento n-1-i ate o meio.',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public void inverter() {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Troca simetrica',
+      caption: 'Os pares (i, n-1-i) sao trocados ate os indices se cruzarem.',
+      labels: ['v[0]', 'v[1]', 'v[2]', 'v[3]', 'v[n-1]'],
+    },
+    step: functionStep({
+      id: 'code-vetores-inverter-step',
+      prompt: 'Escreva a funcao inverter completa. Complexidade O(n), sem vetor auxiliar.',
+      signature: 'public void inverter()',
+      solution: `public void inverter() {
+  for (int i = 0; i < n / 2; i++) {
+    int tmp = array[i];
+    array[i] = array[n - 1 - i];
+    array[n - 1 - i] = tmp;
+  }
+}`,
+      requiredFragments: [
+        { id: 'loop', label: 'vai ate a metade', code: 'i < n / 2' },
+        { id: 'tmp', label: 'guarda o elemento i', code: 'int tmp = array[i];' },
+        { id: 'move', label: 'traz o simetrico para i', code: 'array[i] = array[n - 1 - i]' },
+        { id: 'set', label: 'coloca tmp no simetrico', code: 'array[n - 1 - i] = tmp' },
+      ],
+      lineExplanations: [
+        { code: 'i < n / 2', note: 'Vai so ate o meio: passar disso desfaz as trocas.' },
+        { code: 'array[i] = array[n - 1 - i];', note: 'i e n-1-i sao as posicoes simetricas em relacao ao centro.' },
+      ],
+      mistakeTag: 'lost-pointer',
+      explanation: 'Inversao in-place: troca de pares simetricos ate o meio, O(n) sem auxiliar.',
+    }),
+  },
+  {
+    id: 'code-vetores-inserir-posicao',
+    domainId: 'vetores',
+    title: 'Vetores: inserir em posicao com deslocamento',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-deslocamento',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Abrir espaco deslocando elementos para o fim antes de inserir.',
+    stem: 'Padrao da classe Lista estatica: implemente inserir(x, pos), que insere x na posicao pos deslocando os elementos seguintes para o fim. Lance Exception se o vetor estiver cheio (n >= array.length) ou a posicao for invalida (pos < 0 || pos > n).',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public void inserir(int x, int pos) throws Exception {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Deslocar para abrir espaco',
+      caption: 'Do fim ate pos, cada elemento anda uma casa para a direita.',
+      labels: ['v[0]', 'pos', 'desloca', 'v[n-1]', 'livre'],
+    },
+    step: functionStep({
+      id: 'code-vetores-inserir-posicao-step',
+      prompt: 'Escreva a funcao inserir completa. Complexidade O(n) pelo deslocamento.',
+      signature: 'public void inserir(int x, int pos)',
+      solution: `public void inserir(int x, int pos) throws Exception {
+  if (n >= array.length || pos < 0 || pos > n) {
+    throw new Exception("Erro ao inserir!");
+  }
+  for (int i = n; i > pos; i--) {
+    array[i] = array[i - 1];
+  }
+  array[pos] = x;
+  n++;
+}`,
+      requiredFragments: [
+        { id: 'valida', label: 'valida cheio e posicao', code: 'if (n >= array.length || pos < 0 || pos > n)' },
+        { id: 'erro', label: 'lanca excecao', code: 'throw new Exception' },
+        { id: 'shift', label: 'desloca para o fim', code: 'for (int i = n; i > pos; i--)' },
+        { id: 'move', label: 'copia para a frente', code: 'array[i] = array[i - 1]' },
+        { id: 'set', label: 'grava na posicao', code: 'array[pos] = x;' },
+        { id: 'inc', label: 'aumenta o tamanho', code: 'n++;' },
+      ],
+      lineExplanations: [
+        { code: 'for (int i = n; i > pos; i--)', note: 'Desloca de tras para frente para nao sobrescrever elementos.' },
+        { code: 'array[pos] = x;', note: 'So depois de abrir espaco a posicao pos recebe x.' },
+        { code: 'n++;', note: 'O vetor passou a ter um elemento a mais.' },
+      ],
+      mistakeTag: 'lost-pointer',
+      explanation: 'Insercao com deslocamento: validar, empurrar do fim ate pos, gravar e incrementar n.',
+    }),
+  },
+  {
+    id: 'code-vetores-remover-posicao',
+    domainId: 'vetores',
+    title: 'Vetores: remover posicao com deslocamento',
+    source: 'reav-style',
+    repetitionGroup: 'vetores-deslocamento',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Remover fisicamente compactando o vetor para o inicio.',
+    stem: 'Padrao da classe Lista estatica: implemente remover(pos), que remove o elemento da posicao pos, desloca os seguintes para o inicio e retorna o valor removido. Lance Exception se o vetor estiver vazio (n == 0) ou a posicao for invalida (pos < 0 || pos >= n).',
+    scaffold: `class Lista {
+  private int[] array;
+  private int n;
+
+  public int remover(int pos) throws Exception {
+    // escreva a funcao inteira
+  }
+}`,
+    visual: {
+      kind: 'array',
+      title: 'Compactar o vetor',
+      caption: 'De pos ate o fim, cada elemento anda uma casa para a esquerda.',
+      labels: ['v[0]', 'pos', 'compacta', 'v[n-1]', 'sobra'],
+    },
+    step: functionStep({
+      id: 'code-vetores-remover-posicao-step',
+      prompt: 'Escreva a funcao remover completa. Complexidade O(n) pelo deslocamento.',
+      signature: 'public int remover(int pos)',
+      solution: `public int remover(int pos) throws Exception {
+  if (n == 0 || pos < 0 || pos >= n) {
+    throw new Exception("Erro ao remover!");
+  }
+  int resp = array[pos];
+  n--;
+  for (int i = pos; i < n; i++) {
+    array[i] = array[i + 1];
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        { id: 'valida', label: 'valida vazio e posicao', code: 'if (n == 0 || pos < 0 || pos >= n)' },
+        { id: 'erro', label: 'lanca excecao', code: 'throw new Exception' },
+        { id: 'guarda', label: 'guarda o removido', code: 'int resp = array[pos];' },
+        { id: 'dec', label: 'reduz o tamanho', code: 'n--;' },
+        { id: 'shift', label: 'compacta para o inicio', code: 'for (int i = pos; i < n; i++)' },
+        { id: 'move', label: 'puxa o proximo', code: 'array[i] = array[i + 1]' },
+        { id: 'ret', label: 'retorna o valor', code: 'return resp;' },
+      ],
+      lineExplanations: [
+        { code: 'int resp = array[pos];', note: 'Guarda o valor antes de sobrescreve-lo com o deslocamento.' },
+        { code: 'for (int i = pos; i < n; i++)', note: 'Compacta da posicao removida ate o novo fim (n ja decrementado).' },
+      ],
+      mistakeTag: 'lost-pointer',
+      explanation: 'Remocao fisica: validar, guardar, decrementar n e compactar da esquerda para a direita.',
+    }),
+  },
 ];
 
 export function getDrillsByGroup(repetitionGroup: string): CodeDrill[] {

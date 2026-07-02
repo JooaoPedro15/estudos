@@ -7,6 +7,7 @@ test('lista os dominios da reavaliacao na ordem da campanha', () => {
     'avl',
     'hash',
     'arvore',
+    'vetores',
     'somatorio',
     'ordenacao',
   ]);
