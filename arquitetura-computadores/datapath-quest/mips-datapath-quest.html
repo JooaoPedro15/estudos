@@ -1141,6 +1141,20 @@ function renderQuestion(){
     };
     act.appendChild(hintBtn);
   }
+
+  if(G.mode==='free'){
+    const skipBtn=document.createElement('button');
+    skipBtn.className='btn ghost small';
+    skipBtn.textContent='⏭ Pular';
+    skipBtn.onclick=skipFreeQuestion;
+    act.appendChild(skipBtn);
+  }
+}
+
+function skipFreeQuestion(){
+  if(G.mode!=='free') return;
+  sfx.click();
+  nextQuestion();
 }
 
 // ---- Avança após acerto ----

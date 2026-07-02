@@ -48,6 +48,21 @@ assert(
   'Expected Prova Infinita / Simulado to be able to draw fixed exam-style questions.'
 );
 
+assert(
+  html.includes('function skipFreeQuestion'),
+  'Expected a dedicated function for skipping questions in free mode.'
+);
+
+assert(
+  html.includes('⏭ Pular'),
+  'Expected the free-mode skip button to be labeled "⏭ Pular".'
+);
+
+assert(
+  html.includes("if(G.mode==='free')") && html.includes("if(G.mode!=='free') return;"),
+  'Expected the skip button to be gated to Modo Livre only.'
+);
+
 const sandbox = {
   console,
   localStorage: {
@@ -63,12 +78,13 @@ const sandbox = {
 vm.createContext(sandbox);
 vm.runInContext(
   script.replace(/\nboot\(\);\s*$/, '') +
-    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY };',
+    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion: typeof skipFreeQuestion === "function" ? skipFreeQuestion : null };',
   sandbox,
   { filename: 'mips-datapath-quest.html' }
 );
 
-const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY } = sandbox.__dq;
+const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion } = sandbox.__dq;
+assert.strictEqual(typeof skipFreeQuestion, 'function', 'Expected skipFreeQuestion to be callable.');
 
 assert(SIGNAL_NAMES.includes('ALUOp'), 'Expected ALUOp to be part of the control signals.');
 assert.strictEqual(SIGNAL_NAMES.length, 8, 'Expected Modo 2 to teach 8 control signals.');
