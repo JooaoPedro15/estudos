@@ -1,21 +1,21 @@
-﻿# Organizacao do Repositorio
+# Organizacao do Repositorio
 
-Este documento explica a estrutura do repositorio "jogos-estudos" e como novos
-jogos devem ser adicionados.
+Este documento explica a estrutura da Plataforma Interativa de Estudos e como
+novos modulos educacionais devem ser adicionados.
 
 ## Principios
 
-1. Repositorio unico, projetos independentes.
+1. Repositorio unico, modulos independentes.
 2. Uma pasta raiz por materia.
-3. Um jogo por subpasta.
-4. Documentacao junto do projeto.
+3. Um modulo educacional por subpasta.
+4. Documentacao junto do modulo.
 5. Materiais ficam em `materiais/` quando podem ser versionados e em
    `materiais-privados/` quando devem ficar apenas localmente.
 
 ## Estrutura
 
 ```text
-jogos-estudos/
+<raiz-do-repositorio>/
   README.md
   docs/
     README.md
@@ -27,15 +27,15 @@ jogos-estudos/
     README.md
     reavaliacao-aeds-2/
     materiais/
-    docs/
   arquitetura-computadores/
     README.md
     jogo-arquitetura-roguelike/
     jogo-arquitetura-legacy/
     primeira-versao/
-  arquivos-avulsos/
-  nao_utilizados/
-    jogo-aeds-2-antigo/
+    datapath-quest/
+    docs/
+    materiais/
+    work/
 ```
 
 ## Padrao de nomes
@@ -43,21 +43,21 @@ jogos-estudos/
 | Item | Regra | Exemplo |
 | --- | --- | --- |
 | Materia | minusculo, sem acento, hifenizado quando necessario | `arquitetura-computadores` |
-| Jogo | nome hifenizado e descritivo | `reavaliacao-aeds-2` |
-| Docs do projeto | dentro do proprio jogo | `aeds/reavaliacao-aeds-2/docs/` |
+| Modulo educacional | nome hifenizado e descritivo | `reavaliacao-aeds-2` |
+| Docs do projeto | dentro do proprio modulo | `aeds/reavaliacao-aeds-2/docs/` |
 | Materiais versionados | dentro da materia | `aeds/materiais/` |
 | Materiais privados | pasta ignorada localmente | `aeds/materiais-privados/` |
-| Versoes antigas preservadas | dentro de `nao_utilizados/` | `nao_utilizados/jogo-aeds-2-antigo/` |
+| Versoes preservadas | dentro da materia correspondente | `arquitetura-computadores/primeira-versao/` |
 
-## Como adicionar um jogo
+## Como adicionar um modulo educacional
 
 1. Criar a pasta dentro da materia.
-2. Criar `README.md` do jogo.
-3. Criar `docs/` do jogo com spec, mecanicas, arquitetura e roadmap.
+2. Criar `README.md` do modulo.
+3. Criar `docs/` do modulo com spec, experiencia de aprendizagem, arquitetura e roadmap quando fizer sentido.
 4. Se houver codigo, manter dependencias e comandos dentro da propria pasta.
-5. Atualizar `aeds/README.md` ou o README da materia correspondente.
+5. Atualizar o README da materia correspondente.
 6. Atualizar `docs/inventario-dos-projetos.md`.
-7. Atualizar o README raiz quando o projeto ja tiver estado tecnico claro.
+7. Atualizar o README raiz quando o modulo ja tiver estado tecnico claro.
 
 ## Onde colocar documentacao
 
@@ -65,27 +65,25 @@ jogos-estudos/
 | --- | --- |
 | Documentacao geral do repo | `docs/` |
 | Spec formal do fluxo de design | `docs/superpowers/specs/` |
-| Documentacao de um jogo | `<materia>/<jogo>/docs/` |
+| Documentacao de um modulo | `<materia>/<modulo>/docs/` |
 | README por materia | `<materia>/README.md` |
-| README por jogo | `<materia>/<jogo>/README.md` |
+| README por modulo | `<materia>/<modulo>/README.md` |
 
 ## Materiais
 
 Por padrao, materiais sensiveis ou privados ficam fora do Git. Ainda assim, um
-projeto pode versionar materiais de referencia em `<materia>/materiais/` quando
+modulo pode versionar materiais de referencia em `<materia>/materiais/` quando
 o dono do repositorio decidir que eles podem subir.
 
 No caso atual de AEDS II, `aeds/materiais/Provas/` e
 `aeds/materiais/Slides AEDS 2/` podem ser versionados e sao usados como base do
-jogo `aeds/reavaliacao-aeds-2`.
+modulo `aeds/reavaliacao-aeds-2`.
 
-## Independencia dos projetos
+## Independencia dos modulos
 
-- Cada jogo deve ter seus proprios comandos.
+- Cada modulo deve ter seus proprios comandos.
 - Nao ha workspace, Turborepo ou Nx.
-- Dependencias nao devem ser compartilhadas implicitamente entre jogos.
+- Dependencias nao devem ser compartilhadas implicitamente entre modulos.
 - O `.gitignore` raiz cobre dependencias, builds, temporarios e pastas privadas.
-- Caminhos internos de um projeto devem funcionar a partir da propria pasta.
-- Pastas em `nao_utilizados/` sao historico preservado e nao devem ser tratadas
-  como projeto principal.
-
+- Caminhos internos de um modulo devem funcionar a partir da propria pasta.
+- Pastas preservadas como historico nao devem ser tratadas como modulo principal.

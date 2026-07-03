@@ -1,4 +1,4 @@
-# Mecanicas de Jogo
+# Experiencia de Aprendizagem
 
 ## Loop principal
 
@@ -67,7 +67,7 @@ O caderno deve mostrar os erros mais urgentes e oferecer "treinar parecido".
 
 ## Treino parecido
 
-Quando o aluno erra, o jogo cria variacoes controladas:
+Quando o aluno erra, a aplicacao cria variacoes controladas:
 
 - mesmos conceitos, valores diferentes;
 - mesma estrutura, outra operacao;

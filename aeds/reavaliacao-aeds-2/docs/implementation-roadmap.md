@@ -2,15 +2,15 @@
 
 ## Estado atual
 
-Primeira versao jogavel concluida em `aeds/reavaliacao-aeds-2`.
+Primeira versao funcional concluida em `aeds/reavaliacao-aeds-2`.
 
-## Fase 0: Fundacao documental
+## Etapa 0: Fundacao documental
 
-- [x] Criar pasta do novo jogo.
-- [x] Registrar spec, formato da reavaliacao, mecanicas, conteudo e arquitetura.
+- [x] Criar pasta do novo modulo.
+- [x] Registrar spec, formato da reavaliacao, interacoes, conteudo e arquitetura.
 - [x] Validar direcao com o usuario antes de implementar.
 
-## Fase 1: Modelo e engine
+## Etapa 1: Modelo e engine
 
 - [x] Criar projeto React + TypeScript + Vite.
 - [x] Definir tipos de dominio, desafio, etapa, erro e progresso.
@@ -18,7 +18,7 @@ Primeira versao jogavel concluida em `aeds/reavaliacao-aeds-2`.
 - [x] Implementar blueprint do simulado de 6 questoes.
 - [x] Implementar controle de sessao do simulado.
 
-## Fase 2: Experiencia jogavel inicial
+## Etapa 2: Experiencia de aprendizagem inicial
 
 - [x] Criar tela principal com os 6 dominios.
 - [x] Mostrar questao atual, habilidade e formato da reavaliacao.
@@ -26,7 +26,7 @@ Primeira versao jogavel concluida em `aeds/reavaliacao-aeds-2`.
 - [x] Implementar respostas por escolha, lacuna, blocos, correcao, codigo curto e funcao inteira.
 - [x] Persistir progresso local.
 
-## Fase 2.5: Treino continuo de codigo
+## Etapa 2.5: Treino continuo de codigo
 
 - [x] Adicionar banco de treinos inspirado na lista da prova 3.
 - [x] Criar sessao rapida para 2 questoes.
@@ -35,14 +35,14 @@ Primeira versao jogavel concluida em `aeds/reavaliacao-aeds-2`.
 - [x] Adicionar botao `Me ensine` com resposta modelo e explicacao.
 - [x] Expandir para 30 treinos de codigo com funcao inteira em todos os 6 dominios.
 
-## Fase 3: Caderno adaptativo
+## Etapa 3: Caderno adaptativo
 
 - [x] Registrar erros com tags.
 - [x] Priorizar erros recorrentes.
 - [x] Selecionar treinos parecidos por variacoes predefinidas.
 - [x] Marcar erro como resolvido apos 2 acertos seguidos.
 
-## Fase 4: Simulado final
+## Etapa 4: Simulado final
 
 - [x] Montar prova curta com 6 questoes.
 - [x] Enviar erros do simulado para o caderno.

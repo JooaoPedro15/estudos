@@ -7,9 +7,7 @@ O conteudo deve ser guiado por:
 - `aeds/materiais/Provas/REAV1` como referencia principal de formato;
 - `aeds/materiais/Provas/REAV2_incompleta` como referencia secundaria;
 - `aeds/materiais/Listas/lista-aeds2-prova3.pdf` como referencia principal para treinos de codigo;
-- `aeds/materiais/Slides AEDS 2` como base de conteudo;
-- desafios da versao antiga em `nao_utilizados/jogo-aeds-2-antigo` apenas como
-  referencia historica de modelagem.
+- `aeds/materiais/Slides AEDS 2` como base de conteudo.
 
 ## Estilo da lista da prova 3
 
@@ -23,7 +21,7 @@ implementar ou modificar metodos. Os padroes iniciais do treino de codigo sao:
 - estruturas hibridas: decidir a camada correta antes de inserir, pesquisar ou remover;
 - ordenacao: repetir o esqueleto e depois modificar a regra de comparacao.
 
-O catalogo jogavel atual possui 30 treinos de codigo, com cinco exercicios de
+O catalogo interativo atual possui 30 treinos de codigo, com cinco exercicios de
 funcao inteira para cada um dos 6 dominios do simulado. Cada dominio mistura
 repeticao de padrao com pelo menos uma modificacao logica para obrigar o aluno a
 reescrever a estrutura completa com uma regra nova. A ordem de entrega no treino

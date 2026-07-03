@@ -1,25 +1,24 @@
-﻿# Documentacao do Repositorio
+# Documentacao do Repositorio
 
-Documentacao geral e cruzada sobre o repositorio "jogos-estudos". Nao confunda
-com as pastas `docs/` dentro de cada projeto, que contem documentacao especifica
-do jogo.
+Documentacao geral e cruzada sobre a Plataforma Interativa de Estudos. Nao
+confunda com as pastas `docs/` dentro de cada modulo, que contem documentacao
+especifica do modulo educacional.
 
 ## Arquivos
 
 | Arquivo | Descricao |
 | --- | --- |
-| [organizacao-do-repositorio.md](organizacao-do-repositorio.md) | Estrutura, padroes de nomenclatura e como adicionar materia/jogo |
-| [inventario-dos-projetos.md](inventario-dos-projetos.md) | Inventario tecnico dos projetos encontrados |
+| [organizacao-do-repositorio.md](organizacao-do-repositorio.md) | Estrutura, padroes de nomenclatura e como adicionar materia/modulo |
+| [inventario-dos-projetos.md](inventario-dos-projetos.md) | Inventario tecnico dos modulos encontrados |
 | [superpowers/specs/](superpowers/specs/) | Specs formais geradas no fluxo de design |
 
 ## Documentacao por projeto
 
-Cada jogo ativo possui sua propria documentacao em sua pasta:
+Cada modulo ativo possui sua propria documentacao em sua pasta:
 
-- [`aeds/reavaliacao-aeds-2/docs/`](../aeds/reavaliacao-aeds-2/docs/) - spec e documentacao do jogo atual de AEDS II;
-- [`arquitetura-computadores/jogo-arquitetura-roguelike/docs/`](../arquitetura-computadores/jogo-arquitetura-roguelike/docs/) - decisoes de design do roguelike de arquitetura;
-- [`arquitetura-computadores/docs/superpowers/`](../arquitetura-computadores/docs/superpowers/) - spec e plano do modo roguelike legacy.
+- [`aeds/reavaliacao-aeds-2/docs/`](../aeds/reavaliacao-aeds-2/docs/) - spec e documentacao do modulo interativo de AEDS II;
+- [`arquitetura-computadores/jogo-arquitetura-roguelike/docs/`](../arquitetura-computadores/jogo-arquitetura-roguelike/docs/) - decisoes de design do modulo interativo de Arquitetura de Computadores;
+- [`arquitetura-computadores/docs/superpowers/`](../arquitetura-computadores/docs/superpowers/) - spec e plano do modo roguelike preservado.
 
-Versoes antigas preservadas ficam em [`../nao_utilizados/`](../nao_utilizados/)
-e nao devem ser consideradas a versao principal de nenhum jogo.
-
+Versoes antigas preservadas ficam nas pastas existentes de cada materia e nao
+devem ser consideradas a versao principal de nenhum modulo.

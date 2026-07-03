@@ -15,7 +15,7 @@ Este documento resume o formato observado nas fotos locais em
 
 ## Macroformatos do simulado final
 
-| Questao | Formato observado | Como virar jogo |
+| Questao | Formato observado | Como virar atividade |
 | --- | --- | --- |
 | Q1 | Somatorio a partir de trecho de codigo | Identificar lacos, montar soma, fechar formula e justificar. |
 | Q2 | Insercao/operacao em estrutura de arvore | Simular passo a passo e escolher/desenhar estado final. |
@@ -37,11 +37,11 @@ Este documento resume o formato observado nas fotos locais em
 
 ## Como evitar copia de prova
 
-O jogo deve usar as provas para aprender o formato, mas criar exercicios novos:
+A aplicacao deve usar as provas para aprender o formato, mas criar exercicios
+novos:
 
 - trocar valores e sequencias;
 - trocar nomes de variaveis;
 - variar estrutura mantendo a mesma habilidade;
 - gerar distratores baseados em erros comuns;
 - explicar a rubrica de correcao em linguagem propria.
-

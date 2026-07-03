@@ -1,33 +1,33 @@
-﻿# Inventario dos Projetos
+# Inventario dos Modulos
 
-Inventario tecnico dos projetos do repositorio. Ultima atualizacao: 2026-07-01.
+Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-07-03.
 
 ---
 
-## Projeto 1: Estruturas - versao antiga preservada
+## Modulo 1: Reavaliacao AEDS II
 
 | Campo | Valor |
 | --- | --- |
-| Nome | Estruturas |
-| Pasta | `nao_utilizados/jogo-aeds-2-antigo/` |
+| Nome | Reavaliacao AEDS II |
+| Pasta | `aeds/reavaliacao-aeds-2/` |
 | Materia | AEDS II |
 | Tecnologia | React, TypeScript, Vite, Vitest, Testing Library |
-| Estado | Versao antiga preservada, nao utilizada |
+| Estado | Modulo interativo atual |
 
 ### Objetivo
 
-Versao antiga do jogo geral de estruturas de dados para AEDS II. Foi mantida
-apenas como historico e referencia; o desenvolvimento atual foi reiniciado em
-`aeds/reavaliacao-aeds-2/`.
+Modulo interativo para estudo de estruturas de dados, com visualizacoes,
+simulacoes, exercicios de codigo e atividades conceituais. A aplicacao prepara
+para a reavaliacao de AEDS II com painel de dominios, treino de codigo, caderno
+adaptativo de erros e simulado final no formato das reavaliacoes.
 
-### Conteudos
+### Dominios iniciais
 
-Lista, pilha, ordenacao, arvore binaria, ABB, AVL, 2-3-4, alvinegra, hash,
-TRIE, PATRICIA e Doidona.
+Doidona, TRIE, AVL, arvore normal/binaria, somatorios e algoritmos de ordenacao.
 
 ### Comandos
 
-Dentro de `nao_utilizados/jogo-aeds-2-antigo/`:
+Dentro de `aeds/reavaliacao-aeds-2/`:
 
 | Acao | Comando |
 | --- | --- |
@@ -36,32 +36,6 @@ Dentro de `nao_utilizados/jogo-aeds-2-antigo/`:
 | Testes | `npm test` |
 | Type-check | `npm run lint` |
 | Build | `npm run build` |
-
-### Documentacao
-
-- `nao_utilizados/jogo-aeds-2-antigo/README.md`
-
----
-
-## Projeto 2: Reavaliacao AEDS II
-
-| Campo | Valor |
-| --- | --- |
-| Nome | Reavaliacao AEDS II |
-| Pasta | `aeds/reavaliacao-aeds-2/` |
-| Materia | AEDS II |
-| Tecnologia | React, TypeScript, Vite, Vitest, Testing Library |
-| Estado | Primeira versao jogavel |
-
-### Objetivo
-
-Novo jogo focado em preparar para a reavaliacao de AEDS II. A primeira versao
-combina painel de 6 dominios, oficina de codigo, caderno adaptativo de erros e
-simulado final no formato das reavaliacoes.
-
-### Dominios iniciais
-
-Doidona, TRIE, AVL, arvore normal/binaria, somatorios e algoritmos de ordenacao.
 
 ### Documentacao
 
@@ -76,7 +50,7 @@ Doidona, TRIE, AVL, arvore normal/binaria, somatorios e algoritmos de ordenacao.
 
 ---
 
-## Projeto 3: ARQUITETO - Tape-Out Run
+## Modulo 2: ARQUITETO - Tape-Out Run
 
 | Campo | Valor |
 | --- | --- |
@@ -88,8 +62,9 @@ Doidona, TRIE, AVL, arvore normal/binaria, somatorios e algoritmos de ordenacao.
 
 ### Objetivo
 
-Roguelite de montagem de CPU cobrindo topicos de MIPS, datapath, pipeline,
-desempenho e memoria.
+Modulo interativo para estudo de Arquitetura de Computadores, com atividades,
+simulacoes e exercicios baseados no conteudo da disciplina. A aplicacao usa uma
+estrutura roguelite para organizar pratica, revisao e progressao por topico.
 
 ### Comandos
 
@@ -107,7 +82,7 @@ Dentro de `arquitetura-computadores/jogo-arquitetura-roguelike/`:
 
 ---
 
-## Projeto 4: MIPS Datapath Quest Legacy
+## Modulo 3: MIPS Datapath Quest Legacy
 
 | Campo | Valor |
 | --- | --- |
@@ -127,7 +102,7 @@ Abrir `mips-datapath-quest.html` no navegador.
 
 ---
 
-## Projeto 5: MIPS Datapath Quest - Snapshot
+## Modulo 4: MIPS Datapath Quest - Snapshot
 
 | Campo | Valor |
 | --- | --- |
@@ -143,13 +118,29 @@ Abrir `mips-datapath-quest.html` no navegador.
 
 ---
 
+## Modulo 5: Datapath Quest extraido
+
+| Campo | Valor |
+| --- | --- |
+| Nome | Datapath Quest |
+| Pasta | `arquitetura-computadores/datapath-quest/` |
+| Materia | Arquitetura de Computadores II |
+| Tecnologia | HTML, JavaScript e testes auxiliares |
+| Estado | Copia tecnica preservada |
+
+### Observacao
+
+Esta pasta existe no workspace atual e guarda uma copia tecnica do material de
+datapath, incluindo testes auxiliares.
+
+---
+
 ## Recursos adicionais versionados
 
 | Recurso | Pasta | Descricao |
 | --- | --- | --- |
 | Checkpoints de desenvolvimento | `arquitetura-computadores/work/checkpoints/` | Snapshots HTML do processo de desenvolvimento |
-| HTML avulso duplicado | `arquivos-avulsos/mips-datapath-quest.html` | Copia preservada do legacy |
 | Specs formais | `docs/superpowers/specs/` | Specs geradas no fluxo de design |
-| Materiais de AEDS | `aeds/materiais/` | Slides, provas e referencias usadas pelos jogos de AEDS |
-| Versoes antigas preservadas | `nao_utilizados/` | Projetos antigos mantidos apenas como historico e referencia |
-
+| Specs e planos de Arquitetura | `arquitetura-computadores/docs/superpowers/` | Design e plano do modulo de Arquitetura |
+| Materiais de AEDS | `aeds/materiais/` | Slides, provas e referencias usadas pelo modulo de AEDS |
+| Materiais de Arquitetura | `arquitetura-computadores/materiais/` | Materiais publicos e instrucoes para materiais privados |

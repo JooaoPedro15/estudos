@@ -2,17 +2,17 @@
 
 ## Resumo
 
-`Reavaliacao AEDS II` sera um jogo de treino direcionado para uma prova de
+`Reavaliacao AEDS II` sera um modulo de treino direcionado para uma prova de
 reavaliacao com questoes discursivas, codigo Java/C-like e estruturas de dados.
-O jogador passa por 6 dominios de conteudo, pratica os formatos de questao mais
+O aluno passa por 6 dominios de conteudo, pratica os formatos de questao mais
 provaveis e revisita automaticamente os pontos em que mais errou.
 
 ## Problema
 
-O jogo atual de AEDS tem bastante conteudo, mas a experiencia ainda pode parecer
-uma biblioteca ampla. Para reavaliacao, o aluno precisa de uma jornada mais
-objetiva: saber o que cai, treinar no formato cobrado e repetir variacoes dos
-erros ate parar de cometer o mesmo engano.
+O modulo atual de AEDS tem bastante conteudo, mas a experiencia ainda pode
+parecer uma biblioteca ampla. Para reavaliacao, o aluno precisa de uma jornada
+mais objetiva: saber o que cai, treinar no formato cobrado e repetir variacoes
+dos erros ate parar de cometer o mesmo engano.
 
 ## Usuario-alvo
 
@@ -22,7 +22,7 @@ praticar codigo, raciocinio de complexidade e desenho/simulacao de estruturas.
 ## Objetivos
 
 - Transformar as provas locais em referencia de formato, sem depender de copiar
-  o enunciado oficial dentro do jogo.
+  o enunciado oficial dentro da aplicacao.
 - Ensinar o aluno a resolver tipos de questao, nao apenas memorizar respostas.
 - Criar uma campanha clara com progresso por dominio.
 - Registrar erros por conceito e gerar treinos parecidos.
@@ -60,8 +60,8 @@ Formatos de treino:
 
 ## Criterios de sucesso
 
-- O jogador entende qual dominio falta dominar.
-- O jogador consegue repetir exercicios parecidos com seus erros.
+- O aluno entende qual dominio falta dominar.
+- O aluno consegue repetir exercicios parecidos com seus erros.
 - O simulado final tem 6 questoes, uma por macroformato da reavaliacao.
 - Cada dominio tem pelo menos uma etapa de codigo real.
 - O projeto possui testes para avaliadores, selecao adaptativa e progresso.

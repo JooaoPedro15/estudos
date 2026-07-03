@@ -1,10 +1,9 @@
 # Reavaliacao AEDS II
 
-Jogo educacional voltado ao aprendizado de estruturas de dados de AEDS II, com
-foco no formato real da reavaliacao. Este e o projeto atual de AEDS no
-repositorio.
+Modulo interativo para estudo de estruturas de dados de AEDS II, com foco no
+formato real da reavaliacao. Este e o modulo atual de AEDS no repositorio.
 
-## Objetivo do jogo
+## Objetivo do modulo
 
 Ajudar o aluno a praticar ate conseguir resolver questoes de reavaliacao que
 cobram simulacao, justificativa, codigo, complexidade e manipulacao de
@@ -56,7 +55,7 @@ O `package.json` nao define comando de preview.
 
 ```text
 reavaliacao-aeds-2/
-  docs/         Documentacao de produto, arquitetura, mecanicas e testes
+  docs/         Documentacao de produto, arquitetura, interacoes e testes
   src/app/      Telas principais da experiencia
   src/content/  Dominios, questoes e treinos de codigo
   src/engine/   Avaliadores, simulado, treino e revisao adaptativa
@@ -81,16 +80,9 @@ reavaliacao-aeds-2/
 
 - [Visao de produto](docs/product-spec.md)
 - [Formato da reavaliacao](docs/reavaliacao-format.md)
-- [Mecanicas de jogo](docs/game-mechanics.md)
+- [Experiencia de aprendizagem](docs/game-mechanics.md)
 - [Mapa de conteudo](docs/content-map.md)
 - [Caderno adaptativo de erros](docs/adaptive-error-notebook.md)
 - [Arquitetura](docs/architecture.md)
 - [Estrategia de testes](docs/testing-strategy.md)
 - [Roadmap](docs/implementation-roadmap.md)
-
-## Versao antiga
-
-A versao antiga do jogo geral de AEDS foi preservada em
-[`../../nao_utilizados/jogo-aeds-2-antigo/`](../../nao_utilizados/jogo-aeds-2-antigo/).
-Ela nao esta mais em desenvolvimento e nao deve ser considerada a versao
-principal.

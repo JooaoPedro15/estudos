@@ -1,10 +1,10 @@
-﻿# Materiais Academicos - AEDS II
+# Materiais Academicos - AEDS II
 
-Esta pasta centraliza materiais usados como referencia para os jogos de AEDS II.
+Esta pasta centraliza materiais usados como referencia para os modulos de AEDS II.
 
 ## Uso atual
 
-O novo jogo `aeds/reavaliacao-aeds-2` usa esta pasta para entender:
+O modulo `aeds/reavaliacao-aeds-2` usa esta pasta para entender:
 
 - o formato das reavaliacoes;
 - os tipos de questao cobrados;
@@ -41,12 +41,11 @@ uma pasta local ignorada, como:
 aeds/materiais-privados/
 ```
 
-## Como o jogo deve usar estes materiais
+## Como o modulo deve usar estes materiais
 
-O jogo deve usar os materiais como referencia de formato e conteudo, criando
-exercicios proprios com valores, enunciados e variacoes novas. A ideia nao e
-copiar uma prova inteira, mas treinar as habilidades que ela cobra.
+A aplicacao deve usar os materiais como referencia de formato e conteudo,
+criando exercicios proprios com valores, enunciados e variacoes novas. A ideia
+nao e copiar uma prova inteira, mas treinar as habilidades que ela cobra.
 
 A lista `lista-aeds2-prova3.pdf` deve guiar principalmente os treinos de codigo:
 classes prontas, metodo pedido, estrutura visual e adaptacao de logica.
-

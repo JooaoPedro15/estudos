@@ -2,8 +2,8 @@
 
 ## Objetivo
 
-Garantir que o jogo ensine e acompanhe progresso sem quebrar avaliacao, simulado
-ou revisao adaptativa.
+Garantir que a aplicacao ensine e acompanhe progresso sem quebrar avaliacao,
+simulado ou revisao adaptativa.
 
 ## Prioridades
 
@@ -38,7 +38,7 @@ ou revisao adaptativa.
 ## Regra de implementacao
 
 Ao implementar comportamento, escrever teste primeiro. O primeiro alvo deve ser
-o modelo de dados e avaliadores, porque eles sustentam o resto do jogo.
+o modelo de dados e avaliadores, porque eles sustentam o resto da aplicacao.
 
 ## Comandos esperados
 

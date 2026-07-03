@@ -1,47 +1,51 @@
-﻿# Jogos de Estudos
+# Plataforma Interativa de Estudos
 
-Repositorio unico com jogos educacionais interativos criados para estudar conteudos da faculdade de forma pratica. Cada jogo e independente: tem sua propria pasta, dependencias, testes e comandos.
+Repositorio unico com modulos educacionais interativos criados para visualizacao,
+pratica e revisao de conteudos academicos. Cada modulo e independente: tem sua
+propria pasta, dependencias, testes e comandos.
 
 ## Organizacao geral
 
 ```text
-jogos-estudos/
+<raiz-do-repositorio>/
   README.md
   .gitignore
   docs/                         Documentacao geral do repositorio
   aeds/                         Materia AEDS II
-    reavaliacao-aeds-2/         Jogo atual de AEDS II
+    reavaliacao-aeds-2/         Modulo interativo de AEDS II
     materiais/                  Materiais academicos e provas usadas como referencia
-    docs/                       Documentacao cruzada da materia
   arquitetura-computadores/     Materia Arquitetura de Computadores II
-    jogo-arquitetura-roguelike/ Projeto principal da materia
+    jogo-arquitetura-roguelike/ Modulo interativo principal da materia
     jogo-arquitetura-legacy/    Versao antiga preservada da materia
     primeira-versao/            Snapshot anterior
+    datapath-quest/             Copia tecnica preservada do datapath quest
     materiais/
     docs/
-  arquivos-avulsos/             Arquivos preservados isolados
-  nao_utilizados/               Projetos antigos preservados, sem uso ativo
-    jogo-aeds-2-antigo/         Versao antiga do jogo de AEDS
+    work/
 ```
 
-## Projetos principais
+## Modulos principais
 
-| Projeto | Materia | Estado | Pasta |
+| Modulo | Materia | Estado | Pasta |
 | --- | --- | --- | --- |
-| Reavaliacao AEDS II | AEDS II | Jogo atual | [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/) |
+| Reavaliacao AEDS II | AEDS II | Modulo interativo atual | [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/) |
 | ARQUITETO: Tape-Out Run | Arquitetura II | Em desenvolvimento | [`arquitetura-computadores/jogo-arquitetura-roguelike/`](arquitetura-computadores/jogo-arquitetura-roguelike/) |
 
-## Versoes antigas preservadas
+## Versoes preservadas
 
-A pasta [`nao_utilizados/`](nao_utilizados/) guarda projetos antigos mantidos apenas como historico e referencia. O conteudo dessa pasta nao deve ser considerado a versao principal de nenhum jogo.
-
-A versao antiga do jogo de AEDS esta em [`nao_utilizados/jogo-aeds-2-antigo/`](nao_utilizados/jogo-aeds-2-antigo/). O desenvolvimento atual de AEDS foi reiniciado em [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/).
+As versoes antigas preservadas ficam nas pastas existentes dentro de cada
+materia, como [`arquitetura-computadores/jogo-arquitetura-legacy/`](arquitetura-computadores/jogo-arquitetura-legacy/)
+e [`arquitetura-computadores/primeira-versao/`](arquitetura-computadores/primeira-versao/).
+Elas servem apenas como historico e referencia, nao como versao principal dos
+modulos.
 
 ## Materiais da disciplina
 
-Os materiais de AEDS II ficam em [`aeds/materiais/`](aeds/materiais/). Eles sao usados como referencia pelo jogo atual de AEDS, mas nao sao a pasta do jogo.
+Os materiais de AEDS II ficam em [`aeds/materiais/`](aeds/materiais/). Eles sao
+usados como referencia pelo modulo atual de AEDS, mas nao sao a pasta da
+aplicacao educacional.
 
-## Como executar o jogo atual de AEDS
+## Como executar o modulo atual de AEDS
 
 ```bash
 cd aeds/reavaliacao-aeds-2
@@ -49,7 +53,7 @@ npm install
 npm run dev
 ```
 
-Comandos tambem existentes no `package.json` do jogo atual:
+Comandos tambem existentes no `package.json` do modulo atual:
 
 ```bash
 npm test
@@ -60,6 +64,6 @@ npm run build
 ## Documentacao
 
 - [Organizacao do repositorio](docs/organizacao-do-repositorio.md)
-- [Inventario dos projetos](docs/inventario-dos-projetos.md)
+- [Inventario dos modulos](docs/inventario-dos-projetos.md)
 - [README da materia AEDS](aeds/README.md)
-- [README do jogo atual de AEDS](aeds/reavaliacao-aeds-2/README.md)
+- [README do modulo atual de AEDS](aeds/reavaliacao-aeds-2/README.md)

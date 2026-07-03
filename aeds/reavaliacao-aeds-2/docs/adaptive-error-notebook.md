@@ -62,7 +62,6 @@ Exemplos:
 
 ## Criterio de resolucao
 
-Um erro sai da lista critica quando o jogador acerta pelo menos 2 variacoes
+Um erro sai da lista critica quando o aluno acerta pelo menos 2 variacoes
 seguidas da mesma habilidade. Ele continua no historico, mas deixa de ser
 prioridade.
-
