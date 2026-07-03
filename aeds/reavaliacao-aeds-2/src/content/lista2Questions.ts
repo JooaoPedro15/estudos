@@ -42,6 +42,23 @@ function option(id: string, label: string, explanation?: string, visualValue?: S
   return { id, label, explanation, visual: visualValue };
 }
 
+/**
+ * Permutacao deterministica de [0,1,2,3] a partir do numero da questao.
+ * Mantem a alternativa correta em posicoes diferentes (nao sempre "A"),
+ * de forma estavel entre renders e sessoes.
+ */
+function permuteFour(seed: number): number[] {
+  const order = [0, 1, 2, 3];
+  let state = (seed * 2654435761) % 2147483647;
+  if (state <= 0) state += 2147483646;
+  for (let i = 3; i > 0; i -= 1) {
+    state = (state * 48271) % 2147483647;
+    const j = state % (i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
+
 function cq(
   number: number,
   title: string,
@@ -55,6 +72,12 @@ function cq(
   wrongC: string,
   explanation: string,
 ): ConceptualDrawingQuestion {
+  const texts = [correct, wrongA, wrongB, wrongC];
+  const letters = ['a', 'b', 'c', 'd'];
+  const order = permuteFour(number);
+  const options = order.map((sourceIndex, position) => option(letters[position], texts[sourceIndex]));
+  const correctOptionId = letters[order.indexOf(0)];
+
   return {
     id: `lista2-conceitual-q${String(number).padStart(2, '0')}`,
     type: 'conceitual',
@@ -64,13 +87,8 @@ function cq(
     source: 'lista-2',
     title: `Q${number} - ${title}`,
     stem,
-    correctOptionId: 'a',
-    options: [
-      option('a', correct),
-      option('b', wrongA),
-      option('c', wrongB),
-      option('d', wrongC),
-    ],
+    correctOptionId,
+    options,
     explanation: `Gabarito Lista 2: ${explanation}`,
   };
 }
@@ -117,7 +135,7 @@ const conceptualQuestions: ConceptualDrawingQuestion[] = [
     'Constantes impedem classificar em O, Ω e Θ.',
     'termos de menor grau e constantes nao alteram a classe assintotica justa.'),
   cq(3, 'Prove ou refute - bloco I', 'complexidade', 'arvore', 'reavaliacao',
-    'Qual conjunto segue o gabarito para as afirmacoes sobre lista, ABB, balanceadas, busca binaria e hash?',
+    'Bloco prove-ou-refute (V/F): (a) a pesquisa sequencial tem melhor caso constante; (b) toda ABB tem altura logaritmica; (c) inserir em AVL/2-3-4/alvinegra e logaritmico; (d) sem ordenacao ou indice nao ha busca binaria correta; (e) a hash garante pior caso constante. Qual vetor de respostas segue o gabarito?',
     'a F, b F, c F, d V conforme gabarito, e F.',
     'a V, b V, c V, d F, e V.',
     'a F, b V, c F, d V, e F.',
@@ -274,7 +292,7 @@ const conceptualQuestions: ConceptualDrawingQuestion[] = [
 
 const drawingQuestions: ConceptualDrawingQuestion[] = [
   dq(25, 'Lista sequencial: deslocamentos', 'lista', 'vetores', 'basico',
-    'Escolha o estado final apos inserirInicio(2), inserir(8,3), remover(4) e removerFim().',
+    'Lista sequencial (vetor + n) iniciando com [4, 7, 9, 15]. Aplique nesta ordem: inserirInicio(2); inserir(8, 3); remover(4) — aqui 4 e a POSICAO removida, nao o valor; e removerFim(). Qual alternativa mostra o vetor final?',
     'b',
     [
       option('a', 'A. remove o valor 4, mantendo 9', 'Confunde remover(4) como valor.', visual('array', 'A', 'Remove valor 4', ['2', '7', '8', '9'])),

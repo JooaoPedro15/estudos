@@ -86,6 +86,13 @@
   cursor: grabbing;
 }
 
+/* Desenho estatico das alternativas: sem pan, altura contida. */
+.viz-canvas.is-static {
+  max-height: 230px;
+  cursor: default;
+  touch-action: auto;
+}
+
 .viz-grid-dot {
   fill: var(--viz-grid);
 }

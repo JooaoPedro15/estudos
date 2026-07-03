@@ -94,7 +94,7 @@ test('abre o modo Desenho separado com alternativas visuais', async () => {
 
   expect(screen.getByText('Modulo: Conteudo inteiro')).toBeInTheDocument();
   expect(screen.getByText('Alternativas visuais')).toBeInTheDocument();
-  expect(screen.getAllByRole('img', { name: /Visualiza/i }).length).toBeGreaterThanOrEqual(4);
+  expect(screen.getAllByRole('img', { name: /Desenho:/i }).length).toBeGreaterThanOrEqual(4);
   expect(within(drawing).getByRole('button', { name: /Responder/ })).toBeDisabled();
 
   await user.click(within(drawing).getAllByRole('button', { name: /^A\./ })[0]);

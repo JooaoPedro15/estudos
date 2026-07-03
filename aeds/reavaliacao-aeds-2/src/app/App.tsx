@@ -65,7 +65,7 @@ import type {
   StepAnswer,
 } from '../types/content';
 import type { StepAttempt } from '../types/progress';
-import { StructureVizCard } from '../viz/StructureViz';
+import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import { ExploreScreen } from './ExploreScreen';
 
 const formatLabels: Record<QuestionFormat, string> = {
@@ -1034,7 +1034,7 @@ function VisualChoiceControl({
     <div className="visual-option-grid">
       {options.map((option, index) => (
         <div className={`visual-option ${choiceAnswer === option.id ? 'is-selected' : ''}`} key={option.id}>
-          {option.visual && <StructureVizCard visual={option.visual} />}
+          {option.visual && <StaticStructureCard visual={option.visual} />}
           <button
             className={`option-button ${choiceAnswer === option.id ? 'is-selected' : ''}`}
             onClick={() => onChoice(option.id)}

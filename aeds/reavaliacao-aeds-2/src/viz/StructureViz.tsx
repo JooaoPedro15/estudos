@@ -13,6 +13,7 @@ import {
 
 import type { StructureVisual } from '../types/content';
 import { buildSceneForVisual } from './scenes';
+import { staticSceneForVisual } from './staticScenes';
 import { useAnimatedFrame, type DisplayEdge, type DisplayNode } from './useAnimatedFrame';
 import { collectLegend, stateLegend, type VizNode, type VizPointer, type VizScene } from './vizTypes';
 
@@ -42,6 +43,42 @@ function usePrefersReducedMotion(): boolean {
         ? window.matchMedia(REDUCED_MOTION_QUERY).matches
         : false,
     () => false,
+  );
+}
+
+function VizDefs() {
+  return (
+    <defs>
+      {(['default', 'inserted', 'found', 'removed'] as const).map((state) => (
+        <marker
+          id={`viz-arrow-${state}`}
+          key={state}
+          markerHeight="7"
+          markerWidth="8"
+          orient="auto-start-reverse"
+          refX="7"
+          refY="3.5"
+        >
+          <path className={`viz-arrowhead is-${state}`} d="M0,0 L8,3.5 L0,7 Z" />
+        </marker>
+      ))}
+      {(['primary', 'accent', 'warning'] as const).map((tone) => (
+        <marker
+          id={`viz-pointer-tip-${tone}`}
+          key={tone}
+          markerHeight="6"
+          markerWidth="7"
+          orient="auto-start-reverse"
+          refX="6"
+          refY="3"
+        >
+          <path className={`viz-pointer-tip tone-${tone}`} d="M0,0 L7,3 L0,6 Z" />
+        </marker>
+      ))}
+      <pattern height="26" id="viz-grid" patternUnits="userSpaceOnUse" width="26">
+        <circle className="viz-grid-dot" cx="1.5" cy="1.5" r="1.5" />
+      </pattern>
+    </defs>
   );
 }
 
@@ -312,37 +349,7 @@ export function StructureViz({ scene, compact = false }: StructureVizProps) {
         aria-label={`Visualização animada: ${scene.operation}`}
         viewBox={`0 0 ${scene.width} ${scene.height}`}
       >
-        <defs>
-          {(['default', 'inserted', 'found', 'removed'] as const).map((state) => (
-            <marker
-              id={`viz-arrow-${state}`}
-              key={state}
-              markerHeight="7"
-              markerWidth="8"
-              orient="auto-start-reverse"
-              refX="7"
-              refY="3.5"
-            >
-              <path className={`viz-arrowhead is-${state}`} d="M0,0 L8,3.5 L0,7 Z" />
-            </marker>
-          ))}
-          {(['primary', 'accent', 'warning'] as const).map((tone) => (
-            <marker
-              id={`viz-pointer-tip-${tone}`}
-              key={tone}
-              markerHeight="6"
-              markerWidth="7"
-              orient="auto-start-reverse"
-              refX="6"
-              refY="3"
-            >
-              <path className={`viz-pointer-tip tone-${tone}`} d="M0,0 L7,3 L0,6 Z" />
-            </marker>
-          ))}
-          <pattern height="26" id="viz-grid" patternUnits="userSpaceOnUse" width="26">
-            <circle className="viz-grid-dot" cx="1.5" cy="1.5" r="1.5" />
-          </pattern>
-        </defs>
+        <VizDefs />
         <rect fill="url(#viz-grid)" height="100%" width="100%" />
         <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
           {display.edges.map((edge) => (
@@ -477,6 +484,49 @@ export function StructureVizCard({ visual, compact = true }: StructureVizCardPro
         <span>{visual.caption}</span>
       </figcaption>
       <StructureViz compact={compact} scene={scene} />
+    </figure>
+  );
+}
+
+/**
+ * Desenho ESTÁTICO de uma estrutura (um único quadro, sem player) para as
+ * alternativas das questões de desenho. Representa exatamente os labels da
+ * alternativa, sem animação nem valores fixos.
+ */
+export function StaticStructureCard({ visual }: { visual: StructureVisual }) {
+  const scene = useMemo(() => staticSceneForVisual(visual), [visual]);
+  const frame = scene.frames[0];
+
+  const nodeMap = useMemo(
+    () => new Map(frame.nodes.map((node) => [node.id, { ...node, opacity: 1, scale: 1 } as DisplayNode])),
+    [frame.nodes],
+  );
+
+  return (
+    <figure className={`structure-visual is-static is-${visual.kind}`}>
+      <figcaption>
+        <strong>{visual.title}</strong>
+        <span>{visual.caption}</span>
+      </figcaption>
+      <svg
+        className="viz-canvas is-static"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label={`Desenho: ${visual.caption}`}
+        viewBox={`0 0 ${scene.width} ${scene.height}`}
+      >
+        <VizDefs />
+        <rect fill="url(#viz-grid)" height="100%" width="100%" />
+        {frame.edges.map((edge) => (
+          <EdgeShape edge={{ ...edge, opacity: 1 }} key={edge.id} nodes={nodeMap} />
+        ))}
+        {[...nodeMap.values()].map((node) => (
+          <NodeShape key={node.id} node={node} />
+        ))}
+        {frame.pointers.map((pointer) => (
+          <PointerShape key={pointer.id} nodes={nodeMap} pointer={pointer} />
+        ))}
+      </svg>
     </figure>
   );
 }

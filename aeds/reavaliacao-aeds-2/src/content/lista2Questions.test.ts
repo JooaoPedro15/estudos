@@ -34,6 +34,16 @@ test('oferece filtros independentes para conceituais e desenho', () => {
   expect(getQuestionsForConceptualDrawingModule('all', 'conceitual').every((question) => question.type === 'conceitual')).toBe(true);
 });
 
+test('a alternativa correta das conceituais nao fica sempre em A', () => {
+  const conceptual = conceptualDrawingCatalog.filter((question) => question.type === 'conceitual');
+  const letters = new Set(conceptual.map((question) => question.correctOptionId));
+
+  // Embaralhamento deterministico: as respostas se espalham entre A..D.
+  expect(letters.size).toBeGreaterThan(1);
+  expect(conceptual.every((question) => question.options.some((option) => option.id === question.correctOptionId))).toBe(true);
+  expect(conceptual.filter((question) => question.correctOptionId === 'a').length).toBeLessThan(conceptual.length);
+});
+
 test('questoes de desenho possuem alternativas visuais reais sem revelar o gabarito no catalogo', () => {
   const drawingQuestions = conceptualDrawingCatalog.filter((question) => question.type === 'desenho');
 
