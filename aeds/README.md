@@ -41,4 +41,4 @@ modulo atual: [`reavaliacao-aeds-2/README.md`](reavaliacao-aeds-2/README.md).
 Nesta materia, `aeds/materiais/` pode conter slides, provas, imagens e outros
 materiais de referencia que o dono do repositorio decidiu manter versionados.
 Materiais que nao devem subir para o Git ainda podem ficar em
-`aeds/materiais-privados/`.
+

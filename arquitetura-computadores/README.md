@@ -9,9 +9,9 @@ aritmetica e desempenho.
 
 ## Modulos disponiveis
 
-### [jogo-arquitetura-roguelike/](jogo-arquitetura-roguelike/) - Modulo Interativo de Arquitetura de Computadores
+### [datapath-quest/](mips-datapath-quest/) - Modulo Interativo de Arquitetura de Computadores
 
-**Estado:** Em desenvolvimento (modulo principal)
+**Estado:** Concluido (modulo principal)
 
 Modulo interativo para estudo de Arquitetura de Computadores, com atividades,
 simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina. A
@@ -21,22 +21,6 @@ progresso do aluno ao longo das atividades.
 **Topicos cobertos:** Aritmetica computacional, CLA, Lei de Amdahl, Desempenho,
 Hierarquia de memoria/Cache, ISA MIPS, Funcoes MIPS, Datapath e Controle,
 Tempos (caminho critico), Pipeline.
-
-### [jogo-arquitetura-legacy/](jogo-arquitetura-legacy/) - Aplicacao Legacy de Datapath MIPS
-
-**Estado:** Versao antiga (preservada) - NAO modificar
-
-Versao original da aplicacao em arquivo HTML unico. Inclui atividades de
-datapath MIPS uniciclo, Academia de licoes, Modo Aprendiz/Prova e um fluxo de
-revisao antigo preservado apenas como historico. Funciona offline, sem servidor,
-sem dependencias.
-
-### [primeira-versao/](primeira-versao/) - Snapshot inicial
-
-**Estado:** Preservado (backup)
-
-Copia intacta de uma versao anterior da aplicacao. Serve como referencia
-historica do estado do arquivo unico antes das alteracoes posteriores.
 
 ## Onde encontrar
 

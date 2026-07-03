@@ -1,4 +1,4 @@
-# Plataforma Interativa de Estudos
+﻿# Plataforma Interativa de Estudos
 
 Repositorio unico com modulos educacionais interativos criados para visualizacao,
 pratica e revisao de conteudos academicos. Cada modulo e independente: tem sua
@@ -29,15 +29,7 @@ propria pasta, dependencias, testes e comandos.
 | Modulo | Materia | Estado | Pasta |
 | --- | --- | --- | --- |
 | Reavaliacao AEDS II | AEDS II | Modulo interativo atual | [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/) |
-| Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Em desenvolvimento | [`arquitetura-computadores/jogo-arquitetura-roguelike/`](arquitetura-computadores/jogo-arquitetura-roguelike/) |
-
-## Versoes preservadas
-
-As versoes antigas preservadas ficam nas pastas existentes dentro de cada
-materia, como [`arquitetura-computadores/jogo-arquitetura-legacy/`](arquitetura-computadores/jogo-arquitetura-legacy/)
-e [`arquitetura-computadores/primeira-versao/`](arquitetura-computadores/primeira-versao/).
-Elas servem apenas como historico e referencia, nao como versao principal dos
-modulos.
+| Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Em desenvolvimento | [`arquitetura-computadores/datapath-quest/`](arquitetura-computadores/datapath-quest/) |
 
 ## Materiais da disciplina
 
