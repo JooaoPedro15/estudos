@@ -16,6 +16,15 @@ import {
 import { codeDrillCatalog } from '../content/codeDrills';
 import { domainCatalog } from '../content/domains';
 import {
+  getConceptualDrawingModuleTitle,
+  getConceptualDrawingModules,
+  getQuestionsForConceptualDrawingModule,
+  type ConceptualDrawingModuleId,
+  type ConceptualDrawingOption,
+  type ConceptualDrawingQuestion,
+  type ConceptualDrawingType,
+} from '../content/lista2Questions';
+import {
   getDrillsForModule,
   getModuleTitle,
   getPracticeModules,
@@ -36,6 +45,14 @@ import {
   getPracticeProgressLabel,
 } from '../engine/codePractice';
 import { answerCurrentStep, createExamSession, getCurrentStep } from '../engine/examSession';
+import {
+  answerCurrentConceptualQuestion,
+  createConceptualPracticeSession,
+  getConceptualProgressLabel,
+  getCurrentConceptualQuestion,
+  type ConceptualAttempt,
+  type ConceptualPracticeSession,
+} from '../engine/lista2Practice';
 import { clearSavedGame, loadSavedGame, saveGame, type SavedGameState } from '../persistence/save';
 import type {
   BlocksStep,
@@ -69,11 +86,17 @@ const skillLabels: Record<SkillId, string> = {
   justify: 'Justificar',
 };
 
+type ActiveMode = 'exam' | 'practice' | 'conceptual' | 'drawing' | 'explore';
+
 function createInitialGame(): SavedGameState {
   return {
     session: createExamSession(reavaliacaoBlueprint),
     notebook: createEmptyNotebook(),
     practiceSession: createPracticeSession(codeDrillCatalog, { mode: 'quick', targetCount: 2 }),
+    conceptualSession: createConceptualPracticeSession(getQuestionsForConceptualDrawingModule('all', 'conceitual'), {
+      mode: 'quick',
+      targetCount: 2,
+    }),
   };
 }
 
@@ -89,12 +112,28 @@ function practiceSessionMatchesDrills(
   return session.drillOrder.every((id) => ids.has(id));
 }
 
-function loadInitialState(): { game: SavedGameState; practiceModuleId: PracticeModuleId | null } {
+function conceptualSessionMatchesQuestions(
+  session: ConceptualPracticeSession,
+  questions: ConceptualDrawingQuestion[],
+): boolean {
+  if (!session.questionOrder || session.questionOrder.length === 0) {
+    return false;
+  }
+  const ids = new Set(questions.map((question) => question.id));
+  return session.questionOrder.every((id) => ids.has(id));
+}
+
+function loadInitialState(): {
+  game: SavedGameState;
+  practiceModuleId: PracticeModuleId | null;
+  conceptualModuleId: ConceptualDrawingModuleId | null;
+  drawingModuleId: ConceptualDrawingModuleId | null;
+} {
   const initialGame = createInitialGame();
   const savedGame = loadSavedGame();
 
   if (!savedGame) {
-    return { game: initialGame, practiceModuleId: null };
+    return { game: initialGame, practiceModuleId: null, conceptualModuleId: null, drawingModuleId: null };
   }
 
   // Modulo salvo so continua valido se ainda existir no catalogo atual.
@@ -109,29 +148,57 @@ function loadInitialState(): { game: SavedGameState; practiceModuleId: PracticeM
     savedGame.practiceSession && practiceSessionMatchesDrills(savedGame.practiceSession, drills)
       ? savedGame.practiceSession
       : initialGame.practiceSession;
+  const savedConceptualModuleId = savedGame.conceptualModuleId ?? null;
+  const conceptualModuleId =
+    savedConceptualModuleId !== null &&
+    getConceptualDrawingModules('conceitual').some((module) => module.id === savedConceptualModuleId)
+      ? savedConceptualModuleId
+      : null;
+  const savedDrawingModuleId = savedGame.drawingModuleId ?? null;
+  const drawingModuleId =
+    savedDrawingModuleId !== null &&
+    getConceptualDrawingModules('desenho').some((module) => module.id === savedDrawingModuleId)
+      ? savedDrawingModuleId
+      : null;
+  const conceptualQuestions = getQuestionsForConceptualDrawingModule(conceptualModuleId ?? 'all', 'conceitual');
+  const validConceptualSession =
+    savedGame.conceptualSession && conceptualSessionMatchesQuestions(savedGame.conceptualSession, conceptualQuestions)
+      ? savedGame.conceptualSession
+      : initialGame.conceptualSession;
 
   return {
     game: {
       ...initialGame,
       ...savedGame,
       practiceSession: validPracticeSession,
+      conceptualSession: validConceptualSession,
     },
     practiceModuleId: moduleId,
+    conceptualModuleId,
+    drawingModuleId,
   };
 }
 
 export function App() {
   const [initialState] = useState(loadInitialState);
   const [game, setGame] = useState<SavedGameState>(initialState.game);
-  const [activeMode, setActiveMode] = useState<'exam' | 'practice' | 'explore'>('exam');
+  const [activeMode, setActiveMode] = useState<ActiveMode>('exam');
   const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
+  const [conceptualModuleId, setConceptualModuleId] = useState<ConceptualDrawingModuleId | null>(
+    initialState.conceptualModuleId,
+  );
+  const [drawingModuleId, setDrawingModuleId] = useState<ConceptualDrawingModuleId | null>(
+    initialState.drawingModuleId,
+  );
   const [selectedDomainId, setSelectedDomainId] = useState<DomainId>('somatorio');
   const [choiceAnswer, setChoiceAnswer] = useState('');
+  const [conceptualChoiceAnswer, setConceptualChoiceAnswer] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
   const [blockOrder, setBlockOrder] = useState<string[]>([]);
   const [fixLineIndex, setFixLineIndex] = useState<number | null>(null);
   const [fixId, setFixId] = useState('');
   const [lastAttempt, setLastAttempt] = useState<StepAttempt | null>(null);
+  const [lastConceptualAttempt, setLastConceptualAttempt] = useState<ConceptualAttempt | null>(null);
   const [showTeaching, setShowTeaching] = useState(false);
 
   const currentQuestion = reavaliacaoBlueprint.questions[game.session.currentQuestionIndex];
@@ -140,7 +207,14 @@ export function App() {
   const practiceSession =
     game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
   const currentPracticeDrill = getCurrentPracticeDrill(practiceDrills, practiceSession);
-  const activeStep = activeMode === 'exam' ? currentStep : currentPracticeDrill?.step;
+  const lista2QuestionType: ConceptualDrawingType = activeMode === 'drawing' ? 'desenho' : 'conceitual';
+  const lista2ModuleId = activeMode === 'drawing' ? drawingModuleId : conceptualModuleId;
+  const conceptualQuestions = getQuestionsForConceptualDrawingModule(lista2ModuleId ?? 'all', lista2QuestionType);
+  const conceptualSession =
+    game.conceptualSession ?? createConceptualPracticeSession(conceptualQuestions, { mode: 'quick', targetCount: 2 });
+  const currentConceptualQuestion = getCurrentConceptualQuestion(conceptualQuestions, conceptualSession);
+  const activeStep =
+    activeMode === 'exam' ? currentStep : activeMode === 'practice' ? currentPracticeDrill?.step : undefined;
   const selectedDomain = domainCatalog.find((domain) => domain.id === selectedDomainId) ?? domainCatalog[0];
   const currentDomain =
     domainCatalog.find((domain) => domain.id === currentQuestion?.domainId) ?? selectedDomain;
@@ -153,18 +227,19 @@ export function App() {
   useEffect(() => {
     // Debounce: agrupa mudancas rapidas em uma unica serializacao.
     const timer = window.setTimeout(() => {
-      saveGame({ ...game, practiceModuleId });
+      saveGame({ ...game, practiceModuleId, conceptualModuleId, drawingModuleId });
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [game, practiceModuleId]);
+  }, [conceptualModuleId, drawingModuleId, game, practiceModuleId]);
 
   useEffect(() => {
     resetAnswerDrafts();
     setShowTeaching(false);
-  }, [activeMode, currentStep?.id, currentPracticeDrill?.step.id]);
+  }, [activeMode, currentConceptualQuestion?.id, currentPracticeDrill?.step.id, currentStep?.id]);
 
   function resetAnswerDrafts() {
     setChoiceAnswer('');
+    setConceptualChoiceAnswer('');
     setTextAnswer('');
     setBlockOrder([]);
     setFixLineIndex(null);
@@ -174,6 +249,11 @@ export function App() {
   function submitAnswer() {
     if (activeMode === 'practice') {
       submitPracticeAnswer();
+      return;
+    }
+
+    if (activeMode === 'conceptual' || activeMode === 'drawing') {
+      submitConceptualAnswer();
       return;
     }
 
@@ -206,11 +286,33 @@ export function App() {
     }));
   }
 
+  function submitConceptualAnswer() {
+    if (!conceptualChoiceAnswer || !currentConceptualQuestion) {
+      return;
+    }
+
+    const nextConceptualSession = answerCurrentConceptualQuestion(
+      conceptualQuestions,
+      conceptualSession,
+      conceptualChoiceAnswer,
+    );
+    const attempt = nextConceptualSession.attempts[nextConceptualSession.attempts.length - 1] ?? null;
+
+    setLastConceptualAttempt(attempt);
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: nextConceptualSession,
+    }));
+  }
+
   function resetGame() {
     const nextGame = createInitialGame();
     clearSavedGame();
     setLastAttempt(null);
+    setLastConceptualAttempt(null);
     setSelectedDomainId('somatorio');
+    setConceptualModuleId(null);
+    setDrawingModuleId(null);
     setGame(nextGame);
   }
 
@@ -220,6 +322,24 @@ export function App() {
     setGame((currentGame) => ({
       ...currentGame,
       practiceSession: createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 }),
+    }));
+  }
+
+  function startQuickConceptual() {
+    setLastConceptualAttempt(null);
+    setActiveMode(activeMode === 'drawing' ? 'drawing' : 'conceptual');
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: createConceptualPracticeSession(conceptualQuestions, { mode: 'quick', targetCount: 2 }),
+    }));
+  }
+
+  function startMarathonConceptual() {
+    setLastConceptualAttempt(null);
+    setActiveMode(activeMode === 'drawing' ? 'drawing' : 'conceptual');
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: createConceptualPracticeSession(conceptualQuestions, { mode: 'marathon' }),
     }));
   }
 
@@ -250,6 +370,45 @@ export function App() {
   function backToModuleSelection() {
     setLastAttempt(null);
     setPracticeModuleId(null);
+  }
+
+  function selectConceptualModule(moduleId: ConceptualDrawingModuleId) {
+    const questions = getQuestionsForConceptualDrawingModule(moduleId, lista2QuestionType);
+    setLastConceptualAttempt(null);
+    if (activeMode === 'drawing') {
+      setDrawingModuleId(moduleId);
+    } else {
+      setConceptualModuleId(moduleId);
+    }
+
+    if (questions.length === 0) {
+      return;
+    }
+
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: createConceptualPracticeSession(questions, { mode: 'quick', targetCount: 2 }),
+    }));
+  }
+
+  function backToConceptualModuleSelection() {
+    setLastConceptualAttempt(null);
+    if (activeMode === 'drawing') {
+      setDrawingModuleId(null);
+    } else {
+      setConceptualModuleId(null);
+    }
+  }
+
+  function restartConceptualModule() {
+    setLastConceptualAttempt(null);
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: createConceptualPracticeSession(conceptualQuestions, {
+        mode: conceptualSession.mode,
+        targetCount: conceptualSession.targetCount,
+      }),
+    }));
   }
 
   function restartPracticeModule() {
@@ -315,6 +474,22 @@ export function App() {
           Treino de Codigo
         </button>
         <button
+          className={activeMode === 'conceptual' ? 'is-active' : ''}
+          onClick={() => setActiveMode('conceptual')}
+          type="button"
+        >
+          <BookOpenCheck aria-hidden="true" size={16} />
+          Conceitual
+        </button>
+        <button
+          className={activeMode === 'drawing' ? 'is-active' : ''}
+          onClick={() => setActiveMode('drawing')}
+          type="button"
+        >
+          <Shapes aria-hidden="true" size={16} />
+          Desenho
+        </button>
+        <button
           className={activeMode === 'explore' ? 'is-active' : ''}
           onClick={() => setActiveMode('explore')}
           type="button"
@@ -359,10 +534,22 @@ export function App() {
           <div className="panel-title">
             {activeMode === 'exam' ? (
               <ClipboardList aria-hidden="true" size={18} />
+            ) : activeMode === 'conceptual' ? (
+              <BookOpenCheck aria-hidden="true" size={18} />
+            ) : activeMode === 'drawing' ? (
+              <Shapes aria-hidden="true" size={18} />
             ) : (
               <Code2 aria-hidden="true" size={18} />
             )}
-            <h2 id="exam-title">{activeMode === 'exam' ? 'Simulado de 6 questoes' : 'Treino de Codigo'}</h2>
+            <h2 id="exam-title">
+              {activeMode === 'exam'
+                ? 'Simulado de 6 questoes'
+                : activeMode === 'conceptual'
+                  ? 'Conceitual'
+                  : activeMode === 'drawing'
+                    ? 'Desenho'
+                    : 'Treino de Codigo'}
+            </h2>
           </div>
 
           {activeMode === 'practice' ? (
@@ -404,6 +591,41 @@ export function App() {
                 practiceSession={practiceSession}
                 showTeaching={showTeaching}
                 textAnswer={textAnswer}
+              />
+            )
+          ) : activeMode === 'conceptual' || activeMode === 'drawing' ? (
+            lista2ModuleId === null ? (
+              <ConceptualModuleSelection questionType={lista2QuestionType} onSelect={selectConceptualModule} />
+            ) : conceptualQuestions.length === 0 ? (
+              <div className="complete-state">
+                {activeMode === 'drawing' ? (
+                  <Shapes aria-hidden="true" size={42} />
+                ) : (
+                  <BookOpenCheck aria-hidden="true" size={42} />
+                )}
+                <h3>Modulo sem questoes</h3>
+                <p>Este filtro ainda nao tem questoes cadastradas.</p>
+                <button className="primary-button" onClick={backToConceptualModuleSelection} type="button">
+                  <RotateCcw aria-hidden="true" size={18} />
+                  Voltar aos filtros
+                </button>
+              </div>
+            ) : (
+              <ConceptualPracticeExperience
+                choiceAnswer={conceptualChoiceAnswer}
+                currentQuestion={currentConceptualQuestion}
+                lastAttempt={lastConceptualAttempt}
+                moduleTitle={getConceptualDrawingModuleTitle(lista2ModuleId)}
+                onChangeModule={backToConceptualModuleSelection}
+                onChoice={setConceptualChoiceAnswer}
+                onResetDrafts={resetAnswerDrafts}
+                onRestartModule={restartConceptualModule}
+                onStartMarathon={startMarathonConceptual}
+                onStartQuick={startQuickConceptual}
+                onSubmit={submitAnswer}
+                onToggleTeaching={() => setShowTeaching((value) => !value)}
+                practiceSession={conceptualSession}
+                showTeaching={showTeaching}
               />
             )
           ) : game.session.completed || !currentQuestion || !currentStep ? (
@@ -587,6 +809,270 @@ function ModuleSelection({ onSelect }: { onSelect: (moduleId: PracticeModuleId) 
       </div>
     </div>
   );
+}
+
+function ConceptualModuleSelection({
+  onSelect,
+  questionType,
+}: {
+  onSelect: (moduleId: ConceptualDrawingModuleId) => void;
+  questionType: ConceptualDrawingType;
+}) {
+  const modules = getConceptualDrawingModules(questionType);
+
+  return (
+    <div className="module-select">
+      <p className="question-stem">
+        Escolha um filtro. "Conteudo inteiro" mistura todas as questoes deste modo; os demais isolam modulo real da
+        Lista 2.
+      </p>
+      <div className="domain-list">
+        {modules.map((module) => (
+          <button
+            className={`domain-button ${module.id === 'all' ? 'is-active' : ''}`}
+            key={module.id}
+            onClick={() => onSelect(module.id)}
+            type="button"
+          >
+            <strong>{module.title}</strong>
+            <span>{module.description}</span>
+            <span>
+              {module.count} {module.count === 1 ? 'questao' : 'questoes'}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type ConceptualPracticeExperienceProps = {
+  currentQuestion: ConceptualDrawingQuestion | undefined;
+  practiceSession: ConceptualPracticeSession;
+  choiceAnswer: string;
+  lastAttempt: ConceptualAttempt | null;
+  moduleTitle: string;
+  onChoice: (optionId: string) => void;
+  onResetDrafts: () => void;
+  onSubmit: () => void;
+  onChangeModule: () => void;
+  onRestartModule: () => void;
+  onStartQuick: () => void;
+  onStartMarathon: () => void;
+  onToggleTeaching: () => void;
+  showTeaching: boolean;
+};
+
+function ConceptualPracticeExperience({
+  choiceAnswer,
+  currentQuestion,
+  lastAttempt,
+  moduleTitle,
+  onChangeModule,
+  onChoice,
+  onResetDrafts,
+  onRestartModule,
+  onStartMarathon,
+  onStartQuick,
+  onSubmit,
+  onToggleTeaching,
+  practiceSession,
+  showTeaching,
+}: ConceptualPracticeExperienceProps) {
+  if (practiceSession.completed || !currentQuestion) {
+    return (
+      <div className="complete-state">
+        <CheckCircle2 aria-hidden="true" size={42} />
+        <h3>Sessao rapida concluida</h3>
+        <p>
+          {practiceSession.completedCount} questoes feitas neste ciclo · {practiceSession.score} pts · Filtro:{' '}
+          {moduleTitle}
+        </p>
+        {lastAttempt && (
+          <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
+            {lastAttempt.correct ? (
+              <CheckCircle2 aria-hidden="true" size={18} />
+            ) : (
+              <XCircle aria-hidden="true" size={18} />
+            )}
+            <span>{lastAttempt.feedback}</span>
+          </div>
+        )}
+        <div className="practice-actions">
+          <button className="primary-button" onClick={onStartQuick} type="button">
+            <BookOpenCheck aria-hidden="true" size={18} />
+            Pegar 2 questoes
+          </button>
+          <button className="ghost-button" onClick={onStartMarathon} type="button">
+            <RotateCcw aria-hidden="true" size={18} />
+            Maratona
+          </button>
+          <button className="ghost-button" onClick={onChangeModule} type="button">
+            <ListChecks aria-hidden="true" size={18} />
+            Trocar filtro
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="practice-toolbar">
+        <div>
+          <strong>Modulo: {moduleTitle}</strong>
+          <span>
+            {practiceSession.mode === 'quick' ? 'Sessao rapida' : 'Maratona'} ·{' '}
+            {getConceptualProgressLabel(practiceSession)} questoes · {practiceSession.score} pts · {currentQuestion.type}
+          </span>
+        </div>
+        <div className="practice-actions">
+          <button className="ghost-button compact" onClick={onChangeModule} type="button">
+            <ListChecks aria-hidden="true" size={16} />
+            Trocar filtro
+          </button>
+          <button className="ghost-button compact" onClick={onRestartModule} type="button">
+            <RotateCcw aria-hidden="true" size={16} />
+            Reiniciar
+          </button>
+          <button className="ghost-button compact" onClick={onStartQuick} type="button">
+            Pegar 2 questoes
+          </button>
+          <button className="ghost-button compact" onClick={onStartMarathon} type="button">
+            Maratona
+          </button>
+        </div>
+      </div>
+
+      <div className="question-header">
+        <span className="question-badge" data-domain={currentQuestion.domainId}>
+          {currentQuestion.type === 'desenho' ? 'D' : 'Q'}
+        </span>
+        <div>
+          <h3>{currentQuestion.title}</h3>
+          <p>{currentQuestion.type === 'desenho' ? 'Alternativas visuais' : 'Questao conceitual'}</p>
+        </div>
+      </div>
+
+      <p className="question-stem">{currentQuestion.stem}</p>
+
+      <div className="step-panel">
+        <div className="step-meta">
+          <span>{currentQuestion.type === 'desenho' ? 'Desenho' : 'Conceitual'}</span>
+          <span>{currentQuestion.difficulty}</span>
+        </div>
+        <h4>Escolha a alternativa correta e confirme a resposta.</h4>
+        {currentQuestion.type === 'desenho' ? (
+          <VisualChoiceControl choiceAnswer={choiceAnswer} onChoice={onChoice} options={currentQuestion.options} />
+        ) : (
+          <ConceptualChoiceControl choiceAnswer={choiceAnswer} onChoice={onChoice} options={currentQuestion.options} />
+        )}
+      </div>
+
+      <div className="action-row">
+        <button className="primary-button" disabled={!choiceAnswer} onClick={onSubmit} type="button">
+          <CheckCircle2 aria-hidden="true" size={18} />
+          Responder
+        </button>
+        <button className="ghost-button" onClick={onResetDrafts} type="button">
+          <RotateCcw aria-hidden="true" size={18} />
+          Limpar
+        </button>
+        <button className="ghost-button" onClick={onToggleTeaching} type="button">
+          <BookOpenCheck aria-hidden="true" size={18} />
+          Me ensine
+        </button>
+      </div>
+
+      {showTeaching && <ConceptualTeachingBox question={currentQuestion} />}
+
+      {lastAttempt && (
+        <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
+          {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
+          <span>{lastAttempt.feedback}</span>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ConceptualChoiceControl({
+  choiceAnswer,
+  onChoice,
+  options,
+}: {
+  choiceAnswer: string;
+  onChoice: (optionId: string) => void;
+  options: ConceptualDrawingOption[];
+}) {
+  return (
+    <div className="option-grid">
+      {options.map((option, index) => (
+        <button
+          className={`option-button ${choiceAnswer === option.id ? 'is-selected' : ''}`}
+          key={option.id}
+          onClick={() => onChoice(option.id)}
+          type="button"
+        >
+          {formatOptionLabel(option, index)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function VisualChoiceControl({
+  choiceAnswer,
+  onChoice,
+  options,
+}: {
+  choiceAnswer: string;
+  onChoice: (optionId: string) => void;
+  options: ConceptualDrawingOption[];
+}) {
+  return (
+    <div className="visual-option-grid">
+      {options.map((option, index) => (
+        <div className={`visual-option ${choiceAnswer === option.id ? 'is-selected' : ''}`} key={option.id}>
+          {option.visual && <StructureVizCard visual={option.visual} />}
+          <button
+            className={`option-button ${choiceAnswer === option.id ? 'is-selected' : ''}`}
+            onClick={() => onChoice(option.id)}
+            type="button"
+          >
+            {formatOptionLabel(option, index)}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ConceptualTeachingBox({ question }: { question: ConceptualDrawingQuestion }) {
+  const correctOption = question.options.find((option) => option.id === question.correctOptionId);
+
+  return (
+    <aside className="teaching-box" aria-label="Explicacao guiada">
+      <div className="practice-heading">
+        <BookOpenCheck aria-hidden="true" size={18} />
+        <h3>Me ensine</h3>
+      </div>
+      <p>{question.explanation}</p>
+      {correctOption && (
+        <p>
+          Alternativa correta: <strong>{correctOption.label}</strong>
+        </p>
+      )}
+    </aside>
+  );
+}
+
+function formatOptionLabel(option: ConceptualDrawingOption, index: number): string {
+  if (/^[A-D]\./.test(option.label)) {
+    return option.label;
+  }
+
+  return `${String.fromCharCode(65 + index)}. ${option.label}`;
 }
 
 type PracticeExperienceProps = {

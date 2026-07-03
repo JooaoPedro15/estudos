@@ -1,5 +1,17 @@
 export type DomainId = 'doidona' | 'trie' | 'avl' | 'arvore' | 'hash' | 'vetores' | 'somatorio' | 'ordenacao';
 
+export type ContentModuleId =
+  | DomainId
+  | 'complexidade'
+  | 'recursividade'
+  | 'lista'
+  | 'fila'
+  | 'pilha'
+  | 'matriz'
+  | 'arvore234'
+  | 'alvinegra'
+  | 'patricia';
+
 export type QuestionFormat =
   | 'summation-from-code'
   | 'structure-simulation'
@@ -198,7 +210,20 @@ export type StepResult = {
   mistakeTag?: MistakeTag;
 };
 
-export type StructureVisualKind = 'binary-tree' | 'avl' | 'trie' | 'doidona' | 'array' | 'hash';
+export type StructureVisualKind =
+  | 'binary-tree'
+  | 'avl'
+  | 'trie'
+  | 'doidona'
+  | 'array'
+  | 'hash'
+  | 'list'
+  | 'queue'
+  | 'stack'
+  | 'matrix'
+  | 'tree234'
+  | 'red-black'
+  | 'patricia';
 
 export type StructureVisual = {
   kind: StructureVisualKind;
@@ -212,8 +237,10 @@ export type CodeDrillPhase = 'repeat' | 'modify';
 export type CodeDrill = {
   id: string;
   domainId: DomainId;
+  moduleId?: ContentModuleId;
   title: string;
-  source: 'lista-prova3' | 'reav-style';
+  source: 'lista-prova3' | 'reav-style' | 'lista-2';
+  difficulty?: 'basico' | 'intermediario' | 'avancado' | 'reavaliacao' | 'desafio';
   repetitionGroup: string;
   phase: CodeDrillPhase;
   format: Extract<QuestionFormat, 'code-repetition' | 'code-modification'>;

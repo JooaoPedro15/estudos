@@ -1,4 +1,6 @@
+import type { ConceptualDrawingModuleId } from '../content/lista2Questions';
 import type { PracticeModuleId } from '../content/practiceModules';
+import type { ConceptualPracticeSession } from '../engine/lista2Practice';
 import type { ErrorNotebook, ExamSession, PracticeSession } from '../types/progress';
 
 export const SAVE_KEY = 'reavaliacao-aeds-2:save';
@@ -7,8 +9,11 @@ export type SavedGameState = {
   session: ExamSession;
   notebook: ErrorNotebook;
   practiceSession?: PracticeSession;
+  conceptualSession?: ConceptualPracticeSession;
   /** Modulo de treino ativo, para o deck restaurado bater com o filtro. */
   practiceModuleId?: PracticeModuleId | null;
+  conceptualModuleId?: ConceptualDrawingModuleId | null;
+  drawingModuleId?: ConceptualDrawingModuleId | null;
 };
 
 export function saveGame(state: SavedGameState, storage: Storage = window.localStorage): void {

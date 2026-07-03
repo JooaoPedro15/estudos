@@ -379,6 +379,166 @@ export function insertionSortScene(values: number[]): VizScene {
   return { operation: `inserir chave ${chave} no prefixo ordenado`, complexity: 'O(n²) pior caso', code, frames, width, height: 290 };
 }
 
+/* ---------- VISUAIS ESTATICOS PARA ALTERNATIVAS DE DESENHO ---------- */
+
+function linearStructureScene(labels: string[], kind: 'list' | 'queue' | 'stack'): VizScene {
+  const items = labels.filter((label) => label.trim() !== '');
+  const shown = items.length ? items : ['vazio'];
+  const width = 460;
+  const cellW = Math.min(78, (width - 70) / Math.max(shown.length, 1));
+  const startX = width / 2 - (cellW * (shown.length - 1)) / 2;
+  const y = kind === 'stack' ? 220 : 150;
+  const nodes: VizNode[] = shown.map((label, index) =>
+    n(`lin${index}`, kind === 'stack' ? width / 2 : startX + index * cellW, kind === 'stack' ? y - index * 48 : y, label, {
+      shape: 'box',
+      w: Math.max(46, cellW - 10),
+      h: 40,
+      state: index === 0 ? 'found' : 'default',
+      sub: kind === 'queue' ? `${index}` : undefined,
+    }),
+  );
+  const edges: VizEdge[] = [];
+
+  for (let index = 0; index < nodes.length - 1; index++) {
+    edges.push(e(nodes[index].id, nodes[index + 1].id, { arrow: true }));
+  }
+
+  const pointers =
+    kind === 'stack'
+      ? [p(nodes[nodes.length - 1].id, 'topo', 'top', 'accent')]
+      : [p(nodes[0].id, 'primeiro', 'bottom', 'accent'), p(nodes[nodes.length - 1].id, 'ultimo', 'bottom', 'warning')];
+  const label = kind === 'stack' ? 'pilha' : kind === 'queue' ? 'fila' : 'lista';
+
+  return {
+    operation: `estado de ${label}`,
+    complexity: 'visual',
+    code: ['estado final:', `  ${shown.join(kind === 'list' ? ' -> ' : ', ')}`],
+    frames: [snap(nodes, edges, pointers, `Representacao visual do estado final da ${label}.`, undefined)],
+    width,
+    height: kind === 'stack' ? 290 : 250,
+  };
+}
+
+function matrixStructureScene(labels: string[]): VizScene {
+  const values = labels.filter((label) => label.trim() !== '');
+  const shown = values.length >= 9 ? values.slice(0, 9) : ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const nodes: VizNode[] = [];
+  const edges: VizEdge[] = [];
+  const startX = 130;
+  const startY = 78;
+  const gap = 76;
+
+  shown.forEach((label, index) => {
+    const row = Math.floor(index / 3);
+    const col = index % 3;
+    nodes.push(n(`m${index}`, startX + col * gap, startY + row * gap, label, {
+      shape: 'box',
+      w: 48,
+      h: 40,
+      state: row === col ? 'found' : 'default',
+      sub: `${row},${col}`,
+    }));
+  });
+
+  for (let index = 0; index < nodes.length; index++) {
+    if (index % 3 < 2) edges.push(e(`m${index}`, `m${index + 1}`, { arrow: true }));
+    if (index < 6) edges.push(e(`m${index}`, `m${index + 3}`, { arrow: true, dashed: true }));
+  }
+
+  return {
+    operation: 'matriz encadeada',
+    complexity: 'visual',
+    code: ['diagonal:', '  avanca inf.dir'],
+    frames: [snap(nodes, edges, [p('m0', 'inicio', 'top', 'accent')], 'Diagonal principal marcada na matriz encadeada.', 1)],
+    width: 460,
+    height: 310,
+  };
+}
+
+function multiwayTreeScene(labels: string[], operation: string): VizScene {
+  const shown = labels.filter((label) => label.trim() !== '');
+  const rootLabel = shown[0] ?? '[8|12|18]';
+  const childLabels = shown.length > 1 ? shown.slice(1, 5) : ['[2|4|6]', '[10]', '[14|16]', '[20|22]'];
+  const nodes: VizNode[] = [n('root234', 230, 70, rootLabel, { shape: 'box', w: 104, h: 42, state: 'found' })];
+  const edges: VizEdge[] = [];
+  const startX = 82;
+
+  childLabels.forEach((label, index) => {
+    const id = `child234${index}`;
+    nodes.push(n(id, startX + index * 98, 184, label, { shape: 'box', w: 82, h: 42 }));
+    edges.push(e('root234', id));
+  });
+
+  return {
+    operation,
+    complexity: 'altura logaritmica',
+    code: ['no 2-3-4:', '  chaves ordenadas', '  filhos entre intervalos'],
+    frames: [snap(nodes, edges, [p('root234', 'raiz', 'top', 'accent')], 'No multi-chave com filhos separados por intervalos.', 1)],
+    width: 460,
+    height: 260,
+  };
+}
+
+function redBlackStructureScene(labels: string[]): VizScene {
+  const shown = labels.filter((label) => label.trim() !== '');
+  const root = buildLevelOrderTree(shown.length ? shown : ['12B', '8P', '18P', '4B', '10B', '14B', '20B'])!;
+  const positions = layoutTree(root, 460, { top: 52, levelGap: 78 });
+  const nodes: VizNode[] = [];
+  const edges: VizEdge[] = [];
+
+  (function collect(node: TreeNode) {
+    const at = positions.get(node.id)!;
+    const raw = node.label;
+    const color = raw.endsWith('P') ? 'P' : raw.endsWith('B') ? 'B' : '';
+    const label = color ? raw.slice(0, -1) : raw;
+    nodes.push(n(node.id, at.x, at.y, label, { sub: color, state: color === 'P' ? 'active' : 'default' }));
+    if (node.left) {
+      edges.push(e(node.id, node.left.id, { state: node.left.label.endsWith('P') ? 'active' : 'default' }));
+      collect(node.left);
+    }
+    if (node.right) {
+      edges.push(e(node.id, node.right.id, { state: node.right.label.endsWith('P') ? 'active' : 'default' }));
+      collect(node.right);
+    }
+  })(root);
+
+  return {
+    operation: 'arvore alvinegra',
+    complexity: 'O(log n)',
+    code: ['verificar cores:', '  raiz branca', '  sem dois coloridos seguidos', '  mesma altura branca'],
+    frames: [snap(nodes, edges, [p(root.id, 'raiz', 'top', 'accent')], 'B indica branco; P indica preto/colorido na convencao da questao.', 1)],
+    width: 460,
+    height: 300,
+  };
+}
+
+function patriciaStructureScene(labels: string[]): VizScene {
+  const segments = labels.filter((label) => label.trim() !== '');
+  const shown = segments.length ? segments : ['BRA', 'S', 'IL', 'A', 'VO'];
+  const nodes: VizNode[] = [n('pat-root', 80, 66, 'raiz', { shape: 'pill', w: 62, h: 34 })];
+  const edges: VizEdge[] = [];
+
+  shown.slice(0, 5).forEach((label, index) => {
+    const id = `pat${index}`;
+    nodes.push(n(id, 170 + (index % 3) * 96, 70 + Math.floor(index / 3) * 92, label, {
+      shape: 'pill',
+      w: 78,
+      h: 34,
+      state: index === 0 ? 'found' : 'default',
+    }));
+    edges.push(e(index === 0 ? 'pat-root' : `pat${Math.max(0, index - 1)}`, id, { arrow: true }));
+  });
+
+  return {
+    operation: 'PATRICIA comprimida',
+    complexity: 'por caracteres visitados',
+    code: ['comparar segmento:', '  avanca somente se o rotulo casar'],
+    frames: [snap(nodes, edges, [p('pat-root', 'raiz', 'top', 'accent')], 'Segmentos sem bifurcacao sao comprimidos em um unico rotulo.', 1)],
+    width: 460,
+    height: 260,
+  };
+}
+
 /* =====================================================================
    Mapeamento: visual do conteúdo → cena animada
    ===================================================================== */
@@ -406,6 +566,20 @@ export function buildSceneForVisual(visual: StructureVisual): VizScene {
     case 'doidona':
       // Busca que atravessa T1 → T2 → subestrutura, como na questão.
       return doidonaScene('buscar', 17, defaultDoidonaConfig);
+    case 'list':
+      return linearStructureScene(cleaned, 'list');
+    case 'queue':
+      return linearStructureScene(cleaned, 'queue');
+    case 'stack':
+      return linearStructureScene(cleaned, 'stack');
+    case 'matrix':
+      return matrixStructureScene(cleaned);
+    case 'tree234':
+      return multiwayTreeScene(cleaned, 'arvore 2-3-4');
+    case 'red-black':
+      return redBlackStructureScene(cleaned);
+    case 'patricia':
+      return patriciaStructureScene(cleaned);
     case 'array': {
       const numeric = cleaned.every(isNumeric) && cleaned.length >= 3;
       const sorted = numeric && cleaned.map(Number).every((value, index, all) => index === 0 || all[index - 1] <= value);

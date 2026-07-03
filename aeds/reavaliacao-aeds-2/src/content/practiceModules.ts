@@ -1,6 +1,6 @@
 import { codeDrillCatalog } from './codeDrills';
-import { domainCatalog } from './domains';
-import type { CodeDrill, DomainId } from '../types/content';
+import { contentModuleCatalog } from './contentModules';
+import type { CodeDrill, ContentModuleId } from '../types/content';
 
 /**
  * Fonte única de classificação dos treinos por módulo.
@@ -10,7 +10,7 @@ import type { CodeDrill, DomainId } from '../types/content';
  * espalhadas pelo restante do código.
  */
 
-export type PracticeModuleId = DomainId | 'all';
+export type PracticeModuleId = ContentModuleId | 'all';
 
 export type PracticeModule = {
   id: PracticeModuleId;
@@ -20,10 +20,15 @@ export type PracticeModule = {
 };
 
 /** Quantos drills existem por domínio. */
-function countByDomain(): Map<DomainId, number> {
-  const counts = new Map<DomainId, number>();
+function getDrillModuleId(drill: CodeDrill): ContentModuleId {
+  return drill.moduleId ?? drill.domainId;
+}
+
+function countByModule(): Map<ContentModuleId, number> {
+  const counts = new Map<ContentModuleId, number>();
   for (const drill of codeDrillCatalog) {
-    counts.set(drill.domainId, (counts.get(drill.domainId) ?? 0) + 1);
+    const moduleId = getDrillModuleId(drill);
+    counts.set(moduleId, (counts.get(moduleId) ?? 0) + 1);
   }
   return counts;
 }
@@ -35,15 +40,15 @@ function countByDomain(): Map<DomainId, number> {
  * `domainCatalog`.
  */
 export function getPracticeModules(): PracticeModule[] {
-  const counts = countByDomain();
+  const counts = countByModule();
 
-  const specificModules: PracticeModule[] = domainCatalog
-    .filter((domain) => (counts.get(domain.id) ?? 0) > 0)
-    .map((domain) => ({
-      id: domain.id,
-      title: domain.title,
-      description: domain.examRole,
-      count: counts.get(domain.id) ?? 0,
+  const specificModules: PracticeModule[] = contentModuleCatalog
+    .filter((module) => (counts.get(module.id) ?? 0) > 0)
+    .map((module) => ({
+      id: module.id,
+      title: module.title,
+      description: module.description,
+      count: counts.get(module.id) ?? 0,
     }));
 
   return [
@@ -62,7 +67,7 @@ export function getDrillsForModule(moduleId: PracticeModuleId): CodeDrill[] {
   if (moduleId === 'all') {
     return codeDrillCatalog;
   }
-  return codeDrillCatalog.filter((drill) => drill.domainId === moduleId);
+  return codeDrillCatalog.filter((drill) => getDrillModuleId(drill) === moduleId);
 }
 
 /** Título curto do módulo, para mostrar durante o treino. */
