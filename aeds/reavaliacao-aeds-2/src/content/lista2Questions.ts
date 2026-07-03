@@ -1,5 +1,11 @@
 import { contentModuleCatalog, getContentModule } from './contentModules';
-import type { ContentModuleId, DomainId, StructureVisual, StructureVisualKind } from '../types/content';
+import type {
+  ContentModuleId,
+  DomainId,
+  StructureVisual,
+  StructureVisualKind,
+  StructureVisualStep,
+} from '../types/content';
 
 export type ConceptualDrawingType = 'conceitual' | 'desenho';
 export type ConceptualDifficulty = 'basico' | 'intermediario' | 'avancado' | 'reavaliacao' | 'desafio';
@@ -20,6 +26,7 @@ export type ConceptualDrawingQuestion = {
   source: 'lista-2';
   title: string;
   stem: string;
+  demoVisual?: StructureVisual;
   options: ConceptualDrawingOption[];
   correctOptionId: string;
   explanation: string;
@@ -103,7 +110,10 @@ function dq(
   correctOptionId: string,
   options: ConceptualDrawingOption[],
   explanation: string,
+  demoVisual?: StructureVisual,
 ): ConceptualDrawingQuestion {
+  const resolvedDemoVisual = demoVisual ?? drawingDemoVisuals[number] ?? deriveDrawingDemo(options, correctOptionId);
+
   return {
     id: `lista2-desenho-q${String(number).padStart(2, '0')}`,
     type: 'desenho',
@@ -113,9 +123,46 @@ function dq(
     source: 'lista-2',
     title: `Q${number} - ${title}`,
     stem,
+    demoVisual: resolvedDemoVisual,
     correctOptionId,
     options,
     explanation: `Gabarito Lista 2: ${explanation}`,
+  };
+}
+
+function demoStep(caption: string, labels: string[], code?: string, vars?: StructureVisualStep['vars']): StructureVisualStep {
+  return { caption, labels, code, vars };
+}
+
+function demoVisual(
+  kind: StructureVisualKind,
+  title: string,
+  caption: string,
+  labels: string[],
+  steps: StructureVisualStep[],
+  operation: string,
+  complexity = 'passo a passo',
+): StructureVisual {
+  return { kind, title, caption, labels, steps, operation, complexity };
+}
+
+function deriveDrawingDemo(options: ConceptualDrawingOption[], correctOptionId: string): StructureVisual | undefined {
+  const correctVisual = options.find((currentOption) => currentOption.id === correctOptionId)?.visual;
+
+  if (!correctVisual) {
+    return undefined;
+  }
+
+  return {
+    ...correctVisual,
+    title: `Demonstracao - ${correctVisual.title}`,
+    caption: `Passo a passo para chegar em ${correctVisual.caption}.`,
+    steps: [
+      demoStep('Leia o estado inicial e as operacoes do enunciado.', correctVisual.labels, 'estado inicial + operacoes'),
+      demoStep('Compare o estado final com as alternativas estaticas abaixo.', correctVisual.labels, 'estado final'),
+    ],
+    operation: correctVisual.title,
+    complexity: 'passo a passo',
   };
 }
 
@@ -290,6 +337,295 @@ const conceptualQuestions: ConceptualDrawingQuestion[] = [
     'AVL e ABB; ABB nao e necessariamente alvinegra; hash nao garante pior caso constante.'),
 ];
 
+const drawingDemoVisuals: Partial<Record<number, StructureVisual>> = {
+  25: demoVisual(
+    'array',
+    'Demo - lista sequencial',
+    'Executa inserirInicio, inserir por posicao e remocoes por posicao/fim.',
+    ['2', '4', '7', '8'],
+    [
+      demoStep('Estado inicial: vetor logico [4, 7, 9, 15], n = 4.', ['4', '7', '9', '15'], 'estado = [4,7,9,15]'),
+      demoStep('inserirInicio(2): todos deslocam uma casa para a direita.', ['2', '4', '7', '9', '15'], 'inserirInicio(2)'),
+      demoStep('inserir(8, 3): 8 entra na posicao 3 antes do 9.', ['2', '4', '7', '8', '9', '15'], 'inserir(8, 3)'),
+      demoStep('remover(4): a posicao 4 remove o valor 9.', ['2', '4', '7', '8', '15'], 'remover(posicao 4)'),
+      demoStep('removerFim(): remove 15 e deixa [2, 4, 7, 8].', ['2', '4', '7', '8'], 'removerFim()'),
+    ],
+    'lista sequencial: insercoes e remocoes',
+    'O(n)',
+  ),
+  26: demoVisual(
+    'queue',
+    'Demo - fila circular',
+    'Mostra a ordem logica preservada mesmo quando o vetor circular volta ao inicio.',
+    ['40', '50', '60', '70', '80'],
+    [
+      demoStep('Fila circular vazia com capacidade fisica 6 e uma vaga sentinela.', [], 'primeiro = ultimo = 0'),
+      demoStep('Enfileira 10, 20, 30, 40, 50.', ['10', '20', '30', '40', '50'], 'enfileirar 10..50'),
+      demoStep('Desenfileira 10, 20 e 30; a frente logica passa para 40.', ['40', '50'], 'desenfileirar 3 vezes'),
+      demoStep('Enfileira 60, 70 e 80 usando modulo para reaproveitar o inicio fisico.', ['40', '50', '60', '70', '80'], 'enfileirar 60,70,80'),
+    ],
+    'fila circular: wrap-around',
+    'O(1)',
+  ),
+  27: demoVisual(
+    'array',
+    'Demo - pilha e fila',
+    'Compara LIFO e FIFO na mesma sequencia de valores.',
+    ['P:3', 'P:8', 'F:5', 'F:2'],
+    [
+      demoStep('Pilha recebe push(3), push(8), push(5), push(2). Fila recebe 3, 8, 5, 2.', ['P:3', 'P:8', 'P:5', 'P:2', 'F:3', 'F:8', 'F:5', 'F:2'], 'montar pilha e fila'),
+      demoStep('Pilha remove pelo topo: pop() tira 2.', ['P:3', 'P:8', 'P:5', 'F:3', 'F:8', 'F:5', 'F:2'], 'pop()'),
+      demoStep('Pilha remove 5 depois de remover o topo antigo; fila remove 3 e 8 pela frente.', ['P:3', 'P:8', 'F:5', 'F:2'], 'pop(); desenfileirar(); desenfileirar()'),
+    ],
+    'pilha LIFO e fila FIFO',
+    'O(1)',
+  ),
+  28: demoVisual(
+    'list',
+    'Demo - lista simples',
+    'Insere 7 e remove nos pelo inicio e pela posicao.',
+    ['7', '12'],
+    [
+      demoStep('Estado inicial: 5 -> 9 -> 12.', ['5', '9', '12'], 'inicio = 5'),
+      demoStep('Inserir 7 na posicao 1 religa 5 -> 7 -> 9 -> 12.', ['5', '7', '9', '12'], 'inserir(7, 1)'),
+      demoStep('RemoverInicio remove 5; inicio passa para 7.', ['7', '9', '12'], 'removerInicio()'),
+      demoStep('Remover posicao 1 remove 9 e religa 7 -> 12.', ['7', '12'], 'remover(1)'),
+    ],
+    'lista simples: inserir e remover',
+    'O(n)',
+  ),
+  29: demoVisual(
+    'list',
+    'Demo - lista dupla',
+    'Religa anterior e proximo sem perder as duas direcoes.',
+    ['4', '15', '10'],
+    [
+      demoStep('Estado inicial: 8 <-> 4 <-> 15 <-> 16.', ['8', '4', '15', '16'], 'inicio = 8; fim = 16'),
+      demoStep('Remove 8: o inicio passa para 4.', ['4', '15', '16'], 'removerInicio()'),
+      demoStep('Insere 10 entre 15 e 16, religando ant/prox nos dois sentidos.', ['4', '15', '10', '16'], 'inserirApos(15, 10)'),
+      demoStep('Remove fim 16; o ultimo passa a ser 10.', ['4', '15', '10'], 'removerFim()'),
+    ],
+    'lista dupla: religacao',
+    'O(1) com referencia',
+  ),
+  30: demoVisual(
+    'matrix',
+    'Demo - matriz encadeada',
+    'Percorre a diagonal principal pelos ponteiros inf e dir.',
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    [
+      demoStep('Matriz 3x3 com dados 1..9; cabecas/sentinelas nao entram no caminho.', ['1', '2', '3', '4', '5', '6', '7', '8', '9'], 'dados 3x3'),
+      demoStep('Comeca em (0,0): valor 1.', ['1', '2', '3', '4', '5', '6', '7', '8', '9'], 'visitar 1'),
+      demoStep('Avanca inf e dir: chega no valor 5.', ['1', '2', '3', '4', '5', '6', '7', '8', '9'], 'visitar 5'),
+      demoStep('Avanca inf e dir outra vez: chega no valor 9.', ['1', '2', '3', '4', '5', '6', '7', '8', '9'], 'visitar 9'),
+    ],
+    'matriz encadeada: diagonal',
+    'O(n)',
+  ),
+  31: demoVisual(
+    'array',
+    'Demo - Bubble Sort',
+    'Executa passagens ate o vetor ficar ordenado.',
+    ['1', '2', '4', '5', '7'],
+    [
+      demoStep('Entrada: [5, 2, 7, 1, 4].', ['5', '2', '7', '1', '4'], 'entrada'),
+      demoStep('Primeira passagem empurra 7 para o fim: [2,5,1,4,7].', ['2', '5', '1', '4', '7'], 'passagem 1'),
+      demoStep('Segunda passagem coloca 5 antes de 7: [2,1,4,5,7].', ['2', '1', '4', '5', '7'], 'passagem 2'),
+      demoStep('Terceira passagem ajusta 1 e 2: [1,2,4,5,7].', ['1', '2', '4', '5', '7'], 'passagem 3'),
+    ],
+    'bubble sort por passagens',
+    'O(n^2)',
+  ),
+  32: demoVisual(
+    'array',
+    'Demo - insertion impar/par',
+    'Separa impares antes dos pares e ordena cada grupo.',
+    ['1', '3', '5', '7', '9', '0', '2', '4', '6', '8'],
+    [
+      demoStep('Entrada: [5,2,9,0,7,4,1,8,3,6].', ['5', '2', '9', '0', '7', '4', '1', '8', '3', '6'], 'entrada'),
+      demoStep('Extrai impares mantendo os valores da questao.', ['5', '9', '7', '1', '3'], 'filtrar impares'),
+      demoStep('Ordena impares e pares separadamente.', ['1', '3', '5', '7', '9', '0', '2', '4', '6', '8'], 'insertion nos grupos'),
+    ],
+    'insertion com criterio impar/par',
+    'O(n^2)',
+  ),
+  33: demoVisual(
+    'array',
+    'Demo - Merge Sort',
+    'Divide, ordena metades e intercala.',
+    ['3', '9', '10', '27', '38', '43', '82'],
+    [
+      demoStep('Entrada: [38,27,43,3,9,82,10].', ['38', '27', '43', '3', '9', '82', '10'], 'entrada'),
+      demoStep('Metade esquerda ordenada: [3,27,38,43].', ['3', '27', '38', '43', '9', '82', '10'], 'ordenar esquerda'),
+      demoStep('Metade direita ordenada: [9,10,82].', ['3', '27', '38', '43', '9', '10', '82'], 'ordenar direita'),
+      demoStep('Intercalacao final crescente.', ['3', '9', '10', '27', '38', '43', '82'], 'merge final'),
+    ],
+    'merge sort',
+    'O(n log n)',
+  ),
+  34: demoVisual(
+    'array',
+    'Demo - particionamento QuickSort',
+    'Particiona ao redor do pivo 3.',
+    ['2', '1', '3', '8', '4', '9', '5'],
+    [
+      demoStep('Entrada: [9,4,8,3,1,2,5], pivo = 3.', ['9', '4', '8', '3', '1', '2', '5'], 'pivo = 3'),
+      demoStep('Valores menores que 3 caminham para a esquerda.', ['2', '1', '3', '8', '4', '9', '5'], 'particionar'),
+      demoStep('Pivo fica entre menores e maiores; os lados ainda nao precisam estar ordenados.', ['2', '1', '3', '8', '4', '9', '5'], 'fim da particao'),
+    ],
+    'quick sort: particao',
+    'O(n) por particao',
+  ),
+  35: demoVisual(
+    'binary-tree',
+    'Demo - construcao da ABB',
+    'Insere os valores na ordem da questao.',
+    ['15', '8', '22', '4', '12', '18', '30', '10', '14'],
+    [
+      demoStep('Insere 15: vira raiz.', ['15'], 'inserir 15'),
+      demoStep('Insere 8 e 22 nos lados da raiz.', ['15', '8', '22'], 'inserir 8,22'),
+      demoStep('Insere 4,12,18,30 mantendo esquerda < raiz < direita.', ['15', '8', '22', '4', '12', '18', '30'], 'inserir 4,12,18,30'),
+      demoStep('Insere 10 e 14 como filhos de 12.', ['15', '8', '22', '4', '12', '18', '30', '10', '14'], 'inserir 10,14'),
+    ],
+    'ABB: insercoes',
+    'O(h)',
+  ),
+  36: demoVisual(
+    'binary-tree',
+    'Demo - remocoes na ABB',
+    'Remove folhas, no com filho e raiz usando maiorEsq.',
+    ['14', '8', '22', '4', '', '18', '30'],
+    [
+      demoStep('Estado inicial da ABB da questao anterior.', ['15', '8', '22', '4', '12', '18', '30', '10', '14'], 'estado inicial'),
+      demoStep('Remove 10 como folha.', ['15', '8', '22', '4', '12', '18', '30', '', '14'], 'remover 10'),
+      demoStep('Remove 12 usando seu maior da esquerda, que e 14.', ['15', '8', '22', '4', '14', '18', '30'], 'remover 12'),
+      demoStep('Remove 15 usando maiorEsq: 14 sobe para a raiz.', ['14', '8', '22', '4', '', '18', '30'], 'remover 15'),
+    ],
+    'ABB: remover com predecessor',
+    'O(h)',
+  ),
+  37: demoVisual(
+    'binary-tree',
+    'Demo - TreeSort',
+    'Monta a ABB e le em caminhamento central.',
+    ['7', '3', '9', '1', '5', '8', '10'],
+    [
+      demoStep('Insere 7,3,9,1,5,8,10 na ABB.', ['7', '3', '9', '1', '5', '8', '10'], 'construir ABB'),
+      demoStep('Caminhamento central visita esquerda, raiz e direita.', ['7', '3', '9', '1', '5', '8', '10'], 'em ordem'),
+      demoStep('Saida ordenada: 1,3,5,7,8,9,10.', ['1', '3', '5', '7', '8', '9', '10'], 'preencher vetor'),
+    ],
+    'TreeSort: central',
+    'O(n log n) medio',
+  ),
+  38: demoVisual(
+    'avl',
+    'Demo - rotacoes AVL',
+    'Mostra os quatro padroes LL, RR, LR e RL.',
+    ['20', '10', '30'],
+    [
+      demoStep('LL: inserir 30,20,10 deixa a esquerda pesada.', ['30', '20', '', '10'], 'rotacao direita'),
+      demoStep('RR: inserir 10,20,30 deixa a direita pesada.', ['10', '', '20', '', '', '', '30'], 'rotacao esquerda'),
+      demoStep('LR: 30,10,20 exige esquerda no filho e direita na raiz.', ['30', '10', '', '', '20'], 'rotacao dupla LR'),
+      demoStep('RL: 10,30,20 exige direita no filho e esquerda na raiz.', ['10', '', '30', '', '', '20'], 'rotacao dupla RL'),
+      demoStep('Todos os casos terminam com 20 como raiz local.', ['20', '10', '30'], 'subarvore balanceada'),
+    ],
+    'AVL: quatro rotacoes',
+    'O(1) por rotacao',
+  ),
+  39: demoVisual(
+    'avl',
+    'Demo - AVL completa',
+    'Insere ate obter a arvore final balanceada.',
+    ['12', '8', '18', '4', '10', '14', '20', '2', '6', '', '', '', '16', '', '22'],
+    [
+      demoStep('Comeca com 8,4,18,2,6,12,20.', ['8', '4', '18', '2', '6', '12', '20'], 'insercoes iniciais'),
+      demoStep('Inserir 10 e 14 prepara o rebalanceamento.', ['8', '4', '18', '2', '6', '12', '20', '', '', '10', '14'], 'inserir 10,14'),
+      demoStep('Rotacoes deixam 12 como raiz.', ['12', '8', '18', '4', '10', '14', '20', '2', '6'], 'rebalancear'),
+      demoStep('Inserir 16 e 22 completa os ramos direitos.', ['12', '8', '18', '4', '10', '14', '20', '2', '6', '', '', '', '16', '', '22'], 'inserir 16,22'),
+    ],
+    'AVL: sequencia completa',
+    'O(log n)',
+  ),
+  40: demoVisual(
+    'tree234',
+    'Demo - 2-3-4 na descida',
+    'Fragmenta 4-nos antes de descer.',
+    ['[8|12|18]', '[2|4|6]', '[10]', '[14|16]', '[20|22]'],
+    [
+      demoStep('Insere chaves em ordem crescente controlando 4-nos.', ['[8]', '[2|4|6]', '[10|12|14|16|18|20|22]'], 'antes de fragmentar'),
+      demoStep('Na descida, divide o 4-no antes de continuar.', ['[8|12]', '[2|4|6]', '[10]', '[14|16|18|20|22]'], 'fragmentar na descida'),
+      demoStep('Final: raiz [8|12|18] com quatro filhos ordenados.', ['[8|12|18]', '[2|4|6]', '[10]', '[14|16]', '[20|22]'], 'estado final'),
+    ],
+    'arvore 2-3-4: descida',
+    'O(log n)',
+  ),
+  41: demoVisual(
+    'tree234',
+    'Demo - 2-3-4 por ascensao',
+    'Trata overflow depois de inserir e propaga quando preciso.',
+    ['[8|12|18]', '[2|4|6]', '[10]', '[14|16]', '[20|22]'],
+    [
+      demoStep('Insere primeiro na folha, permitindo overflow temporario.', ['[8|12]', '[2|4|6]', '[10|14|16|18|20|22]'], 'inserir na folha'),
+      demoStep('Overflow sobe a chave mediana para o pai.', ['[8|12|18]', '[2|4|6]', '[10]', '[14|16]', '[20|22]'], 'promover mediana'),
+      demoStep('O estado final coincide com a fragmentacao na descida.', ['[8|12|18]', '[2|4|6]', '[10]', '[14|16]', '[20|22]'], 'comparar final'),
+    ],
+    'arvore 2-3-4: ascensao',
+    'O(log n)',
+  ),
+  42: demoVisual(
+    'red-black',
+    'Demo - alvinegra',
+    'Representa 2-3-4 por cores e preserva as invariantes.',
+    ['12B', '8P', '18P', '4B', '10B', '14B', '20B', '2P', '6P', '', '', '', '16P', '', '22P'],
+    [
+      demoStep('Raiz branca/preta e ligacoes coloridas representam chaves agrupadas.', ['12B', '8P', '18P', '4B', '10B', '14B', '20B'], 'mapear 2-3-4'),
+      demoStep('Folhas coloridas representam os 3-nos/4-nos sem dois coloridos consecutivos.', ['12B', '8P', '18P', '4B', '10B', '14B', '20B', '2P', '6P', '', '', '', '16P', '', '22P'], 'validar cores'),
+      demoStep('Todas as rotas mantem altura branca compativel.', ['12B', '8P', '18P', '4B', '10B', '14B', '20B', '2P', '6P', '', '', '', '16P', '', '22P'], 'estado final'),
+    ],
+    'arvore alvinegra',
+    'O(log n)',
+  ),
+  43: demoVisual(
+    'hash',
+    'Demo - hash com colisao',
+    'Insere por h(x)=x mod 7 usando encadeamento separado.',
+    ['14', '21', '8', '15', '22', '3', '10'],
+    [
+      demoStep('Tabela vazia de tamanho 7; h(x)=x mod 7.', [], 'tamanho = 7'),
+      demoStep('14 e 21 caem no bucket 0.', ['14', '21'], '14%7=0; 21%7=0'),
+      demoStep('8, 15 e 22 caem no bucket 1.', ['14', '21', '8', '15', '22'], '8%7=1; 15%7=1; 22%7=1'),
+      demoStep('3 e 10 caem no bucket 3.', ['14', '21', '8', '15', '22', '3', '10'], '3%7=3; 10%7=3'),
+    ],
+    'hash: encadeamento separado',
+    'O(1) medio',
+  ),
+  44: demoVisual(
+    'trie',
+    'Demo - TRIE de paises',
+    'Insere BRASIL, BRASA, BRAVO, CHILE e CHINA compartilhando prefixos.',
+    ['BRASIL', 'BRASA', 'BRAVO', 'CHILE', 'CHINA'],
+    [
+      demoStep('Insere BRASIL: cria o caminho B-R-A-S-I-L.', ['BRASIL'], 'inserir BRASIL'),
+      demoStep('Insere BRASA e BRAVO: reaproveita B-R-A, compartilha BRA e ramifica S/V.', ['BRASIL', 'BRASA', 'BRAVO'], 'inserir BRASA, BRAVO'),
+      demoStep('Insere CHILE e CHINA: compartilham C-H-I e ramificam em L/E e N/A.', ['BRASIL', 'BRASA', 'BRAVO', 'CHILE', 'CHINA'], 'inserir CHILE, CHINA'),
+      {
+        caption: 'PATRICIA comprime caminhos sem bifurcacao em segmentos como BRA, S, IL, A e VO.',
+        labels: ['BRA', 'S', 'IL', 'A', 'VO', 'CHI', 'LE', 'NA'],
+        kind: 'patricia',
+        code: 'comprimir caminhos',
+      },
+      {
+        caption: 'Doidona busca BRASA pela camada de entrada B, hash tamanho 5 e a subestrutura de colisao indicada.',
+        labels: ['B', 'hash 5', 'BRASA', 'lista', 'ABB'],
+        kind: 'doidona',
+        code: 'buscar BRASA',
+      },
+    ],
+    'TRIE: prefixos compartilhados',
+    'O(k)',
+  ),
+};
+
 const drawingQuestions: ConceptualDrawingQuestion[] = [
   dq(25, 'Lista sequencial: deslocamentos', 'lista', 'vetores', 'basico',
     'Lista sequencial (vetor + n) iniciando com [4, 7, 9, 15]. Aplique nesta ordem: inserirInicio(2); inserir(8, 3); remover(4) — aqui 4 e a POSICAO removida, nao o valor; e removerFim(). Qual alternativa mostra o vetor final?',
@@ -302,7 +638,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'estado final [2,4,7,8]; observacao: remover(4) foi interpretado como posicao no gabarito.'),
   dq(26, 'Fila circular: retorno ao inicio', 'fila', 'vetores', 'intermediario',
-    'Escolha a ordem logica final da fila circular.',
+    'Fila circular de capacidade fisica 6 (uma vaga sentinela) inicia vazia. Execute: enfileirar 10,20,30,40,50; desenfileirar 3 vezes; enfileirar 60,70,80. Escolha a ordem logica final.',
     'a',
     [
       option('a', 'A. 40,50,60,70,80', 'Correto.', visual('queue', 'A', 'Ordem logica final', ['40', '50', '60', '70', '80'])),
@@ -312,17 +648,17 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'final logico 40,50,60,70,80 com primeiro apontando para 40.'),
   dq(27, 'Pilha e fila em sequencia', 'pilha', 'vetores', 'basico',
-    'Escolha a combinacao correta dos estados finais.',
+    'Pilha: push(3), push(8), push(5), push(2), pop(), pop(). Fila: enfileirar 3,8,5,2 e desenfileirar duas vezes. Escolha a combinacao correta dos estados finais.',
     'c',
     [
-      option('a', 'A. pilha 5,2; fila 3,8', 'Esses sao valores removidos trocados.', visual('stack', 'A', 'Pilha errada', ['5', '2'])),
-      option('b', 'B. pilha 3,8; fila 2,5', 'Inverte a leitura da fila.', visual('queue', 'B', 'Fila invertida', ['2', '5'])),
-      option('c', 'C. pilha topo 8 sobre 3; fila 5,2', 'Correto.', visual('stack', 'C', 'Pilha final', ['3', '8'])),
-      option('d', 'D. ambas terminam 3,8,5,2', 'Ignora remocoes.', visual('queue', 'D', 'Sem remocoes', ['3', '8', '5', '2'])),
+      option('a', 'A. pilha 5,2; fila 3,8', 'Esses sao valores removidos trocados.', visual('array', 'A', 'Estados trocados', ['P:5', 'P:2', 'F:3', 'F:8'])),
+      option('b', 'B. pilha 3,8; fila 2,5', 'Inverte a leitura da fila.', visual('array', 'B', 'Fila invertida', ['P:3', 'P:8', 'F:2', 'F:5'])),
+      option('c', 'C. pilha topo 8 sobre 3; fila 5,2', 'Correto.', visual('array', 'C', 'Estados finais', ['P:3', 'P:8', 'F:5', 'F:2'])),
+      option('d', 'D. ambas terminam 3,8,5,2', 'Ignora remocoes.', visual('array', 'D', 'Sem remocoes', ['P:3', 'P:8', 'P:5', 'P:2', 'F:3', 'F:8', 'F:5', 'F:2'])),
     ],
     'pilha remove 5 e 2; fila remove 3 e 8.'),
   dq(28, 'Lista simples: insercao e remocao', 'lista', 'vetores', 'intermediario',
-    'Escolha a lista final apos as operacoes.',
+    'Lista simples inicia 5->9->12. Execute inserir(7, posicao 1), removerInicio() e remover(posicao 1). Escolha a lista final.',
     'd',
     [
       option('a', 'A. 5->7->9->12', 'Estado antes das remocoes.', visual('list', 'A', 'Antes das remocoes', ['5', '7', '9', '12'])),
@@ -332,7 +668,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'depois de inserir 7, remove inicio e remove posicao 1, sobrando 7->12.'),
   dq(29, 'Lista dupla: religacao', 'lista', 'vetores', 'intermediario',
-    'Escolha o estado final da lista dupla.',
+    'Lista dupla inicia 8<->4<->15<->16. Execute removerInicio(), inserir 10 entre 15 e 16, e removerFim(). Escolha o estado final.',
     'a',
     [
       option('a', 'A. 4<->15<->10', 'Correto: ultimo passa a ser 10.', visual('list', 'A', 'Lista dupla final', ['4', '15', '10'])),
@@ -342,7 +678,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'remove 8, insere 10 entre 15 e 16 e remove o fim 16.'),
   dq(30, 'Matriz encadeada e diagonal', 'matriz', 'vetores', 'reavaliacao',
-    'Escolha o caminho da diagonal principal.',
+    'Matriz encadeada 3x3 com dados 1..9. Partindo do primeiro dado, avance inf e dir para caminhar pela diagonal principal. Escolha o caminho correto.',
     'b',
     [
       option('a', 'A. 1->2->3', 'Percorre linha, nao diagonal.', visual('matrix', 'A', 'Linha superior', ['1', '2', '3', '4', '5', '6', '7', '8', '9'])),
@@ -352,7 +688,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'caminho (0,0)->inf.dir->inf.dir; as listas associadas a 1,5,9 nao foram detalhadas no enunciado.'),
   dq(31, 'Bubble Sort passo a passo', 'ordenacao', 'ordenacao', 'intermediario',
-    'Escolha a sequencia de passagens correta.',
+    'Bubble Sort em [5,2,7,1,4]. Escolha a sequencia de passagens ate o vetor ordenado.',
     'c',
     [
       option('a', 'A. [7,5,4,2,1]', 'Ordenou ao contrario.', visual('array', 'A', 'Decrescente', ['7', '5', '4', '2', '1'])),
@@ -362,7 +698,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'as passagens do gabarito terminam em [1,2,4,5,7].'),
   dq(32, 'Insertion impar/par', 'ordenacao', 'ordenacao', 'reavaliacao',
-    'Escolha o vetor final da insercao que prioriza impares.',
+    'Insertion adaptado para priorizar impares antes dos pares em [5,2,9,0,7,4,1,8,3,6], ordenando cada grupo. Escolha o vetor final.',
     'a',
     [
       option('a', 'A. [1,3,5,7,9,0,2,4,6,8]', 'Correto.', visual('array', 'A', 'Impares e pares ordenados', ['1', '3', '5', '7', '9', '0', '2', '4', '6', '8'])),
@@ -392,7 +728,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'o gabarito admite pequenas diferencas se o laco exato mudar, mas exige particionar pelo pivo 3.'),
   dq(35, 'Construcao e percursos da ABB', 'arvore', 'arvore', 'basico',
-    'Escolha a ABB correta para as insercoes dadas.',
+    'Insira na ABB, nesta ordem: 15,8,22,4,12,18,30,10,14. Escolha a ABB correta.',
     'a',
     [
       option('a', 'A. raiz 15; esquerda 8; direita 22', 'Correto.', visual('binary-tree', 'A', 'ABB correta', ['15', '8', '22', '4', '12', '18', '30', '10', '14'])),
@@ -402,7 +738,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'central 4 8 10 12 14 15 18 22 30; pre e pos seguem da arvore desenhada.'),
   dq(36, 'Remocoes na ABB', 'arvore', 'arvore', 'intermediario',
-    'Escolha o estado apos remover 10, 12 e 15 usando maiorEsq.',
+    'Na ABB formada por 15,8,22,4,12,18,30,10,14, remova 10, depois 12, depois 15 usando maiorEsq. Escolha o estado final.',
     'c',
     [
       option('a', 'A. raiz continua 15', 'Faltou remover a raiz.', visual('binary-tree', 'A', 'Raiz antiga', ['15', '8', '22', '4', '14', '18', '30'])),
@@ -412,7 +748,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     '10 sai como folha, 12 e substituido por 14, 15 usa maiorEsq=14.'),
   dq(37, 'TreeSort', 'arvore', 'arvore', 'intermediario',
-    'Escolha o caminhamento central que gera o vetor ordenado.',
+    'TreeSort insere 7,3,9,1,5,8,10 em uma ABB e depois faz caminhamento central. Escolha a saida ordenada.',
     'b',
     [
       option('a', 'A. 7,3,9,1,5,8,10', 'Ordem de insercao.', visual('binary-tree', 'A', 'Insercao', ['7', '3', '9', '1', '5', '8', '10'])),
@@ -432,7 +768,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'as quatro sequencias produzem os quatro tipos de rotacao.'),
   dq(39, 'AVL completa', 'avl', 'avl', 'reavaliacao',
-    'Escolha a arvore final indicada pelo gabarito.',
+    'AVL recebe a sequencia 8,4,18,2,6,12,20,10,14,16,22 com rotacoes quando necessario. Escolha a arvore final indicada pelo gabarito.',
     'd',
     [
       option('a', 'A. raiz 8', 'Raiz incorreta.', visual('avl', 'A', 'Raiz 8', ['8', '4', '18', '2', '6', '12', '20'])),
@@ -442,7 +778,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'raiz 12 com fatores listados no gabarito.'),
   dq(40, '2-3-4 na descida', 'arvore234', 'arvore', 'reavaliacao',
-    'Escolha a arvore 2-3-4 final.',
+    'Arvore 2-3-4 insere as chaves pares de 2 a 22 tratando 4-nos na descida. Escolha a arvore final.',
     'b',
     [
       option('a', 'A. raiz [12]', 'Raiz fragmentada demais.', visual('tree234', 'A', 'Raiz simples', ['[12]', '[4|8]', '[14|18|20]'])),
@@ -452,7 +788,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'raiz [8|12|18] e quatro filhos.'),
   dq(41, '2-3-4 por ascensao', 'arvore234', 'arvore', 'avancado',
-    'Qual comparacao com a fragmentacao na descida esta correta?',
+    'Com as mesmas chaves pares de 2 a 22, agora trate overflow por ascensao. Qual comparacao com a fragmentacao na descida esta correta?',
     'a',
     [
       option('a', 'A. A arvore final e a mesma da Q40; muda o momento de tratar overflow.', 'Correto.', visual('tree234', 'A', 'Mesmo final', ['[8|12|18]', '[2|4|6]', '[10]', '[14|16]', '[20|22]'])),
@@ -462,7 +798,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'o gabarito informa final igual ao da Q40.'),
   dq(42, 'Arvore alvinegra', 'alvinegra', 'avl', 'reavaliacao',
-    'Escolha uma representacao final compativel com o gabarito.',
+    'Converta a 2-3-4 final para uma representacao alvinegra respeitando raiz branca/preta, sem dois coloridos consecutivos e altura branca. Escolha a representacao compativel.',
     'c',
     [
       option('a', 'A. raiz 8B', 'Raiz errada.', visual('red-black', 'A', 'Raiz errada', ['8B', '4P', '12P', '2B', '6B', '10B', '18B'])),
@@ -472,7 +808,7 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'representacao final compativel com recoloracoes e rotacoes do material.'),
   dq(43, 'Hash: tres estrategias', 'hash', 'hash', 'intermediario',
-    'Escolha o encadeamento separado correto para h(x)=x mod 7.',
+    'Insira 14,21,8,15,22,3,10 em hash de tamanho 7 com h(x)=x mod 7 e encadeamento separado. Escolha os buckets corretos.',
     'a',
     [
       option('a', 'A. 0:14->21; 1:8->15->22; 3:3->10', 'Correto.', visual('hash', 'A', 'Encadeamento correto', ['14', '21', '8', '15', '22', '3', '10'])),
@@ -482,13 +818,13 @@ const drawingQuestions: ConceptualDrawingQuestion[] = [
     ],
     'encadeamento por resto: 14/21 no 0, 8/15/22 no 1, 3/10 no 3.'),
   dq(44, 'TRIE, PATRICIA e doidona', 'trie', 'trie', 'desafio',
-    'Escolha a representacao coerente para BRASIL, BRASA, BRAVO, CHILE e CHINA.',
+    'TRIE com as palavras BRASIL, BRASA, BRAVO, CHILE e CHINA; compare tambem a ideia de PATRICIA comprimida e o caminho de busca da doidona para BRASA. Escolha a representacao coerente.',
     'd',
     [
       option('a', 'A. BRASIL, BRASA e BRAVO nao compartilham prefixo', 'Deveriam compartilhar BRA.', visual('trie', 'A', 'Sem compartilhamento', ['B', 'R', 'A', 'S', 'I', 'L', 'fim'])),
       option('b', 'B. CHILE e CHINA terminam no mesmo no', 'Finais sao diferentes.', visual('trie', 'B', 'Final confundido', ['C', 'H', 'I', 'fim'])),
       option('c', 'C. PATRICIA nao comprime segmentos', 'Contradiz a compressao.', visual('patricia', 'C', 'Sem compressao', ['B', 'R', 'A', 'S', 'I'])),
-      option('d', 'D. TRIE compartilha BRA e CHI; PATRICIA comprime; doidona busca BRASA por B -> hash tamanho 5 -> lista/ABB', 'Correto.', visual('patricia', 'D', 'PATRICIA comprimida', ['BRA', 'S', 'IL', 'A', 'VO'])),
+      option('d', 'D. TRIE compartilha BRA e CHI; PATRICIA comprime; doidona busca BRASA por B -> hash tamanho 5 -> lista/ABB', 'Correto.', visual('trie', 'D', 'TRIE completa', ['BRASIL', 'BRASA', 'BRAVO', 'CHILE', 'CHINA'])),
     ],
     'o desenho da doidona e aberto, mas o caminho BRASA deve respeitar as camadas descritas.'),
 ];

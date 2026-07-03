@@ -2,6 +2,7 @@ import type { StructureVisual } from '../types/content';
 import { avlToViz, balance, insertPlain, rebalance, type AvlNode } from './avlModel';
 import { defaultDoidonaConfig, doidonaScene } from './doidona';
 import { buildLevelOrderTree, e, layoutTree, n, p, snap, type TreeNode } from './sceneUtils';
+import { staticSceneForVisual } from './staticScenes';
 import type { VizEdge, VizFrame, VizNode, VizScene } from './vizTypes';
 
 /* =====================================================================
@@ -547,7 +548,47 @@ function isNumeric(label: string): boolean {
   return label.trim() !== '' && !Number.isNaN(Number(label.trim()));
 }
 
+function demoSceneFromSteps(visual: StructureVisual): VizScene {
+  const stepScenes = (visual.steps ?? []).map((step) =>
+    staticSceneForVisual({
+      ...visual,
+      kind: step.kind ?? visual.kind,
+      labels: step.labels,
+      steps: undefined,
+      operation: undefined,
+      complexity: undefined,
+    }),
+  );
+  const frames: VizFrame[] = stepScenes.map((scene, index) => {
+    const frame = scene.frames[0];
+    const step = visual.steps![index];
+
+    return {
+      ...frame,
+      caption: step.caption,
+      codeLine: index,
+      vars: step.vars,
+    };
+  });
+  const width = Math.max(...stepScenes.map((scene) => scene.width), 360);
+  const height = Math.max(...stepScenes.map((scene) => scene.height), 220);
+  const code = visual.steps!.map((step) => step.code ?? step.caption);
+
+  return {
+    operation: visual.operation ?? visual.title,
+    complexity: visual.complexity ?? 'passo a passo',
+    code,
+    frames,
+    width,
+    height,
+  };
+}
+
 export function buildSceneForVisual(visual: StructureVisual): VizScene {
+  if (visual.steps?.length) {
+    return demoSceneFromSteps(visual);
+  }
+
   const cleaned = visual.labels.filter((label) => label.trim() !== '');
 
   switch (visual.kind) {

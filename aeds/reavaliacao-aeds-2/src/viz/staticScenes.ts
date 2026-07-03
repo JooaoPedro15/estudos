@@ -194,12 +194,100 @@ function tree234Static(labels: string[]): VizScene {
   return scene(nodes, edges, [], width, children.length ? 200 : 110);
 }
 
+/* ---------- TRIE: palavras completas compartilham prefixos ---------- */
+
+type TrieRenderNode = {
+  id: string;
+  label: string;
+  children: Map<string, TrieRenderNode>;
+  terminal: boolean;
+  depth: number;
+  x: number;
+};
+
+function trieWordsStatic(words: string[]): VizScene {
+  let nextId = 0;
+  const root: TrieRenderNode = {
+    id: 'root',
+    label: '•',
+    children: new Map(),
+    terminal: false,
+    depth: 0,
+    x: 0,
+  };
+
+  for (const word of words) {
+    let cursor = root;
+    for (const rawChar of word.trim().toUpperCase()) {
+      const char = rawChar;
+      let child = cursor.children.get(char);
+      if (!child) {
+        child = {
+          id: `tw${nextId++}`,
+          label: char,
+          children: new Map(),
+          terminal: false,
+          depth: cursor.depth + 1,
+          x: 0,
+        };
+        cursor.children.set(char, child);
+      }
+      cursor = child;
+    }
+    cursor.terminal = true;
+  }
+
+  let leafIndex = 0;
+  let maxDepth = 0;
+  const assignX = (node: TrieRenderNode): number => {
+    maxDepth = Math.max(maxDepth, node.depth);
+    const children = [...node.children.values()].sort((a, b) => a.label.localeCompare(b.label));
+    if (children.length === 0) {
+      node.x = leafIndex++;
+      return node.x;
+    }
+
+    const childXs = children.map(assignX);
+    node.x = childXs.reduce((sum, value) => sum + value, 0) / childXs.length;
+    return node.x;
+  };
+  assignX(root);
+
+  const width = Math.max(380, Math.max(1, leafIndex) * 78 + 80);
+  const xOf = (node: TrieRenderNode) => 40 + node.x * 78;
+  const yOf = (node: TrieRenderNode) => 38 + node.depth * 50;
+  const nodes: VizNode[] = [];
+  const edges: VizEdge[] = [];
+
+  const collect = (node: TrieRenderNode) => {
+    nodes.push(
+      n(node.id, xOf(node), yOf(node), node.label, {
+        sub: node.terminal ? 'fim' : undefined,
+        state: node.terminal ? 'found' : 'default',
+      }),
+    );
+    for (const child of [...node.children.values()].sort((a, b) => a.label.localeCompare(b.label))) {
+      edges.push(e(node.id, child.id));
+      collect(child);
+    }
+  };
+  collect(root);
+
+  return scene(nodes, edges, [p('root', 'RAIZ', 'left', 'accent')], width, Math.max(150, yOf({ ...root, depth: maxDepth }) + 52));
+}
+
 /* ---------- TRIE: caminho de caracteres, 'fim' marca folha ---------- */
 
 function trieStatic(labels: string[]): VizScene {
+  const tokens = clean(labels).filter(Boolean);
+  const wordTokens = tokens.filter((label) => /^[A-Za-z]+$/.test(label) && label.length > 1 && label.toLowerCase() !== 'fim');
+  if (wordTokens.length >= 1) {
+    return trieWordsStatic(wordTokens);
+  }
+
   const chars: string[] = [];
   const ends = new Set<number>();
-  for (const raw of clean(labels)) {
+  for (const raw of tokens) {
     const label = raw.toLowerCase();
     if (label === 'fim') {
       if (chars.length) ends.add(chars.length - 1);
@@ -224,6 +312,27 @@ function trieStatic(labels: string[]): VizScene {
     edges.push(e(index === 0 ? 'root' : `t${index - 1}`, id));
   });
   return scene(nodes, edges, [p('root', 'RAIZ', 'left', 'accent')], 360, 60 + (chars.length + 1) * stepY);
+}
+
+/* ---------- doidona: rota T1 -> hash -> subestrutura ---------- */
+
+function doidonaStatic(labels: string[]): VizScene {
+  const items = clean(labels).filter(Boolean);
+  const shown = items.length ? items : ['T1', 'hash', 'lista', 'ABB'];
+  const nodes: VizNode[] = shown.map((label, index) =>
+    n(`d${index}`, 64 + index * 92, index % 2 === 0 ? 66 : 132, label, {
+      shape: index === 0 ? 'box' : 'pill',
+      w: Math.max(58, Math.min(96, label.length * 9 + 18)),
+      h: 36,
+      state: index === shown.length - 1 ? 'found' : index === 1 ? 'active' : 'default',
+    }),
+  );
+  const edges: VizEdge[] = [];
+  for (let index = 0; index < nodes.length - 1; index += 1) {
+    edges.push(e(nodes[index].id, nodes[index + 1].id, { arrow: true }));
+  }
+  const pointers = nodes.length ? [p(nodes[0].id, 'entrada', 'top', 'accent')] : [];
+  return scene(nodes, edges, pointers, Math.max(360, 110 + shown.length * 92), 190);
 }
 
 /* ---------- PATRICIA: segmentos comprimidos em cadeia ---------- */
@@ -305,6 +414,8 @@ export function staticSceneForVisual(visual: StructureVisual): VizScene {
       return patriciaStatic(visual.labels);
     case 'hash':
       return hashStatic(visual.labels);
+    case 'doidona':
+      return doidonaStatic(visual.labels);
     default:
       return arrayStatic(visual.labels);
   }

@@ -18,6 +18,8 @@ export type ConceptualPracticeSession = {
   score: number;
   attempts: ConceptualAttempt[];
   completed: boolean;
+  /** Opcao respondida na questao atual; null enquanto nao respondeu. */
+  answeredOptionId: string | null;
 };
 
 type ConceptualSessionOptions = {
@@ -43,6 +45,7 @@ export function createConceptualPracticeSession(
     score: 0,
     attempts: [],
     completed: questions.length === 0 || (options.mode === 'quick' && (targetCount ?? 0) <= 0),
+    answeredOptionId: null,
   };
 }
 
@@ -60,25 +63,28 @@ export function getCurrentConceptualQuestion(
   return questions.find((question) => question.id === questionId) ?? questions[session.currentQuestionIndex % questions.length];
 }
 
+function hasAnsweredCurrentQuestion(session: ConceptualPracticeSession): boolean {
+  return session.answeredOptionId != null;
+}
+
+/**
+ * Registra a resposta da questao atual (pontua e guarda a tentativa) SEM
+ * avancar. A questao continua visivel com o feedback ate o usuario pedir a
+ * proxima com `advanceConceptualQuestion`. Ja respondida, ignora nova resposta.
+ */
 export function answerCurrentConceptualQuestion(
   questions: ConceptualDrawingQuestion[],
   session: ConceptualPracticeSession,
   selectedOptionId: string,
-  random: () => number = Math.random,
 ): ConceptualPracticeSession {
   const question = getCurrentConceptualQuestion(questions, session);
 
-  if (!question) {
+  if (!question || hasAnsweredCurrentQuestion(session)) {
     return session;
   }
 
   const selectedOption = question.options.find((option) => option.id === selectedOptionId);
   const correct = selectedOptionId === question.correctOptionId;
-  const completedCount = session.completedCount + 1;
-  const completed = session.mode === 'quick' && completedCount >= (session.targetCount ?? 2);
-  const currentOrder = getSessionQuestionOrder(questions, session);
-  const nextQuestionIndex = session.currentQuestionIndex + 1;
-  const shouldReshuffleDeck = !completed && session.mode === 'marathon' && nextQuestionIndex >= currentOrder.length;
   const feedback = correct
     ? `Resposta correta. ${question.explanation}`
     : `Resposta incorreta. ${selectedOption?.explanation ? `${selectedOption.explanation} ` : ''}${question.explanation}`;
@@ -92,12 +98,38 @@ export function answerCurrentConceptualQuestion(
 
   return {
     ...session,
-    questionOrder: shouldReshuffleDeck ? shuffleQuestionIds(questions, random) : currentOrder,
-    currentQuestionIndex: completed ? session.currentQuestionIndex : shouldReshuffleDeck ? 0 : nextQuestionIndex,
-    completedCount,
+    completedCount: session.completedCount + 1,
     score: session.score + attempt.scoreDelta,
     attempts: [...session.attempts, attempt],
+    answeredOptionId: selectedOptionId,
+  };
+}
+
+/**
+ * Avanca para a proxima questao apos o feedback. So age se a atual ja foi
+ * respondida. Encerra a sessao rapida ao atingir o alvo; na maratona
+ * reembaralha ao terminar o baralho.
+ */
+export function advanceConceptualQuestion(
+  questions: ConceptualDrawingQuestion[],
+  session: ConceptualPracticeSession,
+  random: () => number = Math.random,
+): ConceptualPracticeSession {
+  if (!hasAnsweredCurrentQuestion(session)) {
+    return session;
+  }
+
+  const completed = session.mode === 'quick' && session.completedCount >= (session.targetCount ?? 2);
+  const currentOrder = getSessionQuestionOrder(questions, session);
+  const nextQuestionIndex = session.currentQuestionIndex + 1;
+  const shouldReshuffleDeck = !completed && session.mode === 'marathon' && nextQuestionIndex >= currentOrder.length;
+
+  return {
+    ...session,
+    questionOrder: shouldReshuffleDeck ? shuffleQuestionIds(questions, random) : currentOrder,
+    currentQuestionIndex: completed ? session.currentQuestionIndex : shouldReshuffleDeck ? 0 : nextQuestionIndex,
     completed,
+    answeredOptionId: null,
   };
 }
 

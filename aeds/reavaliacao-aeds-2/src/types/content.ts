@@ -225,11 +225,22 @@ export type StructureVisualKind =
   | 'red-black'
   | 'patricia';
 
+export type StructureVisualStep = {
+  caption: string;
+  labels: string[];
+  kind?: StructureVisualKind;
+  code?: string;
+  vars?: Array<{ name: string; value: string }>;
+};
+
 export type StructureVisual = {
   kind: StructureVisualKind;
   title: string;
   caption: string;
   labels: string[];
+  steps?: StructureVisualStep[];
+  operation?: string;
+  complexity?: string;
 };
 
 export type CodeDrillPhase = 'repeat' | 'modify';

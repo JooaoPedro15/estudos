@@ -564,6 +564,22 @@ h1 {
   box-shadow: inset 0 0 0 1px var(--primary);
 }
 
+.option-button.is-correct,
+.visual-option.is-correct {
+  color: var(--success-ink);
+  background: var(--success-soft);
+  border-color: var(--success);
+  box-shadow: inset 0 0 0 1px var(--success);
+}
+
+.option-button.is-wrong,
+.visual-option.is-wrong {
+  color: var(--danger-ink);
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+
 .text-answer {
   width: 100%;
   min-height: 116px;

@@ -79,6 +79,31 @@ test('abre o modo Conceitual sem misturar questoes de desenho', async () => {
   expect(await screen.findByText(/Lista 2/)).toBeInTheDocument();
 });
 
+test('questao conceitual mostra feedback antes de avancar e limpa ao ir para a proxima', async () => {
+  const user = userEvent.setup();
+
+  render(<App />);
+
+  await user.click(screen.getByRole('button', { name: 'Conceitual' }));
+  const conceptual = screen.getByRole('region', { name: 'Conceitual' });
+  await user.click(within(conceptual).getByRole('button', { name: /Conteudo inteiro/ }));
+
+  expect(screen.getByText('Q1 - Somatorio e formula fechada')).toBeInTheDocument();
+
+  await user.click(within(conceptual).getAllByRole('button', { name: /^A\./ })[0]);
+  await user.click(within(conceptual).getByRole('button', { name: /Responder/ }));
+
+  expect(screen.getByText('Q1 - Somatorio e formula fechada')).toBeInTheDocument();
+  expect(await screen.findByRole('status')).toHaveTextContent(/Resposta correta|Resposta incorreta/);
+  expect(within(conceptual).queryByRole('button', { name: /Responder/ })).not.toBeInTheDocument();
+
+  await user.click(within(conceptual).getByRole('button', { name: /Pr.xima/ }));
+
+  expect(screen.getByText('Q2 - Funcao exata e ordem assintotica')).toBeInTheDocument();
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  expect(within(conceptual).getByRole('button', { name: /Responder/ })).toBeDisabled();
+});
+
 test('abre o modo Desenho separado com alternativas visuais', async () => {
   const user = userEvent.setup();
 
@@ -103,6 +128,20 @@ test('abre o modo Desenho separado com alternativas visuais', async () => {
   expect(await screen.findByText(/Resposta correta|Resposta incorreta/)).toBeInTheDocument();
   expect(screen.getByText(/pts · desenho/)).toBeInTheDocument();
   expect(await screen.findByText(/Lista 2/)).toBeInTheDocument();
+});
+
+test('questao de desenho tem uma demonstracao interativa no topo e alternativas estaticas', async () => {
+  const user = userEvent.setup();
+
+  render(<App />);
+
+  await user.click(screen.getByRole('button', { name: 'Desenho' }));
+  const drawing = screen.getByRole('region', { name: 'Desenho' });
+  await user.click(within(drawing).getByRole('button', { name: /Conteudo inteiro/ }));
+
+  expect(within(drawing).getAllByRole('img', { name: /Visualiza/i })).toHaveLength(1);
+  expect(within(drawing).getAllByRole('group', { name: /Controles da anima/i })).toHaveLength(1);
+  expect(within(drawing).getAllByRole('img', { name: /Desenho:/i })).toHaveLength(4);
 });
 
 test('conteudo inteiro inicia o treino com uso rapido ou maratona', async () => {

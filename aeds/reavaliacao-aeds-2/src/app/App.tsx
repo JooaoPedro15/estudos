@@ -3,6 +3,7 @@ import {
   BookOpenCheck,
   Brain,
   CheckCircle2,
+  ChevronRight,
   ClipboardList,
   Code2,
   ListChecks,
@@ -46,6 +47,7 @@ import {
 } from '../engine/codePractice';
 import { answerCurrentStep, createExamSession, getCurrentStep } from '../engine/examSession';
 import {
+  advanceConceptualQuestion,
   answerCurrentConceptualQuestion,
   createConceptualPracticeSession,
   getConceptualProgressLabel,
@@ -235,7 +237,24 @@ export function App() {
   useEffect(() => {
     resetAnswerDrafts();
     setShowTeaching(false);
+    setLastConceptualAttempt(null);
   }, [activeMode, currentConceptualQuestion?.id, currentPracticeDrill?.step.id, currentStep?.id]);
+
+  useEffect(() => {
+    if (activeMode !== 'conceptual' && activeMode !== 'drawing') {
+      return;
+    }
+
+    if (lista2ModuleId === null || conceptualSessionMatchesQuestions(conceptualSession, conceptualQuestions)) {
+      return;
+    }
+
+    clearConceptualVisualState();
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: createConceptualPracticeSession(conceptualQuestions, { mode: 'quick', targetCount: 2 }),
+    }));
+  }, [activeMode, conceptualQuestions, conceptualSession, lista2ModuleId]);
 
   function resetAnswerDrafts() {
     setChoiceAnswer('');
@@ -244,6 +263,12 @@ export function App() {
     setBlockOrder([]);
     setFixLineIndex(null);
     setFixId('');
+  }
+
+  function clearConceptualVisualState() {
+    setLastConceptualAttempt(null);
+    setConceptualChoiceAnswer('');
+    setShowTeaching(false);
   }
 
   function submitAnswer() {
@@ -305,11 +330,19 @@ export function App() {
     }));
   }
 
+  function advanceConceptual() {
+    clearConceptualVisualState();
+    setGame((currentGame) => ({
+      ...currentGame,
+      conceptualSession: advanceConceptualQuestion(conceptualQuestions, conceptualSession),
+    }));
+  }
+
   function resetGame() {
     const nextGame = createInitialGame();
     clearSavedGame();
     setLastAttempt(null);
-    setLastConceptualAttempt(null);
+    clearConceptualVisualState();
     setSelectedDomainId('somatorio');
     setConceptualModuleId(null);
     setDrawingModuleId(null);
@@ -326,7 +359,7 @@ export function App() {
   }
 
   function startQuickConceptual() {
-    setLastConceptualAttempt(null);
+    clearConceptualVisualState();
     setActiveMode(activeMode === 'drawing' ? 'drawing' : 'conceptual');
     setGame((currentGame) => ({
       ...currentGame,
@@ -335,7 +368,7 @@ export function App() {
   }
 
   function startMarathonConceptual() {
-    setLastConceptualAttempt(null);
+    clearConceptualVisualState();
     setActiveMode(activeMode === 'drawing' ? 'drawing' : 'conceptual');
     setGame((currentGame) => ({
       ...currentGame,
@@ -374,7 +407,7 @@ export function App() {
 
   function selectConceptualModule(moduleId: ConceptualDrawingModuleId) {
     const questions = getQuestionsForConceptualDrawingModule(moduleId, lista2QuestionType);
-    setLastConceptualAttempt(null);
+    clearConceptualVisualState();
     if (activeMode === 'drawing') {
       setDrawingModuleId(moduleId);
     } else {
@@ -392,7 +425,7 @@ export function App() {
   }
 
   function backToConceptualModuleSelection() {
-    setLastConceptualAttempt(null);
+    clearConceptualVisualState();
     if (activeMode === 'drawing') {
       setDrawingModuleId(null);
     } else {
@@ -401,7 +434,7 @@ export function App() {
   }
 
   function restartConceptualModule() {
-    setLastConceptualAttempt(null);
+    clearConceptualVisualState();
     setGame((currentGame) => ({
       ...currentGame,
       conceptualSession: createConceptualPracticeSession(conceptualQuestions, {
@@ -612,10 +645,12 @@ export function App() {
               </div>
             ) : (
               <ConceptualPracticeExperience
+                answeredOptionId={conceptualSession.answeredOptionId}
                 choiceAnswer={conceptualChoiceAnswer}
                 currentQuestion={currentConceptualQuestion}
                 lastAttempt={lastConceptualAttempt}
                 moduleTitle={getConceptualDrawingModuleTitle(lista2ModuleId)}
+                onAdvance={advanceConceptual}
                 onChangeModule={backToConceptualModuleSelection}
                 onChoice={setConceptualChoiceAnswer}
                 onResetDrafts={resetAnswerDrafts}
@@ -850,11 +885,13 @@ type ConceptualPracticeExperienceProps = {
   currentQuestion: ConceptualDrawingQuestion | undefined;
   practiceSession: ConceptualPracticeSession;
   choiceAnswer: string;
+  answeredOptionId: string | null;
   lastAttempt: ConceptualAttempt | null;
   moduleTitle: string;
   onChoice: (optionId: string) => void;
   onResetDrafts: () => void;
   onSubmit: () => void;
+  onAdvance: () => void;
   onChangeModule: () => void;
   onRestartModule: () => void;
   onStartQuick: () => void;
@@ -864,10 +901,12 @@ type ConceptualPracticeExperienceProps = {
 };
 
 function ConceptualPracticeExperience({
+  answeredOptionId,
   choiceAnswer,
   currentQuestion,
   lastAttempt,
   moduleTitle,
+  onAdvance,
   onChangeModule,
   onChoice,
   onResetDrafts,
@@ -879,6 +918,7 @@ function ConceptualPracticeExperience({
   practiceSession,
   showTeaching,
 }: ConceptualPracticeExperienceProps) {
+  const answered = answeredOptionId !== null;
   if (practiceSession.completed || !currentQuestion) {
     return (
       <div className="complete-state">
@@ -956,6 +996,8 @@ function ConceptualPracticeExperience({
 
       <p className="question-stem">{currentQuestion.stem}</p>
 
+      {currentQuestion.type === 'desenho' && <DrawingDemo question={currentQuestion} />}
+
       <div className="step-panel">
         <div className="step-meta">
           <span>{currentQuestion.type === 'desenho' ? 'Desenho' : 'Conceitual'}</span>
@@ -963,18 +1005,37 @@ function ConceptualPracticeExperience({
         </div>
         <h4>Escolha a alternativa correta e confirme a resposta.</h4>
         {currentQuestion.type === 'desenho' ? (
-          <VisualChoiceControl choiceAnswer={choiceAnswer} onChoice={onChoice} options={currentQuestion.options} />
+          <VisualChoiceControl
+            answeredOptionId={answeredOptionId}
+            choiceAnswer={choiceAnswer}
+            correctOptionId={currentQuestion.correctOptionId}
+            onChoice={onChoice}
+            options={currentQuestion.options}
+          />
         ) : (
-          <ConceptualChoiceControl choiceAnswer={choiceAnswer} onChoice={onChoice} options={currentQuestion.options} />
+          <ConceptualChoiceControl
+            answeredOptionId={answeredOptionId}
+            choiceAnswer={choiceAnswer}
+            correctOptionId={currentQuestion.correctOptionId}
+            onChoice={onChoice}
+            options={currentQuestion.options}
+          />
         )}
       </div>
 
       <div className="action-row">
-        <button className="primary-button" disabled={!choiceAnswer} onClick={onSubmit} type="button">
-          <CheckCircle2 aria-hidden="true" size={18} />
-          Responder
-        </button>
-        <button className="ghost-button" onClick={onResetDrafts} type="button">
+        {answered ? (
+          <button className="primary-button" onClick={onAdvance} type="button">
+            <ChevronRight aria-hidden="true" size={18} />
+            Próxima
+          </button>
+        ) : (
+          <button className="primary-button" disabled={!choiceAnswer} onClick={onSubmit} type="button">
+            <CheckCircle2 aria-hidden="true" size={18} />
+            Responder
+          </button>
+        )}
+        <button className="ghost-button" disabled={answered} onClick={onResetDrafts} type="button">
           <RotateCcw aria-hidden="true" size={18} />
           Limpar
         </button>
@@ -997,19 +1058,26 @@ function ConceptualPracticeExperience({
 }
 
 function ConceptualChoiceControl({
+  answeredOptionId,
   choiceAnswer,
+  correctOptionId,
   onChoice,
   options,
 }: {
+  answeredOptionId: string | null;
   choiceAnswer: string;
+  correctOptionId: string;
   onChoice: (optionId: string) => void;
   options: ConceptualDrawingOption[];
 }) {
+  const answered = answeredOptionId !== null;
+
   return (
     <div className="option-grid">
       {options.map((option, index) => (
         <button
-          className={`option-button ${choiceAnswer === option.id ? 'is-selected' : ''}`}
+          className={optionClassName('option-button', option.id, choiceAnswer, answeredOptionId, correctOptionId)}
+          disabled={answered}
           key={option.id}
           onClick={() => onChoice(option.id)}
           type="button"
@@ -1022,21 +1090,31 @@ function ConceptualChoiceControl({
 }
 
 function VisualChoiceControl({
+  answeredOptionId,
   choiceAnswer,
+  correctOptionId,
   onChoice,
   options,
 }: {
+  answeredOptionId: string | null;
   choiceAnswer: string;
+  correctOptionId: string;
   onChoice: (optionId: string) => void;
   options: ConceptualDrawingOption[];
 }) {
+  const answered = answeredOptionId !== null;
+
   return (
     <div className="visual-option-grid">
       {options.map((option, index) => (
-        <div className={`visual-option ${choiceAnswer === option.id ? 'is-selected' : ''}`} key={option.id}>
+        <div
+          className={optionClassName('visual-option', option.id, choiceAnswer, answeredOptionId, correctOptionId)}
+          key={option.id}
+        >
           {option.visual && <StaticStructureCard visual={option.visual} />}
           <button
-            className={`option-button ${choiceAnswer === option.id ? 'is-selected' : ''}`}
+            className={optionClassName('option-button', option.id, choiceAnswer, answeredOptionId, correctOptionId)}
+            disabled={answered}
             onClick={() => onChoice(option.id)}
             type="button"
           >
@@ -1046,6 +1124,41 @@ function VisualChoiceControl({
       ))}
     </div>
   );
+}
+
+function DrawingDemo({ question }: { question: ConceptualDrawingQuestion }) {
+  const correctVisual = question.options.find((option) => option.id === question.correctOptionId)?.visual;
+  const demoVisual = question.demoVisual ?? correctVisual;
+
+  if (!demoVisual) {
+    return null;
+  }
+
+  return <StructureVizCard key={question.id} compact={false} visual={demoVisual} />;
+}
+
+function optionClassName(
+  baseClassName: string,
+  optionId: string,
+  choiceAnswer: string,
+  answeredOptionId: string | null,
+  correctOptionId: string,
+): string {
+  const classNames = [baseClassName];
+
+  if (choiceAnswer === optionId || answeredOptionId === optionId) {
+    classNames.push('is-selected');
+  }
+
+  if (answeredOptionId !== null && optionId === correctOptionId) {
+    classNames.push('is-correct');
+  }
+
+  if (answeredOptionId === optionId && optionId !== correctOptionId) {
+    classNames.push('is-wrong');
+  }
+
+  return classNames.join(' ');
 }
 
 function ConceptualTeachingBox({ question }: { question: ConceptualDrawingQuestion }) {

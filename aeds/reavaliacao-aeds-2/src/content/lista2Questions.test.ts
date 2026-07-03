@@ -54,3 +54,32 @@ test('questoes de desenho possuem alternativas visuais reais sem revelar o gabar
     expect(question.explanation).toContain('Lista 2');
   }
 });
+
+test('questoes de desenho possuem uma demonstracao interativa propria', () => {
+  const drawingQuestions = conceptualDrawingCatalog.filter((question) => question.type === 'desenho');
+
+  for (const question of drawingQuestions) {
+    expect(question.demoVisual).toBeDefined();
+    expect(question.demoVisual?.labels.length).toBeGreaterThan(0);
+    expect(question.demoVisual?.steps?.length).toBeGreaterThan(1);
+  }
+});
+
+test('questao de TRIE representa todas as palavras com prefixos compartilhados', () => {
+  const trieQuestion = conceptualDrawingCatalog.find((question) => question.id === 'lista2-desenho-q44');
+  const demoVisual = trieQuestion?.demoVisual;
+  const expectedWords = ['BRASIL', 'BRASA', 'BRAVO', 'CHILE', 'CHINA'];
+
+  expect(demoVisual?.kind).toBe('trie');
+  for (const word of expectedWords) {
+    expect(demoVisual?.labels).toContain(word);
+  }
+  expect(demoVisual?.steps?.map((step) => step.kind ?? demoVisual.kind)).toEqual(
+    expect.arrayContaining(['trie', 'patricia', 'doidona']),
+  );
+  expect(
+    trieQuestion?.options.some(
+      (option) => option.id === trieQuestion.correctOptionId && expectedWords.every((word) => option.visual?.labels.includes(word)),
+    ),
+  ).toBe(true);
+});
