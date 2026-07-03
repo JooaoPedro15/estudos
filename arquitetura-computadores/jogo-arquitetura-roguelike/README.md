@@ -1,23 +1,22 @@
-# ARQUITETO: Tape-Out Run
+# Modulo Interativo de Arquitetura de Computadores
 
 ## Nome
 
-ARQUITETO: Tape-Out Run
+Modulo Interativo de Arquitetura de Computadores
 
 ## Descricao
 
-Modulo interativo de Arquitetura de Computadores (MIPS) com estrutura roguelite.
-Cada run leva o aluno por um mapa procedural, constroi um "build" de CPU
-(arquetipo + relicarios), enfrenta desafios educacionais de toda a ementa de AC2
-e batalha um boss multi-etapa que representa a prova.
+Modulo interativo de Arquitetura de Computadores (MIPS) voltado a visualizacao,
+pratica e revisao do conteudo de AC2. A aplicacao organiza atividades por
+topico, apresenta exercicios com feedback, acompanha progresso e destaca pontos
+que precisam de revisao.
 
 ## Objetivo educacional
 
 Cobrir **toda a ementa de Arquitetura de Computadores II** de forma integrada,
-nao como quiz puro, mas como um ambiente interativo em que os conhecimentos sao
-parte do estado da experiencia. Acertar/errar tem consequencias concretas
-(integridade, defeitos, combo). O motor adaptativo ressurge topicos em que o
-aluno tem dificuldade, gerando um relatorio de run com o que estudar.
+com atividades baseadas em simulacao, analise, calculo, controle, pipeline e
+desempenho. O foco e ajudar o aluno a relacionar os conceitos da disciplina,
+identificar lacunas de entendimento e revisar com base no proprio desempenho.
 
 ## Conteudos trabalhados
 
@@ -41,18 +40,16 @@ alternar sinais, corrigir bug, prever saida.
 
 ## Interacoes
 
-- **Mapa procedural** em camadas (estilo Slay the Spire): sem becos sem saida,
-  com escolha de caminho, nos de desafio, elite, loja, descanso, evento e boss.
-- **Recursos de run:** Integridade (HP), Orcamento (moeda), Foco, Calor
-  (overclock), Combo.
-- **Build system:** arquetipo inicial + 8 relicarios com 3 arquetipos.
-  Relicarios alteram o resolvedor de respostas.
-- **Motor adaptativo:** rastreia mastery por subtopico; topicos fracos voltam
-  mais vezes.
-- **Defeitos (cicatrizes):** erros criam defeitos persistentes; salas de
-  descanso/revisao podem cura-los.
-- **Boss final:** multi-etapa, cobrindo multiplos topicos (representa a prova).
-- **Relatorio de run:** pontos fortes, fracos e referencias de material para estudar.
+- **Sequencia de atividades:** organiza os topicos em uma trilha de estudo com
+  escolha de proximos exercicios.
+- **Acompanhamento de progresso:** registra acertos, erros, recorrencia de
+  dificuldades e topicos que precisam de revisao.
+- **Motor adaptativo:** rastreia dominio por subtopico; topicos fracos voltam
+  com mais frequencia.
+- **Revisao orientada por erro:** erros persistentes geram indicacoes de estudo
+  e atividades relacionadas.
+- **Relatorio de estudo:** resume pontos fortes, pontos fracos e referencias de
+  material para revisar.
 - **Save/load local** versionado com sanitizacao de dados.
 
 ## Tecnologias
@@ -61,7 +58,7 @@ alternar sinais, corrigir bug, prever saida.
 - **HTML5 + CSS3** - UI renderizada
 - **WebAudio** - efeitos sonoros gerados proceduralmente
 - **SVG** - datapaths e visuais gerados em codigo
-- **localStorage** - persistencia de save
+- **localStorage** - persistencia de progresso
 - **Node.js** - testes (sem framework, asserts manuais)
 
 ## Requisitos
@@ -95,21 +92,21 @@ Acesse `http://localhost:8080` no navegador.
 npm test              # node tests/run-all.js
 ```
 
-Executa testes de: RNG, mapgen, validacao de conteudo, resolvedor de respostas,
-mastery, selecao adaptativa, recursos, migracao de save, progressao e motor da
-experiencia.
+Executa testes de: RNG, geracao de sequencias, validacao de conteudo,
+resolvedor de respostas, dominio por topico, selecao adaptativa, recursos,
+migracao de dados, progresso e motor da experiencia.
 
 ## Estrutura das pastas
 
 ```text
 jogo-arquitetura-roguelike/
   src/
-    main.js               Bootstrap (carrega conteudo + save, monta UI)
-    config.js             Constantes sintonizaveis (run, combate, scoring)
+    main.js               Bootstrap (carrega conteudo + dados locais, monta UI)
+    config.js             Constantes sintonizaveis (sessao, avaliacao, scoring)
     core/                 Engine da experiencia (state machine, recursos, RNG, answers)
-    mapgen/               Geracao procedural de mapa
+    mapgen/               Geracao de sequencias de estudo
     adaptive/             Mastery tracking, selecao adaptativa, relatorios
-    meta/                 Relicarios, arquetipos, meta-progressao
+    meta/                 Recursos de progresso e configuracoes da experiencia
     persistence/          Save/load com migracao versionada
     content/              Schema, validacao, registro + 9 modulos de desafios
       challenges/         datapath, pipeline, funcoes, memoria, isa, cla,
@@ -124,14 +121,14 @@ jogo-arquitetura-roguelike/
 
 ## Estado atual
 
-**Em desenvolvimento.** O nucleo (engine, mapgen, adaptativo, conteudo, save)
-esta implementado e testado. A UI esta funcional. E o modulo principal e ativo
-da materia.
+**Em desenvolvimento.** O nucleo (engine, sequenciamento, adaptativo, conteudo e
+salvamento local) esta implementado e testado. A UI esta funcional. E o modulo
+principal e ativo da materia.
 
 ## Limitacoes
 
-- Sem simulador visual de datapath com fiacao interativa (futuro: conceito A completo).
-- Sem pipeline em tempo real com forwarding/stall interativo (futuro: conceito B completo).
+- Sem simulador visual de datapath com fiacao interativa.
+- Sem pipeline em tempo real com forwarding/stall interativo.
 - Efeitos sonoros e visuais ainda em evolucao.
 - Quantidade de desafios por subtopico pode ser expandida.
 
@@ -139,6 +136,6 @@ da materia.
 
 - Simulador visual de datapath com fiacao interativa.
 - Pipeline em tempo real (forwarding/stall).
-- Mais arquetipos, relicarios e eventos.
+- Mais atividades por topico.
 - Desafios diarios por seed.
 - Editor de conteudo.

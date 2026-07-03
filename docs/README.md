@@ -12,13 +12,13 @@ especifica do modulo educacional.
 | [inventario-dos-projetos.md](inventario-dos-projetos.md) | Inventario tecnico dos modulos encontrados |
 | [superpowers/specs/](superpowers/specs/) | Specs formais geradas no fluxo de design |
 
-## Documentacao por projeto
+## Documentacao por modulo
 
 Cada modulo ativo possui sua propria documentacao em sua pasta:
 
 - [`aeds/reavaliacao-aeds-2/docs/`](../aeds/reavaliacao-aeds-2/docs/) - spec e documentacao do modulo interativo de AEDS II;
 - [`arquitetura-computadores/jogo-arquitetura-roguelike/docs/`](../arquitetura-computadores/jogo-arquitetura-roguelike/docs/) - decisoes de design do modulo interativo de Arquitetura de Computadores;
-- [`arquitetura-computadores/docs/superpowers/`](../arquitetura-computadores/docs/superpowers/) - spec e plano do modo roguelike preservado.
+- [`arquitetura-computadores/docs/superpowers/`](../arquitetura-computadores/docs/superpowers/) - specs e planos preservados da materia.
 
 Versoes antigas preservadas ficam nas pastas existentes de cada materia e nao
 devem ser consideradas a versao principal de nenhum modulo.

@@ -9,36 +9,34 @@ aritmetica e desempenho.
 
 ## Modulos disponiveis
 
-### [jogo-arquitetura-roguelike/](jogo-arquitetura-roguelike/) - ARQUITETO: Tape-Out Run
+### [jogo-arquitetura-roguelike/](jogo-arquitetura-roguelike/) - Modulo Interativo de Arquitetura de Computadores
 
 **Estado:** Em desenvolvimento (modulo principal)
 
 Modulo interativo para estudo de Arquitetura de Computadores, com atividades,
-simulacoes e exercicios baseados no conteudo da disciplina. A aplicacao usa uma
-estrutura roguelite: cada run leva o aluno por um mapa procedural, com relicarios,
-arquetipos, desafios educacionais, topicos fracos que retornam e um boss
-multi-etapa que representa a prova.
+simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina. A
+aplicacao organiza a pratica por topico, reforca pontos fracos e acompanha o
+progresso do aluno ao longo das atividades.
 
 **Topicos cobertos:** Aritmetica computacional, CLA, Lei de Amdahl, Desempenho,
 Hierarquia de memoria/Cache, ISA MIPS, Funcoes MIPS, Datapath e Controle,
 Tempos (caminho critico), Pipeline.
 
-### [jogo-arquitetura-legacy/](jogo-arquitetura-legacy/) - MIPS Datapath Quest (versao 1)
+### [jogo-arquitetura-legacy/](jogo-arquitetura-legacy/) - Aplicacao Legacy de Datapath MIPS
 
 **Estado:** Versao antiga (preservada) - NAO modificar
 
-Versao original da aplicacao em arquivo HTML unico. Quiz/simulador do datapath
-MIPS uniciclo com 4 modos de atividade, Academia de licoes, Modo Aprendiz/Prova
-e um modo "Roguelike da Prova" embutido. Funciona offline, sem servidor, sem
-dependencias.
+Versao original da aplicacao em arquivo HTML unico. Inclui atividades de
+datapath MIPS uniciclo, Academia de licoes, Modo Aprendiz/Prova e um fluxo de
+revisao antigo preservado apenas como historico. Funciona offline, sem servidor,
+sem dependencias.
 
-### [primeira-versao/](primeira-versao/) - Snapshot pre-roguelike
+### [primeira-versao/](primeira-versao/) - Snapshot inicial
 
 **Estado:** Preservado (backup)
 
-Copia intacta da aplicacao original **antes** da implementacao do modo
-"Roguelike da Prova". Serve como referencia do estado anterior ao modo
-roguelike ter sido adicionado ao arquivo unico.
+Copia intacta de uma versao anterior da aplicacao. Serve como referencia
+historica do estado do arquivo unico antes das alteracoes posteriores.
 
 ## Onde encontrar
 
@@ -46,7 +44,7 @@ roguelike ter sido adicionado ao arquivo unico.
 | --- | --- |
 | [`jogo-arquitetura-roguelike/`](jogo-arquitetura-roguelike/) | Modulo principal em desenvolvimento |
 | [`jogo-arquitetura-legacy/`](jogo-arquitetura-legacy/) | Versao antiga preservada e funcional |
-| [`primeira-versao/`](primeira-versao/) | Snapshot anterior ao modo roguelike |
+| [`primeira-versao/`](primeira-versao/) | Snapshot inicial preservado |
 | [`docs/superpowers/`](docs/superpowers/) | Documentacao de design e plano de implementacao |
 | [`work/checkpoints/`](work/checkpoints/) | 12 snapshots de desenvolvimento do legacy |
 | [`materiais/`](materiais/) | Materiais academicos publicos |

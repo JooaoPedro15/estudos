@@ -50,11 +50,11 @@ Dentro de `aeds/reavaliacao-aeds-2/`:
 
 ---
 
-## Modulo 2: ARQUITETO - Tape-Out Run
+## Modulo 2: Modulo Interativo de Arquitetura de Computadores
 
 | Campo | Valor |
 | --- | --- |
-| Nome | ARQUITETO: Tape-Out Run |
+| Nome | Modulo Interativo de Arquitetura de Computadores |
 | Pasta | `arquitetura-computadores/jogo-arquitetura-roguelike/` |
 | Materia | Arquitetura de Computadores II |
 | Tecnologia | JavaScript ES modules, sem dependencias externas |
@@ -63,8 +63,9 @@ Dentro de `aeds/reavaliacao-aeds-2/`:
 ### Objetivo
 
 Modulo interativo para estudo de Arquitetura de Computadores, com atividades,
-simulacoes e exercicios baseados no conteudo da disciplina. A aplicacao usa uma
-estrutura roguelite para organizar pratica, revisao e progressao por topico.
+simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina. A
+aplicacao organiza pratica, revisao adaptativa e acompanhamento de progresso por
+topico.
 
 ### Comandos
 
@@ -82,11 +83,11 @@ Dentro de `arquitetura-computadores/jogo-arquitetura-roguelike/`:
 
 ---
 
-## Modulo 3: MIPS Datapath Quest Legacy
+## Modulo 3: Aplicacao Legacy de Datapath MIPS
 
 | Campo | Valor |
 | --- | --- |
-| Nome | MIPS Datapath Quest |
+| Nome | Aplicacao Legacy de Datapath MIPS |
 | Pasta | `arquitetura-computadores/jogo-arquitetura-legacy/` |
 | Materia | Arquitetura de Computadores II |
 | Tecnologia | HTML, CSS e JavaScript inline |
@@ -102,11 +103,11 @@ Abrir `mips-datapath-quest.html` no navegador.
 
 ---
 
-## Modulo 4: MIPS Datapath Quest - Snapshot
+## Modulo 4: Snapshot Inicial de Datapath MIPS
 
 | Campo | Valor |
 | --- | --- |
-| Nome | MIPS Datapath Quest snapshot pre-roguelike |
+| Nome | Snapshot Inicial de Datapath MIPS |
 | Pasta | `arquitetura-computadores/primeira-versao/` |
 | Materia | Arquitetura de Computadores II |
 | Tecnologia | HTML, CSS e JavaScript inline |
@@ -118,11 +119,11 @@ Abrir `mips-datapath-quest.html` no navegador.
 
 ---
 
-## Modulo 5: Datapath Quest extraido
+## Modulo 5: Datapath MIPS extraido
 
 | Campo | Valor |
 | --- | --- |
-| Nome | Datapath Quest |
+| Nome | Datapath MIPS extraido |
 | Pasta | `arquitetura-computadores/datapath-quest/` |
 | Materia | Arquitetura de Computadores II |
 | Tecnologia | HTML, JavaScript e testes auxiliares |

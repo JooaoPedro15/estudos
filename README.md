@@ -18,7 +18,7 @@ propria pasta, dependencias, testes e comandos.
     jogo-arquitetura-roguelike/ Modulo interativo principal da materia
     jogo-arquitetura-legacy/    Versao antiga preservada da materia
     primeira-versao/            Snapshot anterior
-    datapath-quest/             Copia tecnica preservada do datapath quest
+    datapath-quest/             Copia tecnica preservada do datapath
     materiais/
     docs/
     work/
@@ -29,7 +29,7 @@ propria pasta, dependencias, testes e comandos.
 | Modulo | Materia | Estado | Pasta |
 | --- | --- | --- | --- |
 | Reavaliacao AEDS II | AEDS II | Modulo interativo atual | [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/) |
-| ARQUITETO: Tape-Out Run | Arquitetura II | Em desenvolvimento | [`arquitetura-computadores/jogo-arquitetura-roguelike/`](arquitetura-computadores/jogo-arquitetura-roguelike/) |
+| Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Em desenvolvimento | [`arquitetura-computadores/jogo-arquitetura-roguelike/`](arquitetura-computadores/jogo-arquitetura-roguelike/) |
 
 ## Versoes preservadas
 
