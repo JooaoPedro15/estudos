@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,8 +13,8 @@ import {
 
 import type { StructureVisual } from '../types/content';
 import { buildSceneForVisual } from './scenes';
-import { useAnimatedFrame, type DisplayNode } from './useAnimatedFrame';
-import { collectLegend, stateLegend, type VizEdge, type VizNode, type VizPointer, type VizScene } from './vizTypes';
+import { useAnimatedFrame, type DisplayEdge, type DisplayNode } from './useAnimatedFrame';
+import { collectLegend, stateLegend, type VizNode, type VizPointer, type VizScene } from './vizTypes';
 
 import './viz.css';
 
@@ -22,13 +22,27 @@ const SPEEDS = [0.5, 1, 1.5, 2] as const;
 const BASE_FRAME_MS = 1600;
 const BASE_TWEEN_MS = 430;
 
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+function subscribeReducedMotion(callback: () => void): () => void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return () => {};
+  }
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener('change', callback);
+  return () => query.removeEventListener('change', callback);
+}
+
+/** Reage ao toggle de "reduzir movimento" do sistema em tempo real. */
 function usePrefersReducedMotion(): boolean {
-  return useMemo(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return false;
-    }
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }, []);
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () =>
+      typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+        ? window.matchMedia(REDUCED_MOTION_QUERY).matches
+        : false,
+    () => false,
+  );
 }
 
 function nodeHalf(node: VizNode): { hw: number; hh: number } {
@@ -55,7 +69,7 @@ function edgeAnchor(node: DisplayNode, dx: number, dy: number): { x: number; y: 
   return { x: node.x + ux * t, y: node.y + uy * t };
 }
 
-function EdgeShape({ edge, nodes }: { edge: VizEdge & { opacity: number }; nodes: Map<string, DisplayNode> }) {
+function EdgeShape({ edge, nodes }: { edge: DisplayEdge; nodes: Map<string, DisplayNode> }) {
   const from = nodes.get(edge.from);
   const to = nodes.get(edge.to);
 
@@ -87,7 +101,7 @@ function EdgeShape({ edge, nodes }: { edge: VizEdge & { opacity: number }; nodes
   );
 }
 
-function NodeShape({ node }: { node: DisplayNode }) {
+const NodeShape = memo(function NodeShape({ node }: { node: DisplayNode }) {
   const state = node.state ?? 'default';
   const badge = state !== 'default' && state !== 'muted' ? stateLegend[state as keyof typeof stateLegend]?.badge : undefined;
   const { hw, hh } = nodeHalf(node);
@@ -135,7 +149,20 @@ function NodeShape({ node }: { node: DisplayNode }) {
       )}
     </g>
   );
-}
+},
+(a, b) =>
+  // Nó é autocontido: só re-renderiza quando um campo visual muda.
+  a.node.id === b.node.id &&
+  a.node.x === b.node.x &&
+  a.node.y === b.node.y &&
+  a.node.opacity === b.node.opacity &&
+  a.node.scale === b.node.scale &&
+  a.node.state === b.node.state &&
+  a.node.label === b.node.label &&
+  a.node.sub === b.node.sub &&
+  a.node.shape === b.node.shape &&
+  a.node.w === b.node.w &&
+  a.node.h === b.node.h);
 
 function PointerShape({ pointer, nodes }: { pointer: VizPointer; nodes: Map<string, DisplayNode> }) {
   const target = nodes.get(pointer.target);
@@ -318,8 +345,8 @@ export function StructureViz({ scene, compact = false }: StructureVizProps) {
         </defs>
         <rect fill="url(#viz-grid)" height="100%" width="100%" />
         <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
-          {frame.edges.map((edge) => (
-            <EdgeShape edge={{ ...edge, opacity: display.edgeOpacity.get(edge.id) ?? 1 }} key={edge.id} nodes={nodeMap} />
+          {display.edges.map((edge) => (
+            <EdgeShape edge={edge} key={edge.id} nodes={nodeMap} />
           ))}
           {display.nodes.map((node) => (
             <NodeShape key={node.id} node={node} />

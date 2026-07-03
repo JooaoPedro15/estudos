@@ -58,7 +58,9 @@ export function getPriorityErrors(notebook: ErrorNotebook): ErrorRecord[] {
         return right.attempts - left.attempts;
       }
 
-      return new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime();
+      const rightTime = new Date(right.lastSeenAt).getTime();
+      const leftTime = new Date(left.lastSeenAt).getTime();
+      return (Number.isNaN(rightTime) ? 0 : rightTime) - (Number.isNaN(leftTime) ? 0 : leftTime);
     });
 }
 

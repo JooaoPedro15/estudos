@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { VizFrame, VizNode } from './vizTypes';
+import type { VizEdge, VizFrame, VizNode } from './vizTypes';
 
 export type DisplayNode = VizNode & {
   opacity: number;
   scale: number;
 };
 
+export type DisplayEdge = VizEdge & {
+  opacity: number;
+};
+
 type DisplayState = {
   nodes: DisplayNode[];
-  edgeOpacity: Map<string, number>;
+  edges: DisplayEdge[];
 };
 
 function easeInOut(t: number): number {
@@ -19,14 +23,14 @@ function easeInOut(t: number): number {
 function toDisplay(frame: VizFrame): DisplayState {
   return {
     nodes: frame.nodes.map((node) => ({ ...node, opacity: node.state === 'muted' ? 0.45 : 1, scale: 1 })),
-    edgeOpacity: new Map(frame.edges.map((edge) => [edge.id, 1])),
+    edges: frame.edges.map((edge) => ({ ...edge, opacity: 1 })),
   };
 }
 
 /**
  * Interpola posições/opacidade entre quadros com requestAnimationFrame.
- * Nós com o mesmo id deslizam; nós novos surgem; nós ausentes somem.
- * Com movimento reduzido a troca é instantânea.
+ * Nós e arestas com o mesmo id deslizam/permanecem; os novos surgem;
+ * os ausentes somem gradualmente. Com movimento reduzido a troca é instantânea.
  */
 export function useAnimatedFrame(frame: VizFrame, durationMs: number, reducedMotion: boolean): DisplayState {
   const [display, setDisplay] = useState<DisplayState>(() => toDisplay(frame));
@@ -43,7 +47,7 @@ export function useAnimatedFrame(frame: VizFrame, durationMs: number, reducedMot
     }
 
     const fromNodes = new Map(displayRef.current.nodes.map((node) => [node.id, node]));
-    const fromEdges = displayRef.current.edgeOpacity;
+    const fromEdges = new Map(displayRef.current.edges.map((edge) => [edge.id, edge]));
     const targetIds = new Set(frame.nodes.map((node) => node.id));
     const targetEdgeIds = new Set(frame.edges.map((edge) => edge.id));
 
@@ -65,16 +69,18 @@ export function useAnimatedFrame(frame: VizFrame, durationMs: number, reducedMot
       }
     }
 
-    type EdgeTween = { id: string; from: number; to: number };
+    // Arestas alvo mantêm sua geometria e surgem/permanecem (opacidade -> 1).
+    // Arestas removidas conservam a geometria do quadro anterior e somem.
+    type EdgeTween = { edge: VizEdge; from: number; to: number };
     const edgeTweens: EdgeTween[] = [];
 
     for (const edge of frame.edges) {
-      edgeTweens.push({ id: edge.id, from: fromEdges.get(edge.id) ?? 0, to: 1 });
+      edgeTweens.push({ edge, from: fromEdges.get(edge.id)?.opacity ?? 0, to: 1 });
     }
 
-    for (const [id, opacity] of fromEdges) {
+    for (const [id, edge] of fromEdges) {
       if (!targetEdgeIds.has(id)) {
-        edgeTweens.push({ id, from: opacity, to: 0 });
+        edgeTweens.push({ edge, from: edge.opacity, to: 0 });
       }
     }
 
@@ -94,11 +100,9 @@ export function useAnimatedFrame(frame: VizFrame, durationMs: number, reducedMot
             scale: from.scale + (to.scale - from.scale) * t,
           }))
           .filter((node) => node.opacity > 0.02),
-        edgeOpacity: new Map(
-          edgeTweens
-            .map(({ id, from, to }) => [id, from + (to - from) * t] as const)
-            .filter(([, opacity]) => opacity > 0.02),
-        ),
+        edges: edgeTweens
+          .map(({ edge, from, to }) => ({ ...edge, opacity: from + (to - from) * t }))
+          .filter((edge) => edge.opacity > 0.02),
       });
 
       if (raw < 1) {

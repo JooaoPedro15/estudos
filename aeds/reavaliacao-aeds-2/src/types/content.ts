@@ -113,6 +113,12 @@ export type FunctionStep = {
   signature: string;
   solution: string;
   requiredFragments: FunctionRequirement[];
+  /**
+   * Trechos que NAO podem aparecer na resposta. Usado quando um fragmento
+   * obrigatorio (substring) tambem casaria com uma resposta errada mais longa
+   * (ex.: aceitar `n * (n + 1)` mas rejeitar `n * (n + 1) / 2`).
+   */
+  forbiddenFragments?: FunctionRequirement[];
   lineExplanations: FunctionLineExplanation[];
   score?: number;
   explanation?: string;

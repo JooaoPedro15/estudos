@@ -32,7 +32,7 @@ export const defaultDoidonaConfig: DoidonaConfig = ['tabela', 'lista', 'arvore']
 
 const T1_SIZE = 5;
 const AREAS = 3;
-const WIDTH = 560;
+const WIDTH = 566;
 const HEIGHT = 430;
 
 const T1_X = 95;

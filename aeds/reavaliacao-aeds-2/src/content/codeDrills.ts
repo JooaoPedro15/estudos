@@ -1246,6 +1246,9 @@ class ArvoreTrie {
       requiredFragments: [
         { id: 'formula', label: 'formula dos pares', code: 'return n * (n + 1);', mistakeTag: 'wrong-summation-bound' },
       ],
+      forbiddenFragments: [
+        { id: 'no-half', label: 'dividir por 2 (o fator 2 cancela a divisao)', code: '/ 2', mistakeTag: 'wrong-summation-bound' },
+      ],
       lineExplanations: [
         { code: 'n * (n + 1)', note: 'Como 2 * (n(n+1)/2), o 2 cancela a divisao.' },
       ],
@@ -1286,7 +1289,7 @@ class ArvoreTrie {
   return n + n * (n + 1) / 2;
 }`,
       requiredFragments: [
-        { id: 'linear', label: 'parte linear', code: 'n +' },
+        { id: 'linear', label: 'parte linear somada', code: 'return n + n', mistakeTag: 'wrong-summation-bound' },
         { id: 'triangular', label: 'parte triangular', code: 'n * (n + 1) / 2', mistakeTag: 'wrong-summation-bound' },
       ],
       lineExplanations: [

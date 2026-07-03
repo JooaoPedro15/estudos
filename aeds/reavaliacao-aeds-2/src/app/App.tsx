@@ -77,25 +77,54 @@ function createInitialGame(): SavedGameState {
   };
 }
 
-function loadInitialGame(): SavedGameState {
+/** A sessao salva so vale se todos os drills do deck ainda existem no filtro. */
+function practiceSessionMatchesDrills(
+  session: NonNullable<SavedGameState['practiceSession']>,
+  drills: CodeDrill[],
+): boolean {
+  if (!session.drillOrder || session.drillOrder.length === 0) {
+    return false;
+  }
+  const ids = new Set(drills.map((drill) => drill.id));
+  return session.drillOrder.every((id) => ids.has(id));
+}
+
+function loadInitialState(): { game: SavedGameState; practiceModuleId: PracticeModuleId | null } {
   const initialGame = createInitialGame();
   const savedGame = loadSavedGame();
 
   if (!savedGame) {
-    return initialGame;
+    return { game: initialGame, practiceModuleId: null };
   }
 
+  // Modulo salvo so continua valido se ainda existir no catalogo atual.
+  const savedModuleId = savedGame.practiceModuleId ?? null;
+  const moduleId =
+    savedModuleId !== null && getPracticeModules().some((module) => module.id === savedModuleId)
+      ? savedModuleId
+      : null;
+
+  const drills = getDrillsForModule(moduleId ?? 'all');
+  const validPracticeSession =
+    savedGame.practiceSession && practiceSessionMatchesDrills(savedGame.practiceSession, drills)
+      ? savedGame.practiceSession
+      : initialGame.practiceSession;
+
   return {
-    ...initialGame,
-    ...savedGame,
-    practiceSession: savedGame.practiceSession ?? initialGame.practiceSession,
+    game: {
+      ...initialGame,
+      ...savedGame,
+      practiceSession: validPracticeSession,
+    },
+    practiceModuleId: moduleId,
   };
 }
 
 export function App() {
-  const [game, setGame] = useState<SavedGameState>(() => loadInitialGame());
+  const [initialState] = useState(loadInitialState);
+  const [game, setGame] = useState<SavedGameState>(initialState.game);
   const [activeMode, setActiveMode] = useState<'exam' | 'practice' | 'explore'>('exam');
-  const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(null);
+  const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
   const [selectedDomainId, setSelectedDomainId] = useState<DomainId>('somatorio');
   const [choiceAnswer, setChoiceAnswer] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
@@ -122,8 +151,12 @@ export function App() {
   const answer = activeStep ? buildAnswer(activeStep, choiceAnswer, textAnswer, blockOrder, fixLineIndex, fixId) : undefined;
 
   useEffect(() => {
-    saveGame(game);
-  }, [game]);
+    // Debounce: agrupa mudancas rapidas em uma unica serializacao.
+    const timer = window.setTimeout(() => {
+      saveGame({ ...game, practiceModuleId });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [game, practiceModuleId]);
 
   useEffect(() => {
     resetAnswerDrafts();

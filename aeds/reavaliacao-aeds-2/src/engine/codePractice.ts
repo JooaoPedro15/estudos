@@ -11,16 +11,18 @@ type PracticeSessionOptions = {
 
 export function createPracticeSession(drills: CodeDrill[], options: PracticeSessionOptions): PracticeSession {
   const drillOrder = options.drillOrder ?? shuffleDrillIds(drills, options.random ?? Math.random);
+  const targetCount = options.mode === 'quick' ? (options.targetCount ?? 2) : undefined;
 
   return {
     mode: options.mode,
-    targetCount: options.mode === 'quick' ? (options.targetCount ?? 2) : undefined,
+    targetCount,
     drillOrder,
     currentDrillIndex: 0,
     completedCount: 0,
     score: 0,
     attempts: [],
-    completed: drills.length === 0,
+    // Sem drills, ou alvo <= 0, a sessao ja nasce concluida.
+    completed: drills.length === 0 || (options.mode === 'quick' && (targetCount ?? 0) <= 0),
   };
 }
 
@@ -46,6 +48,7 @@ export function answerCurrentPracticeStep(
   drills: CodeDrill[],
   session: PracticeSession,
   answer: StepAnswer,
+  random: () => number = Math.random,
 ): PracticeSession {
   const drill = getCurrentPracticeDrill(drills, session);
 
@@ -73,7 +76,7 @@ export function answerCurrentPracticeStep(
 
   return {
     ...session,
-    drillOrder: shouldReshuffleDeck ? shuffleDrillIds(drills, Math.random) : currentDrillOrder,
+    drillOrder: shouldReshuffleDeck ? shuffleDrillIds(drills, random) : currentDrillOrder,
     currentDrillIndex: completed ? session.currentDrillIndex : shouldReshuffleDeck ? 0 : nextDrillIndex,
     completedCount,
     score: session.score + result.scoreDelta,

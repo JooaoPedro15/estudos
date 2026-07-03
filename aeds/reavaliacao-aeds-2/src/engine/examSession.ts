@@ -73,7 +73,15 @@ function getNextPosition(
     return { questionIndex, stepIndex: nextStepIndex, completed: false };
   }
 
-  const nextQuestionIndex = questionIndex + 1;
+  // Avanca para a proxima questao que realmente tenha etapas (uma questao
+  // com steps vazio nao pode encerrar o simulado silenciosamente).
+  let nextQuestionIndex = questionIndex + 1;
+  while (
+    nextQuestionIndex < blueprint.questions.length &&
+    blueprint.questions[nextQuestionIndex].steps.length === 0
+  ) {
+    nextQuestionIndex += 1;
+  }
 
   if (nextQuestionIndex < blueprint.questions.length) {
     return { questionIndex: nextQuestionIndex, stepIndex: 0, completed: false };

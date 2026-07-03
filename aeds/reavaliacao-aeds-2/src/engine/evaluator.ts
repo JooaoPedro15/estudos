@@ -55,6 +55,20 @@ export function evaluateStep(step: ChallengeStep, answer: StepAnswer): StepResul
 
   if (step.kind === 'function' && answer.kind === 'text') {
     const normalizedAnswer = normalizeCodeLikeText(answer.text);
+
+    const forbiddenHit = step.forbiddenFragments?.find((fragment) =>
+      normalizedAnswer.includes(normalizeCodeLikeText(fragment.code)),
+    );
+
+    if (forbiddenHit) {
+      return {
+        correct: false,
+        scoreDelta: 0,
+        feedback: `Nao use: ${forbiddenHit.label}.`,
+        mistakeTag: forbiddenHit.mistakeTag ?? step.mistakeTag,
+      };
+    }
+
     const missingRequirements = step.requiredFragments.filter(
       (requirement) => !normalizedAnswer.includes(normalizeCodeLikeText(requirement.code)),
     );

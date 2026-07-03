@@ -34,6 +34,22 @@ test('inclui treinos novos vindos dos laboratorios do professor', () => {
   expect(ids.has('code-ordenacao-quicksort-particionar')).toBe(true);
 });
 
+test('rejeita respostas erradas de somatorio que antes passavam por substring', () => {
+  const pares = codeDrillCatalog.find((drill) => drill.id === 'code-somatorio-pares');
+  const misto = codeDrillCatalog.find((drill) => drill.id === 'code-somatorio-custo-misto');
+
+  expect(pares?.step.kind).toBe('function');
+  expect(misto?.step.kind).toBe('function');
+
+  // Gauss (com / 2) nao vale para a soma dos pares 2+4+...+2n.
+  const paresErrado = evaluateStep(pares!.step, { kind: 'text', text: 'return n * (n + 1) / 2;' });
+  expect(paresErrado.correct).toBe(false);
+
+  // So a parte triangular, esquecendo a parte linear, nao vale para custo misto.
+  const mistoErrado = evaluateStep(misto!.step, { kind: 'text', text: 'return n * (n + 1) / 2;' });
+  expect(mistoErrado.correct).toBe(false);
+});
+
 test('inclui o modulo de vetores com exercicios variados', () => {
   const vetores = codeDrillCatalog.filter((drill) => drill.domainId === 'vetores');
 
