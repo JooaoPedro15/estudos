@@ -206,6 +206,9 @@ function poolForPosition(number: number): SimuladoCandidate[] {
   }
 }
 
+/** Bancos por posicao, montados uma unica vez (sao estaticos). */
+const POSITION_POOLS: SimuladoCandidate[][] = SIMULADO_MODEL.map((position) => poolForPosition(position.number));
+
 function pickCandidate(pool: SimuladoCandidate[], rng: Rng, avoidId?: string): SimuladoCandidate {
   const filtered = avoidId && pool.length > 1 ? pool.filter((candidate) => candidate.id !== avoidId) : pool;
   const index = Math.floor(rng() * filtered.length) % filtered.length;
@@ -227,7 +230,7 @@ export function buildSimulado(options: BuildSimuladoOptions = {}): ExamBlueprint
   const previousQuestions = options.previous?.questions ?? [];
 
   const questions: ExamQuestion[] = SIMULADO_MODEL.map((position, index) => {
-    const pool = poolForPosition(position.number);
+    const pool = POSITION_POOLS[index];
     const avoidId = previousQuestions[index]?.id;
     const candidate = pickCandidate(pool, rng, avoidId);
     return candidate.toQuestion(position);

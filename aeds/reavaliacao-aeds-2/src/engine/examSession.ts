@@ -1,5 +1,5 @@
 import { evaluateStep, getStepMaxScore } from './evaluator';
-import type { ErrorType, ExamBlueprint, ExamStep, StepAnswer } from '../types/content';
+import type { ErrorType, ExamBlueprint, ExamQuestion, ExamStep, QuestionFormat, StepAnswer } from '../types/content';
 import type { ExamSession, StepAttempt } from '../types/progress';
 
 export function createExamSession(blueprint: ExamBlueprint): ExamSession {
@@ -21,21 +21,29 @@ export function getCurrentStep(blueprint: ExamBlueprint, session: ExamSession): 
   return blueprint.questions[session.currentQuestionIndex]?.steps[session.currentStepIndex];
 }
 
+const CODE_FORMATS: QuestionFormat[] = [
+  'summation-from-code',
+  'algorithm-adaptation',
+  'composite-structure-method',
+  'code-repetition',
+  'code-modification',
+];
+
 /**
- * Deriva o tipo de exercicio quando a questao nao o informa (simulado de
- * referencia): passos de codigo -> codigo; escolha com desenho -> desenho;
- * escolha textual -> conceitual.
+ * Deriva o tipo da QUESTAO (nao da etapa) quando ela nao o informa, evitando
+ * registros divididos numa questao multi-etapa: formatos de codigo -> codigo;
+ * escolha com desenho -> desenho; demais -> conceitual.
  */
-function inferQuestionType(step: ExamStep): ErrorType {
-  if (step.kind === 'function' || step.kind === 'code' || step.kind === 'gap' || step.kind === 'blocks' || step.kind === 'fix') {
+function inferQuestionType(question: ExamQuestion): ErrorType {
+  if (CODE_FORMATS.includes(question.format)) {
     return 'codigo';
   }
 
-  if ((step.kind === 'choice' || step.kind === 'rubric') && step.options.some((option) => option.visual)) {
-    return 'desenho';
-  }
+  const hasVisualOptions = question.steps.some(
+    (step) => (step.kind === 'choice' || step.kind === 'rubric') && step.options.some((option) => option.visual),
+  );
 
-  return 'conceitual';
+  return hasVisualOptions ? 'desenho' : 'conceitual';
 }
 
 export function answerCurrentStep(
@@ -60,7 +68,7 @@ export function answerCurrentStep(
     stepId: step.id,
     domainId: question.domainId,
     moduleId: question.moduleId ?? question.domainId,
-    questionType: question.questionType ?? inferQuestionType(step),
+    questionType: question.questionType ?? inferQuestionType(question),
     skillId: step.skillId,
     format: question.format,
     correct: result.correct,

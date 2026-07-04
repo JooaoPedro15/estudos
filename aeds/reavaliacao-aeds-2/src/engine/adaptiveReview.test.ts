@@ -131,6 +131,39 @@ test('recordReviewResult errado tambem derruba o dominio', () => {
   expect(notebook.records[0]).toMatchObject({ masteryLevel: 0, attempts: 2 });
 });
 
+test('acertos rapidos contam progresso mas nao dominam sem espacamento', () => {
+  let notebook = createEmptyNotebook();
+  notebook = recordStepAttempt(notebook, codeError, '2026-07-01T10:00:00.000Z');
+  const recordId = notebook.records[0].id;
+  const correct = { ...codeError, correct: true, mistakeTag: undefined };
+
+  notebook = applyAttempt(notebook, correct, recordId, '2026-07-01T10:00:10.000Z');
+  notebook = applyAttempt(notebook, correct, recordId, '2026-07-01T10:00:12.000Z');
+
+  expect(notebook.records[0]).toMatchObject({ masteryLevel: 1, correctCount: 2 });
+});
+
+test('acerto de codigo nao credita um assunto diferente', () => {
+  let notebook = createEmptyNotebook();
+  notebook = recordStepAttempt(
+    notebook,
+    { ...codeError, moduleId: 'avl', domainId: 'avl', subjectTag: 'wrong-rotation', mistakeTag: 'wrong-rotation' },
+    '2026-07-01T10:00:00.000Z',
+  );
+
+  const correct: StepAttempt = {
+    ...codeError,
+    moduleId: 'avl',
+    domainId: 'avl',
+    correct: true,
+    mistakeTag: undefined,
+    subjectTag: 'missing-base-case',
+  };
+  notebook = applyAttempt(notebook, correct, null, '2026-07-01T10:05:00.000Z');
+
+  expect(notebook.records[0].masteryLevel).toBe(0);
+});
+
 test('seleciona treino parecido e rotula tipo/assunto', () => {
   let notebook = createEmptyNotebook();
   notebook = recordStepAttempt(notebook, codeError, '2026-07-01T10:00:00.000Z');

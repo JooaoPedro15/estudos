@@ -5,6 +5,14 @@ import type { ErrorNotebook, ErrorRecord, ErrorType, StepAttempt } from '../type
 /** Acertos espacados necessarios para considerar o conteudo dominado. */
 export const MASTERY_TARGET = 3;
 
+/**
+ * Intervalo minimo entre dois ganhos de dominio. Impede "farmar" nivel
+ * respondendo a mesma questao em sequencia; exige acertos em momentos
+ * diferentes (repeticao espacada). Acertos mais rapidos ainda contam como
+ * progresso (correctCount), mas nao sobem o dominio.
+ */
+export const MASTERY_SPACING_MS = 8_000;
+
 export function createEmptyNotebook(): ErrorNotebook {
   return { records: [] };
 }
@@ -59,6 +67,7 @@ export function recordStepAttempt(
     attempts: existingRecord.attempts + 1,
     // Reincidir zera o dominio: precisa reaprender do zero.
     masteryLevel: 0,
+    lastMasteryAt: undefined,
     lastSeenAt: seenAt,
     resolved: false,
   });
@@ -92,20 +101,26 @@ export function applyAttempt(
   return notebook;
 }
 
-/** Erro nao resolvido mais prioritario compativel com um acerto. */
+/**
+ * Erro compativel com um acerto, sem creditar assunto errado:
+ * - com subjectTag (codigo): so o registro do mesmo assunto;
+ * - sem subjectTag (conceitual/desenho): so credita se nao houver ambiguidade
+ *   (um unico erro aberto naquele tipo + modulo).
+ */
 function findMatchingRecord(notebook: ErrorNotebook, attempt: StepAttempt): ErrorRecord | undefined {
   const candidates = getPriorityErrors(notebook).filter(
     (record) => record.type === attempt.questionType && record.moduleId === attempt.moduleId,
   );
 
-  if (attempt.subjectTag) {
-    const exact = candidates.find((record) => record.subjectTag === attempt.subjectTag);
-    if (exact) {
-      return exact;
-    }
+  if (candidates.length === 0) {
+    return undefined;
   }
 
-  return candidates[0];
+  if (attempt.subjectTag) {
+    return candidates.find((record) => record.subjectTag === attempt.subjectTag);
+  }
+
+  return candidates.length === 1 ? candidates[0] : undefined;
 }
 
 export function getPriorityErrors(notebook: ErrorNotebook): ErrorRecord[] {
@@ -155,17 +170,24 @@ export function recordReviewResult(
       ...record,
       attempts: record.attempts + 1,
       masteryLevel: 0,
+      lastMasteryAt: undefined,
       lastSeenAt: seenAt,
       resolved: false,
     });
   }
 
-  const masteryLevel = (record.masteryLevel ?? 0) + 1;
+  // So sobe o dominio se o acerto veio em outro momento (acertos rapidos
+  // seguidos contam como progresso, mas nao dominam o conteudo).
+  const spacedEnough =
+    !record.lastMasteryAt ||
+    new Date(seenAt).getTime() - new Date(record.lastMasteryAt).getTime() >= MASTERY_SPACING_MS;
+  const masteryLevel = spacedEnough ? (record.masteryLevel ?? 0) + 1 : record.masteryLevel ?? 0;
 
   return updateRecord(notebook, recordId, {
     ...record,
     correctCount: (record.correctCount ?? 0) + 1,
     masteryLevel,
+    lastMasteryAt: spacedEnough ? seenAt : record.lastMasteryAt,
     lastSeenAt: seenAt,
     resolved: masteryLevel >= MASTERY_TARGET,
   });

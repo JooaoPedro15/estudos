@@ -61,6 +61,8 @@ export type ErrorRecord = {
   correctCount: number;
   /** Nivel de dominio (caixa de Leitner); resolvido ao atingir a meta. */
   masteryLevel: number;
+  /** Momento do ultimo ganho de dominio, para exigir acertos espacados. */
+  lastMasteryAt?: string;
   firstSeenAt: string;
   lastSeenAt: string;
   resolved: boolean;

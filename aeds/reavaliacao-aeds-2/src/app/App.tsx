@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   BookOpenCheck,
-  Brain,
   CheckCircle2,
   ChevronRight,
   ClipboardList,
@@ -32,18 +31,9 @@ import {
   getPracticeModules,
   type PracticeModuleId,
 } from '../content/practiceModules';
-import { getContentModule } from '../content/contentModules';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
 import { buildSimulado } from '../content/simuladoBuilder';
-import {
-  applyAttempt,
-  createEmptyNotebook,
-  getErrorTypeLabel,
-  getPriorityErrors,
-  getSubjectLabel,
-  MASTERY_TARGET,
-  selectSimilarPractice,
-} from '../engine/adaptiveReview';
+import { applyAttempt, createEmptyNotebook, getPriorityErrors } from '../engine/adaptiveReview';
 import {
   buildCodeRecoveryOrder,
   buildConceptualRecoveryOrder,
@@ -82,6 +72,7 @@ import type {
 import type { ErrorRecord, StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import { ExploreScreen } from './ExploreScreen';
+import { NotebookPanel } from './NotebookPanel';
 
 const formatLabels: Record<QuestionFormat, string> = {
   'summation-from-code': 'Somatorio por codigo',
@@ -267,6 +258,14 @@ export function App() {
     setShowTeaching(false);
     setLastConceptualAttempt(null);
   }, [activeMode, currentConceptualQuestion?.id, currentPracticeDrill?.step.id, currentStep?.id]);
+
+  // Recuperacao so vive nos modos de treino; ao voltar ao Simulado, limpa o
+  // alvo para acertos do simulado nao pontuarem dominio de um erro antigo.
+  useEffect(() => {
+    if (activeMode === 'exam') {
+      setRecoveryTargetId(null);
+    }
+  }, [activeMode]);
 
   useEffect(() => {
     if (activeMode !== 'conceptual' && activeMode !== 'drawing') {
@@ -891,29 +890,7 @@ export function App() {
           )}
         </section>
 
-        <section className="review-panel" aria-labelledby="review-title">
-          <div className="panel-title">
-            <Brain aria-hidden="true" size={18} />
-            <h2 id="review-title">Caderno de erros</h2>
-          </div>
-
-          {priorityErrors.length === 0 ? (
-            <div className="empty-review">
-              <BookOpenCheck aria-hidden="true" size={32} />
-              <p>Nenhum erro critico agora.</p>
-              {masteredCount > 0 && <p className="review-mastered">{masteredCount} conteudo(s) dominado(s).</p>}
-            </div>
-          ) : (
-            <>
-              <ol className="error-list">
-                {priorityErrors.slice(0, 4).map((record) => (
-                  <NotebookItem key={record.id} onPractice={() => practiceError(record)} record={record} />
-                ))}
-              </ol>
-              {masteredCount > 0 && <p className="review-mastered">{masteredCount} conteudo(s) dominado(s).</p>}
-            </>
-          )}
-        </section>
+        <NotebookPanel masteredCount={masteredCount} onPractice={practiceError} priorityErrors={priorityErrors} />
       </div>
       )}
     </main>
@@ -1463,63 +1440,6 @@ function PracticeExperience({
       )}
     </>
   );
-}
-
-function NotebookItem({ record, onPractice }: { record: ErrorRecord; onPractice: () => void }) {
-  const moduleInfo = getContentModule(record.moduleId);
-  const mastery = record.masteryLevel ?? 0;
-  const hint = selectSimilarPractice(record);
-
-  return (
-    <li className="error-item">
-      <div className="error-head">
-        <span className={`error-type-badge type-${record.type}`}>{getErrorTypeLabel(record.type)}</span>
-        <strong>{moduleInfo.shortTitle}</strong>
-        <span className="error-subject">{getSubjectLabel(record)}</span>
-      </div>
-
-      <div className="error-meta">
-        <span>{record.attempts}x erros</span>
-        <span>{record.correctCount ?? 0} acertos</span>
-        <span>{formatRelativeTime(record.lastSeenAt)}</span>
-      </div>
-
-      <div
-        className="mastery-track"
-        aria-label={`Dominio ${mastery} de ${MASTERY_TARGET}`}
-        title={`Dominio ${mastery}/${MASTERY_TARGET}`}
-      >
-        {Array.from({ length: MASTERY_TARGET }).map((_, index) => (
-          <span className={`mastery-pip ${index < mastery ? 'is-filled' : ''}`} key={index} />
-        ))}
-      </div>
-
-      {hint && <p className="error-hint">{hint.title}</p>}
-
-      <button className="primary-button compact" onClick={onPractice} type="button">
-        <Target aria-hidden="true" size={16} />
-        Praticar
-      </button>
-    </li>
-  );
-}
-
-/** Tempo relativo curto e estavel (sem depender de libs). */
-function formatRelativeTime(iso: string): string {
-  const timestamp = new Date(iso).getTime();
-  if (Number.isNaN(timestamp)) {
-    return 'agora';
-  }
-
-  const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
-  if (diffMinutes < 1) return 'agora';
-  if (diffMinutes < 60) return `ha ${diffMinutes} min`;
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `ha ${diffHours} h`;
-
-  const diffDays = Math.floor(diffHours / 24);
-  return `ha ${diffDays} d`;
 }
 
 function TeachingBox({ step }: { step: ChallengeStep }) {

@@ -880,7 +880,7 @@ h1 {
 }
 
 .mastery-pip {
-  width: 100%;
+  flex: 1;
   height: 6px;
   background: var(--surface-3);
   border-radius: var(--radius-full);
