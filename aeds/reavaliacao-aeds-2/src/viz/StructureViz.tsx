@@ -171,11 +171,16 @@ const NodeShape = memo(function NodeShape({ node }: { node: DisplayNode }) {
           {node.label}
         </text>
       )}
-      {node.sub && (
-        <text className="viz-node-sub" y={hh + 15}>
-          {node.sub}
-        </text>
-      )}
+      {node.sub &&
+        (node.subSide === 'left' ? (
+          <text className="viz-node-sub" textAnchor="end" x={-(hw + 10)} y={4}>
+            {node.sub}
+          </text>
+        ) : (
+          <text className="viz-node-sub" y={hh + 15}>
+            {node.sub}
+          </text>
+        ))}
       {badge && !isSlot && (
         <g transform={`translate(${hw - 4} ${-hh + 4})`}>
           <circle className="viz-badge-body" r={9} />
@@ -197,6 +202,7 @@ const NodeShape = memo(function NodeShape({ node }: { node: DisplayNode }) {
   a.node.state === b.node.state &&
   a.node.label === b.node.label &&
   a.node.sub === b.node.sub &&
+  a.node.subSide === b.node.subSide &&
   a.node.shape === b.node.shape &&
   a.node.w === b.node.w &&
   a.node.h === b.node.h);

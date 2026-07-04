@@ -25,8 +25,10 @@ export type VizNode = {
   label: string;
   shape?: VizNodeShape;
   state?: VizNodeState;
-  /** Texto pequeno abaixo do nó (índice, fator de balanceamento...). */
+  /** Texto pequeno junto ao nó (índice, fator de balanceamento...). */
   sub?: string;
+  /** Lado do texto `sub`: abaixo (padrão) ou à esquerda (índices da pilha). */
+  subSide?: 'bottom' | 'left';
   /** Largura customizada para box/pill/slot. */
   w?: number;
   h?: number;

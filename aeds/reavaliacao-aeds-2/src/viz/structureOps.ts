@@ -117,7 +117,7 @@ function stackRender(state: StackState, marks: Record<string, VizNodeState> = {}
   const nodes: VizNode[] = [];
 
   for (let index = 0; index < STACK_CAP; index += 1) {
-    nodes.push(n(`slot${index}`, STACK_X, stackSlotY(index), '', { shape: 'slot', w: 96, h: 42, sub: `${index}` }));
+    nodes.push(n(`slot${index}`, STACK_X, stackSlotY(index), '', { shape: 'slot', w: 96, h: 42, sub: `${index}`, subSide: 'left' }));
   }
 
   state.cells.forEach((cell, index) => {
@@ -268,8 +268,8 @@ function queueRender(state: QueueState, marks: Record<string, VizNodeState> = {}
   }
 
   const pointers = [
-    p(`slot${Math.min(state.primeiro, QUEUE_CAP - 1)}`, 'FRENTE', 'top', 'accent'),
-    p(`slot${Math.min(state.ultimo, QUEUE_CAP - 1)}`, 'TRÁS', 'bottom', 'primary'),
+    p(`slot${Math.min(state.primeiro, QUEUE_CAP - 1)}`, 'PRIMEIRO', 'top', 'accent'),
+    p(`slot${Math.min(state.ultimo, QUEUE_CAP - 1)}`, 'ÚLTIMO', 'bottom', 'primary'),
   ];
 
   return { nodes, pointers };
@@ -420,8 +420,8 @@ function ringRender(state: RingState, marks: Record<string, VizNodeState> = {}):
 
   const side = (index: number): 'top' | 'bottom' => (index >= 2 && index <= 6 ? 'bottom' : 'top');
   const pointers = [
-    p(`slot${state.primeiro}`, 'FRENTE', side(state.primeiro), 'accent'),
-    p(`slot${state.ultimo}`, 'TRÁS', side(state.ultimo), 'primary'),
+    p(`slot${state.primeiro}`, 'PRIMEIRO', side(state.primeiro), 'accent'),
+    p(`slot${state.ultimo}`, 'ÚLTIMO', side(state.ultimo), 'primary'),
   ];
 
   return { nodes, pointers };
