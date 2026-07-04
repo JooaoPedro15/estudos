@@ -4,8 +4,8 @@
 
 O conteudo deve ser guiado por:
 
-- `aeds/materiais/Provas/REAV1` como referencia principal de formato;
-- `aeds/materiais/Provas/REAV2_incompleta` como referencia secundaria;
+- `aeds/materiais-privados/Provas/REAV1` como referencia principal de formato;
+- `aeds/materiais-privados/Provas/REAV2_incompleta` como referencia secundaria;
 - `aeds/materiais/Listas/lista-aeds2-prova3.pdf` como referencia principal para treinos de codigo;
 - `aeds/materiais/Slides AEDS 2` como base de conteudo.
 

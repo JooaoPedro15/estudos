@@ -127,6 +127,7 @@ agents.local.md
 # Material público/no jogo é versionado normalmente em materiais/.
 # -----------------------------------------------------------------------------
 materiais-privados/
+aeds/materiais-privados/
 
 # -----------------------------------------------------------------------------
 # Brainstorm scratch servers (artefatos de processo, não versionar)

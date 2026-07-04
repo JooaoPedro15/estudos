@@ -34,11 +34,11 @@ modulo atual: [`reavaliacao-aeds-2/README.md`](reavaliacao-aeds-2/README.md).
 | Pasta | Conteudo |
 | --- | --- |
 | [`reavaliacao-aeds-2/`](reavaliacao-aeds-2/) | Modulo interativo atual de AEDS II |
-| [`materiais/`](materiais/) | Materiais academicos e provas usadas como referencia |
+| [`materiais/`](materiais/) | Materiais academicos versionados |
 
 ## Materiais
 
-Nesta materia, `aeds/materiais/` pode conter slides, provas, imagens e outros
+Nesta materia, `aeds/materiais/` pode conter slides, listas, imagens e outros
 materiais de referencia que o dono do repositorio decidiu manter versionados.
-Materiais que nao devem subir para o Git ainda podem ficar em
-
+Provas oficiais e materiais sensiveis devem ficar em `aeds/materiais-privados/`,
+que e ignorada pelo Git.

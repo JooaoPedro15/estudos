@@ -27,11 +27,9 @@ novos modulos educacionais devem ser adicionados.
     README.md
     reavaliacao-aeds-2/
     materiais/
+    materiais-privados/      ignorado pelo Git
   arquitetura-computadores/
     README.md
-    jogo-arquitetura-roguelike/
-    jogo-arquitetura-legacy/
-    primeira-versao/
     datapath-quest/
     docs/
     materiais/
@@ -47,7 +45,7 @@ novos modulos educacionais devem ser adicionados.
 | Docs do projeto | dentro do proprio modulo | `aeds/reavaliacao-aeds-2/docs/` |
 | Materiais versionados | dentro da materia | `aeds/materiais/` |
 | Materiais privados | pasta ignorada localmente | `aeds/materiais-privados/` |
-| Versoes preservadas | dentro da materia correspondente | `arquitetura-computadores/primeira-versao/` |
+| Versoes preservadas | dentro da materia correspondente | `arquitetura-computadores/datapath-quest/` |
 
 ## Como adicionar um modulo educacional
 
@@ -75,9 +73,10 @@ Por padrao, materiais sensiveis ou privados ficam fora do Git. Ainda assim, um
 modulo pode versionar materiais de referencia em `<materia>/materiais/` quando
 o dono do repositorio decidir que eles podem subir.
 
-No caso atual de AEDS II, `aeds/materiais/Provas/` e
-`aeds/materiais/Slides AEDS 2/` podem ser versionados e sao usados como base do
-modulo `aeds/reavaliacao-aeds-2`.
+No caso atual de AEDS II, provas oficiais ficam em
+`aeds/materiais-privados/Provas/`, ignorada pelo Git. Materiais versionaveis,
+como listas e slides autorizados, ficam em `aeds/materiais/` e sao usados como
+base do modulo `aeds/reavaliacao-aeds-2`.
 
 ## Independencia dos modulos
 

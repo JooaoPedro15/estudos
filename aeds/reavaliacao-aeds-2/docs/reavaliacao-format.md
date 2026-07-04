@@ -1,7 +1,7 @@
 # Formato da Reavaliacao
 
 Este documento resume o formato observado nas fotos locais em
-`aeds/materiais/Provas`. A `REAV1` deve ser a base principal; a
+`aeds/materiais-privados/Provas`. A `REAV1` deve ser a base principal; a
 `REAV2_incompleta` entra como referencia secundaria de estilo.
 
 ## Observacoes principais

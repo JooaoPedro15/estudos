@@ -13,12 +13,9 @@ propria pasta, dependencias, testes e comandos.
   docs/                         Documentacao geral do repositorio
   aeds/                         Materia AEDS II
     reavaliacao-aeds-2/         Modulo interativo de AEDS II
-    materiais/                  Materiais academicos e provas usadas como referencia
+    materiais/                  Materiais academicos versionados
   arquitetura-computadores/     Materia Arquitetura de Computadores II
-    jogo-arquitetura-roguelike/ Modulo interativo principal da materia
-    jogo-arquitetura-legacy/    Versao antiga preservada da materia
-    primeira-versao/            Snapshot anterior
-    datapath-quest/             Copia tecnica preservada do datapath
+    datapath-quest/             Modulo interativo de datapath MIPS
     materiais/
     docs/
     work/
@@ -29,13 +26,16 @@ propria pasta, dependencias, testes e comandos.
 | Modulo | Materia | Estado | Pasta |
 | --- | --- | --- | --- |
 | Reavaliacao AEDS II | AEDS II | Modulo interativo atual | [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/) |
-| Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Em desenvolvimento | [`arquitetura-computadores/datapath-quest/`](arquitetura-computadores/datapath-quest/) |
+| Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Preservado | [`arquitetura-computadores/datapath-quest/`](arquitetura-computadores/datapath-quest/) |
 
 ## Materiais da disciplina
 
 Os materiais de AEDS II ficam em [`aeds/materiais/`](aeds/materiais/). Eles sao
 usados como referencia pelo modulo atual de AEDS, mas nao sao a pasta da
 aplicacao educacional.
+
+Provas oficiais e materiais sensiveis ficam em `aeds/materiais-privados/`,
+ignorada pelo Git.
 
 ## Como executar o modulo atual de AEDS
 

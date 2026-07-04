@@ -45,8 +45,9 @@ Dentro de `aeds/reavaliacao-aeds-2/`:
 
 ### Materiais relacionados
 
-- `aeds/materiais/Provas/`
+- `aeds/materiais-privados/Provas/` (local e ignorado pelo Git)
 - `aeds/materiais/Slides AEDS 2/`
+- `aeds/materiais/Listas/`
 
 ---
 
@@ -55,43 +56,15 @@ Dentro de `aeds/reavaliacao-aeds-2/`:
 | Campo | Valor |
 | --- | --- |
 | Nome | Modulo Interativo de Arquitetura de Computadores |
-| Pasta | `arquitetura-computadores/jogo-arquitetura-roguelike/` |
+| Pasta | `arquitetura-computadores/datapath-quest/` |
 | Materia | Arquitetura de Computadores II |
-| Tecnologia | JavaScript ES modules, sem dependencias externas |
-| Estado | Em desenvolvimento |
+| Tecnologia | HTML, JavaScript e testes auxiliares |
+| Estado | Preservado no workspace atual |
 
 ### Objetivo
 
 Modulo interativo para estudo de Arquitetura de Computadores, com atividades,
-simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina. A
-aplicacao organiza pratica, revisao adaptativa e acompanhamento de progresso por
-topico.
-
-### Comandos
-
-Dentro de `arquitetura-computadores/jogo-arquitetura-roguelike/`:
-
-| Acao | Comando |
-| --- | --- |
-| Testes | `npm test` |
-| Servidor estatico | `npm run serve` |
-
-### Documentacao
-
-- `arquitetura-computadores/jogo-arquitetura-roguelike/README.md`
-- `arquitetura-computadores/jogo-arquitetura-roguelike/docs/BRAINSTORM.md`
-
----
-
-## Modulo 3: Aplicacao Legacy de Datapath MIPS
-
-| Campo | Valor |
-| --- | --- |
-| Nome | Aplicacao Legacy de Datapath MIPS |
-| Pasta | `arquitetura-computadores/jogo-arquitetura-legacy/` |
-| Materia | Arquitetura de Computadores II |
-| Tecnologia | HTML, CSS e JavaScript inline |
-| Estado | Versao antiga preservada |
+simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina.
 
 ### Execucao
 
@@ -99,40 +72,7 @@ Abrir `mips-datapath-quest.html` no navegador.
 
 ### Documentacao
 
-- `arquitetura-computadores/jogo-arquitetura-legacy/README.md`
-
----
-
-## Modulo 4: Snapshot Inicial de Datapath MIPS
-
-| Campo | Valor |
-| --- | --- |
-| Nome | Snapshot Inicial de Datapath MIPS |
-| Pasta | `arquitetura-computadores/primeira-versao/` |
-| Materia | Arquitetura de Computadores II |
-| Tecnologia | HTML, CSS e JavaScript inline |
-| Estado | Preservado |
-
-### Execucao
-
-Abrir `mips-datapath-quest.html` no navegador.
-
----
-
-## Modulo 5: Datapath MIPS extraido
-
-| Campo | Valor |
-| --- | --- |
-| Nome | Datapath MIPS extraido |
-| Pasta | `arquitetura-computadores/datapath-quest/` |
-| Materia | Arquitetura de Computadores II |
-| Tecnologia | HTML, JavaScript e testes auxiliares |
-| Estado | Copia tecnica preservada |
-
-### Observacao
-
-Esta pasta existe no workspace atual e guarda uma copia tecnica do material de
-datapath, incluindo testes auxiliares.
+- `arquitetura-computadores/README.md`
 
 ---
 
@@ -140,8 +80,8 @@ datapath, incluindo testes auxiliares.
 
 | Recurso | Pasta | Descricao |
 | --- | --- | --- |
-| Checkpoints de desenvolvimento | `arquitetura-computadores/work/checkpoints/` | Snapshots HTML do processo de desenvolvimento |
+| Arquivos de trabalho de Arquitetura | `arquitetura-computadores/work/` | Arquivos de apoio existentes da materia |
 | Specs formais | `docs/superpowers/specs/` | Specs geradas no fluxo de design |
-| Specs e planos de Arquitetura | `arquitetura-computadores/docs/superpowers/` | Design e plano do modulo de Arquitetura |
-| Materiais de AEDS | `aeds/materiais/` | Slides, provas e referencias usadas pelo modulo de AEDS |
+| Materiais de AEDS | `aeds/materiais/` | Slides, listas e referencias versionadas usadas pelo modulo de AEDS |
+| Materiais privados de AEDS | `aeds/materiais-privados/` | Provas oficiais e materiais locais ignorados pelo Git |
 | Materiais de Arquitetura | `arquitetura-computadores/materiais/` | Materiais publicos e instrucoes para materiais privados |

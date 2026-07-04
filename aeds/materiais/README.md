@@ -1,10 +1,12 @@
 # Materiais Academicos - AEDS II
 
-Esta pasta centraliza materiais usados como referencia para os modulos de AEDS II.
+Esta pasta centraliza materiais versionados usados como referencia para os
+modulos de AEDS II.
 
 ## Uso atual
 
-O modulo `aeds/reavaliacao-aeds-2` usa esta pasta para entender:
+O modulo `aeds/reavaliacao-aeds-2` usa os materiais versionados desta pasta e as
+provas locais privadas para entender:
 
 - o formato das reavaliacoes;
 - os tipos de questao cobrados;
@@ -15,9 +17,6 @@ O modulo `aeds/reavaliacao-aeds-2` usa esta pasta para entender:
 
 ```text
 aeds/materiais/
-  Provas/
-    REAV1/
-    REAV2_incompleta/
   Listas/
     lista-aeds2-prova3.pdf
   Slides AEDS 2/
@@ -31,11 +30,17 @@ aeds/materiais/
     u08 Arvores TRIE/
 ```
 
+Provas oficiais e materiais sensiveis ficam fora do Git em:
+
+```text
+aeds/materiais-privados/Provas/
+```
+
 ## Regra do repositorio
 
 Para este projeto, o dono do repositorio autorizou que esta pasta de materiais
-possa subir para o Git. Se algum material futuro nao puder ser versionado, use
-uma pasta local ignorada, como:
+versionaveis possa subir para o Git. Se algum material futuro nao puder ser
+versionado, use a pasta local ignorada:
 
 ```text
 aeds/materiais-privados/

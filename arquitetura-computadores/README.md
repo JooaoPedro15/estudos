@@ -3,15 +3,15 @@
 ## Objetivo
 
 Reunir modulos educacionais voltados para o estudo de **Arquitetura de
-Computadores II**. Os modulos cobrem a arquitetura MIPS, caminho de dados
-(datapath), pipeline, controle, linguagem de maquina, funcoes, memoria,
+Computadores II**. Os materiais e modulos cobrem arquitetura MIPS, caminho de
+dados (datapath), pipeline, controle, linguagem de maquina, funcoes, memoria,
 aritmetica e desempenho.
 
-## Modulos disponiveis
+## Modulo disponivel
 
-### [datapath-quest/](mips-datapath-quest/) - Modulo Interativo de Arquitetura de Computadores
+### [datapath-quest/](datapath-quest/) - Modulo Interativo de Arquitetura de Computadores
 
-**Estado:** Concluido (modulo principal)
+**Estado:** preservado no workspace atual.
 
 Modulo interativo para estudo de Arquitetura de Computadores, com atividades,
 simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina. A
@@ -26,12 +26,10 @@ Tempos (caminho critico), Pipeline.
 
 | Pasta | Conteudo |
 | --- | --- |
-| [`jogo-arquitetura-roguelike/`](jogo-arquitetura-roguelike/) | Modulo principal em desenvolvimento |
-| [`jogo-arquitetura-legacy/`](jogo-arquitetura-legacy/) | Versao antiga preservada e funcional |
-| [`primeira-versao/`](primeira-versao/) | Snapshot inicial preservado |
-| [`docs/superpowers/`](docs/superpowers/) | Documentacao de design e plano de implementacao |
-| [`work/checkpoints/`](work/checkpoints/) | 12 snapshots de desenvolvimento do legacy |
+| [`datapath-quest/`](datapath-quest/) | Modulo interativo de datapath MIPS |
+| [`work/`](work/) | Arquivos de trabalho e checkpoints existentes |
 | [`materiais/`](materiais/) | Materiais academicos publicos |
+| [`docs/`](docs/) | Pasta reservada para documentacao da materia |
 
 > **Materiais privados** (PDFs de slides, listas, gabaritos) ficam em
 > `materiais-privados/` (ignorada pelo Git). Veja o README dentro de `materiais/`.
