@@ -24,6 +24,9 @@ export type QuestionFormat =
 
 export type SkillId = 'recognize' | 'simulate' | 'program' | 'justify';
 
+/** Tipo pedagogico do exercicio, casado com o modo de treino que o corrige. */
+export type ErrorType = 'codigo' | 'conceitual' | 'desenho';
+
 export type MistakeTag =
   | 'wrong-case-analysis'
   | 'missing-base-case'
@@ -159,6 +162,10 @@ export type ExamQuestion = {
   id: string;
   number: number;
   domainId: DomainId;
+  /** Modulo especifico do banco de origem (lista, hash, avl...). */
+  moduleId?: ContentModuleId;
+  /** Tipo do exercicio para o caderno de erros (codigo/conceitual/desenho). */
+  questionType?: ErrorType;
   format: QuestionFormat;
   title: string;
   stem: string;

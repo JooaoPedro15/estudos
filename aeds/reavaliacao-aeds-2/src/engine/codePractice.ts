@@ -66,12 +66,15 @@ export function answerCurrentPracticeStep(
     questionId: drill.id,
     stepId: drill.step.id,
     domainId: drill.domainId,
+    moduleId: drill.moduleId ?? drill.domainId,
+    questionType: 'codigo',
     skillId: drill.step.skillId,
     format: drill.format,
     correct: result.correct,
     scoreDelta: result.scoreDelta,
     feedback: result.feedback,
     mistakeTag: result.mistakeTag,
+    subjectTag: 'mistakeTag' in drill.step ? drill.step.mistakeTag : undefined,
   };
 
   return {

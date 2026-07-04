@@ -1,5 +1,5 @@
 import { evaluateStep, getStepMaxScore } from './evaluator';
-import type { ExamBlueprint, ExamStep, StepAnswer } from '../types/content';
+import type { ErrorType, ExamBlueprint, ExamStep, StepAnswer } from '../types/content';
 import type { ExamSession, StepAttempt } from '../types/progress';
 
 export function createExamSession(blueprint: ExamBlueprint): ExamSession {
@@ -19,6 +19,23 @@ export function createExamSession(blueprint: ExamBlueprint): ExamSession {
 
 export function getCurrentStep(blueprint: ExamBlueprint, session: ExamSession): ExamStep | undefined {
   return blueprint.questions[session.currentQuestionIndex]?.steps[session.currentStepIndex];
+}
+
+/**
+ * Deriva o tipo de exercicio quando a questao nao o informa (simulado de
+ * referencia): passos de codigo -> codigo; escolha com desenho -> desenho;
+ * escolha textual -> conceitual.
+ */
+function inferQuestionType(step: ExamStep): ErrorType {
+  if (step.kind === 'function' || step.kind === 'code' || step.kind === 'gap' || step.kind === 'blocks' || step.kind === 'fix') {
+    return 'codigo';
+  }
+
+  if ((step.kind === 'choice' || step.kind === 'rubric') && step.options.some((option) => option.visual)) {
+    return 'desenho';
+  }
+
+  return 'conceitual';
 }
 
 export function answerCurrentStep(
@@ -42,12 +59,15 @@ export function answerCurrentStep(
     questionId: question.id,
     stepId: step.id,
     domainId: question.domainId,
+    moduleId: question.moduleId ?? question.domainId,
+    questionType: question.questionType ?? inferQuestionType(step),
     skillId: step.skillId,
     format: question.format,
     correct: result.correct,
     scoreDelta: result.scoreDelta,
     feedback: result.feedback,
     mistakeTag: result.mistakeTag,
+    subjectTag: 'mistakeTag' in step ? step.mistakeTag : undefined,
   };
   const nextPosition = getNextPosition(blueprint, session.currentQuestionIndex, session.currentStepIndex);
 

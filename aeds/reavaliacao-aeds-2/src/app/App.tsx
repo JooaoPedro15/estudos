@@ -32,15 +32,24 @@ import {
   getPracticeModules,
   type PracticeModuleId,
 } from '../content/practiceModules';
+import { getContentModule } from '../content/contentModules';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
 import { buildSimulado } from '../content/simuladoBuilder';
 import {
+  applyAttempt,
   createEmptyNotebook,
+  getErrorTypeLabel,
   getPriorityErrors,
-  recordReviewResult,
-  recordStepAttempt,
+  getSubjectLabel,
+  MASTERY_TARGET,
   selectSimilarPractice,
 } from '../engine/adaptiveReview';
+import {
+  buildCodeRecoveryOrder,
+  buildConceptualRecoveryOrder,
+  RECOVERY_DECK_SIZE,
+  resolvePracticeTarget,
+} from '../engine/recoverySession';
 import {
   answerCurrentPracticeStep,
   createPracticeSession,
@@ -70,7 +79,7 @@ import type {
   StepAnswer,
   StructureVisual,
 } from '../types/content';
-import type { StepAttempt } from '../types/progress';
+import type { ErrorRecord, StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import { ExploreScreen } from './ExploreScreen';
 
@@ -217,6 +226,8 @@ export function App() {
   const [lastAttempt, setLastAttempt] = useState<StepAttempt | null>(null);
   const [lastConceptualAttempt, setLastConceptualAttempt] = useState<ConceptualAttempt | null>(null);
   const [showTeaching, setShowTeaching] = useState(false);
+  /** Erro do caderno em recuperacao; acertos aqui avancam o dominio dele. */
+  const [recoveryTargetId, setRecoveryTargetId] = useState<string | null>(null);
 
   const currentQuestion = game.blueprint.questions[game.session.currentQuestionIndex];
   const currentStep = getCurrentStep(game.blueprint, game.session);
@@ -236,8 +247,10 @@ export function App() {
   const currentDomain =
     domainCatalog.find((domain) => domain.id === currentQuestion?.domainId) ?? selectedDomain;
   const priorityErrors = useMemo(() => getPriorityErrors(game.notebook), [game.notebook]);
-  const topError = priorityErrors[0];
-  const similarPractice = topError ? selectSimilarPractice(topError) : undefined;
+  const masteredCount = useMemo(
+    () => game.notebook.records.filter((record) => record.resolved).length,
+    [game.notebook],
+  );
   const progressPercent = Math.round((game.session.score / game.session.maxScore) * 100);
   const answer = activeStep ? buildAnswer(activeStep, choiceAnswer, textAnswer, blockOrder, fixLineIndex, fixId) : undefined;
 
@@ -303,7 +316,7 @@ export function App() {
 
     const nextSession = answerCurrentStep(game.blueprint, game.session, answer);
     const attempt = nextSession.attempts[nextSession.attempts.length - 1] ?? null;
-    const nextNotebook = attempt ? recordStepAttempt(game.notebook, attempt) : game.notebook;
+    const nextNotebook = attempt ? applyAttempt(game.notebook, attempt, recoveryTargetId) : game.notebook;
 
     setLastAttempt(attempt);
     setGame((currentGame) => ({ ...currentGame, session: nextSession, notebook: nextNotebook }));
@@ -316,7 +329,7 @@ export function App() {
 
     const nextPracticeSession = answerCurrentPracticeStep(practiceDrills, practiceSession, answer);
     const attempt = nextPracticeSession.attempts[nextPracticeSession.attempts.length - 1] ?? null;
-    const nextNotebook = attempt ? recordStepAttempt(game.notebook, attempt) : game.notebook;
+    const nextNotebook = attempt ? applyAttempt(game.notebook, attempt, recoveryTargetId) : game.notebook;
 
     setLastAttempt(attempt);
     setGame((currentGame) => ({
@@ -338,9 +351,29 @@ export function App() {
     );
     const attempt = nextConceptualSession.attempts[nextConceptualSession.attempts.length - 1] ?? null;
 
+    // Alimenta o caderno de erros com conceituais/desenhos (antes so codigo entrava).
+    const question = currentConceptualQuestion;
+    const stepAttempt: StepAttempt | null =
+      attempt && question
+        ? {
+            questionId: question.id,
+            stepId: question.id,
+            domainId: question.domainId,
+            moduleId: question.moduleId,
+            questionType: activeMode === 'drawing' ? 'desenho' : 'conceitual',
+            skillId: 'justify',
+            format: activeMode === 'drawing' ? 'structure-simulation' : 'prove-or-refute',
+            correct: attempt.correct,
+            scoreDelta: attempt.scoreDelta,
+            feedback: attempt.feedback,
+          }
+        : null;
+    const nextNotebook = stepAttempt ? applyAttempt(game.notebook, stepAttempt, recoveryTargetId) : game.notebook;
+
     setLastConceptualAttempt(attempt);
     setGame((currentGame) => ({
       ...currentGame,
+      notebook: nextNotebook,
       conceptualSession: nextConceptualSession,
     }));
   }
@@ -361,6 +394,7 @@ export function App() {
     setSelectedDomainId('somatorio');
     setConceptualModuleId(null);
     setDrawingModuleId(null);
+    setRecoveryTargetId(null);
     setGame(nextGame);
   }
 
@@ -388,6 +422,7 @@ export function App() {
 
   function startQuickPractice() {
     setLastAttempt(null);
+    setRecoveryTargetId(null);
     setActiveMode('practice');
     setGame((currentGame) => ({
       ...currentGame,
@@ -397,6 +432,7 @@ export function App() {
 
   function startQuickConceptual() {
     clearConceptualVisualState();
+    setRecoveryTargetId(null);
     setActiveMode(activeMode === 'drawing' ? 'drawing' : 'conceptual');
     setGame((currentGame) => ({
       ...currentGame,
@@ -406,6 +442,7 @@ export function App() {
 
   function startMarathonConceptual() {
     clearConceptualVisualState();
+    setRecoveryTargetId(null);
     setActiveMode(activeMode === 'drawing' ? 'drawing' : 'conceptual');
     setGame((currentGame) => ({
       ...currentGame,
@@ -415,6 +452,7 @@ export function App() {
 
   function startMarathonPractice() {
     setLastAttempt(null);
+    setRecoveryTargetId(null);
     setActiveMode('practice');
     setGame((currentGame) => ({
       ...currentGame,
@@ -425,6 +463,7 @@ export function App() {
   function selectPracticeModule(moduleId: PracticeModuleId) {
     const moduleDrills = getDrillsForModule(moduleId);
     setLastAttempt(null);
+    setRecoveryTargetId(null);
     setPracticeModuleId(moduleId);
 
     if (moduleDrills.length === 0) {
@@ -445,6 +484,7 @@ export function App() {
   function selectConceptualModule(moduleId: ConceptualDrawingModuleId) {
     const questions = getQuestionsForConceptualDrawingModule(moduleId, lista2QuestionType);
     clearConceptualVisualState();
+    setRecoveryTargetId(null);
     if (activeMode === 'drawing') {
       setDrawingModuleId(moduleId);
     } else {
@@ -492,14 +532,48 @@ export function App() {
     }));
   }
 
-  function markPractice(correct: boolean) {
-    if (!topError) {
+  /**
+   * "Praticar": abre o modo/modulo corretos e monta uma sessao curta de
+   * recuperacao focada no assunto do erro. Acertos nessa sessao avancam o
+   * dominio do proprio erro (recoveryTargetId).
+   */
+  function practiceError(record: ErrorRecord) {
+    const target = resolvePracticeTarget(record);
+    setLastAttempt(null);
+    clearConceptualVisualState();
+    resetAnswerDrafts();
+    setRecoveryTargetId(record.id);
+
+    if (target.mode === 'practice') {
+      const drills = getDrillsForModule(target.moduleId);
+      const order = buildCodeRecoveryOrder(record, drills);
+      const targetCount = Math.max(1, Math.min(order.length, RECOVERY_DECK_SIZE));
+      setPracticeModuleId(target.moduleId);
+      setActiveMode('practice');
+      setGame((currentGame) => ({
+        ...currentGame,
+        practiceSession: createPracticeSession(drills, { mode: 'quick', targetCount, drillOrder: order }),
+      }));
       return;
     }
 
+    const type: ConceptualDrawingType = target.mode === 'drawing' ? 'desenho' : 'conceitual';
+    const questions = getQuestionsForConceptualDrawingModule(target.moduleId, type);
+    const order = buildConceptualRecoveryOrder(record, questions);
+    const targetCount = Math.max(1, Math.min(order.length, RECOVERY_DECK_SIZE));
+    if (target.mode === 'drawing') {
+      setDrawingModuleId(target.moduleId);
+    } else {
+      setConceptualModuleId(target.moduleId);
+    }
+    setActiveMode(target.mode);
     setGame((currentGame) => ({
       ...currentGame,
-      notebook: recordReviewResult(currentGame.notebook, topError.id, correct),
+      conceptualSession: createConceptualPracticeSession(questions, {
+        mode: 'quick',
+        targetCount,
+        questionOrder: order,
+      }),
     }));
   }
 
@@ -827,39 +901,16 @@ export function App() {
             <div className="empty-review">
               <BookOpenCheck aria-hidden="true" size={32} />
               <p>Nenhum erro critico agora.</p>
+              {masteredCount > 0 && <p className="review-mastered">{masteredCount} conteudo(s) dominado(s).</p>}
             </div>
           ) : (
             <>
               <ol className="error-list">
-                {priorityErrors.slice(0, 3).map((record) => (
-                  <li key={record.id}>
-                    <strong>{skillLabels[record.skillId]}</strong>
-                    <span>
-                      {record.domainId} · {record.mistakeTag} · {record.attempts}x
-                    </span>
-                  </li>
+                {priorityErrors.slice(0, 4).map((record) => (
+                  <NotebookItem key={record.id} onPractice={() => practiceError(record)} record={record} />
                 ))}
               </ol>
-
-              {similarPractice && (
-                <div className="practice-box">
-                  <div className="practice-heading">
-                    <Code2 aria-hidden="true" size={18} />
-                    <h3>{similarPractice.title}</h3>
-                  </div>
-                  <p>{similarPractice.prompt}</p>
-                  <div className="practice-actions">
-                    <button className="ghost-button" onClick={() => markPractice(false)} type="button">
-                      <XCircle aria-hidden="true" size={18} />
-                      Errei
-                    </button>
-                    <button className="primary-button" onClick={() => markPractice(true)} type="button">
-                      <CheckCircle2 aria-hidden="true" size={18} />
-                      Acertei
-                    </button>
-                  </div>
-                </div>
-              )}
+              {masteredCount > 0 && <p className="review-mastered">{masteredCount} conteudo(s) dominado(s).</p>}
             </>
           )}
         </section>
@@ -1412,6 +1463,63 @@ function PracticeExperience({
       )}
     </>
   );
+}
+
+function NotebookItem({ record, onPractice }: { record: ErrorRecord; onPractice: () => void }) {
+  const moduleInfo = getContentModule(record.moduleId);
+  const mastery = record.masteryLevel ?? 0;
+  const hint = selectSimilarPractice(record);
+
+  return (
+    <li className="error-item">
+      <div className="error-head">
+        <span className={`error-type-badge type-${record.type}`}>{getErrorTypeLabel(record.type)}</span>
+        <strong>{moduleInfo.shortTitle}</strong>
+        <span className="error-subject">{getSubjectLabel(record)}</span>
+      </div>
+
+      <div className="error-meta">
+        <span>{record.attempts}x erros</span>
+        <span>{record.correctCount ?? 0} acertos</span>
+        <span>{formatRelativeTime(record.lastSeenAt)}</span>
+      </div>
+
+      <div
+        className="mastery-track"
+        aria-label={`Dominio ${mastery} de ${MASTERY_TARGET}`}
+        title={`Dominio ${mastery}/${MASTERY_TARGET}`}
+      >
+        {Array.from({ length: MASTERY_TARGET }).map((_, index) => (
+          <span className={`mastery-pip ${index < mastery ? 'is-filled' : ''}`} key={index} />
+        ))}
+      </div>
+
+      {hint && <p className="error-hint">{hint.title}</p>}
+
+      <button className="primary-button compact" onClick={onPractice} type="button">
+        <Target aria-hidden="true" size={16} />
+        Praticar
+      </button>
+    </li>
+  );
+}
+
+/** Tempo relativo curto e estavel (sem depender de libs). */
+function formatRelativeTime(iso: string): string {
+  const timestamp = new Date(iso).getTime();
+  if (Number.isNaN(timestamp)) {
+    return 'agora';
+  }
+
+  const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
+  if (diffMinutes < 1) return 'agora';
+  if (diffMinutes < 60) return `ha ${diffMinutes} min`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `ha ${diffHours} h`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `ha ${diffDays} d`;
 }
 
 function TeachingBox({ step }: { step: ChallengeStep }) {

@@ -1,4 +1,6 @@
-import type { DomainId, MistakeTag, QuestionFormat, SkillId } from './content';
+import type { ContentModuleId, DomainId, ErrorType, MistakeTag, QuestionFormat, SkillId } from './content';
+
+export type { ErrorType };
 
 export type SkillProgress = Partial<Record<SkillId, boolean>>;
 
@@ -12,12 +14,19 @@ export type StepAttempt = {
   questionId: string;
   stepId: string;
   domainId: DomainId;
+  /** Modulo especifico (lista, fila, hash, arvore...). */
+  moduleId: ContentModuleId;
+  /** Tipo do exercicio: codigo, conceitual ou desenho. */
+  questionType: ErrorType;
   skillId: SkillId;
   format: QuestionFormat;
   correct: boolean;
   scoreDelta: number;
   feedback: string;
+  /** Erro cometido (so em respostas erradas). */
   mistakeTag?: MistakeTag;
+  /** Assunto/operacao intrinseco da questao (presente mesmo no acerto). */
+  subjectTag?: MistakeTag;
 };
 
 export type ExamSession = {
@@ -32,14 +41,28 @@ export type ExamSession = {
 
 export type ErrorRecord = {
   id: string;
-  challengeId: string;
+  /** Tipo do erro: define para qual modo de treino o "Praticar" envia. */
+  type: ErrorType;
+  /** Modulo do conteudo (lista, fila, hash, arvore...). */
+  moduleId: ContentModuleId;
   domainId: DomainId;
   skillId: SkillId;
   questionFormat: QuestionFormat;
-  mistakeTag: MistakeTag;
+  /** Assunto/operacao (rotacao, colisao, somatorio...); ausente quando generico. */
+  subjectTag?: MistakeTag;
+  /** Ultimo erro cometido, usado para escolher treino parecido. */
+  mistakeTag?: MistakeTag;
+  /** Ultima questao/etapa errada, para abrir uma questao parecida. */
+  challengeId: string;
+  questionId?: string;
+  /** Quantidade de erros acumulados. */
   attempts: number;
+  /** Acertos posteriores em treino de recuperacao. */
+  correctCount: number;
+  /** Nivel de dominio (caixa de Leitner); resolvido ao atingir a meta. */
+  masteryLevel: number;
+  firstSeenAt: string;
   lastSeenAt: string;
-  resolvedStreak: number;
   resolved: boolean;
 };
 
