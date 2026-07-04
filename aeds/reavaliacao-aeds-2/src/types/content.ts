@@ -46,6 +46,8 @@ export type StepOption = {
   id: string;
   label: string;
   mistakeTag?: MistakeTag;
+  /** Alternativa visual (usada por questoes de desenho reaproveitadas no simulado). */
+  visual?: StructureVisual;
 };
 
 export type CodeBlock = {
@@ -160,6 +162,8 @@ export type ExamQuestion = {
   format: QuestionFormat;
   title: string;
   stem: string;
+  /** Esqueleto de codigo exibido em questoes de codigo reaproveitadas do Treino. */
+  scaffold?: string;
   visual?: StructureVisual;
   steps: ExamStep[];
 };

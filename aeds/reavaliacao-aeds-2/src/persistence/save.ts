@@ -1,12 +1,15 @@
 import type { ConceptualDrawingModuleId } from '../content/lista2Questions';
 import type { PracticeModuleId } from '../content/practiceModules';
 import type { ConceptualPracticeSession } from '../engine/lista2Practice';
+import type { ExamBlueprint } from '../types/content';
 import type { ErrorNotebook, ExamSession, PracticeSession } from '../types/progress';
 
 export const SAVE_KEY = 'reavaliacao-aeds-2:save';
 
 export type SavedGameState = {
   session: ExamSession;
+  /** Simulado sorteado atual; guardado para a sessao continuar apos recarregar. */
+  blueprint: ExamBlueprint;
   notebook: ErrorNotebook;
   practiceSession?: PracticeSession;
   conceptualSession?: ConceptualPracticeSession;

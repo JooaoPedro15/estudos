@@ -9,6 +9,7 @@ import {
   ListChecks,
   RotateCcw,
   Shapes,
+  Shuffle,
   Target,
   Trophy,
   XCircle,
@@ -32,6 +33,7 @@ import {
   type PracticeModuleId,
 } from '../content/practiceModules';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
+import { buildSimulado } from '../content/simuladoBuilder';
 import {
   createEmptyNotebook,
   getPriorityErrors,
@@ -61,10 +63,12 @@ import type {
   ChallengeStep,
   CodeDrill,
   DomainId,
+  ExamBlueprint,
   FixStep,
   QuestionFormat,
   SkillId,
   StepAnswer,
+  StructureVisual,
 } from '../types/content';
 import type { StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
@@ -93,6 +97,7 @@ type ActiveMode = 'exam' | 'practice' | 'conceptual' | 'drawing' | 'explore';
 function createInitialGame(): SavedGameState {
   return {
     session: createExamSession(reavaliacaoBlueprint),
+    blueprint: reavaliacaoBlueprint,
     notebook: createEmptyNotebook(),
     practiceSession: createPracticeSession(codeDrillCatalog, { mode: 'quick', targetCount: 2 }),
     conceptualSession: createConceptualPracticeSession(getQuestionsForConceptualDrawingModule('all', 'conceitual'), {
@@ -168,10 +173,20 @@ function loadInitialState(): {
       ? savedGame.conceptualSession
       : initialGame.conceptualSession;
 
+  // O blueprint salvo so vale se a sessao ainda apontar para ele. Saves antigos
+  // (sem blueprint) ou inconsistentes caem no simulado de referencia.
+  const savedBlueprint = savedGame.blueprint;
+  const blueprint =
+    savedBlueprint && savedBlueprint.id === savedGame.session.blueprintId ? savedBlueprint : reavaliacaoBlueprint;
+  const session =
+    blueprint.id === savedGame.session.blueprintId ? savedGame.session : createExamSession(blueprint);
+
   return {
     game: {
       ...initialGame,
       ...savedGame,
+      blueprint,
+      session,
       practiceSession: validPracticeSession,
       conceptualSession: validConceptualSession,
     },
@@ -203,8 +218,8 @@ export function App() {
   const [lastConceptualAttempt, setLastConceptualAttempt] = useState<ConceptualAttempt | null>(null);
   const [showTeaching, setShowTeaching] = useState(false);
 
-  const currentQuestion = reavaliacaoBlueprint.questions[game.session.currentQuestionIndex];
-  const currentStep = getCurrentStep(reavaliacaoBlueprint, game.session);
+  const currentQuestion = game.blueprint.questions[game.session.currentQuestionIndex];
+  const currentStep = getCurrentStep(game.blueprint, game.session);
   const practiceDrills = getDrillsForModule(practiceModuleId ?? 'all');
   const practiceSession =
     game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
@@ -286,7 +301,7 @@ export function App() {
       return;
     }
 
-    const nextSession = answerCurrentStep(reavaliacaoBlueprint, game.session, answer);
+    const nextSession = answerCurrentStep(game.blueprint, game.session, answer);
     const attempt = nextSession.attempts[nextSession.attempts.length - 1] ?? null;
     const nextNotebook = attempt ? recordStepAttempt(game.notebook, attempt) : game.notebook;
 
@@ -347,6 +362,28 @@ export function App() {
     setConceptualModuleId(null);
     setDrawingModuleId(null);
     setGame(nextGame);
+  }
+
+  /** Refazer: mesma combinacao de questoes, zera pontuacao e progresso. */
+  function restartSimulado() {
+    setLastAttempt(null);
+    resetAnswerDrafts();
+    setActiveMode('exam');
+    setGame((currentGame) => ({
+      ...currentGame,
+      session: createExamSession(currentGame.blueprint),
+    }));
+  }
+
+  /** Novo simulado: sorteia uma nova combinacao evitando repetir a anterior. */
+  function newSimulado() {
+    setLastAttempt(null);
+    resetAnswerDrafts();
+    setActiveMode('exam');
+    setGame((currentGame) => {
+      const blueprint = buildSimulado({ previous: currentGame.blueprint });
+      return { ...currentGame, blueprint, session: createExamSession(blueprint) };
+    });
   }
 
   function startQuickPractice() {
@@ -670,16 +707,22 @@ export function App() {
               <p>
                 Pontuacao final: {game.session.score} de {game.session.maxScore}.
               </p>
-              <button className="primary-button" onClick={resetGame} type="button">
-                <RotateCcw aria-hidden="true" size={18} />
-                Reiniciar
-              </button>
+              <div className="action-row">
+                <button className="primary-button" onClick={newSimulado} type="button">
+                  <Shuffle aria-hidden="true" size={18} />
+                  Novo simulado
+                </button>
+                <button className="ghost-button" onClick={restartSimulado} type="button">
+                  <RotateCcw aria-hidden="true" size={18} />
+                  Refazer
+                </button>
+              </div>
             </div>
           ) : (
             <>
-              <div className="question-progress" aria-label={`Questao ${currentQuestion.number} de ${reavaliacaoBlueprint.questions.length}`}>
+              <div className="question-progress" aria-label={`Questao ${currentQuestion.number} de ${game.blueprint.questions.length}`}>
                 <div className="question-progress-dots" aria-hidden="true">
-                  {reavaliacaoBlueprint.questions.map((question, index) => (
+                  {game.blueprint.questions.map((question, index) => (
                     <span
                       className={`question-dot ${
                         index < game.session.currentQuestionIndex
@@ -693,9 +736,13 @@ export function App() {
                   ))}
                 </div>
                 <span>
-                  Questao {currentQuestion.number} de {reavaliacaoBlueprint.questions.length} · Etapa{' '}
+                  Questao {currentQuestion.number} de {game.blueprint.questions.length} · Etapa{' '}
                   {game.session.currentStepIndex + 1} de {currentQuestion.steps.length}
                 </span>
+                <button className="ghost-button compact" onClick={newSimulado} type="button">
+                  <Shuffle aria-hidden="true" size={16} />
+                  Novo simulado
+                </button>
               </div>
 
               <div className="question-header">
@@ -709,6 +756,11 @@ export function App() {
               </div>
 
               <p className="question-stem">{currentQuestion.stem}</p>
+              {currentQuestion.scaffold && (
+                <pre className="code-scaffold">
+                  <code>{currentQuestion.scaffold}</code>
+                </pre>
+              )}
               {currentQuestion.visual && <StructureVizCard visual={currentQuestion.visual} />}
 
               <div className="step-panel">
@@ -1364,6 +1416,7 @@ function PracticeExperience({
 
 function TeachingBox({ step }: { step: ChallengeStep }) {
   const teachingItems = getTeachingItems(step);
+  const teachingVisual = getTeachingVisual(step);
 
   return (
     <aside className="teaching-box" aria-label="Explicacao guiada">
@@ -1384,9 +1437,24 @@ function TeachingBox({ step }: { step: ChallengeStep }) {
           <code>{step.solution}</code>
         </pre>
       )}
+      {teachingVisual && <StaticStructureCard visual={teachingVisual} />}
       {step.explanation && <p>{step.explanation}</p>}
     </aside>
   );
+}
+
+/** Desenho correto para questoes de escolha visual reaproveitadas no simulado. */
+function getTeachingVisual(step: ChallengeStep): StructureVisual | undefined {
+  if (step.kind === 'choice') {
+    return step.options.find((option) => option.id === step.correctOptionId)?.visual;
+  }
+
+  if (step.kind === 'rubric') {
+    const correctId = step.acceptableOptionIds[0];
+    return step.options.find((option) => option.id === correctId)?.visual;
+  }
+
+  return undefined;
 }
 
 function getTeachingItems(step: ChallengeStep): Array<{ code: string; note: string }> {
@@ -1490,6 +1558,27 @@ function AnswerControl({
   textAnswer,
 }: AnswerControlProps) {
   if (step.kind === 'choice' || step.kind === 'rubric') {
+    const hasVisuals = step.options.some((option) => option.visual);
+
+    if (hasVisuals) {
+      return (
+        <div className="visual-option-grid">
+          {step.options.map((option) => (
+            <div className={`visual-option ${choiceAnswer === option.id ? 'is-selected' : ''}`} key={option.id}>
+              {option.visual && <StaticStructureCard visual={option.visual} />}
+              <button
+                className={`option-button ${choiceAnswer === option.id ? 'is-selected' : ''}`}
+                onClick={() => onChoice(option.id)}
+                type="button"
+              >
+                {option.label}
+              </button>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     return (
       <div className="option-grid">
         {step.options.map((option) => (

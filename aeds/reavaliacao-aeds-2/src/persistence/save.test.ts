@@ -6,6 +6,7 @@ import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
 test('salva, carrega e limpa o estado local do jogo', () => {
   const state = {
     session: createExamSession(reavaliacaoBlueprint),
+    blueprint: reavaliacaoBlueprint,
     notebook: createEmptyNotebook(),
   };
 
