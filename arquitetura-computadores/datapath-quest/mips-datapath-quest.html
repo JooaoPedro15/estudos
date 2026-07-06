@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" href="data:,">
 <title>MIPS Datapath Quest</title>
 <!--
   ============================================================================
@@ -398,6 +399,21 @@ table.ctl td.x{color:var(--muted);}
 .program-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:8px;}
 .program-summary .numrow{margin:0;}
 
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px;}
+.review-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;}
+.review-card b{display:block;color:var(--cyan);font-size:14px;margin-bottom:4px;}
+.review-card span{font-size:12px;color:var(--muted);}
+.error-list{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.error-item{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:12px;padding:12px;}
+.error-item .meta{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px;}
+.open-answer textarea{width:100%;min-height:120px;resize:vertical;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-family:var(--sans);font-size:14px;}
+.criteria-list{display:flex;flex-direction:column;gap:7px;margin:10px 0;}
+.criterion{display:flex;gap:8px;align-items:flex-start;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;}
+.criterion input{margin-top:3px;}
+.model-answer{background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.25);border-radius:12px;padding:12px;margin-top:10px;}
+.model-answer h3{font-size:15px;margin-bottom:6px;color:var(--cyan);}
+.sim-null-note{font-size:12px;color:var(--yellow);margin:8px 0;}
+
 /* ---- Simulado ---- */
 .sim-timer{font-family:var(--mono);font-size:20px;font-weight:700;text-align:center;padding:8px;margin:6px 0;border-radius:10px;background:var(--bg2);border:1px solid var(--line);}
 .sim-timer.urgent{color:var(--red);border-color:var(--red);animation:pulseGlow 1s ease-in-out infinite;}
@@ -454,11 +470,14 @@ table.ctl td.x{color:var(--muted);}
       <button class="btn ghost" id="btnFree">🎲 Modo Livre</button>
       <button class="btn ghost" id="btnProvaInf">♾️ Prova Infinita</button>
       <button class="btn ghost" id="btnSimulado">📝 Simulado da Prova</button>
+      <button class="btn ghost" id="btnReview">📌 Revisão — Prova 3 e Reavaliação</button>
+      <button class="btn ghost" id="btnTargeted">🎯 Praticar dificuldades</button>
       <button class="btn ghost" id="btnLoad">💾 Carregar Progresso</button>
     </div>
     <div class="home-foot">
       Progresso salvo automaticamente neste navegador · <span id="homeProg">—</span><br>
       <button class="iconbtn" id="btnAch2" style="margin-top:8px">🏆 Conquistas</button>
+      <button class="iconbtn" id="btnErrors" style="margin-top:8px">📒 Caderno de erros</button>
       <button class="iconbtn" id="btnReset" style="margin-top:8px">🗑 Resetar</button>
     </div>
   </section>
@@ -525,6 +544,34 @@ table.ctl td.x{color:var(--muted);}
     <div class="levelgrid" id="levelGrid"></div>
   </section>
 
+  <!-- ===================== REVISÃO PROVA 3 ===================== -->
+  <section class="screen" id="scr-review">
+    <div class="panel">
+      <h2>Revisão — Prova 3 e Reavaliação</h2>
+      <p class="muted">Questões novas integradas ao mesmo sistema de alternativas, feedback, progresso local e prática por dificuldade.</p>
+      <div class="review-grid" id="reviewTopicGrid"></div>
+    </div>
+    <div class="actionsbar" style="justify-content:center;flex-wrap:wrap">
+      <button class="btn" id="reviewStart">Começar revisão</button>
+      <button class="btn ghost" id="reviewTargeted">Praticar pelo caderno de erros</button>
+      <button class="btn ghost" id="reviewBack">← Início</button>
+    </div>
+  </section>
+
+  <!-- ===================== CADERNO DE ERROS ===================== -->
+  <section class="screen" id="scr-errors">
+    <div class="panel">
+      <h2>Caderno de erros</h2>
+      <p class="muted">Registra o tipo provável de confusão e usa isso para priorizar prática sem repetir só a mesma pergunta.</p>
+      <div id="errorSummary"></div>
+      <div class="error-list" id="errorList"></div>
+    </div>
+    <div class="actionsbar" style="justify-content:center;flex-wrap:wrap">
+      <button class="btn" id="errorsPractice">Praticar dificuldades</button>
+      <button class="btn ghost" id="errorsBack">← Início</button>
+    </div>
+  </section>
+
   <!-- ===================== JOGO ===================== -->
   <section class="screen" id="scr-game">
     <div class="panel">
@@ -582,8 +629,8 @@ table.ctl td.x{color:var(--muted);}
   <section class="screen" id="scr-sim-setup">
     <div class="panel center">
       <div class="result-big">📝</div>
-      <h2>Simulado da Prova</h2>
-      <p class="muted">Sequência completa no estilo da Lista 3 (Q2 → Q3a → Q3b → Q4), com questões fechadas.</p>
+      <h2>Simulado — Modelo da Prova 3</h2>
+      <p class="muted">Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e pelo menos uma questão aberta. Você pode anular uma questão ao finalizar.</p>
       <div id="simBestInfo" style="margin:12px 0;font-size:14px;"></div>
       <div class="actionsbar" style="justify-content:center;flex-direction:column;max-width:320px;margin:12px auto;">
         <button class="btn" id="simStartReal" style="margin-bottom:10px;">⏱ Simulado Real (cronometrado)</button>
@@ -605,6 +652,7 @@ table.ctl td.x{color:var(--muted);}
       <div class="sim-topic-row" id="simTopics"></div>
       <div class="actionsbar" style="justify-content:center">
         <button class="btn" id="simRetry">↻ Refazer</button>
+        <button class="btn ghost" id="simRetryWrong">Treinar erros</button>
         <button class="btn ghost" id="simHome">🏠 Início</button>
       </div>
       <div style="text-align:left;margin-top:10px;">
@@ -645,16 +693,36 @@ const DEFAULT_SAVE = {
   // simulado / modo prova
   simBest:0,           // melhor nota no simulado (0–10)
   simHistory:[],       // últimas 3 tentativas: {date, score, perTopic}
-  provaMastery:{Q2:0,Q3a:0,Q3b:0,Q4:0,QProg:0,QISA:0,QStack:0,QTimeExt:0}  // taxa de acerto por tópico da Lista 3/provas
+  provaMastery:{
+    Q2:0,Q3a:0,Q3b:0,Q4:0,QProg:0,QISA:0,QStack:0,QTimeExt:0,
+    QDatapath:0,QParallel:0,QSlt:0,QControlExt:0,QFunc:0,QCall:0,QLoops:0,QCpi:0,QOpen:0
+  },  // taxa de acerto por tópico da Lista 3/provas
+  conceptErrors:{},    // tipo -> {count,lastAt}
+  errorNotebook:[]     // últimas tentativas erradas com metadados conceituais
 };
 let save = loadSave();
 
+function cloneDefaultSave(){
+  return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+}
+function normalizeSave(data){
+  const base=cloneDefaultSave();
+  const merged=Object.assign(base, data||{});
+  merged.achievements=Array.isArray(merged.achievements)?merged.achievements:[];
+  merged.lessonsDone=Array.isArray(merged.lessonsDone)?merged.lessonsDone:[];
+  merged.ctlPerfectInstr=Array.isArray(merged.ctlPerfectInstr)?merged.ctlPerfectInstr:[];
+  merged.simHistory=Array.isArray(merged.simHistory)?merged.simHistory:[];
+  merged.provaMastery=Object.assign({}, DEFAULT_SAVE.provaMastery, (data&&data.provaMastery)||{});
+  merged.conceptErrors=Object.assign({}, (data&&data.conceptErrors)||{});
+  merged.errorNotebook=Array.isArray(data&&data.errorNotebook)?data.errorNotebook:[];
+  return merged;
+}
 function loadSave(){
   try{
     const raw = localStorage.getItem(SAVE_KEY);
-    if(raw) return Object.assign({}, DEFAULT_SAVE, JSON.parse(raw));
+    if(raw) return normalizeSave(JSON.parse(raw));
   }catch(e){/* localStorage indisponível */}
-  return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+  return cloneDefaultSave();
 }
 function persist(){
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){}
@@ -721,12 +789,22 @@ const UNITS = {
 const INSTR = {
   R:  { key:'R',  label:'add $s1, $s2, $s3',  name:'tipo-R',
         desc:'Operação registrador-registrador (add, sub, and, or, slt…).' },
+  add:{ key:'add',label:'add $t0, $s0, $s1', name:'add',
+        desc:'Soma dois registradores e grava em rd.' },
+  sub:{ key:'sub',label:'sub $t0, $s0, $s1', name:'sub',
+        desc:'Subtrai dois registradores e grava em rd.' },
+  slt:{ key:'slt',label:'slt $t0, $s0, $s1', name:'slt (set on less than)',
+        desc:'Compara se rs < rt e grava 1 ou 0 em rd.' },
+  addi:{key:'addi',label:'addi $t0, $s0, 4', name:'addi',
+        desc:'Soma registrador + imediato e grava em rt.' },
   lw: { key:'lw', label:'lw $s1, 8($s2)',      name:'lw (load word)',
         desc:'Carrega da memória para um registrador.' },
   sw: { key:'sw', label:'sw $s1, 8($s2)',      name:'sw (store word)',
         desc:'Armazena um registrador na memória.' },
   beq:{ key:'beq',label:'beq $s1, $s2, Desvio',name:'beq (branch if equal)',
         desc:'Desvia se dois registradores forem iguais.' },
+  bne:{ key:'bne',label:'bne $s1, $s2, Desvio',name:'bne (branch if not equal)',
+        desc:'Desvia se dois registradores forem diferentes.' },
   j:  { key:'j',  label:'j Destino',           name:'j (jump)',
         desc:'Salto incondicional.' }
 };
@@ -735,26 +813,31 @@ const INSTR = {
 const SIGNAL_NAMES = ['RegDst','ALUSrc','MemtoReg','RegWrite','MemRead','MemWrite','Branch','ALUOp'];
 const CONTROL = {                         // valores corretos por instrução
   R:   [1,0,0,1,0,0,0,'10'],
+  add: [1,0,0,1,0,0,0,'10'],
+  sub: [1,0,0,1,0,0,0,'10'],
+  slt: [1,0,0,1,0,0,0,'10'],
+  addi:[0,1,0,1,0,0,0,'00'],
   lw:  [0,1,1,1,1,0,0,'00'],
   sw:  ['X',1,'X',0,0,1,0,'00'],
-  beq: ['X',0,'X',0,0,0,1,'01']
+  beq: ['X',0,'X',0,0,0,1,'01'],
+  bne: ['X',0,'X',0,0,0,1,'01']
 };
 // Explicação curta por sinal/instrução (para feedback do Modo 2)
 const SIG_WHY = {
-  RegDst:{1:'há registrador destino rd (campo da tipo-R).',0:'o destino é rt (campo do lw).',X:'não há escrita em registrador → indiferente.'},
+  RegDst:{1:'há registrador destino rd (campo da tipo-R).',0:'o destino é rt (lw/addi).',X:'não há escrita em registrador → indiferente.'},
   ALUSrc:{1:'o 2º operando da ULA é o imediato (offset/constante).',0:'o 2º operando vem de um registrador.'},
-  MemtoReg:{1:'o valor escrito vem da Memória de Dados (lw).',0:'o valor escrito vem da ULA (tipo-R).',X:'não escreve em registrador → indiferente.'},
+  MemtoReg:{1:'o valor escrito vem da Memória de Dados (lw).',0:'o valor escrito vem da ULA (tipo-R/addi).',X:'não escreve em registrador → indiferente.'},
   RegWrite:{1:'a instrução grava resultado em um registrador.',0:'a instrução NÃO grava em registrador.'},
   MemRead:{1:'precisa LER a Memória de Dados (lw).',0:'não lê a memória.'},
   MemWrite:{1:'precisa ESCREVER na Memória de Dados (sw).',0:'não escreve na memória.'},
-  Branch:{1:'é um desvio condicional (beq).',0:'não é desvio.'},
-  ALUOp:{'00':'a ULA deve somar (endereço de lw/sw).','01':'a ULA deve subtrair/comparar (beq).','10':'a operação vem do campo funct (tipo-R).'}
+  Branch:{1:'é um desvio condicional (beq/bne).',0:'não é desvio.'},
+  ALUOp:{'00':'a ULA deve somar (lw/sw/addi).','01':'a ULA deve subtrair/comparar (beq/bne).','10':'a operação vem do campo funct (tipo-R: add/sub/slt).'}
 };
 // O QUE CADA SINAL É (definição) + o que significa cada valor 0/1.
 // Usado para ENSINAR dentro do Modo 2 enquanto o jogador decide.
 const SIG_INFO = {
   RegDst:  {what:'Escolhe QUAL registrador será o destino da escrita (qual MUX seleciona o nº do registrador).',
-            v0:'destino = rt (bits 20-16) — usado pela lw', v1:'destino = rd (bits 15-11) — usado pela tipo-R'},
+            v0:'destino = rt (bits 20-16) — usado por lw/addi', v1:'destino = rd (bits 15-11) — usado pela tipo-R'},
   ALUSrc:  {what:'Escolhe o 2º operando da ULA: vem de um registrador ou é o imediato?',
             v0:'2º operando = registrador lido (rt)', v1:'2º operando = imediato estendido (offset/constante)'},
   MemtoReg:{what:'Escolhe O QUE volta para o banco de registradores: o resultado da ULA ou o dado da memória.',
@@ -768,8 +851,8 @@ const SIG_INFO = {
   Branch:  {what:'Marca que a instrução é um DESVIO condicional (combina com o Zero da ULA no MUX PCSrc).',
             v0:'não é desvio → próximo PC = PC+4', v1:'é desvio (beq) → se ULA Zero=1, PC = endereço de desvio'},
   ALUOp:   {what:'Diz ao controle da ULA qual operação base executar ou como decodificar a operação.',
-            v00:'00 = soma fixa (lw/sw calculam base + offset)',
-            v01:'01 = subtração/comparação (beq compara rs−rt)',
+            v00:'00 = soma fixa (lw/sw calculam endereço; addi soma imediato)',
+            v01:'01 = subtração/comparação (beq/bne comparam rs−rt)',
             v10:'10 = usa o campo funct para tipo-R (add, sub, and, or, slt...)'}
 };
 
@@ -779,11 +862,17 @@ const DEFAULT_TIMES = { imem:4, regread:1, alu:2, dmem:4, control:1, adder:1, re
 // (regread e regwrite usam o mesmo bloco "Banco de Registradores" = 1 ns)
 function instrTime(instr, t){
   const reg = t.regread, wr = t.regwrite!==undefined?t.regwrite:t.regread;
+  const mtr = t.memtoreg || 0;
   switch(instr){
-    case 'lw':  return t.imem + reg + t.alu + t.dmem + wr; // 4+1+2+4+1 = 12
+    case 'lw':  return t.imem + reg + t.alu + t.dmem + mtr + wr; // 4+1+2+4+1 = 12 quando MUX=0
     case 'sw':  return t.imem + reg + t.alu + t.dmem;      // 4+1+2+4   = 11
-    case 'R':   return t.imem + reg + t.alu + wr;          // 4+1+2+1   = 8
+    case 'R':   return t.imem + reg + t.alu + mtr + wr;    // 4+1+2+1   = 8 quando MUX=0
+    case 'add':
+    case 'sub':
+    case 'slt': return t.imem + reg + t.alu + mtr + wr;
+    case 'addi':return t.imem + reg + t.alu + mtr + wr;
     case 'beq': return t.imem + reg + t.alu;               // 4+1+2     = 7
+    case 'bne': return t.imem + reg + t.alu;
     case 'j':   return t.imem;                             // 4
   }
 }
@@ -795,9 +884,14 @@ function periodUniciclo(t){
 // Lista ordenada de chaves de UNITS. Nº de cliques = comprimento da lista.
 const PATHS = {
   R:   ['pc','imem','regs','alu','muxMemReg','regs'],
+  add: ['pc','imem','regs','alu','muxMemReg','regs'],
+  sub: ['pc','imem','regs','alu','muxMemReg','regs'],
+  slt: ['pc','imem','regs','alu','muxMemReg','regs'],
+  addi:['pc','imem','regs','signext','muxAluSrc','alu','muxMemReg','regs'],
   lw:  ['pc','imem','regs','signext','muxAluSrc','alu','dmem','muxMemReg','regs'],
   sw:  ['pc','imem','regs','signext','muxAluSrc','alu','dmem'],
   beq: ['pc','imem','regs','alu','addbr','muxPcSrc'],
+  bne: ['pc','imem','regs','alu','addbr','muxPcSrc'],
   j:   ['pc','imem','muxPcSrc']
 };
 // rótulo amigável de cada passo (quando a unidade se repete, distingue leitura/escrita)
@@ -917,7 +1011,7 @@ function q1(instr, diff){
 // Factory Modo 2 (Engenheiro de Controle — sinais de controle)
 function q2(instr, diff){
   return {mode:2, diff, instr,
-    hint:`Regra rápida: RegWrite=1 só se grava registrador (R, lw). ALUSrc=1 quando usa imediato (lw, sw). MemRead/MemWrite só em lw/sw. Branch só em beq. ALUOp: 00=lw/sw, 01=beq, 10=tipo-R.`};
+    hint:`Regra rápida: RegWrite=1 se grava registrador (tipo-R, addi, lw). ALUSrc=1 quando usa imediato (addi, lw, sw). MemRead/MemWrite só em lw/sw. Branch em beq/bne. ALUOp: 00=lw/sw/addi, 01=beq/bne, 10=tipo-R.`};
 }
 // Factory Modo 3 (Calculadora de Tempos)
 //   t3type: 'single' (1 instr), 'period' (uniciclo), 'benchmark' (média + speedup)
@@ -938,6 +1032,353 @@ function q4(diff){
 function q5(sub, diff, params){
   return Object.assign({mode:5, diff, sub}, params || {},
     {hint: params?.hint || 'Pense no conceito e nas regras da Lista 3.'});
+}
+
+const REVIEW_TOPICS = [
+  {id:'datapath_tempo', topic:'QDatapath', label:'Caminho de dados e tempo', desc:'ADD, SUB, SLT, ADDI, LW, SW, BEQ, BNE e J com atrasos por enunciado.'},
+  {id:'sequencia_paralelismo', topic:'QParallel', label:'Sequência e paralelismo', desc:'Quando somar atrasos e quando usar o maior caminho.'},
+  {id:'slt', topic:'QSlt', label:'SLT', desc:'Set on Less Than, tipo R, ULA, sem alterar diretamente o PC.'},
+  {id:'sinais_controle', topic:'QControlExt', label:'Sinais de controle', desc:'RegDst, ALUSrc, MemToReg, RegWrite, memórias, Branch e ALUOp.'},
+  {id:'registradores_funcoes', topic:'QFunc', label:'Registradores de funções', desc:'Argumentos, retorno, $ra, $sp, temporários, salvos, HI e LO.'},
+  {id:'jal_jr_pilha', topic:'QCall', label:'JAL, JR e pilha', desc:'Chamada, retorno, função chamando função e salvamento de $ra.'},
+  {id:'loops_dinamicos', topic:'QLoops', label:'Loops e contagem dinâmica', desc:'Linhas do código versus instruções realmente executadas.'},
+  {id:'cpi_medio', topic:'QCpi', label:'CPI médio e tempo', desc:'Tabela dinâmica, ciclos totais, CPI médio e tempo de execução.'},
+  {id:'questoes_abertas', topic:'QOpen', label:'Questões abertas', desc:'Autoavaliação guiada por critérios, sem correspondência textual exata.'},
+  {id:'simulado_prova3', topic:'QSim', label:'Simulado Modelo da Prova 3', desc:'Mistura variada com anulação, gabarito e treino dos erros.'}
+];
+function topicForCategory(category){
+  const t=REVIEW_TOPICS.find(x=>x.id===category);
+  return t?t.topic:'QOpen';
+}
+function enrichReviewQuestion(q, meta){
+  const topic=meta.topic || topicForCategory(meta.category);
+  const quick=meta.quickRule || 'Explique o caminho antes de calcular.';
+  if(q.explain && q.explain.length<55) q.explain += ` Regra rápida: ${quick}`;
+  return Object.assign(q, {
+    id:meta.id,
+    topic,
+    category:meta.category,
+    subtopic:meta.subtopic || meta.category,
+    errorType:meta.errorType || meta.category,
+    quickRule:quick,
+    hint:meta.hint || quick || q.hint
+  });
+}
+function reviewMC(meta, question, options, correct, explain){
+  return enrichReviewQuestion(q5('mc', meta.diff||'med', {question,options,correct,explain}), meta);
+}
+function reviewTF(meta, statement, correct, explain){
+  return enrichReviewQuestion(q5('tf', meta.diff||'med', {statement,correct,explain}), meta);
+}
+function reviewAR(meta, statement, correct, explain){
+  return enrichReviewQuestion(q5('ar', meta.diff||'med', {statement,correct,explain}), meta);
+}
+function reviewTbl(meta, instruction, blanks, explain){
+  return enrichReviewQuestion(q5('tbl', meta.diff||'med', {instruction,blanks,explain}), meta);
+}
+function reviewOpen(meta, prompt, modelAnswer, requiredPoints, commonMistakes, shortExplain, fullExplain){
+  return enrichReviewQuestion(q5('open', meta.diff||'hard', {
+    question:prompt, modelAnswer, requiredPoints, commonMistakes, shortExplain, fullExplain,
+    explain:shortExplain
+  }), meta);
+}
+function reviewShuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function numericOptions(correct, wrongs){
+  const vals=[correct].concat(wrongs).filter(v=>isFinite(v) && v>0);
+  const uniq=[];
+  vals.forEach(v=>{ const s=String(roundN(v,2)); if(!uniq.includes(s)) uniq.push(s); });
+  while(uniq.length<4) uniq.push(String(roundN(correct+uniq.length+1,2)));
+  return reviewShuffle(uniq.slice(0,5));
+}
+function reviewTime(meta, instr, times, pathText){
+  const correct=instrTime(instr,times);
+  const opts=numericOptions(correct, [
+    correct-(times.memtoreg||0)||correct-1,
+    instr==='lw'?correct-(times.memtoreg||0)-times.dmem:correct+times.dmem,
+    correct+times.control,
+    correct+times.adder
+  ]);
+  const explain=`${pathText} Conta completa: ${critStr(instr,times)} = <b>${correct} ns</b>. Componentes fora desse caminho não entram; sinais de controle podem ser gerados em paralelo, mas o dado precisa atravessar cada bloco sequencial usado.`;
+  return enrichReviewQuestion(q5('mc', meta.diff||'med', {
+    question:`Com os tempos do enunciado, qual é o tempo da instrução <b>${INSTR[instr].label}</b>?<br><span class="muted">${pathText}</span>`,
+    options:opts.map(v=>`${v} ns`),
+    correct:opts.indexOf(String(roundN(correct,2))),
+    times,
+    instr,
+    explain
+  }), meta);
+}
+function reviewCpiProgram(meta, program){
+  const q=programQuestion(program);
+  return enrichReviewQuestion(Object.assign(q, {topic:meta.topic||'QCpi'}), meta);
+}
+
+const T_PROF={imem:12,control:2,regread:8,alu:14,dmem:12,memtoreg:2,adder:2,regwrite:8};
+const T_FAST={imem:10,control:2,regread:6,alu:12,dmem:10,memtoreg:3,adder:2,regwrite:6};
+const T_BRANCH={imem:12,control:2,regread:8,alu:14,dmem:12,memtoreg:0,adder:2,regwrite:8};
+
+const DATAPATH_TIME_REVIEW = [
+  reviewTime({id:'rev_p3_time_add',category:'datapath_tempo',subtopic:'ADD',errorType:'caminho de dados',quickRule:'ADD passa por busca, registradores, ULA, MUX MemToReg e escrita.'}, 'add', T_PROF, 'ADD usa Memória de Instruções → Banco de Registradores → ULA → MUX MemToReg → escrita no banco.'),
+  reviewTime({id:'rev_p3_time_sub',category:'datapath_tempo',subtopic:'SUB',errorType:'caminho de dados',quickRule:'SUB tem o mesmo caminho de ADD no modelo simplificado.'}, 'sub', T_FAST, 'SUB lê dois registradores, subtrai na ULA e grava o resultado em rd.'),
+  reviewTime({id:'rev_p3_time_slt',category:'datapath_tempo',subtopic:'SLT',errorType:'SLT',quickRule:'SLT compara na ULA e grava 0 ou 1, sem salto.'}, 'slt', T_PROF, 'SLT é tipo R: lê dois registradores, usa a ULA, passa pelo MUX MemToReg e escreve em rd.'),
+  reviewTime({id:'rev_p3_time_addi',category:'datapath_tempo',subtopic:'ADDI',errorType:'caminho de dados',quickRule:'ADDI usa imediato estendido como segundo operando da ULA.'}, 'addi', T_FAST, 'ADDI busca a instrução, lê rs, estende o imediato, soma na ULA, passa pelo MUX e escreve em rt.'),
+  reviewTime({id:'rev_p3_time_lw',category:'datapath_tempo',subtopic:'LW',errorType:'MUX MemToReg',quickRule:'No LW, Memória de Dados e MUX MemToReg são sequenciais.'}, 'lw', T_PROF, 'LW busca, lê base, soma endereço, lê Memória de Dados, atravessa o MUX MemToReg e escreve no registrador.'),
+  reviewTime({id:'rev_p3_time_sw',category:'datapath_tempo',subtopic:'SW',errorType:'caminho de dados',quickRule:'SW acessa memória de dados, mas não escreve registrador.'}, 'sw', T_FAST, 'SW busca, lê base e dado, calcula endereço na ULA e escreve na Memória de Dados.'),
+  reviewTime({id:'rev_p3_time_beq',category:'datapath_tempo',subtopic:'BEQ',errorType:'caminho de dados',quickRule:'BEQ usa a ULA para subtrair e decidir pelo Zero.'}, 'beq', T_BRANCH, 'BEQ busca, lê dois registradores e usa a ULA para comparar; o somador de desvio pode trabalhar em paralelo.'),
+  reviewTime({id:'rev_p3_time_bne',category:'datapath_tempo',subtopic:'BNE',errorType:'caminho de dados',quickRule:'BNE tem caminho estrutural como BEQ; muda a condição do Zero.'}, 'bne', T_BRANCH, 'BNE compara registradores pela ULA; o desvio acontece quando Zero=0.'),
+  reviewTime({id:'rev_p3_time_j',category:'datapath_tempo',subtopic:'J',errorType:'caminho de dados',quickRule:'J normalmente tem caminho menor porque não usa registradores, ULA nem memória de dados.'}, 'j', T_PROF, 'J precisa buscar a instrução e formar o próximo PC do salto; não passa pela ULA nem pelo banco de registradores.'),
+  reviewMC({id:'rev_p3_time_path_lw_mux',category:'datapath_tempo',subtopic:'caminho LW',errorType:'MUX MemToReg',quickRule:'O sinal pode estar pronto antes, mas o dado ainda atravessa fisicamente o MUX.'},
+    'No caminho do <b>lw</b>, qual trecho está em sequência no final da instrução?',
+    ['Memória de Dados → MUX MemToReg → escrita no banco de registradores','Controle → Banco de Registradores, usando o maior atraso','Somador PC+4 → Memória de Dados, em paralelo','MUX RegDst → Memória de Instruções → PC'],
+    0,
+    'No <b>lw</b>, o dado sai da Memória de Dados, atravessa o MUX MemToReg e só então chega à escrita do banco de registradores. Por isso esses atrasos são somados.')
+];
+
+const PARALLEL_REVIEW = [
+  reviewMC({id:'rev_p3_parallel_lw_mux_13',category:'sequencia_paralelismo',subtopic:'LW MemToReg',errorType:'sequência e paralelismo',quickRule:'Saída de um bloco entra no próximo: some os atrasos.'},
+    'No LW, Memória de Dados = 10 ns e MUX MemToReg = 3 ns. Quanto demora esse trecho?',
+    ['13 ns, porque o dado sai da memória e depois atravessa o MUX','10 ns, porque usa o maior atraso','3 ns, porque o controle já escolheu o MUX','7 ns, porque os sinais se sobrepõem'],
+    0,
+    'Memória de Dados e MUX MemToReg são sequenciais nesse trecho: o dado lido precisa atravessar o MUX. Logo, <b>10 + 3 = 13 ns</b>.'),
+  reviewTF({id:'rev_p3_parallel_signal_vs_mux',category:'sequencia_paralelismo',subtopic:'sinal vs MUX',errorType:'MUX MemToReg',quickRule:'Sinal de controle não elimina atraso físico do MUX.'},
+    'Se o sinal MemToReg já foi gerado pela unidade de controle, o atraso físico do MUX MemToReg pode ser ignorado no LW.',
+    false,
+    'Falso. O sinal pode estar pronto em paralelo, mas o dado do LW ainda precisa atravessar fisicamente o MUX antes da escrita.'),
+  reviewMC({id:'rev_p3_parallel_control_regread',category:'sequencia_paralelismo',subtopic:'controle em paralelo',errorType:'sequência e paralelismo',quickRule:'Caminhos independentes que se encontram: use o maior.'},
+    'Depois da busca da instrução, Controle = 2 ns e leitura dos registradores = 8 ns começam juntos. Qual atraso entra no caminho?',
+    ['8 ns','10 ns','6 ns','2 ns'],
+    0,
+    'Controle e leitura dos registradores podem começar após a instrução ser buscada. Como são caminhos paralelos que se encontram depois, usa-se <b>max(2, 8) = 8 ns</b>.'),
+  reviewTF({id:'rev_p3_parallel_add_everything',category:'sequencia_paralelismo',subtopic:'erro comum',errorType:'sequência e paralelismo',quickRule:'Não some caminhos independentes só porque aparecem no desenho.'},
+    'Todo bloco desenhado no datapath deve ter seu atraso somado ao tempo de qualquer instrução.',
+    false,
+    'Falso. Só entram blocos usados no caminho crítico daquela instrução. Caminhos independentes em paralelo são comparados pelo maior atraso.'),
+  reviewMC({id:'rev_p3_parallel_pc4_branch',category:'sequencia_paralelismo',subtopic:'branch',errorType:'sequência e paralelismo',quickRule:'No branch, PC+4 e leitura/controle podem avançar em paralelo.'},
+    'Em um branch, o somador PC+4 pode operar enquanto a instrução é decodificada. Como tratar esse atraso se os caminhos se encontram depois?',
+    ['Calcular os caminhos e usar o maior no ponto de encontro','Sempre somar PC+4 com todos os blocos','Ignorar PC+4 em qualquer branch','Usar sempre o menor atraso'],
+    0,
+    'Se dois caminhos começam juntos e se encontram depois, o tempo até o encontro é o maior deles, não a soma.'),
+  reviewAR({id:'rev_p3_parallel_output_input',category:'sequencia_paralelismo',subtopic:'regra geral',errorType:'sequência e paralelismo',quickRule:'Se a saída de A é entrada de B, A+B.'},
+    '“Se a saída de um componente é necessária como entrada do próximo, os atrasos devem ser somados.”',
+    true,
+    'Verdadeiro. Essa é a regra de dependência sequencial: o segundo bloco só consegue produzir resultado depois que recebe a saída do primeiro.'),
+  reviewMC({id:'rev_p3_parallel_control_ready',category:'sequencia_paralelismo',subtopic:'controle pronto',errorType:'MUX MemToReg',quickRule:'Controle pronto não significa dado pronto.'},
+    'Qual frase diferencia melhor o sinal MemToReg do MUX físico MemToReg?',
+    ['O sinal decide a entrada; o MUX é o componente por onde o dado ainda passa','O sinal e o MUX são o mesmo fio, sem atraso','O MUX gera o opcode; o sinal grava no PC','MemToReg só existe em branch'],
+    0,
+    'O sinal MemToReg é uma decisão de controle. O MUX MemToReg é o bloco físico que seleciona entre saída da ULA e dado da memória.'),
+  reviewMC({id:'rev_p3_parallel_formula_choice',category:'sequencia_paralelismo',subtopic:'escolha da operação',errorType:'sequência e paralelismo',quickRule:'Dependência soma; independência usa máximo.'},
+    'Qual regra rápida está correta?',
+    ['Dependência direta: somar. Caminhos independentes simultâneos: usar o maior','Dependência direta: usar o maior. Caminhos independentes: somar tudo','Sempre somar todos os sinais de controle','Sempre ignorar MUXes'],
+    0,
+    'Essa é a distinção central: saída de um bloco entra no próximo → soma; caminhos independentes que acontecem juntos → calcula ambos e usa o maior.')
+];
+
+const SLT_REVIEW = [
+  reviewMC({id:'rev_p3_slt_value_one',category:'slt',subtopic:'valor gravado',errorType:'SLT',quickRule:'SLT compara e grava 1 se rs < rt.'},
+    '<span class="mono">$s0=7, $s1=10; slt $t0, $s0, $s1</span>. Qual valor vai para $t0?',
+    ['1','0','7','10'],0,'Como 7 < 10, a ULA produz 1 e a instrução grava esse valor em $t0. Não há desvio.'),
+  reviewMC({id:'rev_p3_slt_value_zero',category:'slt',subtopic:'valor gravado',errorType:'SLT',quickRule:'Se rs não é menor que rt, SLT grava 0.'},
+    '<span class="mono">$s0=12, $s1=4; slt $t0, $s0, $s1</span>. Qual valor vai para $t0?',
+    ['0','1','12','4'],0,'Como 12 não é menor que 4, SLT grava 0 no destino.'),
+  reviewTF({id:'rev_p3_slt_not_branch',category:'slt',subtopic:'não é salto',errorType:'SLT',quickRule:'SLT não altera diretamente o PC.'},
+    'SLT é uma instrução de salto porque testa “menor que”.',false,'Falso. SLT só grava 0 ou 1 em um registrador; quem pode alterar o PC é uma instrução de desvio/salto, como bne ou j.'),
+  reviewMC({id:'rev_p3_slt_component',category:'slt',subtopic:'ULA',errorType:'SLT',quickRule:'A comparação do SLT acontece na ULA.'},
+    'Qual componente executa a comparação do <span class="mono">slt</span>?',
+    ['ULA','Memória de Dados','Somador PC+4','MUX RegDst'],0,'A ULA realiza a comparação “menor que” e produz 1 ou 0.'),
+  reviewMC({id:'rev_p3_slt_bne_roles',category:'slt',subtopic:'SLT + BNE',errorType:'SLT',quickRule:'SLT compara; BNE decide desvio olhando o registrador.'},
+    '<pre class="program-code">slt $t0, $s0, $s1\nbne $t0, $zero, MENOR</pre>Qual instrução realiza a comparação “menor que”?',
+    ['slt','bne','MENOR','jr'],0,'A comparação menor que é feita pelo SLT. O BNE apenas verifica se $t0 é diferente de zero para alterar o PC.'),
+  reviewMC({id:'rev_p3_slt_bne_pc',category:'slt',subtopic:'SLT + BNE',errorType:'SLT',quickRule:'BNE é quem pode alterar o PC nessa dupla.'},
+    'Na dupla <span class="mono">slt</span> + <span class="mono">bne</span>, qual instrução pode alterar o PC?',
+    ['bne','slt','ambas','nenhuma'],0,'O SLT só grava 0 ou 1. O BNE é a instrução de desvio condicional e pode alterar o PC.'),
+  reviewTF({id:'rev_p3_slt_same_time_add',category:'slt',subtopic:'tempo',errorType:'SLT',quickRule:'SLT e ADD percorrem o mesmo caminho tipo R no modelo simplificado.'},
+    'No datapath simplificado, T_SLT costuma ser igual a T_ADD quando os dois usam o mesmo caminho tipo R.',
+    true,'Verdadeiro. ADD e SLT leem dois registradores, usam a ULA, passam pelo MUX MemToReg e escrevem no banco. O funct escolhe a operação final.'),
+  reviewMC({id:'rev_p3_slt_aluop',category:'slt',subtopic:'ALUOp',errorType:'sinais de controle',quickRule:'Tipo R usa ALUOp=10 e o funct diferencia add/sub/slt.'},
+    'Qual ALUOp normalmente aparece para SLT no modelo simplificado?',
+    ['10','00','01','11'],0,'SLT é tipo R. ALUOp=10 manda o controle da ULA consultar o campo funct para saber que a operação é set on less than.'),
+  reviewTF({id:'rev_p3_slt_not_mult',category:'slt',subtopic:'não é MULT',errorType:'multiplicação e divisão',quickRule:'SLT não usa HI/LO e não multiplica.'},
+    'SLT pode ser tratado como MULT porque ambas usam a ULA.',
+    false,'Falso. SLT compara e grava 0/1 em um registrador comum. MULT/DIV podem usar HI e LO e têm outro comportamento.'),
+  reviewMC({id:'rev_p3_slt_instruction_count',category:'slt',subtopic:'duas instruções',errorType:'SLT',quickRule:'SLT + BNE são duas instruções com papéis diferentes.'},
+    'No teste <span class="mono">slt $t0,$s0,$s1; bne $t0,$zero,MENOR</span>, quantas instruções existem?',
+    ['2','1','3','0'],0,'São duas instruções: SLT calcula o booleano 0/1 e BNE usa esse valor para decidir o desvio.')
+];
+
+const CONTROL_REVIEW = [
+  reviewTbl({id:'rev_p3_control_add',category:'sinais_controle',subtopic:'ADD',errorType:'sinais de controle',quickRule:'ADD é tipo R: RegDst=1, ALUSrc=0, RegWrite=1, ALUOp=10.'}, 'add', ['RegDst','ALUSrc','RegWrite','ALUOp'], 'ADD é tipo R: destino rd, operandos de registradores, resultado da ULA e ALUOp=10.'),
+  reviewTbl({id:'rev_p3_control_sub',category:'sinais_controle',subtopic:'SUB',errorType:'sinais de controle',quickRule:'SUB também é tipo R; o funct diferencia da ADD.'}, 'sub', ['MemtoReg','RegWrite','MemRead','ALUOp'], 'SUB não usa memória de dados e grava resultado da ULA; ALUOp=10 porque o funct escolhe subtração.'),
+  reviewTbl({id:'rev_p3_control_slt',category:'sinais_controle',subtopic:'SLT',errorType:'sinais de controle',quickRule:'SLT é tipo R e usa ALUOp=10.'}, 'slt', ['RegDst','ALUSrc','MemtoReg','ALUOp'], 'SLT lê dois registradores, compara na ULA e grava rd; por isso os sinais são de tipo R.'),
+  reviewTbl({id:'rev_p3_control_addi',category:'sinais_controle',subtopic:'ADDI',errorType:'sinais de controle',quickRule:'ADDI usa imediato: ALUSrc=1 e RegDst=0.'}, 'addi', ['RegDst','ALUSrc','RegWrite','ALUOp'], 'ADDI grava em rt, usa imediato como segundo operando e soma fixa na ULA: ALUOp=00.'),
+  reviewTbl({id:'rev_p3_control_lw',category:'sinais_controle',subtopic:'LW',errorType:'sinais de controle',quickRule:'LW lê memória e escreve registrador com MemToReg=1.'}, 'lw', ['ALUSrc','MemtoReg','RegWrite','MemRead'], 'LW calcula endereço com imediato, lê Memória de Dados e grava o dado no registrador.'),
+  reviewTbl({id:'rev_p3_control_sw',category:'sinais_controle',subtopic:'SW',errorType:'sinais de controle',quickRule:'SW escreve memória e não escreve registrador.'}, 'sw', ['RegDst','MemtoReg','RegWrite','MemWrite'], 'SW usa imediato para endereço, escreve Memória de Dados e deixa RegWrite=0; RegDst/MemtoReg são indiferentes.'),
+  reviewTbl({id:'rev_p3_control_beq',category:'sinais_controle',subtopic:'BEQ',errorType:'sinais de controle',quickRule:'BEQ usa ALUOp=01 e desvia quando Zero=1.'}, 'beq', ['ALUSrc','RegWrite','Branch','ALUOp'], 'BEQ compara registradores com subtração: ALUSrc=0, RegWrite=0, Branch=1, ALUOp=01.'),
+  reviewTbl({id:'rev_p3_control_bne',category:'sinais_controle',subtopic:'BNE',errorType:'sinais de controle',quickRule:'BNE usa ALUOp=01; a lógica inverte a condição do Zero.'}, 'bne', ['ALUSrc','RegWrite','Branch','ALUOp'], 'BNE compara como BEQ, mas desvia quando Zero=0. O tratamento exato pode inverter o sinal Zero.'),
+  reviewMC({id:'rev_p3_control_add_sub_same_aluop',category:'sinais_controle',subtopic:'ALUOp',errorType:'sinais de controle',quickRule:'ALUOp=10 indica tipo R; o funct diferencia.'},
+    'Por que ADD e SUB podem ter o mesmo ALUOp=10?',
+    ['Porque ALUOp=10 manda consultar o campo funct','Porque ADD e SUB fazem a mesma operação','Porque ambas acessam Memória de Dados','Porque ALUOp=10 significa branch'],0,'ALUOp=10 identifica instrução tipo R. O campo funct é que diferencia ADD, SUB e SLT no controle final da ULA.'),
+  reviewMC({id:'rev_p3_control_lw_add_memtoreg',category:'sinais_controle',subtopic:'MemToReg',errorType:'sinais de controle',quickRule:'MemToReg escolhe a fonte escrita no registrador.'},
+    'Por que LW tem MemToReg=1 e ADD tem MemToReg=0?',
+    ['LW escreve dado vindo da memória; ADD escreve resultado da ULA','LW não escreve registrador; ADD escreve memória','ADD usa memória de dados; LW usa ULA apenas','MemToReg controla o PC'],0,'MemToReg seleciona o valor que volta ao banco de registradores: memória no LW, ULA no ADD.')
+];
+
+const FUNCTION_REG_REVIEW = [
+  reviewMC({id:'rev_p3_func_v0_return',category:'registradores_funcoes',subtopic:'$v0',errorType:'$ra e $v0',quickRule:'$v0 normalmente guarda valor retornado.'}, 'Qual registrador normalmente guarda o valor retornado por uma função?', ['$v0','$ra','$a0','$sp'],0,'Pela convenção MIPS, $v0 (e às vezes $v1) guarda valores retornados.'),
+  reviewMC({id:'rev_p3_func_ra_return_addr',category:'registradores_funcoes',subtopic:'$ra',errorType:'$ra e $v0',quickRule:'$ra guarda endereço de retorno, não valor retornado.'}, 'Qual registrador guarda o endereço para retornar depois de uma chamada?', ['$ra','$v0','$a1','$lo'],0,'JAL salva em $ra o endereço da próxima instrução, para JR $ra voltar depois.'),
+  reviewMC({id:'rev_p3_func_a0_arg',category:'registradores_funcoes',subtopic:'$a0',errorType:'argumento e retorno',quickRule:'$a0 é o primeiro argumento.'}, 'Onde o primeiro argumento normalmente é enviado?', ['$a0','$v0','$ra','$hi'],0,'Os argumentos entram em $a0 até $a3; o primeiro usa $a0.'),
+  reviewMC({id:'rev_p3_func_sp_stack',category:'registradores_funcoes',subtopic:'$sp',errorType:'pilha',quickRule:'$sp aponta para o topo da pilha.'}, 'Qual registrador aponta para o topo da pilha?', ['$sp','$ra','$s0','$lo'],0,'$sp é o stack pointer, usado para reservar/restaurar espaço na pilha.'),
+  reviewMC({id:'rev_p3_func_ra_v0_diff',category:'registradores_funcoes',subtopic:'$ra vs $v0',errorType:'$ra e $v0',quickRule:'$ra é endereço; $v0 é valor.'}, 'Qual diferença está correta?', ['$ra guarda para onde voltar; $v0 guarda o resultado da função','$ra guarda o resultado; $v0 guarda o PC','$ra e $v0 são sempre iguais','$v0 aponta para a pilha'],0,'$ra é controle de fluxo. $v0 é dado produzido pela função.'),
+  reviewMC({id:'rev_p3_func_a0_v0_diff',category:'registradores_funcoes',subtopic:'$a0 vs $v0',errorType:'argumento e retorno',quickRule:'$a0 entra na função; $v0 sai da função.'}, 'Qual diferença está correta?', ['$a0 envia argumento; $v0 recebe resultado','$a0 recebe retorno; $v0 guarda endereço','$a0 aponta pilha; $v0 aponta código','$a0 e $v0 são registradores HI/LO'],0,'$a0 normalmente leva o primeiro argumento para a função; $v0 devolve o resultado.'),
+  reviewMC({id:'rev_p3_func_temp_saved',category:'registradores_funcoes',subtopic:'$t e $s',errorType:'registradores de função',quickRule:'$t são temporários; $s normalmente devem ser preservados.'}, 'Qual afirmação sobre $t e $s está correta?', ['$t são temporários; $s normalmente devem ser preservados','$t guardam retorno; $s guardam opcode','$s são argumentos; $t são HI/LO','$t sempre precisam ser salvos pela função chamada'],0,'A convenção diferencia temporários ($t) de salvos ($s).'),
+  reviewMC({id:'rev_p3_func_hi_lo_mult',category:'registradores_funcoes',subtopic:'HI/LO',errorType:'HI e LO',quickRule:'MULT/DIV usam HI/LO; SLT não.'}, 'Em multiplicação/divisão MIPS, quais registradores podem receber resultados especiais?', ['$hi e $lo','$ra e $v0','$a0 e $a1','$sp e $fp'],0,'MULT/DIV podem usar HI/LO: LO guarda parte baixa ou quociente; HI guarda parte alta ou resto.'),
+  reviewTF({id:'rev_p3_func_mflo',category:'registradores_funcoes',subtopic:'MFLO/MFHI',errorType:'HI e LO',quickRule:'MFLO/MFHI copiam de HI/LO para registradores comuns.'}, 'MFLO copia o conteúdo de LO para um registrador comum.', true, 'Verdadeiro. Após MULT/DIV, MFLO e MFHI movem valores especiais para registradores gerais.'),
+  reviewTF({id:'rev_p3_func_slt_hi_lo',category:'registradores_funcoes',subtopic:'SLT vs HI/LO',errorType:'multiplicação e divisão',quickRule:'SLT grava em rd, não em HI/LO.'}, 'SLT usa HI e LO porque também compara dois números.', false, 'Falso. SLT usa a ULA e grava 0/1 no registrador destino; HI/LO são ligados a MULT/DIV.')
+];
+
+const CALL_STACK_REVIEW = [
+  reviewMC({id:'rev_p3_call_jal_action',category:'jal_jr_pilha',subtopic:'JAL',errorType:'JAL e JR',quickRule:'JAL salva retorno em $ra e pula para a função.'}, 'O que <span class="mono">jal dobro</span> faz?', ['Salva o endereço de retorno em $ra e altera o PC para dobro','Grava o resultado da função em $ra','Retorna para main sem alterar PC','Copia $a0 para $v0'],0,'JAL chama a função: guarda o endereço da próxima instrução em $ra e coloca o PC no alvo.'),
+  reviewMC({id:'rev_p3_call_jr_action',category:'jal_jr_pilha',subtopic:'JR',errorType:'JAL e JR',quickRule:'JR $ra volta para o endereço guardado em $ra.'}, 'O que <span class="mono">jr $ra</span> faz?', ['Altera o PC para o endereço armazenado em $ra','Copia $ra para $v0','Chama outra função salvando $ra','Empilha o valor retornado'],0,'JR usa o conteúdo de um registrador como próximo PC. Com $ra, retorna da função.'),
+  reviewMC({id:'rev_p3_call_double_arg',category:'jal_jr_pilha',subtopic:'código dobro',errorType:'argumento e retorno',quickRule:'Argumento entra em $a0; retorno sai em $v0.'}, '<pre class="program-code">addi $a0,$zero,7\njal dobro\ndobro: add $v0,$a0,$a0</pre>Qual valor é enviado para a função?', ['7','14','0','endereço de retorno'],0,'A instrução addi coloca 7 em $a0 antes do jal. Esse é o argumento enviado.'),
+  reviewMC({id:'rev_p3_call_double_return',category:'jal_jr_pilha',subtopic:'código dobro',errorType:'$ra e $v0',quickRule:'$v0 guarda o valor devolvido pela função.'}, 'Na função dobro com $a0=7 e <span class="mono">add $v0,$a0,$a0</span>, qual valor volta em $v0?', ['14','7','endereço de retorno','0'],0,'A função soma 7+7 e grava 14 em $v0. $ra não guarda esse valor.'),
+  reviewMC({id:'rev_p3_call_nested_problem',category:'jal_jr_pilha',subtopic:'função chama função',errorType:'pilha',quickRule:'JAL interno sobrescreve $ra; salve antes se precisa voltar.'}, '<pre class="program-code">funcaoA:\n  jal funcaoB\n  jr $ra</pre>Qual é o problema?', ['jal funcaoB sobrescreve o $ra original de funcaoA','jr $ra multiplica o retorno','funcaoB não pode usar $v0','A pilha nunca pode ser usada'],0,'Quando funcaoA chama funcaoB, o novo jal coloca outro endereço em $ra. Sem salvar o original, funcaoA perde para onde deveria retornar.'),
+  reviewMC({id:'rev_p3_call_save_where',category:'jal_jr_pilha',subtopic:'pilha',errorType:'pilha',quickRule:'Salve $ra na pilha antes do jal interno e restaure depois.'}, 'Onde $ra pode ser salvo quando uma função chama outra?', ['Na pilha usando $sp','No opcode','No campo funct','No sinal ALUOp'],0,'A pilha é o local padrão para preservar $ra enquanto outra chamada usa o registrador.'),
+  reviewMC({id:'rev_p3_call_restore_order',category:'jal_jr_pilha',subtopic:'ordem',errorType:'pilha',quickRule:'Reserva, salva, chama, restaura, libera, retorna.'}, 'Qual ordem corrige uma função que chama outra?', ['addi $sp,-4; sw $ra,0($sp); jal; lw $ra,0($sp); addi $sp,4; jr $ra','jal; sw $ra; jr; lw $ra','jr $ra; jal; sw $v0','sw $v0; jal; jr $v0'],0,'A função reserva espaço, salva $ra, chama a outra, restaura $ra, libera a pilha e só então retorna.'),
+  reviewTF({id:'rev_p3_call_ra_not_value',category:'jal_jr_pilha',subtopic:'$ra',errorType:'$ra e $v0',quickRule:'$ra não é retorno de valor.'}, '$ra guarda o valor retornado pela função.', false, 'Falso. $ra guarda endereço de retorno; $v0 normalmente guarda o valor retornado.')
+];
+
+const LOOP_REVIEW = [
+  reviewMC({id:'rev_p3_loop_bne_body_count',category:'loops_dinamicos',subtopic:'BNE no final',errorType:'contagem dinâmica',quickRule:'BNE no final executa N vezes.'}, 'No padrão <span class="mono">corpo; addi contador; bne contador,limite,LOOP</span> com N=6, quantas vezes o BNE executa?', ['6','5','7','1'],0,'O BNE fica no fim do corpo e é executado em todas as 6 passagens, inclusive na última, quando falha.'),
+  reviewMC({id:'rev_p3_loop_beq_j_jump_count',category:'loops_dinamicos',subtopic:'BEQ seguido de J',errorType:'contagem dinâmica',quickRule:'No BEQ seguido de J, o J costuma executar N-1 vezes.'}, 'No padrão corpo + BEQ para FIM + J LOOP com N=5, quantas vezes o J executa?', ['4','5','6','1'],0,'Na última repetição, o BEQ desvia para FIM e pula o J. Portanto J = N - 1 = 4.'),
+  reviewMC({id:'rev_p3_loop_test_before_beq',category:'loops_dinamicos',subtopic:'teste antes',errorType:'contagem dinâmica',quickRule:'Teste antes do corpo: BEQ pode executar N+1 vezes.'}, 'No padrão TESTE: beq contador,limite,FIM; corpo; addi; j TESTE com N=4, quantas vezes o BEQ executa?', ['5','4','3','1'],0,'O BEQ testa antes de cada uma das 4 execuções e testa uma vez a mais para sair. Total: N+1 = 5.'),
+  reviewMC({id:'rev_p3_loop_lines_vs_dynamic',category:'loops_dinamicos',subtopic:'conceito',errorType:'contagem dinâmica',quickRule:'Quantidade de linhas não é quantidade dinâmica.'}, 'O que significa quantidade dinâmica de instruções?', ['Número de instruções realmente executadas durante a execução','Número de linhas escritas no arquivo','Número de tipos diferentes de instrução','Quantidade de registradores usados'],0,'Loops, desvios e chamadas fazem a mesma linha executar várias vezes ou não executar.'),
+  reviewMC({id:'rev_p3_loop_example_lw',category:'loops_dinamicos',subtopic:'exemplo prova',errorType:'contagem dinâmica',quickRule:'Linhas antes do BEQ executam N vezes.'}, 'No exemplo com N=8, a linha <span class="mono">lw $s1,0($s0)</span> aparece antes do BEQ de saída. Quantos LW executam?', ['8','7','9','1'],0,'Se o loop começa 8 vezes e o LW está antes do teste de saída daquele padrão, ele executa em todas as 8 passagens.'),
+  reviewMC({id:'rev_p3_loop_example_sw',category:'loops_dinamicos',subtopic:'exemplo prova',errorType:'contagem dinâmica',quickRule:'Instruções depois do BEQ podem não executar na última repetição.'}, 'No padrão BEQ seguido de J com N=8, se o <span class="mono">sw</span> está depois do BEQ, quantas vezes ele executa?', ['7','8','9','0'],0,'Na última repetição, o BEQ desvia para FIM antes de chegar ao SW. Logo SW = N-1 = 7.'),
+  reviewMC({id:'rev_p3_loop_formula',category:'loops_dinamicos',subtopic:'fórmula',errorType:'contagem dinâmica',quickRule:'Total = A×N + B×(N-1) + C quando há trecho pulado na última.'}, 'Na fórmula Total = A×N + B×(N-1) + C, o que representa B?', ['Instruções que não executam na última repetição','Instruções fora do loop','Número de registradores','CPI médio'],0,'B agrupa as instruções executadas em todas menos na última passagem, como o J após um BEQ de saída.'),
+  reviewMC({id:'rev_p3_loop_jal_inside',category:'loops_dinamicos',subtopic:'função no loop',errorType:'contagem dinâmica',quickRule:'Chamada dentro do loop conta JAL e também o corpo da função.'}, 'Se um <span class="mono">jal soma</span> está dentro de um loop que roda 3 vezes, quantos JAL executam?', ['3','1','4','0'],0,'A chamada está dentro do corpo, então executa uma vez por iteração: 3 vezes. Também seria preciso contar as instruções dentro da função.'),
+  reviewMC({id:'rev_p3_loop_slt_condition',category:'loops_dinamicos',subtopic:'SLT em condição',errorType:'SLT'}, 'Em um loop que usa <span class="mono">slt $t0,$s0,$s1</span> antes de <span class="mono">bne</span>, o que o SLT faz?', ['Produz 0/1 para o BNE testar','Salta diretamente para o fim','Divide $s0 por $s1','Salva $ra'],0,'SLT monta um valor booleano no registrador. O BNE usa esse valor para decidir o desvio.'),
+  reviewMC({id:'rev_p3_loop_after_loop',category:'loops_dinamicos',subtopic:'fora do loop',errorType:'contagem dinâmica',quickRule:'Instruções depois do rótulo FIM contam uma vez se o programa chega lá.'}, 'Uma instrução <span class="mono">sub</span> logo após o rótulo FIM, fora do loop, normalmente executa quantas vezes?', ['1','N','N-1','0 sempre'],0,'Depois que o loop termina, o fluxo chega ao FIM e executa essa instrução uma vez, salvo outro desvio que a pule.')
+];
+
+function cpiTimes(freqMHz, cpi){
+  const out={}; Object.keys(cpi).forEach(k=>{ out[k]=cpiToTimeNs(cpi[k],freqMHz); }); return out;
+}
+function makeCpiProgram(title, freqMHz, rows, counts, cpi, setup, reasoning, code, finalLabel, finalValue){
+  return {title,family:'review-cpi',rows,counts,timeNs:cpiTimes(freqMHz,cpi),freqMHz,setup,reasoning,code,finalLabel,finalValue};
+}
+const CPI_REVIEW = [
+  reviewCpiProgram({id:'rev_p3_cpi_easy_bne',category:'cpi_medio',subtopic:'fácil',errorType:'CPI médio',quickRule:'Conte quantas vezes cada instrução executa antes de calcular CPI.'}, makeCpiProgram('Loop BNE simples (5 voltas)', 500, ['lw','add','addi','bne'], {lw:5,add:5,addi:5,bne:5}, {lw:5,add:3,addi:3,bne:2}, 'O corpo executa 5 vezes e o BNE fica no final.', ['Cada linha do corpo executa 5 vezes.','Ciclos totais = quantidade × CPI.','CPI médio = ciclos totais ÷ instruções executadas.'], ['loop: lw $t0,0($s0)','add $s1,$s1,$t0','addi $s0,$s0,4','bne $s0,$s2,loop'], 'Soma final', 0)),
+  reviewCpiProgram({id:'rev_p3_cpi_easy_beq_j',category:'cpi_medio',subtopic:'fácil',errorType:'CPI médio',quickRule:'No BEQ seguido de J, conte J como N-1.'}, makeCpiProgram('BEQ seguido de J (4 voltas)', 250, ['lw','add','beq','j','sub'], {lw:4,add:4,beq:4,j:3,sub:1}, {lw:6,add:4,beq:3,j:2,sub:4}, 'O J não executa na última volta; SUB está fora do loop.', ['LW/ADD/BEQ executam 4 vezes.','J executa 3 vezes.','SUB final executa 1 vez.'], ['loop: lw $s1,0($s0)','add $s2,$s1,$s3','beq $t0,$t1,fim','j loop','fim: sub $s4,$s5,$s6'], 'Valor final simbólico', 1)),
+  reviewCpiProgram({id:'rev_p3_cpi_easy_test_before',category:'cpi_medio',subtopic:'fácil',errorType:'CPI médio'}, makeCpiProgram('Teste antes do corpo (3 voltas)', 1000, ['beq','lw','addi','j'], {beq:4,lw:3,addi:3,j:3}, {beq:2,lw:5,addi:3,j:2}, 'BEQ testa 3 entradas e mais uma saída.', ['BEQ=N+1=4.','Corpo, ADDI e J executam N=3.'], ['teste: beq $t0,$t1,fim','lw $s0,0($s1)','addi $t0,$t0,1','j teste'], 'Iterações', 3)),
+  reviewCpiProgram({id:'rev_p3_cpi_mid_jal_once',category:'cpi_medio',subtopic:'intermediário',errorType:'JAL e JR'}, makeCpiProgram('Função chamada uma vez', 500, ['addi','jal','add','jr'], {addi:1,jal:1,add:2,jr:1}, {addi:3,jal:4,add:3,jr:4}, 'main prepara argumento, chama dobro e copia retorno.', ['Conte JAL e JR separadamente.','A instrução add dentro da função também executa.','O add após o retorno executa uma vez.'], ['addi $a0,$zero,7','jal dobro','add $s0,$v0,$zero','dobro: add $v0,$a0,$a0','jr $ra'], 'Valor final em $s0', 14)),
+  reviewCpiProgram({id:'rev_p3_cpi_mid_slt_loop',category:'cpi_medio',subtopic:'intermediário',errorType:'SLT'}, makeCpiProgram('Loop com SLT e BNE (6 voltas)', 250, ['slt','bne','add','addi','j'], {slt:7,bne:7,add:6,addi:6,j:6}, {slt:3,bne:2,add:3,addi:3,j:2}, 'Teste antes usa SLT+BNE; o teste ocorre uma vez a mais.', ['SLT e BNE executam N+1=7.','Corpo, ADDI e J executam N=6.'], ['teste: slt $t0,$s0,$s1','bne $t0,$zero,corpo','j fim','corpo: add $s2,$s2,$s3','addi $s0,$s0,1','j teste'], 'Iterações', 6)),
+  reviewCpiProgram({id:'rev_p3_cpi_mid_skip_last',category:'cpi_medio',subtopic:'intermediário',errorType:'contagem dinâmica'}, makeCpiProgram('Instruções puladas na última', 500, ['lw','addi','beq','sw','j'], {lw:5,addi:5,beq:5,sw:4,j:4}, {lw:5,addi:3,beq:2,sw:5,j:2}, 'BEQ de saída fica antes de SW e J.', ['LW/ADDI/BEQ executam N=5.','SW e J executam N-1=4.'], ['loop: lw $s1,0($s0)','addi $t0,$t0,1','beq $t0,$t1,fim','sw $s1,4($s0)','j loop'], 'Stores executados', 4)),
+  reviewCpiProgram({id:'rev_p3_cpi_mid_function_in_loop',category:'cpi_medio',subtopic:'intermediário',errorType:'JAL e JR'}, makeCpiProgram('Função dentro do loop (3 voltas)', 250, ['lw','jal','jr','add','addi','bne'], {lw:3,jal:3,jr:3,add:6,addi:3,bne:3}, {lw:6,jal:4,jr:4,add:3,addi:3,bne:2}, 'Cada volta chama função; a função tem add e jr.', ['JAL executa 3 vezes.','JR também executa 3 vezes.','Há um add no loop e um add na função por volta.'], ['loop: lw $a0,0($s0)','jal dobro','add $s1,$s1,$v0','addi $t0,$t0,1','bne $t0,$t1,loop','dobro: add $v0,$a0,$a0','jr $ra'], 'Chamadas', 3)),
+  reviewCpiProgram({id:'rev_p3_cpi_hard_nested_call',category:'cpi_medio',subtopic:'difícil',errorType:'pilha'}, makeCpiProgram('Função chama função', 500, ['addi','sw','lw','jal','jr','add'], {addi:3,sw:1,lw:1,jal:2,jr:2,add:1}, {addi:3,sw:5,lw:5,jal:4,jr:4,add:3}, 'funcaoA salva $ra, chama funcaoB, restaura e retorna.', ['Dois JAL: main→A e A→B.','Dois JR: B→A e A→main.','SW/LW preservam $ra uma vez.'], ['jal funcaoA','funcaoA: addi $sp,$sp,-4','sw $ra,0($sp)','jal funcaoB','lw $ra,0($sp)','addi $sp,$sp,4','jr $ra','funcaoB: add $v0,$a0,$a1','jr $ra'], 'Retornos', 2)),
+  reviewCpiProgram({id:'rev_p3_cpi_hard_last_only',category:'cpi_medio',subtopic:'difícil',errorType:'contagem dinâmica'}, makeCpiProgram('Última repetição diferente', 1000, ['lw','slt','beq','add','sw','j','sub'], {lw:4,slt:4,beq:4,add:3,sw:1,j:3,sub:1}, {lw:5,slt:3,beq:2,add:3,sw:6,j:2,sub:3}, 'SW executa somente ao sair; ADD/J não executam na última.', ['LW/SLT/BEQ=N=4.','ADD/J=N-1=3.','SW e SUB finais executam 1 vez.'], ['loop: lw $t0,0($s0)','slt $t1,$t0,$s1','beq $t1,$zero,fim','add $s2,$s2,$t0','j loop','fim: sw $s2,0($s3)','sub $s4,$s4,$s5'], 'Stores finais', 1)),
+  reviewCpiProgram({id:'rev_p3_cpi_hard_full_table',category:'cpi_medio',subtopic:'difícil',errorType:'CPI médio'}, makeCpiProgram('Tabela completa com loop e função', 250, ['lw','sw','add','addi','slt','bne','jal','jr'], {lw:8,sw:1,add:12,addi:8,slt:9,bne:9,jal:4,jr:4}, {lw:6,sw:6,add:3,addi:3,slt:3,bne:2,jal:4,jr:4}, 'Loop de 8 voltas chama função em metade das voltas; teste SLT ocorre uma vez a mais.', ['Conte tabela por tipo antes de somar ciclos.','JAL e JR contam separadamente.','CPI médio usa ciclos totais ÷ total de instruções.'], ['teste: slt $t0,$s0,$s1','bne $t0,$zero,corpo','j fim','corpo: lw $a0,0($s2)','jal ajusta','add $s3,$s3,$v0','addi $s0,$s0,1','j teste','ajusta: add $v0,$a0,$a1','jr $ra','fim: sw $s3,0($s4)'], 'Chamadas executadas', 4))
+];
+
+const REVIEW_BANK = [
+  ...DATAPATH_TIME_REVIEW,
+  ...PARALLEL_REVIEW,
+  ...SLT_REVIEW,
+  ...CONTROL_REVIEW,
+  ...FUNCTION_REG_REVIEW,
+  ...CALL_STACK_REVIEW,
+  ...LOOP_REVIEW,
+  ...CPI_REVIEW
+];
+
+const OPEN_QUESTIONS = [
+  reviewOpen({id:'rev_p3_open_ra_v0',category:'questoes_abertas',subtopic:'$ra vs $v0',errorType:'$ra e $v0'}, 'Explique a diferença entre <b>$ra</b> e <b>$v0</b>.', '$ra guarda o endereço para onde o programa deve voltar depois da função. $v0 guarda o valor retornado pela função.', ['$ra é endereço de retorno','$v0 é valor retornado','Não tratar $ra como resultado da função'], 'Confundir endereço de retorno com valor calculado.', 'Separe controle de fluxo de dado retornado.', 'JAL escreve em $ra para permitir o retorno com JR; a função escreve o resultado em $v0 para o chamador usar.'),
+  reviewOpen({id:'rev_p3_open_jal_jr',category:'questoes_abertas',subtopic:'JAL/JR',errorType:'JAL e JR'}, 'Explique o que <b>jal</b> e <b>jr $ra</b> fazem.', 'jal salva o endereço de retorno em $ra e altera o PC para a função. jr $ra altera o PC para o endereço guardado em $ra.', ['jal salva retorno em $ra','jal desvia para a função','jr $ra volta pelo endereço salvo'], 'Dizer que jal devolve valor em $ra.', 'JAL chama; JR retorna.', 'JAL é chamada de função com salvamento automático do retorno. JR usa um registrador como destino de salto; com $ra, volta ao chamador.'),
+  reviewOpen({id:'rev_p3_open_save_ra',category:'questoes_abertas',subtopic:'pilha',errorType:'pilha'}, 'Explique por que uma função que chama outra deve salvar <b>$ra</b>.', 'Porque o jal interno sobrescreve $ra. Se a função ainda precisa voltar ao seu chamador, deve salvar o $ra original, normalmente na pilha, e restaurá-lo antes de jr $ra.', ['jal interno sobrescreve $ra','salvar antes e restaurar depois','pilha como local de preservação'], 'Esquecer que $ra é único e é sobrescrito a cada jal.', 'Quem chama outra função precisa preservar seu retorno.', 'Sem salvar $ra, o retorno original se perde e jr $ra pode voltar para o lugar errado ou entrar em loop.'),
+  reviewOpen({id:'rev_p3_open_slt_bne',category:'questoes_abertas',subtopic:'SLT vs BNE',errorType:'SLT'}, 'Explique a diferença entre <b>SLT</b> e <b>BNE</b>.', 'SLT compara se um valor é menor que outro e grava 1 ou 0 em um registrador. BNE é um desvio condicional que pode alterar o PC quando dois registradores são diferentes.', ['SLT grava 0/1','BNE pode alterar PC','Papéis diferentes em uma condição'], 'Tratar SLT como branch.', 'SLT calcula condição; BNE usa condição para desviar.', 'SLT é operação da ULA tipo R; BNE usa a ULA para comparação de igualdade/diferença e atua no fluxo de controle.'),
+  reviewOpen({id:'rev_p3_open_slt_add_path',category:'questoes_abertas',subtopic:'tempo SLT',errorType:'SLT'}, 'Explique por que <b>SLT</b> possui o mesmo caminho de dados de <b>ADD</b> no modelo simplificado.', 'Porque ambas são tipo R: buscam a instrução, leem dois registradores, usam a ULA, passam pelo MUX MemToReg e escrevem o resultado em rd. O funct muda a operação da ULA.', ['Ambas são tipo R','Leem dois registradores e escrevem rd','funct diferencia a operação'], 'Achar que SLT salta ou acessa memória.', 'Mesmo caminho, operação diferente.', 'O caminho físico é igual; o controle final da ULA escolhe soma para ADD ou set-on-less-than para SLT.'),
+  reviewOpen({id:'rev_p3_open_slt_not_mult',category:'questoes_abertas',subtopic:'SLT vs MULT',errorType:'multiplicação e divisão'}, 'Explique por que <b>SLT</b> não é multiplicação.', 'SLT significa Set on Less Than: compara dois operandos e grava 1 ou 0. Multiplicação é MULT, pode produzir resultado maior e usar HI/LO.', ['SLT compara menor que','MULT multiplica','HI/LO não são usados por SLT'], 'Associar SLT a shift/multiplicação.', 'SLT é comparação booleana.', 'Mesmo que use a ULA, SLT tem semântica de comparação e não de produto.'),
+  reviewOpen({id:'rev_p3_open_memtoreg_signal_mux',category:'questoes_abertas',subtopic:'MemToReg',errorType:'MUX MemToReg'}, 'Explique a diferença entre o sinal <b>MemToReg</b> e o MUX físico MemToReg.', 'O sinal MemToReg é a decisão de controle que escolhe a entrada do MUX. O MUX físico é o componente por onde o dado passa, e seu atraso ainda conta quando informado.', ['Sinal é controle','MUX é componente físico','Atraso do MUX ainda pode contar'], 'Dizer que sinal pronto elimina o atraso físico.', 'Controle decide; hardware ainda atrasa.', 'A unidade de controle pode gerar o sinal em paralelo, mas o dado do LW ainda sai da memória e atravessa o MUX para chegar ao banco de registradores.'),
+  reviewOpen({id:'rev_p3_open_lw_seq_mux',category:'questoes_abertas',subtopic:'LW sequencial',errorType:'MUX MemToReg'}, 'Explique por que Memória de Dados e MUX MemToReg são sequenciais no <b>LW</b>.', 'Porque o dado precisa sair da Memória de Dados, entrar no MUX MemToReg e só depois seguir para a escrita no registrador. A saída de um bloco é entrada do próximo.', ['Dado sai da memória','Depois atravessa o MUX','Atrasos são somados'], 'Considerar memória e MUX em paralelo.', 'No LW, dado: memória → MUX → registrador.', 'Ainda que o sinal do MUX esteja pronto, o caminho de dados é dependente: sem dado da memória, o MUX não entrega o valor final correto.'),
+  reviewOpen({id:'rev_p3_open_when_sum',category:'questoes_abertas',subtopic:'somar atrasos',errorType:'sequência e paralelismo'}, 'Explique quando dois atrasos devem ser somados.', 'Devem ser somados quando a saída de um componente é necessária como entrada do próximo, formando uma dependência sequencial.', ['Saída de A entra em B','B precisa esperar A','Dependência sequencial'], 'Somar qualquer bloco desenhado.', 'Dependência direta soma.', 'Exemplo: Memória de Dados → MUX MemToReg no LW. O MUX só entrega o dado final depois da memória produzir o dado.'),
+  reviewOpen({id:'rev_p3_open_when_max',category:'questoes_abertas',subtopic:'usar maior',errorType:'sequência e paralelismo'}, 'Explique quando deve ser usado o maior entre dois atrasos.', 'Usa-se o maior quando dois caminhos independentes começam ao mesmo tempo e se encontram depois. Calcula-se cada caminho e o tempo até o encontro é o máximo.', ['Caminhos independentes','Começam juntos','Encontram-se depois e usa max'], 'Somar caminhos paralelos.', 'Paralelo usa o maior caminho.', 'Exemplo: controle de 2 ns e leitura de registradores de 8 ns após a busca: max(2,8)=8 ns.'),
+  reviewOpen({id:'rev_p3_open_dynamic_count',category:'questoes_abertas',subtopic:'contagem dinâmica',errorType:'contagem dinâmica'}, 'Explique o que significa quantidade dinâmica de instruções.', 'É a quantidade de instruções realmente executadas durante a execução do programa, considerando loops, desvios, chamadas e instruções puladas.', ['Realmente executadas','Loops repetem linhas','Desvios podem pular linhas'], 'Contar só linhas do código.', 'Dinâmico é execução real.', 'Uma linha dentro de um loop pode contar N vezes, enquanto uma linha após um branch pode não executar na última repetição.'),
+  reviewOpen({id:'rev_p3_open_avg_cpi',category:'questoes_abertas',subtopic:'CPI médio',errorType:'CPI médio'}, 'Explique como calcular o <b>CPI médio</b> de um programa.', 'Conte dinamicamente quantas instruções de cada tipo executam, multiplique cada quantidade pelo CPI correspondente, some os ciclos totais e divida pelo total de instruções executadas.', ['Contar instruções executadas','Somar quantidade × CPI','Dividir ciclos totais pelo total de instruções'], 'Usar porcentagens antes de contar corretamente.', 'CPI médio = ciclos totais / instruções executadas.', 'A tabela por tipo evita esquecer JAL, JR, instruções de função e instruções que não executam na última volta.'),
+  reviewOpen({id:'rev_p3_open_bne_beq_time',category:'questoes_abertas',subtopic:'BNE/BEQ',errorType:'caminho de dados'}, 'Explique por que <b>BNE</b> pode possuir o mesmo tempo de <b>BEQ</b>.', 'Porque as duas podem usar o mesmo caminho estrutural: buscar instrução, ler registradores e usar a ULA para comparar. A diferença é a lógica da condição: BEQ desvia com Zero=1 e BNE com Zero=0.', ['Mesmo caminho estrutural','ULA compara/subtrai','Condição do Zero muda'], 'Achar que BNE precisa de multiplicação ou memória.', 'Mesmo caminho; condição invertida.', 'O tratamento do BNE pode inverter o Zero, mas isso não muda necessariamente o caminho crítico simplificado.'),
+  reviewOpen({id:'rev_p3_open_aluop_10',category:'questoes_abertas',subtopic:'ALUOp',errorType:'sinais de controle'}, 'Explique por que ADD, SUB e SLT possuem <b>ALUOp = 10</b>.', 'Porque são instruções tipo R. ALUOp=10 indica que o controle da ULA deve consultar o campo funct para escolher a operação final: add, sub ou slt.', ['Tipo R','ALUOp=10 consulta funct','funct diferencia operações'], 'Usar ALUOp=01 para SUB tipo R.', 'ALUOp=10 não é operação final; é modo tipo R.', 'O ALUOp vem da unidade de controle principal; o controle final da ULA combina ALUOp com funct.'),
+  reviewOpen({id:'rev_p3_open_aluop_vs_alucontrol',category:'questoes_abertas',subtopic:'ALUOp vs controle da ULA',errorType:'sinais de controle'}, 'Explique a diferença entre <b>ALUOp</b> e o controle final da ULA.', 'ALUOp é um resumo gerado pela unidade de controle principal. O controle final da ULA usa ALUOp e, em instruções tipo R, o campo funct para gerar a operação exata.', ['ALUOp vem do controle principal','Controle da ULA gera operação exata','funct entra em tipo R'], 'Dizer que ALUOp sozinho sempre escolhe add/sub/slt.', 'ALUOp orienta; ALU control decide.', 'Para lw/addi, ALUOp=00 já indica soma. Para tipo R, ALUOp=10 exige olhar o funct.'),
+  reviewOpen({id:'rev_p3_open_j_short_path',category:'questoes_abertas',subtopic:'J',errorType:'caminho de dados'}, 'Explique por que o <b>J</b> normalmente possui um caminho menor.', 'Porque a instrução j só precisa ser buscada e usada para formar o próximo PC. Ela não lê registradores, não usa ULA, não acessa memória de dados e não escreve registrador.', ['Busca instrução','Atualiza PC','Não usa registradores/ULA/memória de dados'], 'Somar caminho de LW no J.', 'J só muda fluxo.', 'Por isso, em modelos de tempo por instrução, J costuma ter atraso menor que LW ou tipo R.'),
+  reviewOpen({id:'rev_p3_open_ula_vs_branch',category:'questoes_abertas',subtopic:'ULA vs desvio',errorType:'SLT'}, 'Explique a diferença entre instrução de ULA e instrução de desvio.', 'Instrução de ULA produz um resultado de dados, geralmente gravado em registrador. Instrução de desvio testa uma condição ou alvo e pode alterar o PC.', ['ULA produz dado','Desvio pode alterar PC','Exemplos: SLT vs BNE'], 'Tratar toda comparação como salto.', 'Resultado de dado não é fluxo de controle.', 'SLT é ULA e grava 0/1; BNE é desvio e usa esse valor ou uma comparação para mudar o PC.'),
+  reviewOpen({id:'rev_p3_open_lw_uses_mux',category:'questoes_abertas',subtopic:'LW MemToReg',errorType:'MUX MemToReg'}, 'Explique por que o <b>LW</b> utiliza o MUX MemToReg.', 'Porque o valor que será escrito no registrador vem da Memória de Dados, não da ULA. O MUX seleciona essa fonte para o write-back.', ['LW escreve registrador','Dado vem da memória','MemToReg seleciona memória'], 'Esquecer o MUX no write-back.', 'LW volta da memória.', 'A ULA calcula o endereço, mas o resultado final do LW é o dado lido na memória.'),
+  reviewOpen({id:'rev_p3_open_add_uses_mux',category:'questoes_abertas',subtopic:'ADD MemToReg',errorType:'MUX MemToReg'}, 'Explique por que o <b>ADD</b> também passa pelo MUX MemToReg.', 'Porque o banco de registradores recebe uma única entrada de write-back escolhida pelo MUX. No ADD, o MUX seleciona a saída da ULA, com MemToReg=0.', ['ADD escreve registrador','Valor vem da ULA','MUX seleciona saída da ULA'], 'Achar que o MUX só existe no LW.', 'Mesmo MUX, entrada diferente.', 'O caminho físico de write-back pode ser compartilhado por ADD e LW; o sinal escolhe qual fonte entra.'),
+  reviewOpen({id:'rev_p3_open_sw_no_regwrite',category:'questoes_abertas',subtopic:'SW RegWrite',errorType:'sinais de controle'}, 'Explique por que o <b>SW</b> não escreve no banco de registradores.', 'SW armazena na Memória de Dados o valor lido de um registrador. Como seu destino é a memória, RegWrite=0 e RegDst/MemToReg são indiferentes.', ['Destino é memória','RegWrite=0','RegDst/MemToReg são X'], 'Confundir SW com LW.', 'SW escreve memória, não registrador.', 'A ULA só calcula o endereço; a escrita acontece na memória de dados por MemWrite=1.')
+];
+
+function seededShuffle(arr,r){
+  r=r||Math.random;
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function allReviewQuestions(){
+  return REVIEW_BANK.concat(OPEN_QUESTIONS);
+}
+function buildReviewQueue(r){
+  const mixed=[];
+  REVIEW_TOPICS.filter(t=>t.id!=='simulado_prova3').forEach(t=>{
+    const pool=allReviewQuestions().filter(q=>q.category===t.id);
+    if(pool.length) mixed.push(...seededShuffle(pool,r).slice(0, t.id==='questoes_abertas'?3:4));
+  });
+  return seededShuffle(mixed.length?mixed:allReviewQuestions(),r);
+}
+function correctSummary(q){
+  if(q.sub==='mc') return q.options[q.correct];
+  if(q.sub==='tf'||q.sub==='ar') return q.correct?'Verdadeiro':'Falso';
+  if(q.sub==='tbl') return SIGNAL_NAMES.map((nm,i)=>`${nm}=${CONTROL[q.instruction][i]}`).join(', ');
+  if(q.sub==='prog') return `Total=${q.solution.totalInstr}; CPI médio=${q.solution.avgCpi}; ciclos=${q.solution.totalCycles}`;
+  if(q.sub==='open') return q.modelAnswer;
+  return q.explain || 'Veja o feedback da questão.';
+}
+function recordConceptError(q,given,correct){
+  if(!q) return;
+  const type=q.errorType || q.category || q.topic || 'geral';
+  const now=new Date().toLocaleString('pt-BR');
+  const cur=save.conceptErrors[type]||{count:0,lastAt:null};
+  save.conceptErrors[type]={count:cur.count+1,lastAt:now};
+  save.errorNotebook=Array.isArray(save.errorNotebook)?save.errorNotebook:[];
+  save.errorNotebook.unshift({
+    id:q.id || q.examKey || `q_${Date.now()}`,
+    topic:q.topic || '—',
+    subject:q.category || q.topic || 'geral',
+    subtopic:q.subtopic || '—',
+    given:String(given||'—').slice(0,220),
+    correct:String(correct||correctSummary(q)||'—').slice(0,260),
+    errorType:type,
+    count:save.conceptErrors[type].count,
+    date:now
+  });
+  if(save.errorNotebook.length>40) save.errorNotebook.length=40;
+  persist();
+}
+function buildTargetedPracticeQueue(r){
+  r=r||Math.random;
+  const all=allReviewQuestions();
+  const selected=[];
+  const seen=new Set();
+  const errors=Object.entries(save.conceptErrors||{})
+    .sort((a,b)=>(b[1].count-a[1].count)||String(b[1].lastAt||'').localeCompare(String(a[1].lastAt||'')));
+  errors.forEach(([type])=>{
+    const matches=seededShuffle(all.filter(q=>q.errorType===type && !seen.has(q.id)),r).slice(0,2);
+    matches.forEach(q=>{ selected.push(q); seen.add(q.id); });
+    const open=seededShuffle(OPEN_QUESTIONS.filter(q=>q.errorType===type && !seen.has(q.id)),r)[0];
+    if(open){ selected.push(open); seen.add(open.id); }
+  });
+  const fill=seededShuffle(all.filter(q=>!seen.has(q.id)),r);
+  while(selected.length<12 && fill.length){ selected.push(fill.shift()); }
+  return selected.slice(0,12);
 }
 
 // Questões fixas inspiradas nas provas anexadas.
@@ -1088,6 +1529,8 @@ function startFree(){
   for(let i=0;i<4;i++) all.push(geraBenchmarkQ3());
   for(let i=0;i<3;i++) all.push(geraTempoQ5());
   for(let i=0;i<4;i++) all.push(geraProgramaQ5());
+  all.push(...seededShuffle(REVIEW_BANK).slice(0,16));
+  all.push(...seededShuffle(OPEN_QUESTIONS).slice(0,4));
   G.queue = shuffle(all); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
@@ -1100,9 +1543,48 @@ function startProvaInfinita(){
   for(let i=0;i<3;i++) all.push(geraBenchmarkQ3());
   for(let i=0;i<3;i++) all.push(geraTempoQ5());
   for(let i=0;i<5;i++) all.push(geraProgramaQ5());
+  all.push(...seededShuffle(REVIEW_BANK).slice(0,18));
   G.queue = shuffle(all); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
+}
+function startReview(){
+  G.free=true; G.mode='review';
+  G.queue=buildReviewQueue(); G.idx=0; G.lives=99; G.earned=0;
+  showScreen('scr-game');
+  renderQuestion();
+}
+function startTargetedPractice(){
+  G.free=true; G.mode='targeted';
+  G.queue=buildTargetedPracticeQueue(); G.idx=0; G.lives=99; G.earned=0;
+  showScreen('scr-game');
+  renderQuestion();
+}
+function renderReviewHub(){
+  const grid=$('reviewTopicGrid'); grid.innerHTML='';
+  REVIEW_TOPICS.forEach(t=>{
+    if(t.id==='simulado_prova3') return;
+    const count=t.id==='questoes_abertas' ? OPEN_QUESTIONS.length : REVIEW_BANK.filter(q=>q.category===t.id).length;
+    const c=document.createElement('div'); c.className='review-card';
+    c.innerHTML=`<b>${t.label}</b><span>${t.desc}</span><br><span class="mono">${count} questão(ões)</span>`;
+    grid.appendChild(c);
+  });
+  showScreen('scr-review');
+}
+function renderErrorNotebook(){
+  const summary=$('errorSummary'), list=$('errorList');
+  const entries=Object.entries(save.conceptErrors||{}).sort((a,b)=>b[1].count-a[1].count);
+  summary.innerHTML=entries.length
+    ? `<div class="review-grid">${entries.map(([type,data])=>`<div class="review-card"><b>${type}</b><span>${data.count} erro(s) · último: ${data.lastAt||'—'}</span></div>`).join('')}</div>`
+    : '<div class="callout">Ainda não há erros registrados. Ao errar uma questão da revisão, o conceito aparece aqui.</div>';
+  const notebook=(save.errorNotebook||[]).slice(0,12);
+  list.innerHTML=notebook.length ? notebook.map(item=>`
+    <div class="error-item">
+      <div class="meta">${item.date} · ${item.topic} · ${item.subtopic} · ${item.errorType}</div>
+      <div><b>Você respondeu:</b> ${escHTML(item.given)}</div>
+      <div><b>Referência:</b> ${escHTML(item.correct)}</div>
+    </div>`).join('') : '<div class="muted">Nenhuma tentativa errada registrada ainda.</div>';
+  showScreen('scr-errors');
 }
 
 function updateLivesHUD(){
@@ -1115,7 +1597,8 @@ function renderQuestion(){
   G.usedHint=false; G.assisted=false; G.correctInQ=0; G.errInQ=0; G.qStart=Date.now();
   $('modeChip').textContent = 'Modo '+q.mode;
   $('qTag').textContent = MODE_NAMES[q.mode];
-  $('qProgress').textContent = G.free ? `Livre · ${G.idx+1}` : `${G.idx+1}/${G.queue.length}`;
+  const progressLabel = G.mode==='review' ? 'Revisão' : G.mode==='targeted' ? 'Direcionada' : 'Livre';
+  $('qProgress').textContent = G.free ? `${progressLabel} · ${G.idx+1}/${G.queue.length}` : `${G.idx+1}/${G.queue.length}`;
   $('feedback').className='feedback'; $('feedback').innerHTML='';
   updateLivesHUD(); refreshHUD();
   const body=$('qBody'), act=$('qActions');
@@ -1142,7 +1625,7 @@ function renderQuestion(){
     act.appendChild(hintBtn);
   }
 
-  if(G.mode==='free'){
+  if(['free','review','targeted','provaInfinita'].includes(G.mode)){
     const skipBtn=document.createElement('button');
     skipBtn.className='btn ghost small';
     skipBtn.textContent='⏭ Pular';
@@ -1152,7 +1635,7 @@ function renderQuestion(){
 }
 
 function skipFreeQuestion(){
-  if(G.mode!=='free') return;
+  if(!['free','review','targeted','provaInfinita'].includes(G.mode)) return;
   sfx.click();
   nextQuestion();
 }
@@ -1358,6 +1841,7 @@ function renderMode2(q, body, act){
     } else {
       fb.className='feedback err show';
       fb.innerHTML=`❌ <b>${wrongs.length} sinal(is) errado(s):</b> ${wrongs.join(', ')}. Veja as explicações em vermelho e ajuste.`;
+      recordConceptError(q, wrongs.join(', '), correct.map((v,i)=>`${SIGNAL_NAMES[i]}=${v}`).join(', '));
       sfx.err(); G.errInQ++; loseLife();
     }
   };
@@ -1373,6 +1857,7 @@ function renderMode3(q, body, act){
       <div class="timecell">Banco Reg.<b>${t.regread} ns</b></div>
       <div class="timecell">ULA<b>${t.alu} ns</b></div>
       <div class="timecell">Mem. Dados<b>${t.dmem} ns</b></div>
+      ${t.memtoreg!==undefined?`<div class="timecell">MUX MemToReg<b>${t.memtoreg} ns</b></div>`:''}
       <div class="timecell">Controle<b>${t.control} ns</b></div>
       <div class="timecell">Somadores<b>${t.adder} ns</b></div>
     </div>`;
@@ -1432,10 +1917,12 @@ function renderMode3(q, body, act){
 // helpers Modo 3
 function critStr(instr,t){
   const reg=t.regread, wr=(t.regwrite!==undefined?t.regwrite:t.regread);
-  if(instr==='lw') return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})+Mem.Dados(${t.dmem})+EscreveReg(${wr})`;
+  const mtr=t.memtoreg||0;
+  const mux=mtr?`+MUX MemToReg(${mtr})`:'';
+  if(instr==='lw') return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})+Mem.Dados(${t.dmem})${mux}+EscreveReg(${wr})`;
   if(instr==='sw') return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})+Mem.Dados(${t.dmem})`;
-  if(instr==='R')  return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})+EscreveReg(${wr})`;
-  if(instr==='beq')return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})`;
+  if(['R','add','sub','slt','addi'].includes(instr)) return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})${mux}+EscreveReg(${wr})`;
+  if(instr==='beq'||instr==='bne')return `Mem.Instr(${t.imem})+Reg(${reg})+ULA(${t.alu})`;
   if(instr==='j')  return `Mem.Instr(${t.imem})`;
 }
 function near(v, target, tol=0.05){ const n=parseFloat(String(v).replace(',','.')); return isFinite(n) && Math.abs(n-target)<=tol; }
@@ -1447,6 +1934,7 @@ function timeContextHTML(t){
       <div class="timecell">Banco Reg.<b>${t.regread} ns</b></div>
       <div class="timecell">ULA<b>${t.alu} ns</b></div>
       <div class="timecell">Mem. Dados<b>${t.dmem} ns</b></div>
+      ${t.memtoreg!==undefined?`<div class="timecell">MUX MemToReg<b>${t.memtoreg} ns</b></div>`:''}
       <div class="timecell">Controle<b>${t.control} ns</b></div>
       <div class="timecell">Somadores<b>${t.adder} ns</b></div>
     </div></div>`;
@@ -1638,7 +2126,8 @@ function termList(instr,t){
   if(instr==='j') return [{l:'Mem.Instr',v:t.imem}];
   const a=[{l:'Mem.Instr',v:t.imem},{l:'Reg',v:reg},{l:'ULA',v:t.alu}];
   if(instr==='lw'||instr==='sw') a.push({l:'Mem.Dados',v:t.dmem});
-  if(instr==='lw'||instr==='R')  a.push({l:'Escreve Reg',v:wr});
+  if(t.memtoreg && ['lw','R','add','sub','slt','addi'].includes(instr)) a.push({l:'MUX MemToReg',v:t.memtoreg});
+  if(['lw','R','add','sub','slt','addi'].includes(instr))  a.push({l:'Escreve Reg',v:wr});
   return a;
 }
 function chipsHTML(instr,t){
@@ -1678,10 +2167,14 @@ function teachForQuestion(q){
     let h='<div class="demo-caption" style="margin-top:6px">';
     if(q.sub==='prog'){
       h+=programExplain(q);
+    } else if(q.sub==='open'){
+      h+=`<b>Como responder:</b> ${q.shortExplain}<br><b>Pontos que precisam aparecer:</b><ul>${q.requiredPoints.map(p=>`<li>${p}</li>`).join('')}</ul>`;
     } else if(q.sub==='tbl'){
       const c=CONTROL[q.instruction];
       h+=`<b>Sinais completos da ${INSTR[q.instruction].name}:</b><div class="sig-teach" style="margin-top:4px">`+
         SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${signalBadgeClass(c[i])}">${nm}=${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')+'</div>';
+    } else if(q.category){
+      h+=`<b>Regra rápida:</b> ${q.quickRule||''}<br>${q.explain||''}`;
     } else if(q.topic==='Q3b'){
       h+=teachTime({t3type:'benchmark',mix:q.mix,times:q.times});
     } else if(q.topic==='Q3a'){
@@ -2047,9 +2540,19 @@ const GLOSSARY = [
   {cat:'Instruções', term:'lw', def:'Load word — carrega uma palavra da memória para um registrador.', why:'lw $s1, 8($s2) lê o endereço $s2+8.'},
   {cat:'Instruções', term:'sw', def:'Store word — armazena um registrador na memória.', why:'sw $s1, 8($s2) grava no endereço $s2+8.'},
   {cat:'Instruções', term:'beq', def:'Branch if equal — desvia se dois registradores forem iguais.', why:'Compara subtraindo; Zero=1 → desvia.'},
+  {cat:'Instruções', term:'bne', def:'Branch if not equal — desvia se dois registradores forem diferentes.', why:'Usa comparação parecida com beq, mas desvia quando Zero=0.'},
+  {cat:'Instruções', term:'slt', def:'Set on Less Than — grava 1 se rs < rt; caso contrário grava 0.', why:'É tipo R, usa a ULA e não altera diretamente o PC.'},
+  {cat:'Instruções', term:'addi', def:'Soma um registrador com um imediato e grava em rt.', why:'Usa ALUSrc=1 e ALUOp=00.'},
+  {cat:'Instruções', term:'jal', def:'Jump and link — chama função, salva o endereço de retorno em $ra e altera o PC.', why:'Permite voltar depois com jr $ra.'},
+  {cat:'Instruções', term:'jr', def:'Jump register — altera o PC para o endereço guardado em um registrador.', why:'jr $ra retorna de uma função.'},
   {cat:'Instruções', term:'j', def:'Jump — salto incondicional.', why:'Só atualiza o PC; não usa ULA.'},
   {cat:'Instruções', term:'rs / rt / rd', def:'Campos da instrução: rs/rt são lidos; rd é o destino (tipo-R).', why:'rt também é destino na lw.'},
   {cat:'Instruções', term:'imediato / offset', def:'Constante de 16 bits embutida na própria instrução.', why:'Usado por lw, sw e beq.'},
+  {cat:'Funções MIPS', term:'$ra', def:'Registrador de endereço de retorno.', why:'jal escreve nele; jr $ra usa esse endereço para voltar.'},
+  {cat:'Funções MIPS', term:'$v0', def:'Registrador normalmente usado para valor retornado por função.', why:'Não é endereço de retorno.'},
+  {cat:'Funções MIPS', term:'$a0', def:'Primeiro registrador de argumento de função.', why:'Leva dados para a função.'},
+  {cat:'Funções MIPS', term:'$sp', def:'Stack pointer — aponta para o topo da pilha.', why:'Usado para salvar $ra e outros registradores.'},
+  {cat:'Funções MIPS', term:'HI/LO', def:'Registradores especiais usados por multiplicação e divisão.', why:'LO pode guardar parte baixa/quociente; HI pode guardar parte alta/resto.'},
   // Tempos
   {cat:'Tempos', term:'caminho crítico', def:'O caminho mais longo que os bits percorrem na instrução.', why:'Define o tempo da instrução — não pode ser mais rápido que isso.'},
   {cat:'Tempos', term:'período de clock', def:'Duração de um ciclo. No uniciclo, acomoda a instrução mais lenta.', why:'Uniciclo: período = 12 ns (lw).'},
@@ -2057,6 +2560,8 @@ const GLOSSARY = [
   {cat:'Tempos', term:'multiciclo', def:'Cada instrução leva vários ciclos, mas só os necessários.', why:'Média ponderada → speedup > 1.'},
   {cat:'Tempos', term:'speedup', def:'Ganho: speedup = tempo_uniciclo / tempo_multiciclo.', why:'Mede o benefício do multiciclo.'},
   {cat:'Tempos', term:'benchmark', def:'Mistura de instruções com frequências (% de cada uma).', why:'Permite calcular tempo médio realista.'},
+  {cat:'Tempos', term:'quantidade dinâmica', def:'Quantidade de instruções realmente executadas.', why:'Loops e desvios fazem linhas executarem N, N-1 ou N+1 vezes.'},
+  {cat:'Tempos', term:'CPI médio', def:'Ciclos totais divididos pelo total de instruções executadas.', why:'Exige contar as instruções antes de calcular.'},
   // Pipeline
   {cat:'Pipeline', term:'IF', def:'Instruction Fetch — busca a instrução (PC, Mem. Instruções).', why:'1ª fase do pipeline.'},
   {cat:'Pipeline', term:'ID', def:'Instruction Decode — decodifica e lê registradores.', why:'2ª fase. Inclui a Unidade de Controle.'},
@@ -2267,7 +2772,7 @@ function geraBenchmarkQ3(r){
 }
 // --- Gera questão de tempo (modo 5, MC) com distratores de erro comum ---
 function geraTempoQ5(r){
-  const instr=rngPick(['lw','sw','R','beq','j'],r);
+  const instr=rngPick(['lw','sw','R','add','sub','slt','addi','beq','bne','j'],r);
   const t=rngTimes(r);
   const correct=instrTime(instr,t);
   // distratores = erros típicos
@@ -2286,7 +2791,7 @@ function geraTempoQ5(r){
 }
 // --- Gera questão de controle (modo 5) aleatória ---
 function geraControleQ5(r){
-  const instr=rngPick(['R','lw','sw','beq'],r);
+  const instr=rngPick(['R','add','sub','slt','addi','lw','sw','beq','bne'],r);
   // tipo de pergunta
   const kind=rngPick(['which-signal','tf-action'],r);
   if(kind==='which-signal'){
@@ -2295,7 +2800,9 @@ function geraControleQ5(r){
                  ['lw','sw','MemWrite','MemWrite=1 na sw (escreve memória), =0 na lw.'],
                  ['R','lw','MemtoReg','MemtoReg=0 na R (vem da ULA), =1 na lw (vem da memória).'],
                  ['R','lw','RegDst','RegDst=1 na R (usa rd), =0 na lw (usa rt).'],
-                 ['R','beq','ALUOp','ALUOp=10 na tipo-R (funct decide a operação), mas ALUOp=01 na beq (subtrai/compara).']];
+                 ['R','beq','ALUOp','ALUOp=10 na tipo-R (funct decide a operação), mas ALUOp=01 na beq/bne (subtrai/compara).'],
+                 ['addi','lw','MemtoReg','Ambas somam com imediato, mas lw grava dado da memória (MemtoReg=1) e addi grava saída da ULA (MemtoReg=0).'],
+                 ['slt','bne','Branch','slt grava 0/1 em registrador; bne pode alterar o PC.']];
     const [a,b,sig,expl]=rngPick(pairs,r);
     const opts=shuffle(['RegDst','ALUSrc','MemtoReg','MemRead','MemWrite','Branch','ALUOp']);
     const ci=opts.indexOf(sig);
@@ -2308,6 +2815,8 @@ function geraControleQ5(r){
       ['Na sw, a ULA calcula o endereço de escrita.',true,'V. A ULA soma base+offset para achar o endereço onde sw grava.'],
       ['A instrução j passa pela ULA.',false,'F. O j só atualiza o PC; não usa ULA nem registradores.'],
       ['A beq usa a ULA para subtrair rs−rt.',true,'V. A ULA subtrai; se Zero=1, são iguais e ocorre o desvio.'],
+      ['A bne pode usar a mesma comparação estrutural da beq, mas desvia quando Zero=0.',true,'V. A lógica do bne inverte a condição do Zero.'],
+      ['A slt altera diretamente o PC.',false,'F. slt grava 0/1 em um registrador; não é branch.'],
       ['A lw escreve na Memória de Dados.',false,'F. A lw LÊ a memória. Quem escreve é a sw.'],
       ['A tipo-R grava o resultado da ULA no registrador.',true,'V. MemtoReg=0 → vem da ULA, e RegWrite=1.']
     ];
@@ -2365,12 +2874,14 @@ function bumpMastery(topic, ok){
   persist();
 }
 function renderMode5(q, body, act){
-  body.innerHTML=`<div class="prompt">${q.question||q.statement||''}</div>${q.times?timeContextHTML(q.times):''}`;
+  const lead=(q.sub==='tf'||q.sub==='ar') ? (q.question||'') : (q.question||q.statement||'');
+  body.innerHTML=`${lead?`<div class="prompt">${lead}</div>`:''}${q.times?timeContextHTML(q.times):''}`;
   if(q.sub==='mc') renderM5mc(q,body,act);
   else if(q.sub==='tf') renderM5tf(q,body,act);
   else if(q.sub==='ar') renderM5ar(q,body,act);
   else if(q.sub==='tbl') renderM5tbl(q,body,act);
   else if(q.sub==='prog') renderM5prog(q,body,act);
+  else if(q.sub==='open') renderM5open(q,body,act);
 }
 function renderM5mc(q,body,act){
   const optsEl=document.createElement('div'); optsEl.className='mc-options';
@@ -2391,7 +2902,7 @@ function renderM5mc(q,body,act){
     const ok=sel===q.correct;
     const fb=$('feedback');
     if(ok){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-    else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+    else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; recordConceptError(q, q.options[sel], q.options[q.correct]); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
   };
   act.appendChild(verify);
 }
@@ -2409,7 +2920,7 @@ function renderM5tf(q,body,act){
       btns.querySelectorAll('.tf-btn').forEach(x=>{ if((x.dataset.v==='true')===q.correct) x.classList.add('right'); });
       const fb=$('feedback');
       if(ok){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-      else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+      else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; recordConceptError(q, val?'Verdadeiro':'Falso', q.correct?'Verdadeiro':'Falso'); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
     };
     btns.appendChild(b);
   });
@@ -2428,7 +2939,7 @@ function renderM5ar(q,body,act){
       row.querySelectorAll('.ar-btn').forEach(x=>{ if((x.dataset.v==='true')===q.correct) x.classList.add('right'); });
       const fb=$('feedback');
       if(ok){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-      else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+      else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; recordConceptError(q, val?'Verdadeiro':'Falso', q.correct?'Verdadeiro':'Falso'); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
     };
     row.appendChild(b);
   });
@@ -2468,7 +2979,7 @@ function renderM5tbl(q,body,act){
       sel.disabled=true;
     });
     if(allOk){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-    else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Alguns sinais errados.</b> ${q.explain}`; sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+    else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Alguns sinais errados.</b> ${q.explain}`; recordConceptError(q, 'tabela incompleta/incorreta', correctSummary(q)); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
   };
   act.appendChild(verify);
 }
@@ -2484,9 +2995,57 @@ function renderM5prog(q,body,act){
     } else {
       fb.className='feedback err show';
       fb.innerHTML=`❌ <b>Revise a tabela.</b> ${programExplain(q)}`;
+      recordConceptError(q, 'tabela de frequência/CPI incorreta', correctSummary(q));
       sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton();
     }
   });
+}
+function renderM5open(q,body,act){
+  const wrap=document.createElement('div');
+  wrap.className='open-answer';
+  wrap.innerHTML=`<textarea id="openAnswer" placeholder="Escreva sua resposta curta com suas palavras..."></textarea>
+    <div class="model-answer" id="openModel" style="display:none">
+      <h3>Resposta-modelo</h3>
+      <p>${q.modelAnswer}</p>
+      <h3>Pontos obrigatórios</h3>
+      <div class="criteria-list">
+        ${q.requiredPoints.map((p,i)=>`<label class="criterion"><input type="checkbox" data-crit="${i}"><span>${p}</span></label>`).join('')}
+      </div>
+      <p><b>Erro comum:</b> ${q.commonMistakes}</p>
+      <p><b>Resumo:</b> ${q.shortExplain}</p>
+      <p class="muted">${q.fullExplain}</p>
+    </div>`;
+  body.appendChild(wrap);
+  const reveal=document.createElement('button');
+  reveal.className='btn'; reveal.textContent='Conferir resposta';
+  reveal.onclick=()=>{
+    const answer=$('openAnswer').value.trim();
+    if(!answer){ const fb=$('feedback'); fb.className='feedback hint show'; fb.innerHTML='Escreva uma resposta antes de conferir.'; return; }
+    $('openModel').style.display='block';
+    act.innerHTML='';
+    const okBtn=document.createElement('button');
+    okBtn.className='btn green'; okBtn.textContent='Minha resposta cobriu os pontos';
+    okBtn.onclick=()=>{
+      const checked=body.querySelectorAll('input[data-crit]:checked').length;
+      if(checked<Math.min(2,q.requiredPoints.length)){
+        const fb=$('feedback'); fb.className='feedback hint show'; fb.innerHTML='Marque os pontos que sua resposta contemplou antes de concluir.';
+        return;
+      }
+      q.explainOK=q.shortExplain;
+      bumpMastery(q.topic,true);
+      questionSolved(40);
+    };
+    const errBtn=document.createElement('button');
+    errBtn.className='btn ghost'; errBtn.textContent='Enviar ao caderno de erros';
+    errBtn.onclick=()=>{
+      recordConceptError(q, answer, q.modelAnswer);
+      const fb=$('feedback'); fb.className='feedback err show';
+      fb.innerHTML=`📒 <b>Registrado no caderno.</b> ${q.shortExplain}`;
+      sfx.err(); bumpMastery(q.topic,false); G.errInQ++; addWrongNextButton();
+    };
+    act.appendChild(okBtn); act.appendChild(errBtn);
+  };
+  act.appendChild(reveal);
 }
 function renderProgramPractice(q,body,act,onDone){
   const p=q.program, s=q.solution;
@@ -2534,25 +3093,29 @@ function renderProgramPractice(q,body,act,onDone){
 /* ===========================================================================
    14. JS — SEÇÃO K: SIMULADO CRONOMETRADO
    =========================================================================== */
-const SIM = { queue:[], idx:0, timed:false, timeLeft:0, timer:null, results:[], assistedAny:false };
+const SIM = { queue:[], idx:0, timed:false, timeLeft:0, timer:null, results:[], assistedAny:false, nullIndex:null };
+function buildProva3SimQueue(r){
+  r=r||Math.random;
+  const fixed=[
+    DATAPATH_TIME_REVIEW.find(q=>q.id==='rev_p3_time_lw'),
+    SLT_REVIEW.find(q=>q.id==='rev_p3_slt_bne_roles'),
+    qProva('jump_pc','med'),
+    FUNCTION_REG_REVIEW.find(q=>q.id==='rev_p3_func_v0_return'),
+    FUNCTION_REG_REVIEW.find(q=>q.id==='rev_p3_func_ra_return_addr'),
+    CPI_REVIEW.find(q=>q.id==='rev_p3_cpi_hard_full_table'),
+    OPEN_QUESTIONS.find(q=>q.id==='rev_p3_open_avg_cpi'),
+    CALL_STACK_REVIEW.find(q=>q.id==='rev_p3_call_nested_problem'),
+    PARALLEL_REVIEW.find(q=>q.id==='rev_p3_parallel_lw_mux_13'),
+    qProva('stack_minimo','hard')
+  ].filter(Boolean);
+  return seededShuffle(fixed,r);
+}
 function buildSimQueue(r){
   r=r||Math.random;
-  // 10 questões: inclui treino de programa/tabela dinâmica no estilo da prova.
-  return shuffle([
-    geraControleQ5(r),
-    q5('tf','hard',{topic:'Q2',statement:'A instrução sw não escreve no banco de registradores, por isso RegWrite=0.',correct:true,explain:'V. sw grava na memória, não no reg. → RegWrite=0.'}),
-    geraTempoQ5(r),
-    q5('mc','hard',{topic:'Q3a',question:'Qual instrução é a mais lenta no uniciclo (maior caminho crítico)?',options:['sw','lw','tipo-R','beq'],correct:1,explain:'A lw é a mais lenta: Mem.Instr+Reg+ULA+Mem.Dados+EscreveReg = 12 ns.'}),
-    geraBenchmarkQ3(r),
-    q5('mc','hard',{topic:'Q3b',question:'O speedup do multiciclo sobre o uniciclo é:',options:['Sempre < 1','Sempre = 1','Sempre > 1','Depende, mas geralmente > 1'],correct:3,explain:'Depende da mistura, mas geralmente > 1 porque no multiciclo cada instrução usa só o tempo que precisa.'}),
-    geraPipelineQ5(r),
-    geraProvaFixaQ5(r),
-    geraProvaFixaQ5(r),
-    geraProgramaQ5(r)
-  ]);
+  return buildProva3SimQueue(r);
 }
 function startSim(timed){
-  SIM.queue=buildSimQueue(); SIM.idx=0; SIM.timed=!!timed; SIM.results=[]; SIM.assistedAny=false;
+  SIM.queue=buildSimQueue(); SIM.idx=0; SIM.timed=!!timed; SIM.results=[]; SIM.assistedAny=false; SIM.nullIndex=null;
   if(timed){ SIM.timeLeft=12*60; } // 12 minutos
   $('scr-sim').querySelector('.sim-timer').style.display=timed?'block':'none';
   showScreen('scr-sim');
@@ -2573,7 +3136,7 @@ function startSimTimer(){
 }
 function renderSimQuestion(){
   const q=SIM.queue[SIM.idx];
-  $('simTag').textContent='📝 '+MODE_NAMES[q.mode];
+  $('simTag').textContent=MODE_NAMES[q.mode];
   $('simProg').textContent=`${SIM.idx+1}/${SIM.queue.length}`;
   const body=$('simBody'), act=$('simActions');
   body.innerHTML=''; act.innerHTML='';
@@ -2581,14 +3144,29 @@ function renderSimQuestion(){
   // dispatcha para o renderizador do modo (5 usa renderMode5 adaptado p/ simulado)
   if(q.mode===5){ renderM5forSim(q,body,act); }
   else if(q.mode===3){ renderM3forSim(q,body,act); }
+  addSimNullButton(act);
+}
+function nullSimQuestion(index){
+  SIM.nullIndex = index===undefined ? SIM.idx : index;
+  const fb=$('simFeedback');
+  if(fb){ fb.className='feedback hint show'; fb.innerHTML=`⚠️ Questão ${SIM.nullIndex+1} marcada para anulação. Você ainda pode respondê-la para estudar; a nota com anulação aparecerá no final.`; }
+  return SIM.nullIndex;
+}
+function addSimNullButton(act){
+  const b=document.createElement('button');
+  b.className='btn ghost small';
+  b.textContent=SIM.nullIndex===SIM.idx?'Questão marcada para anular':'Anular esta questão';
+  b.onclick=()=>{ nullSimQuestion(SIM.idx); b.textContent='Questão marcada para anular'; sfx.click(); };
+  act.appendChild(b);
 }
 // Modo 5 adaptado p/ simulado: ao acertar/errar, registra resultado e mostra "Próxima"
 function renderM5forSim(q,body,act){
   // reutiliza renderMode5 mas intercepta o resultado
   // Para simplicidade, renderiza como MC/TF/AR/TBL mas com handler que registra no SIM
-  body.innerHTML=`<div class="prompt">${q.question||q.statement||''}</div>${q.times?timeContextHTML(q.times):''}`;
+  const lead=(q.sub==='tf'||q.sub==='ar') ? (q.question||'') : (q.question||q.statement||'');
+  body.innerHTML=`${lead?`<div class="prompt">${lead}</div>`:''}${q.times?timeContextHTML(q.times):''}`;
   const dispatchDone=(ok)=>{
-    SIM.results.push({q,ok,assisted:SIM.assistedAny});
+    SIM.results.push({q,ok,assisted:SIM.assistedAny,idx:SIM.idx});
     SIM.assistedAny=false;
     const fb=$('simFeedback');
     fb.className=ok?'feedback ok show':'feedback err show';
@@ -2602,6 +3180,28 @@ function renderM5forSim(q,body,act){
   // constrói UI conforme subtipo
   if(q.sub==='prog'){
     renderProgramPractice(q,body,act,dispatchDone);
+  } else if(q.sub==='open'){
+    const wrap=document.createElement('div');
+    wrap.className='open-answer';
+    wrap.innerHTML=`<textarea id="simOpenAnswer" placeholder="Responda com suas palavras..."></textarea>
+      <div class="model-answer" id="simOpenModel" style="display:none">
+        <h3>Resposta-modelo</h3><p>${q.modelAnswer}</p>
+        <h3>Critérios</h3><div class="criteria-list">${q.requiredPoints.map((p,i)=>`<label class="criterion"><input type="checkbox" data-sim-crit="${i}"><span>${p}</span></label>`).join('')}</div>
+        <p><b>Erro comum:</b> ${q.commonMistakes}</p>
+      </div>`;
+    body.appendChild(wrap);
+    const verify=document.createElement('button'); verify.className='btn'; verify.textContent='Conferir resposta';
+    verify.onclick=()=>{
+      if(!$('simOpenAnswer').value.trim()) return;
+      $('simOpenModel').style.display='block';
+      act.innerHTML='';
+      const okBtn=document.createElement('button'); okBtn.className='btn green'; okBtn.textContent='Resposta suficiente';
+      okBtn.onclick=()=>dispatchDone(body.querySelectorAll('input[data-sim-crit]:checked').length>=Math.min(2,q.requiredPoints.length));
+      const badBtn=document.createElement('button'); badBtn.className='btn ghost'; badBtn.textContent='Preciso revisar';
+      badBtn.onclick=()=>dispatchDone(false);
+      act.appendChild(okBtn); act.appendChild(badBtn); addSimNullButton(act);
+    };
+    act.appendChild(verify);
   } else if(q.sub==='mc'){
     const optsEl=document.createElement('div'); optsEl.className='mc-options'; body.appendChild(optsEl);
     let sel=-1, answered=false;
@@ -2653,7 +3253,7 @@ function renderM3forSim(q,body,act){
   verify.onclick=()=>{
     const o1=near($('simA').value,per), o2=near($('simB').value,avg,0.06), o3=near($('simC').value,speed,0.03);
     const ok=o1&&o2&&o3;
-    SIM.results.push({q,ok,assisted:SIM.assistedAny}); SIM.assistedAny=false;
+    SIM.results.push({q,ok,assisted:SIM.assistedAny,idx:SIM.idx}); SIM.assistedAny=false;
     const parts=[]; for(const k in mix){ parts.push(`${mix[k]}%·${instrTime(k,t)}`); }
     const fb=$('simFeedback');
     fb.className=ok?'feedback ok show':'feedback err show';
@@ -2684,27 +3284,35 @@ function addSimTeachBtn(q,act){
 }
 function finishSim(){
   clearInterval(SIM.timer);
-  // calcula nota: cada questão = 10/total; assistida = 0 (invalidada)
+  // calcula nota: cada questão = 10/total; assistida = 0. A anulação remove 1 questão do denominador.
   const total=SIM.queue.length;
-  let correctCount=0; const perTopic={Q2:[0,0],Q3a:[0,0],Q3b:[0,0],Q4:[0,0],QProg:[0,0],QISA:[0,0],QStack:[0,0],QTimeExt:[0,0]};
+  let correctCount=0, correctWithNull=0;
+  const perTopic={Q2:[0,0],Q3a:[0,0],Q3b:[0,0],Q4:[0,0],QProg:[0,0],QISA:[0,0],QStack:[0,0],QTimeExt:[0,0]};
+  REVIEW_TOPICS.forEach(t=>{ perTopic[t.topic]=perTopic[t.topic]||[0,0]; });
   SIM.results.forEach(r=>{
     const ok = r.assisted ? false : r.ok;
+    const annulled = SIM.nullIndex!==null && r.idx===SIM.nullIndex;
     if(ok) correctCount++;
-    if(perTopic[r.q.topic]){ perTopic[r.q.topic][1]++; if(ok) perTopic[r.q.topic][0]++; }
+    if(ok && !annulled) correctWithNull++;
+    const topic=r.q.topic || topicForCategory(r.q.category);
+    if(perTopic[topic]){ perTopic[topic][1]++; if(ok) perTopic[topic][0]++; }
+    if(!ok && !annulled) recordConceptError(r.q, r.assisted?'usou ajuda no simulado':'erro no simulado', correctSummary(r.q));
   });
   const grade=Math.round((correctCount/total)*100)/10;
+  const nullTotal=SIM.nullIndex===null?total:Math.max(1,total-1);
+  const gradeWithNull=SIM.nullIndex===null?grade:Math.round((correctWithNull/nullTotal)*100)/10;
   // salva histórico
-  save.simBest=Math.max(save.simBest,grade);
-  const entry={date:new Date().toLocaleDateString('pt-BR'),score:grade,perTopic:{}};
+  save.simBest=Math.max(save.simBest,gradeWithNull);
+  const entry={date:new Date().toLocaleDateString('pt-BR'),score:gradeWithNull,scoreRaw:grade,nullIndex:SIM.nullIndex,perTopic:{}};
   for(const k in perTopic){ const [c,tot]=perTopic[k]; entry.perTopic[k]=tot?Math.round(c/tot*100)+'%':'—'; }
   save.simHistory.push(entry); if(save.simHistory.length>3) save.simHistory.shift();
   persist();
   // renderiza resultado
-  $('simGrade').textContent=grade.toFixed(1);
-  $('simGrade').className='sim-grade '+(grade>=6?'pass':'fail');
-  $('simResTitle').textContent=grade>=6?'Aprovado! 🎉':'Continue treinando 💪';
-  $('simResEmoji').textContent=grade>=6?'🎉':'📊';
-  $('simResSub').textContent=`${correctCount} de ${total} questões corretas · Melhor nota: ${save.simBest.toFixed(1)}`;
+  $('simGrade').textContent=gradeWithNull.toFixed(1);
+  $('simGrade').className='sim-grade '+(gradeWithNull>=6?'pass':'fail');
+  $('simResTitle').textContent=gradeWithNull>=6?'Aprovado! 🎉':'Continue treinando 💪';
+  $('simResEmoji').textContent=gradeWithNull>=6?'🎉':'📊';
+  $('simResSub').textContent=`Sem anulação: ${grade.toFixed(1)} · Com anulação: ${gradeWithNull.toFixed(1)} · ${correctCount} de ${total} corretas · Anulada: ${SIM.nullIndex===null?'nenhuma':'questão '+(SIM.nullIndex+1)} · Melhor nota: ${save.simBest.toFixed(1)}`;
   $('simTopics').innerHTML=Object.keys(perTopic).map(k=>{
     const [c,tot]=perTopic[k]; const pct=tot?Math.round(c/tot*100):0;
     return `<div class="sim-topic ${pct>=50?'good':'bad'}">${k}<b>${tot?pct+'%':'—'}</b></div>`;
@@ -2712,13 +3320,16 @@ function finishSim(){
   // gabarito comentado
   $('simGabarito').innerHTML=SIM.results.map((r,i)=>{
     const ok=r.assisted?false:r.ok;
+    const annulled=SIM.nullIndex!==null && r.idx===SIM.nullIndex;
     let exp=r.q.explain||'';
     if(r.q.sub==='prog'){
       exp=programExplain(r.q);
+    } else if(r.q.sub==='open'){
+      exp=`<b>Modelo:</b> ${r.q.modelAnswer}<br><b>Critérios:</b> ${r.q.requiredPoints.join(' · ')}`;
     } else if(r.q.mode===3 && r.q.mix){ const t2=r.q.times; const per=periodUniciclo(t2); let avg=0;
       for(const k in r.q.mix){ avg+=(r.q.mix[k]/100)*instrTime(k,t2); } avg=Math.round(avg*100)/100;
       const sp=Math.round((per/avg)*100)/100; exp=`Uniciclo=${per} · Média=${avg} · Speedup=${sp}×`; }
-    return `<div class="gab-item"><div class="gab-q"><b>${i+1}.</b> [${r.q.topic||'—'}] <span class="${ok?'gab-ok':'gab-fail'}">${ok?'✓ Correto':'✗ '+(r.assisted?'(usou ajuda)':'Incorreto')}</span></div><div class="gab-exp">${exp}</div></div>`;
+    return `<div class="gab-item"><div class="gab-q"><b>${i+1}.</b> [${r.q.topic||'—'}] <span class="${annulled?'':ok?'gab-ok':'gab-fail'}">${annulled?'⚠ Anulada':ok?'✓ Correto':'✗ '+(r.assisted?'(usou ajuda)':'Incorreto')}</span></div><div class="gab-exp">${exp}</div></div>`;
   }).join('');
   showScreen('scr-sim-result');
 }
@@ -2737,15 +3348,24 @@ function boot(){
   $('btnFree').onclick=()=>{ sfx.click(); startFree(); };
   $('btnProvaInf').onclick=()=>{ sfx.click(); startProvaInfinita(); };
   $('btnSimulado').onclick=()=>{ sfx.click(); showSimSetup(); };
+  $('btnReview').onclick=()=>{ sfx.click(); renderReviewHub(); };
+  $('btnTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
   $('btnLoad').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); toast('💾 Progresso carregado', `Nível ${save.unlocked}, ${save.xp} XP.`); };
   $('btnTutorial').onclick=()=>{ sfx.click(); tutIdx=0; renderTutorial(); showScreen('scr-tutorial'); };
   $('btnLearn').onclick=()=>{ sfx.click(); renderAcademy(); showScreen('scr-learn'); };
   $('btnAch2').onclick=()=>{ sfx.click(); renderAchievements(); showScreen('scr-ach'); };
+  $('btnErrors').onclick=()=>{ sfx.click(); renderErrorNotebook(); };
   $('btnReset').onclick=()=>{
     if(confirm('Apagar todo o progresso (XP, níveis, conquistas)?')){
-      save=JSON.parse(JSON.stringify(DEFAULT_SAVE)); persist(); toast('🗑 Progresso apagado','Recomeçando do zero.');
+      save=cloneDefaultSave(); persist(); toast('🗑 Progresso apagado','Recomeçando do zero.');
     }
   };
+  // Revisão / caderno de erros
+  $('reviewStart').onclick=()=>{ sfx.click(); startReview(); };
+  $('reviewTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
+  $('reviewBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
+  $('errorsPractice').onclick=()=>{ sfx.click(); startTargetedPractice(); };
+  $('errorsBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   // Tutorial
   $('tutPrev').onclick=()=>{ if(tutIdx>0){tutIdx--; renderTutorial(); sfx.click();} };
   $('tutNext').onclick=()=>{ if(tutIdx<TUTORIAL.length-1){tutIdx++; renderTutorial(); sfx.click();} else { sfx.click(); renderLevels(); showScreen('scr-levels'); } };
@@ -2782,6 +3402,7 @@ function boot(){
   $('simStartReal').onclick=()=>{ sfx.click(); startSim(true); };
   $('simStartTreino').onclick=()=>{ sfx.click(); startSim(false); };
   $('simRetry').onclick=()=>{ sfx.click(); showSimSetup(); };
+  $('simRetryWrong').onclick=()=>{ sfx.click(); startTargetedPractice(); };
   $('simHome').onclick=()=>{ sfx.click(); refreshHUD(); showScreen('scr-home'); };
 }
 boot();
