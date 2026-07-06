@@ -78,12 +78,12 @@ const sandbox = {
 vm.createContext(sandbox);
 vm.runInContext(
   script.replace(/\nboot\(\);\s*$/, '') +
-    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion: typeof skipFreeQuestion === "function" ? skipFreeQuestion : null, REVIEW_BANK: typeof REVIEW_BANK !== "undefined" ? REVIEW_BANK : null, REVIEW_TOPICS: typeof REVIEW_TOPICS !== "undefined" ? REVIEW_TOPICS : null, OPEN_QUESTIONS: typeof OPEN_QUESTIONS !== "undefined" ? OPEN_QUESTIONS : null, buildReviewQueue: typeof buildReviewQueue === "function" ? buildReviewQueue : null, buildTargetedPracticeQueue: typeof buildTargetedPracticeQueue === "function" ? buildTargetedPracticeQueue : null, recordConceptError: typeof recordConceptError === "function" ? recordConceptError : null, renderM5open: typeof renderM5open === "function" ? renderM5open : null, buildProva3SimQueue: typeof buildProva3SimQueue === "function" ? buildProva3SimQueue : null, nullSimQuestion: typeof nullSimQuestion === "function" ? nullSimQuestion : null };',
+    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion: typeof skipFreeQuestion === "function" ? skipFreeQuestion : null, REVIEW_BANK: typeof REVIEW_BANK !== "undefined" ? REVIEW_BANK : null, REVIEW_TOPICS: typeof REVIEW_TOPICS !== "undefined" ? REVIEW_TOPICS : null, OPEN_QUESTIONS: typeof OPEN_QUESTIONS !== "undefined" ? OPEN_QUESTIONS : null, buildReviewQueue: typeof buildReviewQueue === "function" ? buildReviewQueue : null, buildTargetedPracticeQueue: typeof buildTargetedPracticeQueue === "function" ? buildTargetedPracticeQueue : null, recordConceptError: typeof recordConceptError === "function" ? recordConceptError : null, renderM5open: typeof renderM5open === "function" ? renderM5open : null, buildProva3SimQueue: typeof buildProva3SimQueue === "function" ? buildProva3SimQueue : null, nullSimQuestion: typeof nullSimQuestion === "function" ? nullSimQuestion : null, buildFreeQueue: typeof buildFreeQueue === "function" ? buildFreeQueue : null, instructionLabel: typeof instructionLabel === "function" ? instructionLabel : null, NARR: typeof NARR !== "undefined" ? NARR : null, PATHS: typeof PATHS !== "undefined" ? PATHS : null };',
   sandbox,
   { filename: 'mips-datapath-quest.html' }
 );
 
-const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion, REVIEW_BANK, REVIEW_TOPICS, OPEN_QUESTIONS, buildReviewQueue, buildTargetedPracticeQueue, recordConceptError, renderM5open, buildProva3SimQueue, nullSimQuestion } = sandbox.__dq;
+const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion, REVIEW_BANK, REVIEW_TOPICS, OPEN_QUESTIONS, buildReviewQueue, buildTargetedPracticeQueue, recordConceptError, renderM5open, buildProva3SimQueue, nullSimQuestion, buildFreeQueue, instructionLabel, NARR, PATHS } = sandbox.__dq;
 assert.strictEqual(typeof skipFreeQuestion, 'function', 'Expected skipFreeQuestion to be callable.');
 
 assert(SIGNAL_NAMES.includes('ALUOp'), 'Expected ALUOp to be part of the control signals.');
@@ -116,6 +116,8 @@ assert.strictEqual(typeof recordConceptError, 'function', 'Expected recordConcep
 assert.strictEqual(typeof renderM5open, 'function', 'Expected the short-discursive renderer to exist.');
 assert.strictEqual(typeof buildProva3SimQueue, 'function', 'Expected a Prova 3 simulado queue builder.');
 assert.strictEqual(typeof nullSimQuestion, 'function', 'Expected simulado nullification support.');
+assert.strictEqual(typeof buildFreeQueue, 'function', 'Expected a procedural free-mode queue builder.');
+assert.strictEqual(typeof instructionLabel, 'function', 'Expected instruction labels to support procedural variants.');
 
 const reviewCounts = REVIEW_BANK.reduce((acc, question) => {
   acc[question.category] = (acc[question.category] || 0) + 1;
@@ -158,6 +160,41 @@ assert(targetedQueue.length > 0, 'Targeted practice should produce questions eve
 assert(
   targetedQueue.some(question => question.sub === 'open') || targetedQueue.some(question => question.category),
   'Targeted practice should include conceptual review questions.'
+);
+
+const deterministicFreeRng = (() => {
+  let n = 0;
+  return () => ((n++ * 37) % 100) / 100;
+})();
+const freeQueue = buildFreeQueue(deterministicFreeRng);
+assert(freeQueue.length >= 80, 'Expected free mode to have a broad procedural queue.');
+for (const instr of ['addi', 'sub', 'slt']) {
+  assert(
+    freeQueue.some(question => question.mode === 1 && question.instr === instr),
+    `Expected free mode to include Roteirista questions for ${instr}.`
+  );
+  assert(
+    freeQueue.some(question => question.mode === 2 && question.instr === instr),
+    `Expected free mode to include Controle questions for ${instr}.`
+  );
+  assert(
+    NARR[instr] && NARR[instr].length === PATHS[instr].length,
+    `Expected ${instr} to have narration for Me ensina.`
+  );
+}
+const proceduralLabels = freeQueue
+  .filter(question => ['addi', 'sub', 'slt'].includes(question.instr) && question.label)
+  .map(question => question.label);
+assert(proceduralLabels.length >= 6, 'Expected procedural labels for addi/sub/slt questions.');
+assert(
+  proceduralLabels.some(label => /\$(t|s)\d/.test(label)) && proceduralLabels.some(label => /addi .*[-]?\d+/.test(label)),
+  'Expected free-mode procedural labels to vary registers and immediates.'
+);
+const freeTimeQuestions = freeQueue.filter(question => question.mode === 3 || question.times);
+assert(freeTimeQuestions.length >= 12, 'Expected free mode to include many randomized timing questions.');
+assert(
+  new Set(freeTimeQuestions.map(question => JSON.stringify(question.times || {}))).size >= 4,
+  'Expected free-mode timing questions to use varied random unit delays.'
 );
 
 const prova3Queue = buildProva3SimQueue(() => 0.42);

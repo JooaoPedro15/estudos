@@ -1004,14 +1004,17 @@ function wireTooltips(root){
    =========================================================================== */
 
 // Factory Modo 1 (Roteirista — clicar unidades na ordem)
-function q1(instr, diff){
-  return {mode:1, diff, instr,
-    hint:`Pense no fluxo: PC → busca a instrução → lê registradores → ULA → (memória) → escreve. A ${INSTR[instr].name} percorre ${PATHS[instr].length} blocos.`};
+function instructionLabel(q){
+  return q && q.label ? q.label : INSTR[q.instr].label;
+}
+function q1(instr, diff, params){
+  return Object.assign({mode:1, diff, instr}, params || {},
+    {hint:(params&&params.hint) || `Pense no fluxo: PC → busca a instrução → lê registradores → ULA → (memória) → escreve. A ${INSTR[instr].name} percorre ${PATHS[instr].length} blocos.`});
 }
 // Factory Modo 2 (Engenheiro de Controle — sinais de controle)
-function q2(instr, diff){
-  return {mode:2, diff, instr,
-    hint:`Regra rápida: RegWrite=1 se grava registrador (tipo-R, addi, lw). ALUSrc=1 quando usa imediato (addi, lw, sw). MemRead/MemWrite só em lw/sw. Branch em beq/bne. ALUOp: 00=lw/sw/addi, 01=beq/bne, 10=tipo-R.`};
+function q2(instr, diff, params){
+  return Object.assign({mode:2, diff, instr}, params || {},
+    {hint:(params&&params.hint) || `Regra rápida: RegWrite=1 se grava registrador (tipo-R, addi, lw). ALUSrc=1 quando usa imediato (addi, lw, sw). MemRead/MemWrite só em lw/sw. Branch em beq/bne. ALUOp: 00=lw/sw/addi, 01=beq/bne, 10=tipo-R.`});
 }
 // Factory Modo 3 (Calculadora de Tempos)
 //   t3type: 'single' (1 instr), 'period' (uniciclo), 'benchmark' (média + speedup)
@@ -1021,7 +1024,7 @@ function q3(t3type, params, diff){
       ? 'Uniciclo: todas as instruções usam o MAIOR tempo (lw=12 ns). Multiciclo ideal: cada instrução leva seu próprio tempo → média = Σ (fração × tempo). Speedup = uniciclo / multiciclo.'
       : t3type==='period'
       ? 'O período do uniciclo é determinado pela instrução mais lenta — a lw (4+1+2+4+1).'
-      : `Some os blocos do caminho crítico. ${(params&&params.instr)||''}: Mem.Instr(4)+Reg(1)+ULA(2)${(params&&['lw','sw'].includes(params.instr))?'+Mem.Dados(4)':''}${(params&&['lw','R'].includes(params.instr))?'+EscreveReg(1)':''}.`});
+      : `Some os blocos do caminho crítico. ${(params&&params.instr)||''}: Mem.Instr(4)+Reg(1)+ULA(2)${(params&&['lw','sw'].includes(params.instr))?'+Mem.Dados(4)':''}${(params&&['lw','R','add','sub','slt','addi'].includes(params.instr))?'+EscreveReg(1)':''}.`});
 }
 // Factory Modo 4 (Pipeline Master)
 function q4(diff){
@@ -1522,16 +1525,7 @@ function startLevel(n){
 // ---- Modo Livre: fila aleatória infinita (turbinado com procedurais) ----
 function startFree(){
   G.free=true; G.mode='free';
-  const all=[];
-  LEVELS.forEach(l=>l.qs.forEach(q=>all.push(q)));
-  // adiciona questões procedurais para variação infinita
-  for(let i=0;i<6;i++) all.push(geraQ5Random());
-  for(let i=0;i<4;i++) all.push(geraBenchmarkQ3());
-  for(let i=0;i<3;i++) all.push(geraTempoQ5());
-  for(let i=0;i<4;i++) all.push(geraProgramaQ5());
-  all.push(...seededShuffle(REVIEW_BANK).slice(0,16));
-  all.push(...seededShuffle(OPEN_QUESTIONS).slice(0,4));
-  G.queue = shuffle(all); G.idx=0; G.lives=99; G.earned=0;
+  G.queue = buildFreeQueue(); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
 }
@@ -1660,7 +1654,10 @@ function questionSolved(extraPts){
 function nextQuestion(){
   G.idx++;
   if(!G.free && G.idx>=G.queue.length){ winLevel(); return; }
-  if(G.free && G.idx>=G.queue.length){ G.queue=shuffle(G.queue); G.idx=0; }
+  if(G.free && G.idx>=G.queue.length){
+    G.queue = G.mode==='free' ? buildFreeQueue() : shuffle(G.queue);
+    G.idx=0;
+  }
   renderQuestion();
 }
 // ---- Erro: perde vida ----
@@ -1709,7 +1706,7 @@ function failLevel(){
 function renderMode1(q, body){
   const seq = PATHS[q.instr];
   body.innerHTML =
-    `<div class="instr-box"><span class="lbl">Instrução</span>${INSTR[q.instr].label} <span style="color:var(--muted);font-size:12px">— ${INSTR[q.instr].name}</span></div>
+    `<div class="instr-box"><span class="lbl">Instrução</span>${instructionLabel(q)} <span style="color:var(--muted);font-size:12px">— ${INSTR[q.instr].name}</span></div>
      <p class="prompt">Clique nas unidades funcionais na <b>ordem correta</b> em que a instrução percorre o caminho de dados. (${seq.length} passos)</p>
      <div class="steps" id="m1steps"></div>
      ${buildDatapathSVG()}`;
@@ -1757,7 +1754,7 @@ function renderMode1(q, body){
 function renderMode2(q, body, act){
   const correct = CONTROL[q.instr];
   body.innerHTML =
-    `<div class="instr-box"><span class="lbl">Instrução</span>${INSTR[q.instr].label} <span style="color:var(--muted);font-size:12px">— ${INSTR[q.instr].name}</span></div>
+    `<div class="instr-box"><span class="lbl">Instrução</span>${instructionLabel(q)} <span style="color:var(--muted);font-size:12px">— ${INSTR[q.instr].name}</span></div>
      <div class="control-tools">
        <p class="prompt">Ajuste os <b>8 sinais de controle</b> corretos. Use a ajuda quando quiser lembrar <b>o que faz</b> e <b>o que aquele valor significa</b>. <span class="muted">(X = indiferente · ALUOp tem 2 bits)</span></p>
        <button class="btn ghost small" id="ctlAssistToggle" type="button"></button>
@@ -1865,7 +1862,7 @@ function renderMode3(q, body, act){
   if(q.t3type==='single'){
     const instr=q.instr;
     body.innerHTML=`<p class="prompt">Tempos de cada unidade (uniciclo):</p>${timeRows}
-      <div class="instr-box"><span class="lbl">Calcule o tempo total da instrução</span>${INSTR[instr].label} — ${INSTR[instr].name}</div>
+      <div class="instr-box"><span class="lbl">Calcule o tempo total da instrução</span>${instructionLabel(q)} — ${INSTR[instr].name}</div>
       <div class="numrow" id="r1"><label>Tempo do caminho crítico:</label>
         <input type="number" id="a1" step="0.1" inputmode="decimal"><span class="unit-suf">ns</span></div>`;
     addCheck(act,()=>{
@@ -2067,6 +2064,40 @@ const NARR = {
     'MemtoReg=0: o valor escolhido é a saída da ULA, não da memória.',
     'RegWrite=1: o resultado é gravado em $s1 (RegDst=1 escolhe o campo rd).'
   ],
+  add: [
+    'O PC aponta para a instrução add.',
+    'A Memória de Instruções busca a add.',
+    'O Banco de Registradores lê os dois operandos.',
+    'A ULA soma os operandos (operação tipo-R escolhida pelo funct).',
+    'MemtoReg=0: o valor de write-back vem da ULA.',
+    'RegWrite=1: o resultado é gravado no registrador rd.'
+  ],
+  sub: [
+    'O PC aponta para a instrução sub.',
+    'A Memória de Instruções busca a sub.',
+    'O Banco de Registradores lê rs e rt.',
+    'A ULA subtrai rs − rt (ALUOp=10 e funct escolhe SUB).',
+    'MemtoReg=0: o valor selecionado é a saída da ULA.',
+    'RegWrite=1: a diferença é gravada em rd.'
+  ],
+  slt: [
+    'O PC aponta para a instrução slt.',
+    'A Memória de Instruções busca a slt.',
+    'O Banco de Registradores lê os dois valores que serão comparados.',
+    'A ULA testa se rs < rt e produz 1 ou 0.',
+    'MemtoReg=0: volta o resultado da ULA, não dado da memória.',
+    'RegWrite=1: o 1 ou 0 é gravado no registrador rd. O PC não muda por causa da slt.'
+  ],
+  addi: [
+    'O PC aponta para a instrução addi.',
+    'A Memória de Instruções busca a addi.',
+    'O Banco de Registradores lê rs, que será somado ao imediato.',
+    'O imediato de 16 bits passa pela Extensão de Sinal.',
+    'ALUSrc=1: o MUX escolhe o imediato como 2º operando da ULA.',
+    'A ULA soma rs + imediato.',
+    'MemtoReg=0: o valor de write-back vem da ULA.',
+    'RegWrite=1: o resultado é gravado em rt (RegDst=0).'
+  ],
   lw: [
     'O PC aponta para a instrução lw.',
     'A Memória de Instruções busca a lw.',
@@ -2094,6 +2125,14 @@ const NARR = {
     'A ULA SUBTRAI $s1 − $s2; se der zero, são iguais (sinal Zero=1).',
     'Em paralelo, o Somador de Desvio calcula (PC+4)+(offset<<2).',
     'Branch=1 e Zero=1 → o MUX PCSrc escolhe o endereço de desvio (senão, PC+4).'
+  ],
+  bne: [
+    'O PC aponta para a instrução bne.',
+    'A Memória de Instruções busca a bne.',
+    'O Banco de Registradores lê os dois registradores para comparar.',
+    'A ULA subtrai rs − rt; se não der zero, os valores são diferentes.',
+    'Em paralelo, o Somador de Desvio calcula o endereço alvo.',
+    'Branch=1 e Zero=0 → a lógica do bne faz o MUX PCSrc escolher o desvio.'
   ],
   j: [
     'O PC aponta para a instrução j.',
@@ -2643,6 +2682,73 @@ function rngInt(min,max,r){ r=r||Math.random; return min + Math.floor(r()*(max-m
 function roundN(n,d=2){ const p=Math.pow(10,d); return Math.round(n*p)/p; }
 function cpiToTimeNs(cpi,freqMHz){ return roundN(cpi*1000/freqMHz,3); }
 function escHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function randomReg(r, group){
+  const pools={
+    s:['$s0','$s1','$s2','$s3','$s4','$s5','$s6','$s7'],
+    t:['$t0','$t1','$t2','$t3','$t4','$t5','$t6','$t7','$t8','$t9'],
+    a:['$a0','$a1','$a2','$a3']
+  };
+  return rngPick(pools[group]||pools.t,r);
+}
+function distinctRegs(r, groups){
+  const used=new Set();
+  return groups.map(g=>{
+    let reg=randomReg(r,g);
+    let guard=0;
+    while(used.has(reg) && guard++<20) reg=randomReg(r,g);
+    used.add(reg);
+    return reg;
+  });
+}
+function randomInstructionLabel(instr,r){
+  r=r||Math.random;
+  const [rd,rs,rt]=distinctRegs(r,['t','s','s']);
+  const imm=rngPick([-16,-12,-8,-4,4,8,12,16,20,24,32],r);
+  const offset=rngPick([0,4,8,12,16,20,24,28,32,40,48],r);
+  const label=rngPick(['LOOP','FIM','MENOR','VOLTA','SAIDA'],r);
+  if(instr==='add'||instr==='R') return `add ${rd}, ${rs}, ${rt}`;
+  if(instr==='sub') return `sub ${rd}, ${rs}, ${rt}`;
+  if(instr==='slt') return `slt ${rd}, ${rs}, ${rt}`;
+  if(instr==='addi') return `addi ${rd}, ${rs}, ${imm}`;
+  if(instr==='lw') return `lw ${rd}, ${offset}(${rs})`;
+  if(instr==='sw') return `sw ${rd}, ${offset}(${rs})`;
+  if(instr==='beq') return `beq ${rs}, ${rt}, ${label}`;
+  if(instr==='bne') return `bne ${rs}, ${rt}, ${label}`;
+  if(instr==='j') return `j ${label}`;
+  return INSTR[instr].label;
+}
+function proceduralPathQuestion(instr,diff,r){
+  const label=randomInstructionLabel(instr,r);
+  return q1(instr,diff||'med',{label,procedural:true,
+    hint:`Monte o caminho para ${label}. O texto muda, mas o tipo da instrução decide os blocos usados.`});
+}
+function proceduralControlQuestion(instr,diff,r){
+  const label=randomInstructionLabel(instr,r);
+  return q2(instr,diff||'med',{label,procedural:true,
+    hint:`Ajuste os sinais para ${label}. Repare no tipo da instrução: imediato, tipo-R, memória ou desvio.`});
+}
+function proceduralSingleTimeQuestion(instr,diff,r){
+  return q3('single',{instr,times:rngTimes(r),label:randomInstructionLabel(instr,r)},diff||'med');
+}
+function buildFreeQueue(r){
+  r=r||Math.random;
+  const all=[];
+  const pathInstrs=['lw','sw','add','sub','slt','addi','beq','bne','j'];
+  const controlInstrs=['add','sub','slt','addi','lw','sw','beq','bne'];
+  for(let round=0; round<3; round++){
+    pathInstrs.forEach(instr=>all.push(proceduralPathQuestion(instr,round===0?'easy':round===1?'med':'hard',r)));
+    controlInstrs.forEach(instr=>all.push(proceduralControlQuestion(instr,round===0?'easy':round===1?'med':'hard',r)));
+  }
+  for(let i=0;i<12;i++) all.push(proceduralSingleTimeQuestion(rngPick(['lw','sw','add','sub','slt','addi','beq','bne','j'],r), i<4?'easy':i<8?'med':'hard', r));
+  for(let i=0;i<10;i++) all.push(geraTempoQ5(r));
+  for(let i=0;i<8;i++) all.push(geraQ5Random(r));
+  for(let i=0;i<5;i++) all.push(geraBenchmarkQ3(r));
+  for(let i=0;i<7;i++) all.push(geraProgramaQ5(r));
+  for(let i=0;i<2;i++) all.push(q4('med'));
+  all.push(...seededShuffle(REVIEW_BANK,r).slice(0,18));
+  all.push(...seededShuffle(OPEN_QUESTIONS,r).slice(0,5));
+  return seededShuffle(all,r);
+}
 function solveProgramCase(program){
   const rowCycles={}, rowCpi={}; let totalInstr=0, totalCycles=0;
   program.rows.forEach(row=>{
@@ -2774,6 +2880,7 @@ function geraBenchmarkQ3(r){
 function geraTempoQ5(r){
   const instr=rngPick(['lw','sw','R','add','sub','slt','addi','beq','bne','j'],r);
   const t=rngTimes(r);
+  const label=randomInstructionLabel(instr,r);
   const correct=instrTime(instr,t);
   // distratores = erros típicos
   const wrongs=[
@@ -2784,8 +2891,8 @@ function geraTempoQ5(r){
   ].filter(x=>x!==correct && x>0);
   const options=shuffle([correct,...wrongs.slice(0,3)]).map(String);
   const correctIdx=options.indexOf(String(correct));
-  return q5('mc','hard',{topic:'Q3a',times:t,instr,
-    question:`Qual é o tempo (caminho crítico) da instrução ${INSTR[instr].label}?`,
+  return q5('mc','hard',{topic:'Q3a',times:t,instr,label,
+    question:`Qual é o tempo (caminho crítico) da instrução <span class="mono">${label}</span>?`,
     options, correct:correctIdx,
     explain:`${INSTR[instr].name}: ${critStr(instr,t)} = <b>${correct} ns</b>.`});
 }
