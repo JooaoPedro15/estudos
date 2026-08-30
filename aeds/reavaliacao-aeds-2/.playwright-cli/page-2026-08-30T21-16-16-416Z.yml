@@ -1,0 +1,151 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: AEDS II · PUC Minas
+      - heading "Reavaliacao AEDS II" [level=1] [ref=e7]
+    - generic "Pontuacao do simulado" [ref=e8]:
+      - strong [ref=e17]: 0/120 pts
+      - generic [ref=e19]: 0%
+  - navigation "Modos de treino" [ref=e20]:
+    - button "Simulado" [active] [ref=e21] [cursor=pointer]
+    - button "Treino de Codigo" [ref=e25] [cursor=pointer]
+    - button "Conceitual" [ref=e30] [cursor=pointer]
+    - button "Desenho" [ref=e34] [cursor=pointer]
+    - button "Estruturas" [ref=e39] [cursor=pointer]
+  - generic [ref=e438]:
+    - region [ref=e439]:
+      - heading "Dominios" [level=2] [ref=e445]
+      - generic [ref=e446]:
+        - button "Estrutura Doidona Implementar metodos em estruturas compostas com T1, T2, T3, lista e arvore." [ref=e447] [cursor=pointer]:
+          - strong [ref=e448]: Estrutura Doidona
+          - generic [ref=e449]: Implementar metodos em estruturas compostas com T1, T2, T3, lista e arvore.
+        - button "Arvore TRIE Pesquisar e inserir palavras diferenciando prefixo de palavra completa." [ref=e450] [cursor=pointer]:
+          - strong [ref=e451]: Arvore TRIE
+          - generic [ref=e452]: Pesquisar e inserir palavras diferenciando prefixo de palavra completa.
+        - button "Arvore AVL Simular insercoes, calcular balanceamento e escolher rotacoes." [ref=e453] [cursor=pointer]:
+          - strong [ref=e454]: Arvore AVL
+          - generic [ref=e455]: Simular insercoes, calcular balanceamento e escolher rotacoes.
+        - button "Tabela hash Espalhar chaves com funcao hash e tratar colisoes por area de reserva." [ref=e456] [cursor=pointer]:
+          - strong [ref=e457]: Tabela hash
+          - generic [ref=e458]: Espalhar chaves com funcao hash e tratar colisoes por area de reserva.
+        - button "Arvore normal Resolver recursao, percursos e propriedades de arvores binarias." [ref=e459] [cursor=pointer]:
+          - strong [ref=e460]: Arvore normal
+          - generic [ref=e461]: Resolver recursao, percursos e propriedades de arvores binarias.
+        - button "Vetores Percorrer, buscar, alterar e deslocar elementos em vetores estaticos (array + n)." [ref=e462] [cursor=pointer]:
+          - strong [ref=e463]: Vetores
+          - generic [ref=e464]: Percorrer, buscar, alterar e deslocar elementos em vetores estaticos (array + n).
+        - button "Somatorios Contar execucoes de codigo e transformar lacos em somatorios." [ref=e465] [cursor=pointer]:
+          - strong [ref=e466]: Somatorios
+          - generic [ref=e467]: Contar execucoes de codigo e transformar lacos em somatorios.
+        - button "Algoritmos de ordenacao Adaptar algoritmos e analisar comparacoes, movimentacoes e casos." [ref=e468] [cursor=pointer]:
+          - strong [ref=e469]: Algoritmos de ordenacao
+          - generic [ref=e470]: Adaptar algoritmos e analisar comparacoes, movimentacoes e casos.
+    - region [ref=e471]:
+      - heading "Simulado de 6 questoes" [level=2] [ref=e476]
+      - generic "Questao 1 de 6" [ref=e477]:
+        - generic [ref=e485]: Questao 1 de 6 · Etapa 1 de 2
+        - button "Novo simulado" [ref=e486] [cursor=pointer]
+      - generic "Caminho de estudo" [ref=e493]:
+        - generic [ref=e494]: Modulo
+        - generic [ref=e497]: Somatorio
+        - generic [ref=e500]: Exercicios
+      - generic [ref=e501]:
+        - region "Enunciado da questão" [ref=e502]:
+          - generic [ref=e503]: Problema
+          - generic [ref=e504]:
+            - generic [ref=e505]: Q1
+            - generic [ref=e506]:
+              - heading "Somatorio a partir de codigo" [level=3] [ref=e507]
+              - paragraph [ref=e508]: Somatorio por codigo
+          - generic [ref=e509]:
+            - generic [ref=e510]: Somatorio
+            - generic [ref=e511]: Reconhecer
+          - paragraph [ref=e512]: "Considere um trecho com dois lacos: i varia de 1 ate n - 1 e j varia de 0 ate i - 1."
+          - figure "Lacos aninhados Cada valor de i define quantas vezes o laco j executa." [ref=e513]:
+            - generic [ref=e514]:
+              - strong [ref=e515]: Lacos aninhados
+              - generic [ref=e516]: Cada valor de i define quantas vezes o laco j executa.
+            - generic [ref=e517]:
+              - generic [ref=e518]:
+                - generic [ref=e519]:
+                  - generic [ref=e520]: contar execuções do laço
+                  - generic "Complexidade da operação" [ref=e521]: soma dos termos
+                - group "Zoom da visualização" [ref=e522]:
+                  - button "Aproximar" [ref=e523] [cursor=pointer]
+                  - button "Afastar" [ref=e527] [cursor=pointer]
+                  - button "Restaurar enquadramento" [ref=e531] [cursor=pointer]
+              - generic [ref=e537]:
+                - generic [ref=e538]:
+                  - generic [ref=e539]: Visualização espacial
+                  - 'img "Visualização animada: contar execuções do laço" [ref=e540]':
+                    - generic [ref=e542]:
+                      - generic [ref=e543]:
+                        - generic [ref=e545]: i=1
+                        - generic [ref=e546]: "0"
+                      - generic [ref=e547]:
+                        - generic [ref=e549]: 1 vez
+                        - generic [ref=e550]: "1"
+                      - generic [ref=e551]:
+                        - generic [ref=e553]: i=2
+                        - generic [ref=e554]: "2"
+                      - generic [ref=e555]:
+                        - generic [ref=e557]: 2 vezes
+                        - generic [ref=e558]: "3"
+                      - generic [ref=e559]:
+                        - generic [ref=e561]: i=n-1
+                        - generic [ref=e562]: "4"
+                      - generic [ref=e563]:
+                        - generic [ref=e565]: n-1 vezes
+                        - generic [ref=e566]: "5"
+                - complementary "Contexto da execução" [ref=e567]:
+                  - generic [ref=e568]:
+                    - generic [ref=e569]: Etapa 1/8
+                    - paragraph [ref=e570]: Cada célula representa uma rodada do laço.
+                  - generic [ref=e571]:
+                    - generic [ref=e572]: Variáveis relevantes
+                    - generic "Variáveis importantes" [ref=e573]:
+                      - generic [ref=e574]:
+                        - generic [ref=e575]: i
+                        - generic [ref=e576]: "0"
+              - group "Controles da animação" [ref=e577]:
+                - button "Reiniciar animação" [ref=e578] [cursor=pointer]
+                - button "Passo anterior" [disabled] [ref=e582]
+                - button "Executar automaticamente" [ref=e585] [cursor=pointer]
+                - button "Próximo passo" [ref=e588] [cursor=pointer]
+                - generic [ref=e591]:
+                  - generic [ref=e592]: Velocidade
+                  - combobox "Velocidade" [ref=e593]:
+                    - option "0.5×"
+                    - option "1×" [selected]
+                    - option "1.5×"
+                    - option "2×"
+                - button "Código" [ref=e594] [cursor=pointer]
+              - generic [ref=e599]:
+                - generic [ref=e600]: Linha do tempo
+                - slider "Navegar pelas etapas" [ref=e601] [cursor=pointer]: "0"
+                - status [ref=e602]: 1 / 8
+              - list "Legenda dos estados" [ref=e603]:
+                - listitem [ref=e604]:
+                  - generic [ref=e605]: ▶
+                  - text: Atual
+                - listitem [ref=e606]:
+                  - generic [ref=e607]: ·
+                  - text: Visitado
+        - region "Área de resposta" [ref=e608]:
+          - generic [ref=e609]: Sua resposta
+          - generic [ref=e610]:
+            - generic [ref=e611]:
+              - generic [ref=e612]: Reconhecer
+              - generic [ref=e613]: Somatorio
+            - heading "Qual custo assintotico nasce da contagem total do laco interno?" [level=4] [ref=e614]
+            - generic [ref=e615]:
+              - button "O(n^2)" [ref=e616] [cursor=pointer]
+              - button "O(n)" [ref=e617] [cursor=pointer]
+              - button "O(log n)" [ref=e618] [cursor=pointer]
+          - generic [ref=e619]:
+            - 'button "Responder: verificar resposta" [disabled] [ref=e620]': Verificar resposta
+            - button "Limpar" [ref=e624] [cursor=pointer]
+            - button "Me ensine" [ref=e628] [cursor=pointer]
+    - region [ref=e632]:
+      - heading "Caderno de erros" [level=2] [ref=e642]
+      - paragraph [ref=e647]: Nenhum erro critico agora.

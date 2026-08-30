@@ -1,0 +1,161 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: AEDS II · PUC Minas
+      - heading "Reavaliacao AEDS II" [level=1] [ref=e7]
+    - generic "Pontuacao do simulado" [ref=e8]:
+      - strong [ref=e17]: 0/120 pts
+      - generic [ref=e19]: 0%
+  - navigation "Modos de treino" [ref=e20]:
+    - button "Simulado" [ref=e21] [cursor=pointer]
+    - button "Treino de Codigo" [ref=e25] [cursor=pointer]
+    - button "Conceitual" [ref=e30] [cursor=pointer]
+    - button "Desenho" [ref=e34] [cursor=pointer]
+    - button "Estruturas" [active] [ref=e39] [cursor=pointer]
+  - region [ref=e254]:
+    - heading "Estruturas de dados animadas" [level=2] [ref=e260]
+    - generic [ref=e261]:
+      - tablist "Escolha uma estrutura de dados" [ref=e262]:
+        - 'tab "Ordenação passo a passo Bubble Sort: comparação, decisão e troca visíveis." [selected] [ref=e263] [cursor=pointer]':
+          - strong [ref=e264]: Ordenação passo a passo
+          - generic [ref=e265]: "Bubble Sort: comparação, decisão e troca visíveis."
+        - 'tab "Pilha Sequencial: array + n. LIFO em O(1)." [ref=e266] [cursor=pointer]':
+          - strong [ref=e267]: Pilha
+          - generic [ref=e268]: "Sequencial: array + n. LIFO em O(1)."
+        - 'tab "Fila Em fileira: frente e trás só avançam." [ref=e269] [cursor=pointer]':
+          - strong [ref=e270]: Fila
+          - generic [ref=e271]: "Em fileira: frente e trás só avançam."
+        - 'tab "Fila circular Fila.java do Max: índices com módulo." [ref=e272] [cursor=pointer]':
+          - strong [ref=e273]: Fila circular
+          - generic [ref=e274]: "Fila.java do Max: índices com módulo."
+        - tab "Lista encadeada Células ordenadas; religação de ponteiros." [ref=e275] [cursor=pointer]:
+          - strong [ref=e276]: Lista encadeada
+          - generic [ref=e277]: Células ordenadas; religação de ponteiros.
+        - 'tab "Tabela hash hashDiretoReserva: colisão vai para a reserva." [ref=e278] [cursor=pointer]':
+          - strong [ref=e279]: Tabela hash
+          - generic [ref=e280]: "hashDiretoReserva: colisão vai para a reserva."
+        - 'tab "Árvore de busca (ABB) ArvoreBinaria.java: sem duplicatas." [ref=e281] [cursor=pointer]':
+          - strong [ref=e282]: Árvore de busca (ABB)
+          - generic [ref=e283]: "ArvoreBinaria.java: sem duplicatas."
+        - 'tab "Árvore AVL AVL.java: inserir devolve balancear(i)." [ref=e284] [cursor=pointer]':
+          - strong [ref=e285]: Árvore AVL
+          - generic [ref=e286]: "AVL.java: inserir devolve balancear(i)."
+        - 'tab "Árvore TRIE ArvoreTrie.java: folha marca a palavra." [ref=e287] [cursor=pointer]':
+          - strong [ref=e288]: Árvore TRIE
+          - generic [ref=e289]: "ArvoreTrie.java: folha marca a palavra."
+        - 'tab "Heap Construção do heapsort: pai ≥ filhos." [ref=e290] [cursor=pointer]':
+          - strong [ref=e291]: Heap
+          - generic [ref=e292]: "Construção do heapsort: pai ≥ filhos."
+        - 'tab "Estrutura Doidona DoidonaSemTADsProntas: T1 + hashT2 roteando a reserva." [ref=e293] [cursor=pointer]':
+          - strong [ref=e294]: Estrutura Doidona
+          - generic [ref=e295]: "DoidonaSemTADsProntas: T1 + hashT2 roteando a reserva."
+      - generic [ref=e296]:
+        - generic [ref=e297]:
+          - generic [ref=e302]:
+            - heading "Ordenação passo a passo" [level=3] [ref=e303]
+            - paragraph [ref=e304]: "Bubble Sort: comparação, decisão e troca visíveis."
+          - generic [ref=e305]:
+            - button "Resetar estrutura" [ref=e306] [cursor=pointer]
+            - button "Resetar tudo" [ref=e310] [cursor=pointer]
+        - group "Escolha a operação" [ref=e314]:
+          - button "Executar Bubble Sort" [pressed] [ref=e316] [cursor=pointer]
+          - generic [ref=e317]:
+            - generic [ref=e318]:
+              - generic [ref=e319]: Vetor
+              - textbox "Vetor" [ref=e320]: 8, 4, 2, 9, 1
+            - button "Executar" [ref=e321] [cursor=pointer]
+        - generic "Entrada do visualizador de ordenação" [ref=e324]:
+          - generic [ref=e325]:
+            - strong [ref=e326]: Presets de entrada
+            - generic [ref=e327]: Escolha um cenário ou informe inteiros separados por vírgula.
+          - generic [ref=e328]:
+            - button "Padrão" [ref=e329] [cursor=pointer]
+            - button "Pequeno" [ref=e330] [cursor=pointer]
+            - button "Invertido" [ref=e331] [cursor=pointer]
+            - button "Já ordenado" [ref=e332] [cursor=pointer]
+            - button "Quase ordenado" [ref=e333] [cursor=pointer]
+            - button "Valores iguais" [ref=e334] [cursor=pointer]
+        - generic [ref=e335]:
+          - generic [ref=e336]:
+            - generic [ref=e337]:
+              - generic [ref=e338]: Bubble Sort
+              - generic "Complexidade da operação" [ref=e339]: O(n²)
+            - group "Zoom da visualização" [ref=e340]:
+              - button "Aproximar" [ref=e341] [cursor=pointer]
+              - button "Afastar" [ref=e345] [cursor=pointer]
+              - button "Restaurar enquadramento" [ref=e349] [cursor=pointer]
+          - generic [ref=e355]:
+            - generic [ref=e356]:
+              - generic [ref=e357]: Visualização espacial
+              - 'img "Visualização animada: Bubble Sort" [ref=e358]':
+                - generic [ref=e360]:
+                  - generic [ref=e361]:
+                    - generic [ref=e363]: "8"
+                    - generic [ref=e364]: "[0]"
+                  - generic [ref=e365]:
+                    - generic [ref=e367]: "4"
+                    - generic [ref=e368]: "[1]"
+                  - generic [ref=e369]:
+                    - generic [ref=e371]: "2"
+                    - generic [ref=e372]: "[2]"
+                  - generic [ref=e373]:
+                    - generic [ref=e375]: "9"
+                    - generic [ref=e376]: "[3]"
+                  - generic [ref=e377]:
+                    - generic [ref=e379]: "1"
+                    - generic [ref=e380]: "[4]"
+            - complementary "Contexto da execução" [ref=e381]:
+              - generic [ref=e382]:
+                - generic [ref=e383]: Etapa 1/33
+                - paragraph [ref=e384]: O Bubble Sort percorre o vetor e leva o maior valor ao fim a cada passagem.
+              - generic [ref=e385]:
+                - generic [ref=e386]: Variáveis relevantes
+                - generic "Variáveis importantes" [ref=e387]:
+                  - generic [ref=e388]:
+                    - generic [ref=e389]: "n"
+                    - generic [ref=e390]: "5"
+              - generic [ref=e391]:
+                - generic [ref=e392]: Pseudocódigo sincronizado
+                - generic "Pseudocódigo da operação" [ref=e393]:
+                  - generic [ref=e394]:
+                    - generic [ref=e395]: "1"
+                    - text: "para fim = n - 1 até 1:"
+                  - generic [ref=e396]:
+                    - generic [ref=e397]: "2"
+                    - text: "para j = 0 até fim - 1:"
+                  - generic [ref=e398]:
+                    - generic [ref=e399]: "3"
+                    - text: "se vetor[j] > vetor[j + 1]:"
+                  - generic [ref=e400]:
+                    - generic [ref=e401]: "4"
+                    - text: trocar(vetor[j], vetor[j + 1])
+                  - generic [ref=e402]:
+                    - generic [ref=e403]: "5"
+                    - text: posição fim está ordenada
+          - group "Controles da animação" [ref=e404]:
+            - button "Reiniciar animação" [ref=e405] [cursor=pointer]
+            - button "Passo anterior" [disabled] [ref=e409]
+            - button "Executar automaticamente" [ref=e412] [cursor=pointer]
+            - button "Próximo passo" [ref=e415] [cursor=pointer]
+            - generic [ref=e418]:
+              - generic [ref=e419]: Velocidade
+              - combobox "Velocidade" [ref=e420]:
+                - option "0.5×"
+                - option "1×" [selected]
+                - option "1.5×"
+                - option "2×"
+            - button "Código" [pressed] [ref=e421] [cursor=pointer]
+          - generic [ref=e426]:
+            - generic [ref=e427]: Linha do tempo
+            - slider "Navegar pelas etapas" [ref=e428] [cursor=pointer]: "0"
+            - status [ref=e429]: 1 / 33
+          - list "Legenda dos estados" [ref=e430]:
+            - listitem [ref=e431]:
+              - generic [ref=e432]: "?"
+              - text: Comparando
+            - listitem [ref=e433]:
+              - generic [ref=e434]: ↔
+              - text: Em movimento
+            - listitem [ref=e435]:
+              - generic [ref=e436]: ✓
+              - text: Ordenado

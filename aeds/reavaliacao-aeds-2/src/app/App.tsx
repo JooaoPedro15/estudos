@@ -818,74 +818,85 @@ export function App() {
                 </button>
               </div>
 
-              <div className="question-header">
-                <span className="question-badge" data-domain={currentQuestion.domainId}>
-                  Q{currentQuestion.number}
-                </span>
-                <div>
-                  <h3>{currentQuestion.title}</h3>
-                  <p>{formatLabels[currentQuestion.format]}</p>
-                </div>
+              <div className="learning-breadcrumb" aria-label="Caminho de estudo">
+                <span>Modulo</span><ChevronRight aria-hidden="true" size={14} /><span>{currentDomain.shortTitle}</span><ChevronRight aria-hidden="true" size={14} /><span>Exercicios</span>
               </div>
-
-              <p className="question-stem">{currentQuestion.stem}</p>
-              {currentQuestion.scaffold && (
-                <pre className="code-scaffold">
-                  <code>{currentQuestion.scaffold}</code>
-                </pre>
-              )}
-              {currentQuestion.visual && <StructureVizCard visual={currentQuestion.visual} />}
-
-              <div className="step-panel">
-                <div className="step-meta">
-                  <span>{skillLabels[currentStep.skillId]}</span>
-                  <span>{currentDomain.shortTitle}</span>
-                </div>
-                <h4>{currentStep.prompt}</h4>
-
-                <AnswerControl
-                  blockOrder={blockOrder}
-                  choiceAnswer={choiceAnswer}
-                  fixId={fixId}
-                  fixLineIndex={fixLineIndex}
-                  onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
-                  onChoice={setChoiceAnswer}
-                  onFixId={setFixId}
-                  onFixLine={setFixLineIndex}
-                  onResetBlocks={() => setBlockOrder([])}
-                  onText={setTextAnswer}
-                  step={currentStep}
-                  textAnswer={textAnswer}
-                />
-              </div>
-
-              <div className="action-row">
-                <button className="primary-button" disabled={!answer} onClick={submitAnswer} type="button">
-                  <CheckCircle2 aria-hidden="true" size={18} />
-                  Responder
-                </button>
-                <button className="ghost-button" onClick={resetAnswerDrafts} type="button">
-                  <RotateCcw aria-hidden="true" size={18} />
-                  Limpar
-                </button>
-                <button className="ghost-button" onClick={() => setShowTeaching((value) => !value)} type="button">
-                  <BookOpenCheck aria-hidden="true" size={18} />
-                  Me ensine
-                </button>
-              </div>
-
-              {showTeaching && <TeachingBox step={currentStep} />}
-
-              {lastAttempt && (
-                <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
-                  {lastAttempt.correct ? (
-                    <CheckCircle2 aria-hidden="true" size={18} />
-                  ) : (
-                    <XCircle aria-hidden="true" size={18} />
+              <div className="exercise-workspace">
+                <section className="exercise-problem" aria-label="Enunciado da questão">
+                  <span className="workspace-label">Problema</span>
+                  <div className="question-header">
+                    <span className="question-badge" data-domain={currentQuestion.domainId}>
+                      Q{currentQuestion.number}
+                    </span>
+                    <div>
+                      <h3>{currentQuestion.title}</h3>
+                      <p>{formatLabels[currentQuestion.format]}</p>
+                    </div>
+                  </div>
+                  <div className="problem-tags"><span>{currentDomain.shortTitle}</span><span>{skillLabels[currentStep.skillId]}</span></div>
+                  <p className="question-stem">{currentQuestion.stem}</p>
+                  {currentQuestion.scaffold && (
+                    <pre className="code-scaffold">
+                      <code>{currentQuestion.scaffold}</code>
+                    </pre>
                   )}
-                  <span>{lastAttempt.feedback}</span>
-                </div>
-              )}
+                  {currentQuestion.visual && <StructureVizCard visual={currentQuestion.visual} />}
+                </section>
+
+                <section className="exercise-answer" aria-label="Área de resposta">
+                  <span className="workspace-label">Sua resposta</span>
+                  <div className="step-panel">
+                    <div className="step-meta">
+                      <span>{skillLabels[currentStep.skillId]}</span>
+                      <span>{currentDomain.shortTitle}</span>
+                    </div>
+                    <h4>{currentStep.prompt}</h4>
+
+                    <AnswerControl
+                      blockOrder={blockOrder}
+                      choiceAnswer={choiceAnswer}
+                      fixId={fixId}
+                      fixLineIndex={fixLineIndex}
+                      onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
+                      onChoice={setChoiceAnswer}
+                      onFixId={setFixId}
+                      onFixLine={setFixLineIndex}
+                      onResetBlocks={() => setBlockOrder([])}
+                      onText={setTextAnswer}
+                      step={currentStep}
+                      textAnswer={textAnswer}
+                    />
+                  </div>
+
+                  <div className="action-row">
+                    <button aria-label="Responder: verificar resposta" className="primary-button" disabled={!answer} onClick={submitAnswer} type="button">
+                      <CheckCircle2 aria-hidden="true" size={18} />
+                      Verificar resposta
+                    </button>
+                    <button className="ghost-button" onClick={resetAnswerDrafts} type="button">
+                      <RotateCcw aria-hidden="true" size={18} />
+                      Limpar
+                    </button>
+                    <button className="ghost-button" onClick={() => setShowTeaching((value) => !value)} type="button">
+                      <BookOpenCheck aria-hidden="true" size={18} />
+                      Me ensine
+                    </button>
+                  </div>
+
+                  {showTeaching && <TeachingBox step={currentStep} />}
+
+                  {lastAttempt && (
+                    <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
+                      {lastAttempt.correct ? (
+                        <CheckCircle2 aria-hidden="true" size={18} />
+                      ) : (
+                        <XCircle aria-hidden="true" size={18} />
+                      )}
+                      <span>{lastAttempt.feedback}</span>
+                    </div>
+                  )}
+                </section>
+              </div>
             </>
           )}
         </section>
@@ -1064,75 +1075,82 @@ function ConceptualPracticeExperience({
         </div>
       </div>
 
-      <div className="question-header">
-        <span className="question-badge" data-domain={currentQuestion.domainId}>
-          {currentQuestion.type === 'desenho' ? 'D' : 'Q'}
-        </span>
-        <div>
-          <h3>{currentQuestion.title}</h3>
-          <p>{currentQuestion.type === 'desenho' ? 'Alternativas visuais' : 'Questao conceitual'}</p>
-        </div>
+      <div className="exercise-workspace">
+        <section className="exercise-problem" aria-label="Enunciado da questão">
+          <span className="workspace-label">Problema</span>
+          <div className="question-header">
+            <span className="question-badge" data-domain={currentQuestion.domainId}>
+              {currentQuestion.type === 'desenho' ? 'D' : 'Q'}
+            </span>
+            <div>
+              <h3>{currentQuestion.title}</h3>
+              <p>{currentQuestion.type === 'desenho' ? 'Alternativas visuais' : 'Questao conceitual'}</p>
+            </div>
+          </div>
+          <div className="problem-tags"><span>{currentQuestion.type === 'desenho' ? 'Desenho' : 'Conceitual'}</span><span>{currentQuestion.difficulty}</span></div>
+          <p className="question-stem">{currentQuestion.stem}</p>
+          {currentQuestion.type === 'desenho' && <DrawingDemo question={currentQuestion} />}
+        </section>
+
+        <section className="exercise-answer" aria-label="Área de resposta">
+          <span className="workspace-label">Sua resposta</span>
+          <div className="step-panel">
+            <div className="step-meta">
+              <span>{currentQuestion.type === 'desenho' ? 'Desenho' : 'Conceitual'}</span>
+              <span>{currentQuestion.difficulty}</span>
+            </div>
+            <h4>Escolha a alternativa correta e confirme a resposta.</h4>
+            {currentQuestion.type === 'desenho' ? (
+              <VisualChoiceControl
+                answeredOptionId={answeredOptionId}
+                choiceAnswer={choiceAnswer}
+                correctOptionId={currentQuestion.correctOptionId}
+                onChoice={onChoice}
+                options={currentQuestion.options}
+              />
+            ) : (
+              <ConceptualChoiceControl
+                answeredOptionId={answeredOptionId}
+                choiceAnswer={choiceAnswer}
+                correctOptionId={currentQuestion.correctOptionId}
+                onChoice={onChoice}
+                options={currentQuestion.options}
+              />
+            )}
+          </div>
+
+          <div className="action-row">
+            {answered ? (
+              <button className="primary-button" onClick={onAdvance} type="button">
+                <ChevronRight aria-hidden="true" size={18} />
+                Próxima questão
+              </button>
+            ) : (
+              <button aria-label="Responder: verificar resposta" className="primary-button" disabled={!choiceAnswer} onClick={onSubmit} type="button">
+                <CheckCircle2 aria-hidden="true" size={18} />
+                Verificar resposta
+              </button>
+            )}
+            <button className="ghost-button" disabled={answered} onClick={onResetDrafts} type="button">
+              <RotateCcw aria-hidden="true" size={18} />
+              Limpar
+            </button>
+            <button className="ghost-button" onClick={onToggleTeaching} type="button">
+              <BookOpenCheck aria-hidden="true" size={18} />
+              Me ensine
+            </button>
+          </div>
+
+          {showTeaching && <ConceptualTeachingBox question={currentQuestion} />}
+
+          {lastAttempt && (
+            <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
+              {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
+              <span>{lastAttempt.feedback}</span>
+            </div>
+          )}
+        </section>
       </div>
-
-      <p className="question-stem">{currentQuestion.stem}</p>
-
-      {currentQuestion.type === 'desenho' && <DrawingDemo question={currentQuestion} />}
-
-      <div className="step-panel">
-        <div className="step-meta">
-          <span>{currentQuestion.type === 'desenho' ? 'Desenho' : 'Conceitual'}</span>
-          <span>{currentQuestion.difficulty}</span>
-        </div>
-        <h4>Escolha a alternativa correta e confirme a resposta.</h4>
-        {currentQuestion.type === 'desenho' ? (
-          <VisualChoiceControl
-            answeredOptionId={answeredOptionId}
-            choiceAnswer={choiceAnswer}
-            correctOptionId={currentQuestion.correctOptionId}
-            onChoice={onChoice}
-            options={currentQuestion.options}
-          />
-        ) : (
-          <ConceptualChoiceControl
-            answeredOptionId={answeredOptionId}
-            choiceAnswer={choiceAnswer}
-            correctOptionId={currentQuestion.correctOptionId}
-            onChoice={onChoice}
-            options={currentQuestion.options}
-          />
-        )}
-      </div>
-
-      <div className="action-row">
-        {answered ? (
-          <button className="primary-button" onClick={onAdvance} type="button">
-            <ChevronRight aria-hidden="true" size={18} />
-            Próxima
-          </button>
-        ) : (
-          <button className="primary-button" disabled={!choiceAnswer} onClick={onSubmit} type="button">
-            <CheckCircle2 aria-hidden="true" size={18} />
-            Responder
-          </button>
-        )}
-        <button className="ghost-button" disabled={answered} onClick={onResetDrafts} type="button">
-          <RotateCcw aria-hidden="true" size={18} />
-          Limpar
-        </button>
-        <button className="ghost-button" onClick={onToggleTeaching} type="button">
-          <BookOpenCheck aria-hidden="true" size={18} />
-          Me ensine
-        </button>
-      </div>
-
-      {showTeaching && <ConceptualTeachingBox question={currentQuestion} />}
-
-      {lastAttempt && (
-        <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
-          {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
-          <span>{lastAttempt.feedback}</span>
-        </div>
-      )}
     </>
   );
 }
@@ -1375,69 +1393,76 @@ function PracticeExperience({
         </div>
       </div>
 
-      <div className="question-header">
-        <span className="question-badge">C</span>
-        <div>
-          <h3>{currentPracticeDrill.title}</h3>
-          <p>{formatLabels[currentPracticeDrill.format]}</p>
-        </div>
+      <div className="exercise-workspace">
+        <section className="exercise-problem" aria-label="Problema de código">
+          <span className="workspace-label">Problema</span>
+          <div className="question-header">
+            <span className="question-badge">C</span>
+            <div>
+              <h3>{currentPracticeDrill.title}</h3>
+              <p>{formatLabels[currentPracticeDrill.format]}</p>
+            </div>
+          </div>
+          <div className="problem-tags"><span>{currentPracticeDrill.phase === 'repeat' ? 'Repeticao' : 'Modificacao'}</span><span>{skillLabels[currentPracticeDrill.step.skillId]}</span></div>
+          <p className="question-stem">{currentPracticeDrill.stem}</p>
+          <div className="paper-layout">
+            <pre className="code-scaffold">
+              <code>{currentPracticeDrill.scaffold}</code>
+            </pre>
+            <StructureVizCard visual={currentPracticeDrill.visual} />
+          </div>
+        </section>
+
+        <section className="exercise-answer" aria-label="Área de resposta">
+          <span className="workspace-label">Sua resposta</span>
+          <div className="step-panel">
+            <div className="step-meta">
+              <span>{skillLabels[currentPracticeDrill.step.skillId]}</span>
+              <span>{currentPracticeDrill.phase === 'repeat' ? 'Repeticao' : 'Modificacao'}</span>
+            </div>
+            <h4>{currentPracticeDrill.step.prompt}</h4>
+
+            <AnswerControl
+              blockOrder={blockOrder}
+              choiceAnswer={choiceAnswer}
+              fixId={fixId}
+              fixLineIndex={fixLineIndex}
+              onAddBlock={onAddBlock}
+              onChoice={onChoice}
+              onFixId={onFixId}
+              onFixLine={onFixLine}
+              onResetBlocks={onResetBlocks}
+              onText={onText}
+              step={currentPracticeDrill.step}
+              textAnswer={textAnswer}
+            />
+          </div>
+
+          <div className="action-row">
+            <button aria-label="Responder: verificar resposta" className="primary-button" disabled={!answer} onClick={onSubmit} type="button">
+              <CheckCircle2 aria-hidden="true" size={18} />
+              Verificar resposta
+            </button>
+            <button className="ghost-button" onClick={onResetDrafts} type="button">
+              <RotateCcw aria-hidden="true" size={18} />
+              Limpar
+            </button>
+            <button className="ghost-button" onClick={onToggleTeaching} type="button">
+              <BookOpenCheck aria-hidden="true" size={18} />
+              Me ensine
+            </button>
+          </div>
+
+          {showTeaching && <TeachingBox step={currentPracticeDrill.step} />}
+
+          {lastAttempt && (
+            <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
+              {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
+              <span>{lastAttempt.feedback}</span>
+            </div>
+          )}
+        </section>
       </div>
-
-      <p className="question-stem">{currentPracticeDrill.stem}</p>
-
-      <div className="paper-layout">
-        <pre className="code-scaffold">
-          <code>{currentPracticeDrill.scaffold}</code>
-        </pre>
-        <StructureVizCard visual={currentPracticeDrill.visual} />
-      </div>
-
-      <div className="step-panel">
-        <div className="step-meta">
-          <span>{skillLabels[currentPracticeDrill.step.skillId]}</span>
-          <span>{currentPracticeDrill.phase === 'repeat' ? 'Repeticao' : 'Modificacao'}</span>
-        </div>
-        <h4>{currentPracticeDrill.step.prompt}</h4>
-
-        <AnswerControl
-          blockOrder={blockOrder}
-          choiceAnswer={choiceAnswer}
-          fixId={fixId}
-          fixLineIndex={fixLineIndex}
-          onAddBlock={onAddBlock}
-          onChoice={onChoice}
-          onFixId={onFixId}
-          onFixLine={onFixLine}
-          onResetBlocks={onResetBlocks}
-          onText={onText}
-          step={currentPracticeDrill.step}
-          textAnswer={textAnswer}
-        />
-      </div>
-
-      <div className="action-row">
-        <button className="primary-button" disabled={!answer} onClick={onSubmit} type="button">
-          <CheckCircle2 aria-hidden="true" size={18} />
-          Responder
-        </button>
-        <button className="ghost-button" onClick={onResetDrafts} type="button">
-          <RotateCcw aria-hidden="true" size={18} />
-          Limpar
-        </button>
-        <button className="ghost-button" onClick={onToggleTeaching} type="button">
-          <BookOpenCheck aria-hidden="true" size={18} />
-          Me ensine
-        </button>
-      </div>
-
-      {showTeaching && <TeachingBox step={currentPracticeDrill.step} />}
-
-      {lastAttempt && (
-        <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
-          {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
-          <span>{lastAttempt.feedback}</span>
-        </div>
-      )}
     </>
   );
 }

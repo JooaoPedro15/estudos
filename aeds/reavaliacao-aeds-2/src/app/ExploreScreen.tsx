@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Eraser, Play, Settings2, Shapes, Trash2 } from 'lucide-react';
 
 import { doidonaKinds, doidonaSubKinds, withDoidonaKind, type DoidonaState, type DoidonaSubKind } from '../viz/doidona';
+import { buildBubbleSortScene, parseArrayInput } from '../viz/algorithmScenes';
 import { structureCatalog } from '../viz/structureOps';
 import { StructureViz } from '../viz/StructureViz';
 import type { VizScene } from '../viz/vizTypes';
@@ -24,6 +25,7 @@ export function ExploreScreen() {
   const [inputValue, setInputValue] = useState(structureCatalog[0].ops[0].input?.sample ?? '');
   const [version, setVersion] = useState(0);
   const [lastRun, setLastRun] = useState<{ scene: VizScene; runId: number } | null>(null);
+  const [inputError, setInputError] = useState<string | null>(null);
 
   const entry = structureCatalog.find((item) => item.id === selectedId) ?? structureCatalog[0];
   const op = entry.ops.find((item) => item.id === opId) ?? entry.ops[0];
@@ -36,12 +38,22 @@ export function ExploreScreen() {
   );
 
   const scene = lastRun?.scene ?? previewScene;
+  const isSorting = entry.id === 'ordenacao';
+  const sortPresets = [
+    ['Padrão', '8, 4, 2, 9, 1'],
+    ['Pequeno', '3, 1, 2'],
+    ['Invertido', '9, 7, 5, 3, 1'],
+    ['Já ordenado', '1, 2, 3, 4, 5'],
+    ['Quase ordenado', '1, 2, 4, 3, 5'],
+    ['Valores iguais', '5, 5, 5, 5, 5'],
+  ] as const;
 
   function pickStructure(id: string) {
     const next = structureCatalog.find((item) => item.id === id) ?? structureCatalog[0];
     setSelectedId(id);
     setOpId(next.ops[0].id);
     setInputValue(next.ops[0].input?.sample ?? '');
+    setInputError(null);
     setLastRun(null);
   }
 
@@ -49,11 +61,25 @@ export function ExploreScreen() {
     const next = entry.ops.find((item) => item.id === id) ?? entry.ops[0];
     setOpId(next.id);
     setInputValue(next.input?.sample ?? '');
+    setInputError(null);
     setLastRun(null);
   }
 
   function execute() {
+    if (isSorting) {
+      const parsed = parseArrayInput(inputValue);
+      if (!parsed.ok) {
+        setInputError(parsed.error);
+        return;
+      }
+      setInputError(null);
+      setStructureState(entry.id, parsed.values);
+      setVersion((value) => value + 1);
+      setLastRun({ scene: buildBubbleSortScene(parsed.values), runId: (lastRun?.runId ?? 0) + 1 });
+      return;
+    }
     const result = op.run(state, inputValue);
+    setInputError(null);
     setStructureState(entry.id, result.next);
     setLastRun({ scene: result.scene, runId: (lastRun?.runId ?? 0) + 1 });
     setVersion((value) => value + 1);
@@ -150,8 +176,9 @@ export function ExploreScreen() {
               <label className="op-input">
                 <span>{op.input.label}</span>
                 <input
+                  aria-invalid={inputError ? true : undefined}
                   inputMode={op.input.kind === 'number' ? 'numeric' : 'text'}
-                  maxLength={op.input.kind === 'number' ? 3 : 7}
+                  maxLength={isSorting ? 59 : op.input.kind === 'number' ? 3 : 7}
                   onChange={(event) => setInputValue(event.target.value)}
                   type="text"
                   value={inputValue}
@@ -164,6 +191,32 @@ export function ExploreScreen() {
             </button>
           </form>
         </div>
+
+        {isSorting && (
+          <div className="array-input-panel" aria-label="Entrada do visualizador de ordenação">
+            <div>
+              <strong>Presets de entrada</strong>
+              <span>Escolha um cenário ou informe inteiros separados por vírgula.</span>
+            </div>
+            <div className="array-presets">
+              {sortPresets.map(([label, value]) => (
+                <button
+                  className={inputValue === value ? 'is-active' : ''}
+                  key={label}
+                  onClick={() => {
+                    setInputValue(value);
+                    setInputError(null);
+                    setLastRun(null);
+                  }}
+                  type="button"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {inputError && <p className="array-input-error" role="alert">{inputError}</p>}
+          </div>
+        )}
 
         {kinds && (
           <div className="doidona-config" role="group" aria-label="Configurar áreas de reserva">

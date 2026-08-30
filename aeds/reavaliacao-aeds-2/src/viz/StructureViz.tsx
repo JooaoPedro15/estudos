@@ -267,6 +267,7 @@ export function StructureViz({ scene, compact = false }: StructureVizProps) {
   const total = scene.frames.length;
   const frame = scene.frames[Math.min(frameIndex, total - 1)];
   const legend = useMemo(() => collectLegend(scene), [scene]);
+  const timelineId = `timeline-${scene.operation.replace(/\s+/g, '-')}`;
   const display = useAnimatedFrame(frame, BASE_TWEEN_MS / speed, reducedMotion);
   const nodeMap = useMemo(() => new Map(display.nodes.map((node) => [node.id, node])), [display.nodes]);
 
@@ -345,48 +346,74 @@ export function StructureViz({ scene, compact = false }: StructureVizProps) {
         </div>
       </div>
 
-      <svg
-        className="viz-canvas"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label={`Visualização animada: ${scene.operation}`}
-        viewBox={`0 0 ${scene.width} ${scene.height}`}
-      >
-        <VizDefs />
-        <rect fill="url(#viz-grid)" height="100%" width="100%" />
-        <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
-          {display.edges.map((edge) => (
-            <EdgeShape edge={edge} key={edge.id} nodes={nodeMap} />
-          ))}
-          {display.nodes.map((node) => (
-            <NodeShape key={node.id} node={node} />
-          ))}
-          {frame.pointers.map((pointer) => (
-            <PointerShape key={pointer.id} nodes={nodeMap} pointer={pointer} />
-          ))}
-        </g>
-      </svg>
-
-      <div aria-live="polite" className="viz-caption">
-        <span className="viz-step-count">
-          Passo {Math.min(frameIndex + 1, total)}/{total}
-        </span>
-        <p>{frame.caption}</p>
-      </div>
-
-      {frame.vars && frame.vars.length > 0 && (
-        <div aria-label="Variáveis importantes" className="viz-vars">
-          {frame.vars.map((item) => (
-            <span className="viz-var" key={item.name}>
-              <span className="viz-var-name">{item.name}</span>
-              <span className="viz-var-value">{item.value}</span>
-            </span>
-          ))}
+      <div className="viz-workspace">
+        <div className="viz-stage">
+          <span className="viz-stage-label">Visualização espacial</span>
+          <svg
+            className="viz-canvas"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label={`Visualização animada: ${scene.operation}`}
+            viewBox={`0 0 ${scene.width} ${scene.height}`}
+          >
+            <VizDefs />
+            <rect fill="url(#viz-grid)" height="100%" width="100%" />
+            <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
+              {display.edges.map((edge) => (
+                <EdgeShape edge={edge} key={edge.id} nodes={nodeMap} />
+              ))}
+              {display.nodes.map((node) => (
+                <NodeShape key={node.id} node={node} />
+              ))}
+              {frame.pointers.map((pointer) => (
+                <PointerShape key={pointer.id} nodes={nodeMap} pointer={pointer} />
+              ))}
+            </g>
+          </svg>
         </div>
-      )}
+
+        <aside className="viz-insights" aria-label="Contexto da execução">
+          <div aria-live="polite" className="viz-caption">
+            <span className="viz-step-count">
+              Etapa {Math.min(frameIndex + 1, total)}/{total}
+            </span>
+            <p>{frame.caption}</p>
+          </div>
+
+          <div className="viz-insight-section">
+            <span className="viz-insight-label">Variáveis relevantes</span>
+            {frame.vars && frame.vars.length > 0 ? (
+              <div aria-label="Variáveis importantes" className="viz-vars">
+                {frame.vars.map((item) => (
+                  <span className="viz-var" key={item.name}>
+                    <span className="viz-var-name">{item.name}</span>
+                    <span className="viz-var-value">{item.value}</span>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="viz-empty-context">Sem variáveis expostas neste passo.</span>
+            )}
+          </div>
+
+          {showCode && (
+            <div className="viz-insight-section viz-code-panel">
+              <span className="viz-insight-label">Pseudocódigo sincronizado</span>
+              <pre className="viz-code" aria-label="Pseudocódigo da operação">
+                {scene.code.map((line, index) => (
+                  <span className={`viz-code-line ${frame.codeLine === index ? 'is-current' : ''}`} key={index}>
+                    <span className="viz-code-gutter">{index + 1}</span>
+                    {line}
+                  </span>
+                ))}
+              </pre>
+            </div>
+          )}
+        </aside>
+      </div>
 
       <div className="viz-controls" role="group" aria-label="Controles da animação">
         <button aria-label="Reiniciar animação" onClick={() => goTo(0)} type="button">
@@ -437,28 +464,19 @@ export function StructureViz({ scene, compact = false }: StructureVizProps) {
         </button>
       </div>
 
-      <div className="viz-progress" aria-hidden="true">
-        {scene.frames.map((_, index) => (
-          <button
-            className={`viz-progress-dot ${index === frameIndex ? 'is-current' : index < frameIndex ? 'is-done' : ''}`}
-            key={index}
-            onClick={() => goTo(index)}
-            tabIndex={-1}
-            type="button"
-          />
-        ))}
+      <div className="viz-timeline">
+        <label htmlFor={timelineId}>Linha do tempo</label>
+        <input
+          aria-label="Navegar pelas etapas"
+          id={timelineId}
+          max={Math.max(total - 1, 0)}
+          min="0"
+          onChange={(event) => goTo(Number(event.target.value))}
+          type="range"
+          value={frameIndex}
+        />
+        <output>{Math.min(frameIndex + 1, total)} / {total}</output>
       </div>
-
-      {showCode && (
-        <pre className="viz-code" aria-label="Pseudocódigo da operação">
-          {scene.code.map((line, index) => (
-            <span className={`viz-code-line ${frame.codeLine === index ? 'is-current' : ''}`} key={index}>
-              <span className="viz-code-gutter">{index + 1}</span>
-              {line}
-            </span>
-          ))}
-        </pre>
-      )}
 
       {legend.length > 0 && (
         <ul className="viz-legend" aria-label="Legenda dos estados">

@@ -14,7 +14,10 @@ export type VizNodeState =
   | 'removed'
   | 'visited'
   | 'error'
-  | 'muted';
+  | 'muted'
+  | 'moving'
+  | 'sorted'
+  | 'pivot';
 
 export type VizNodeShape = 'circle' | 'box' | 'slot' | 'pill';
 
@@ -91,6 +94,9 @@ export const stateLegend: Record<Exclude<VizNodeState, 'default' | 'muted'>, { l
   removed: { label: 'Removido', badge: '×' },
   visited: { label: 'Visitado', badge: '·' },
   error: { label: 'Inválido', badge: '!' },
+  moving: { label: 'Em movimento', badge: '↔' },
+  sorted: { label: 'Ordenado', badge: '✓' },
+  pivot: { label: 'Pivô', badge: 'P' },
 };
 
 /** Estados presentes na cena, na ordem da legenda. */

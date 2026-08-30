@@ -80,6 +80,7 @@
   background: linear-gradient(160deg, var(--viz-bg), var(--viz-bg-2));
   border: 1px solid rgb(70 98 138 / 40%);
   border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), inset 0 -22px 42px rgb(2 6 23 / 28%), 0 16px 28px rgb(2 6 23 / 18%);
 }
 
 .viz-canvas:active {
@@ -145,7 +146,8 @@
   fill: var(--viz-node-fill);
   stroke: var(--viz-node-stroke);
   stroke-width: 2;
-  transition: fill var(--dur-med), stroke var(--dur-med);
+  filter: drop-shadow(0 4px 3px rgb(2 6 23 / 32%));
+  transition: fill var(--dur-med), stroke var(--dur-med), filter var(--dur-med);
 }
 
 .viz-node.shape-slot .viz-node-body {
@@ -253,6 +255,16 @@
 .viz-node.is-error .viz-badge-body { stroke: var(--state-error); }
 .viz-node.is-error .viz-badge-text { fill: var(--state-error); }
 
+.viz-node.is-moving .viz-node-body { fill: rgb(34 211 238 / 24%); stroke: var(--state-inserted); stroke-width: 3.5; filter: drop-shadow(0 8px 7px rgb(34 211 238 / 28%)); }
+.viz-node.is-moving .viz-badge-body { stroke: var(--state-inserted); }
+.viz-node.is-moving .viz-badge-text { fill: var(--state-inserted); }
+.viz-node.is-sorted .viz-node-body { fill: rgb(52 211 153 / 17%); stroke: var(--state-found); stroke-width: 3; }
+.viz-node.is-sorted .viz-badge-body { stroke: var(--state-found); }
+.viz-node.is-sorted .viz-badge-text { fill: var(--state-found); }
+.viz-node.is-pivot .viz-node-body { fill: rgb(251 191 36 / 24%); stroke: var(--state-compare); stroke-width: 3.5; }
+.viz-node.is-pivot .viz-badge-body { stroke: var(--state-compare); }
+.viz-node.is-pivot .viz-badge-text { fill: var(--state-compare); }
+
 /* Ponteiros (TOPO, FRENTE, RAIZ...) */
 
 .viz-pointer line {
@@ -282,13 +294,35 @@
 
 /* Explicação do passo atual */
 
+.viz-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(230px, .8fr);
+  gap: var(--space-3);
+}
+
+.viz-stage,
+.viz-insights {
+  min-width: 0;
+  padding: var(--space-2);
+  background: linear-gradient(145deg, rgb(255 255 255 / 3%), transparent 36%), var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.viz-stage { position: relative; display: grid; align-content: center; }
+.viz-stage-label,
+.viz-insight-label { color: var(--ink-muted); font-size: 0.68rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.viz-stage-label { position: absolute; z-index: 1; top: var(--space-3); left: var(--space-3); padding: 3px 7px; background: rgb(15 23 42 / 76%); border: 1px solid rgb(148 163 184 / 20%); border-radius: var(--radius-full); }
+.viz-insights { display: grid; align-content: start; gap: var(--space-3); }
+.viz-insight-section { display: grid; gap: var(--space-2); }
+.viz-empty-context { color: var(--ink-muted); font-size: var(--text-xs); }
+
 .viz-caption {
-  display: flex;
-  align-items: baseline;
+  display: grid;
   gap: var(--space-2);
-  min-height: 38px;
-  padding: var(--space-2) var(--space-3);
-  background: var(--surface-2);
+  min-height: 86px;
+  padding: var(--space-3);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
@@ -423,30 +457,9 @@
 
 /* Progresso em pontos */
 
-.viz-progress {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.viz-progress-dot {
-  width: 14px;
-  height: 6px;
-  padding: 0;
-  background: var(--surface-3);
-  border: 0;
-  border-radius: var(--radius-full);
-  transition: background var(--dur-fast), width var(--dur-fast);
-}
-
-.viz-progress-dot.is-done {
-  background: var(--primary-soft);
-}
-
-.viz-progress-dot.is-current {
-  width: 22px;
-  background: var(--primary);
-}
+.viz-timeline { display: grid; grid-template-columns: auto minmax(80px, 1fr) auto; align-items: center; gap: var(--space-2); color: var(--ink-muted); font-size: var(--text-xs); font-weight: 700; }
+.viz-timeline input { width: 100%; accent-color: var(--primary); cursor: pointer; }
+.viz-timeline output { min-width: 40px; color: var(--primary-ink); font-family: var(--font-mono); text-align: right; }
 
 /* Pseudocódigo sincronizado */
 
@@ -521,6 +534,9 @@
 .viz-legend-item.is-removed .viz-legend-dot { color: #4b0a17; background: var(--state-removed); }
 .viz-legend-item.is-visited .viz-legend-dot { color: #2b1a55; background: var(--state-visited); }
 .viz-legend-item.is-error .viz-legend-dot { color: #490909; background: var(--state-error); }
+.viz-legend-item.is-moving .viz-legend-dot { color: #063540; background: var(--state-inserted); }
+.viz-legend-item.is-sorted .viz-legend-dot { color: #03301f; background: var(--state-found); }
+.viz-legend-item.is-pivot .viz-legend-dot { color: #4a3403; background: var(--state-compare); }
 
 /* Modo compacto (dentro das questões) */
 
@@ -528,6 +544,7 @@
   max-height: 280px;
 }
 
-.viz.is-compact .viz-progress {
-  display: none;
+@media (max-width: 760px) {
+  .viz-workspace { grid-template-columns: 1fr; }
+  .viz.is-compact .viz-insights { gap: var(--space-2); }
 }
