@@ -1,4 +1,4 @@
-import type { GraphData, VertexData, EdgeData } from '@/content/types';
+import type { GraphData, EdgeData } from '@/content/types';
 
 export interface AlgorithmStep {
   description: string;
@@ -324,7 +324,7 @@ export function dfs(
     state[v] = 1;
     discovery[v] = time++;
     order.push(v);
-    steps.push({ description: `VISITAR_REC(${v}): estado 0→1 (começou, não terminou).`, currentVertex: v, highlightVertices: [v], state: { ...state } as Record<string, string> });
+    steps.push({ description: `VISITAR_REC(${v}): estado 0→1 (começou, não terminou).`, currentVertex: v, highlightVertices: [v], state: { ...state } as Record<string, string | number> });
     for (const e of g.edges) {
       if (e.source !== v) continue;
       const u = e.target;
@@ -344,7 +344,7 @@ export function dfs(
     }
     state[v] = 2;
     finish[v] = time++;
-    steps.push({ description: `VISITAR_REC(${v}) termina: estado 1→2.`, currentVertex: v, state: { ...state } as Record<string, string> });
+    steps.push({ description: `VISITAR_REC(${v}) termina: estado 1→2.`, currentVertex: v, state: { ...state } as Record<string, string | number> });
   };
 
   if (start) visit(start);

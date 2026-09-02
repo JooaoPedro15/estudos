@@ -106,3 +106,39 @@ body {
 .mono {
   font-family: var(--font-mono);
 }
+
+.control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.control-btn:hover:not(:disabled) {
+  background: var(--color-bg-elevated-2);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+.control-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+.control-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.control-btn-primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+.control-btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent-strong);
+  color: white;
+}
