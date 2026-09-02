@@ -123,6 +123,8 @@ export interface QuestionMeta {
   hints: string[];
   solution: string;
   professorStyleSimilarity?: 'high' | 'medium' | 'low';
+  /** Grafo(s) mostrados como contexto acima da pergunta, para tipos que não têm campo `graph` próprio (ex.: TRUE_FALSE, MULTIPLE_CHOICE). */
+  displayGraphs?: { a: GraphData; b?: GraphData };
 }
 
 export interface Option {

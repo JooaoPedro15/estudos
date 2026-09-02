@@ -89,15 +89,27 @@ export function isRegular(g: GraphData): boolean {
   return seq.every((d) => d === seq[0]);
 }
 
-/** Sequência de graus é graficável? Checagem simples: soma par e <= n(n-1). Não é Erdős–Gallai completo, suficiente para P1. */
-export function isDegreeSequencePossible(seq: number[], n: number): { possible: boolean; reason: string } {
-  const sum = seq.reduce((a, b) => a + b, 0);
+/**
+ * Sequência de graus é graficável (existe algum grafo simples com esses graus)?
+ * Implementa o teorema de Erdős–Gallai completo (não é só checagem de soma par).
+ * Para todo 1≤k≤n: Σ_{i=1}^{k} dᵢ ≤ k(k−1) + Σ_{i=k+1}^{n} min(dᵢ,k), com a sequência ordenada decrescente.
+ */
+export function isDegreeSequencePossible(seqInput: number[], n: number): { possible: boolean; reason: string } {
+  const sum = seqInput.reduce((a, b) => a + b, 0);
   if (sum % 2 !== 0) return { possible: false, reason: 'Soma dos graus é ímpar — pelo teorema do aperto de mãos, soma dos graus = 2|E|, sempre par.' };
-  if (seq.some((d) => d < 0 || d > n - 1)) return { possible: false, reason: `Grau deve estar entre 0 e ${n - 1} em grafo simples de ${n} vértices.` };
-  if (seq.includes(0) && seq.includes(n - 1)) {
+  if (seqInput.some((d) => d < 0 || d > n - 1)) return { possible: false, reason: `Grau deve estar entre 0 e ${n - 1} em grafo simples de ${n} vértices.` };
+  if (seqInput.includes(0) && seqInput.includes(n - 1)) {
     return { possible: false, reason: `Grau 0 e grau ${n - 1} não podem coexistir na mesma sequência de um grafo simples.` };
   }
-  return { possible: true, reason: 'Soma par, valores no intervalo válido, sem conflito 0/(n-1) — sequência plausível.' };
+  const seq = [...seqInput].sort((a, b) => b - a);
+  for (let k = 1; k <= n; k++) {
+    const lhs = seq.slice(0, k).reduce((a, b) => a + b, 0);
+    const rhs = k * (k - 1) + seq.slice(k).reduce((acc, d) => acc + Math.min(d, k), 0);
+    if (lhs > rhs) {
+      return { possible: false, reason: `Falha o critério de Erdős–Gallai em k=${k}: soma dos ${k} maiores graus (${lhs}) excede k(k−1) + soma dos min(dᵢ,k) restantes (${rhs}).` };
+    }
+  }
+  return { possible: true, reason: 'Soma par, valores no intervalo válido e critério de Erdős–Gallai satisfeito para todo k — sequência graficável.' };
 }
 
 // ---------------------------------------------------------------------------

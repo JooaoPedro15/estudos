@@ -48,6 +48,13 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
         <p className="text-base leading-relaxed text-[var(--color-text-primary)]">{question.prompt}</p>
       </div>
 
+      {question.displayGraphs && (
+        <div className={question.displayGraphs.b ? 'grid grid-cols-1 gap-4 md:grid-cols-2' : ''}>
+          <GraphVisualizer graph={question.displayGraphs.a} interactive={false} height={question.displayGraphs.b ? 240 : 300} />
+          {question.displayGraphs.b && <GraphVisualizer graph={question.displayGraphs.b} interactive={false} height={240} />}
+        </div>
+      )}
+
       <QuestionBody question={question} answer={answer} setAnswer={setAnswer} disabled={submitted} />
 
       {!submitted && (

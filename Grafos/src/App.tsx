@@ -13,6 +13,7 @@ function App() {
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/playground" element={<PlaygroundPlaceholder />} />
+        <Route path="/_qa" element={<QaScratch />} />
       </Route>
     </Routes>
   );
