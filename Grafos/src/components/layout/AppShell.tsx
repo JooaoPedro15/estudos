@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 
 interface NavItem {
   label: string;
@@ -7,10 +7,11 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Início', href: '/' },
-  { label: 'Módulos', href: '/#modulos' },
+  { label: 'Módulos', href: '/modulos' },
   { label: 'Playground', href: '/playground' },
-  { label: 'Simulado', href: '/#simulado' },
-  { label: 'Progresso', href: '/#progresso' },
+  { label: 'Simulado', href: '/simulado' },
+  { label: 'Progresso', href: '/progresso' },
+  { label: 'Revisão Final', href: '/revisao-final' },
 ];
 
 function GraphLabGlyph() {
@@ -36,19 +37,19 @@ export function AppShell() {
       </a>
       <header className="sticky top-0 z-40 border-b border-[var(--color-border-soft)] bg-[var(--color-bg-overlay)] backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3.5">
-          <a href="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-[var(--color-text-primary)]">
+          <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-[var(--color-text-primary)]">
             <GraphLabGlyph />
             GraphLab <span className="font-normal text-[var(--color-text-tertiary)]">P1</span>
-          </a>
+          </Link>
           <nav aria-label="Navegação principal" className="hidden items-center gap-1 sm:flex">
             {NAV_ITEMS.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="rounded-lg px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
