@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Target } from 'lucide-react';
 import { topics } from '@/content/topics';
 import type { ProgressState, TopicStat } from '@/content/types';
 import { loadProgress, topicMasteryPercent } from '@/store/progress';
-import { Button, Card, ProgressBar, StatTile } from '@/components/ui';
+import { Button, Card, IconChip, ProgressBar, StatTile } from '@/components/ui';
 
 function formatStudyTime(totalSeconds: number): string {
   const totalMinutes = Math.round(totalSeconds / 60);
@@ -80,7 +81,9 @@ export function ProgressPage() {
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">🎯 Pontos fracos</h2>
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
+            <IconChip icon={Target} tone="danger" size="sm" /> Pontos fracos
+          </h2>
           <Button onClick={() => navigate('/estudar/pontos-fracos')}>Estudar meus pontos fracos</Button>
         </div>
 

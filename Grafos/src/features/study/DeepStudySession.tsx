@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { pickStudySession } from '@/content/questions';
 import { topics, getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt, topicWeight } from '@/store/progress';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 
 type Phase = 'picker' | 'loading' | 'running' | 'done';
 
@@ -95,7 +96,7 @@ export function DeepStudySession() {
     return (
       <div className="mx-auto flex max-w-xl flex-col gap-6">
         <div className="flex flex-col gap-1.5">
-          <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">📚 Sessão de estudo</h1>
+          <h1 className="flex items-center justify-center gap-2 text-2xl font-semibold text-[var(--color-text-primary)]"><IconChip icon={BookOpen} tone="accent" /> Sessão de estudo</h1>
           <p className="text-sm text-[var(--color-text-secondary)]">Escolha quanto tempo você tem — as questões são priorizadas pelos seus pontos fracos e pela chance de cair na P1.</p>
         </div>
         <Card padding="lg" className="flex flex-col gap-4">
@@ -174,7 +175,7 @@ export function DeepStudySession() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">📚 Sessão de estudo</h1>
+        <h1 className="flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]"><IconChip icon={BookOpen} tone="accent" size="sm" /> Sessão de estudo</h1>
         <div className="mono flex items-center gap-3 text-xs text-[var(--color-text-tertiary)]">
           <span>
             Questão {index + 1} de {batch.length}
@@ -185,7 +186,7 @@ export function DeepStudySession() {
         </div>
       </div>
       <ProgressBar value={index} max={batch.length} tone="cyan" showValue label="Progresso da sessão" />
-      <Card className="p-6">
+      <Card padding="lg">
         <ExerciseRenderer key={question.id} question={question} onComplete={(r) => handleComplete(question, r)} />
       </Card>
     </div>

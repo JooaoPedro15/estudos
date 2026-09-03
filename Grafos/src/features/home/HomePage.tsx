@@ -2,24 +2,26 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import clsx from 'clsx';
+import { Zap, BookOpen, FileText, Target, type LucideIcon } from 'lucide-react';
 import type { ExamLikelihood, ProgressState } from '@/content/types';
-import { Button, Card, ExamLikelihoodBadge, ProgressBar } from '@/components/ui';
+import { Button, Card, ExamLikelihoodBadge, IconChip, type IconChipTone, ProgressBar } from '@/components/ui';
 import { modules } from '@/content/modules';
 import { topicsForModule, getTopic } from '@/content/topics';
 import { loadProgress, topicMasteryPercent } from '@/store/progress';
 
 interface QuickAction {
-  icon: string;
+  icon: LucideIcon;
+  tone: IconChipTone;
   title: string;
   description: string;
   href: string;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { icon: '⚡', title: 'Revisão de 5 min', description: 'Sessão curta com 3-7 atividades rápidas.', href: '/estudar/rapido' },
-  { icon: '📚', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
-  { icon: '📝', title: 'Simulado P1', description: 'Prova completa, no estilo real do professor.', href: '/simulado' },
-  { icon: '🎯', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
+  { icon: Zap, tone: 'amber', title: 'Revisão de 5 min', description: 'Sessão curta com 3-7 atividades rápidas.', href: '/estudar/rapido' },
+  { icon: BookOpen, tone: 'accent', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
+  { icon: FileText, tone: 'cyan', title: 'Simulado P1', description: 'Prova completa, no estilo real do professor.', href: '/simulado' },
+  { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
 ];
 
 const EXAM_LIKELIHOOD_RANK: Record<ExamLikelihood, number> = { low: 0, medium: 1, high: 2 };
@@ -54,9 +56,7 @@ function QuickActionCard({ action, index }: { action: QuickAction; index: number
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]',
         )}
       >
-        <span className="text-2xl" aria-hidden="true">
-          {action.icon}
-        </span>
+        <IconChip icon={action.icon} tone={action.tone} size="lg" />
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{action.title}</h3>
           <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">{action.description}</p>

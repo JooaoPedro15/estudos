@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, Flame, TriangleAlert, Star, CheckCircle2 } from 'lucide-react';
 import { getModule } from '@/content/modules';
 import { getTopic } from '@/content/topics';
 import { questionsForTopic } from '@/content/questions';
@@ -118,8 +119,9 @@ function LessonQuizSection({ questions, topicId }: { questions: Question[]; topi
 
   if (done) {
     return (
-      <div className="rounded-xl border border-[var(--color-success)]/40 bg-[var(--color-success-soft)] px-4 py-3 text-sm text-[var(--color-success)]">
-        ✅ Concluído — {questions.length} questão{questions.length !== 1 ? 'ões' : ''} respondida{questions.length !== 1 ? 's' : ''}.
+      <div className="flex items-center gap-2 rounded-xl border border-[var(--color-success)]/40 bg-[var(--color-success-soft)] px-4 py-3 text-sm text-[var(--color-success)]">
+        <CheckCircle2 size={16} className="shrink-0" />
+        Concluído — {questions.length} questão{questions.length !== 1 ? 'ões' : ''} respondida{questions.length !== 1 ? 's' : ''}.
       </div>
     );
   }
@@ -168,8 +170,8 @@ export function ConceptLessonPage() {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="mx-auto flex max-w-3xl flex-col gap-6">
       <motion.div variants={itemVariants} className="flex flex-col gap-2">
-        <Link to={`/modulos/${module.id}`} className="w-fit text-xs font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
-          ← {module.title}
+        <Link to={`/modulos/${module.id}`} className="inline-flex w-fit items-center gap-1 text-xs font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
+          <ArrowLeft size={13} /> {module.title}
         </Link>
         <div className="flex flex-wrap items-center gap-2.5">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-3xl">{topic.title}</h1>
@@ -179,7 +181,7 @@ export function ConceptLessonPage() {
               title={topic.examEvidence}
               className="inline-flex cursor-help items-center gap-1 rounded-full border border-[var(--color-danger)]/45 bg-[var(--color-danger-soft)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-danger)]"
             >
-              🔥 Aparece bastante nas provas
+              <Flame size={12} /> Aparece bastante nas provas
             </span>
           )}
         </div>
@@ -224,8 +226,8 @@ export function ConceptLessonPage() {
       {topic.commonPitfall && (
         <motion.section variants={itemVariants} aria-labelledby="lesson-pitfall">
           <Card padding="lg" className="flex flex-col gap-2 border-[var(--color-amber)]/40 bg-[var(--color-amber-soft)]">
-            <h2 id="lesson-pitfall" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-amber)]">
-              ⚠ Atenção
+            <h2 id="lesson-pitfall" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-amber)]">
+              <TriangleAlert size={13} /> Atenção
             </h2>
             <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{topic.commonPitfall}</p>
           </Card>
@@ -241,7 +243,7 @@ export function ConceptLessonPage() {
 
             <div className="flex flex-col gap-1.5">
               <span className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-accent-strong)]">
-                ⭐ Definição usada pelo professor
+                <Star size={13} className="fill-current" /> Definição usada pelo professor
               </span>
               <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{topic.conceptConflict.professorDefinition}</p>
             </div>

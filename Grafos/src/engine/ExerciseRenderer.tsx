@@ -1,7 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
+import { CheckCircle2, XCircle, X } from 'lucide-react';
 import type { Question } from '@/content/types';
 import { validateAnswer } from './validate';
 import { HintPanel } from './HintPanel';
+import { TeachMePanel } from './TeachMePanel';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { adjacencyMatrix, incidenceMatrix, validateIsomorphismMapping } from '@/lib/graph';
 
@@ -66,20 +68,20 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
       {submitted && result && (
         <div className="flex flex-col gap-3">
           <div
-            className="rounded-lg border px-4 py-3 text-sm"
+            className="flex items-center gap-2 rounded-lg border px-4 py-3 text-sm"
             style={
               result.correct
                 ? { borderColor: 'var(--color-success)', background: 'var(--color-success-soft)', color: 'var(--color-text-primary)' }
                 : { borderColor: 'var(--color-danger)', background: 'var(--color-danger-soft)', color: 'var(--color-text-primary)' }
             }
           >
-            {result.correct ? '✅ ' : '❌ '}
+            {result.correct ? <CheckCircle2 size={16} className="shrink-0 text-[var(--color-success)]" /> : <XCircle size={16} className="shrink-0 text-[var(--color-danger)]" />}
             {result.message}
           </div>
 
-          {!result.correct && (
-            <HintPanel hints={question.hints} solution={question.solution} onReveal={(n) => (hintsUsed.current = n)} />
-          )}
+          {!result.correct && <HintPanel hints={question.hints} onReveal={(n) => (hintsUsed.current = n)} />}
+
+          <TeachMePanel question={question} />
 
           <div className="flex gap-2">
             {!result.correct && attempts < 3 && (
@@ -494,9 +496,9 @@ function DragDropInput({
                       delete next[it.id];
                       setAnswer(next);
                     }}
-                    className="mono rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs text-[var(--color-accent-strong)]"
+                    className="mono inline-flex items-center gap-1 rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs text-[var(--color-accent-strong)]"
                   >
-                    {it.label} ✕
+                    {it.label} <X size={11} />
                   </button>
                 ))}
             </div>

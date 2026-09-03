@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { AlarmClock, PartyPopper } from 'lucide-react';
+import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { flashFactsForMinutes } from '@/content/finalReview';
 import { pickQuickReview } from '@/content/questions';
@@ -41,7 +42,7 @@ export function FinalReviewPage() {
     return (
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">🚨 Revisão Final</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold text-[var(--color-text-primary)]"><IconChip icon={AlarmClock} tone="danger" /> Revisão Final</h1>
           <p className="mt-1 text-[var(--color-text-secondary)]">Quanto tempo você tem antes da prova?</p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -78,7 +79,7 @@ export function FinalReviewPage() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">🚨 Revisão Final — {minutes} min</h1>
+        <h1 className="flex items-center gap-2 text-xl font-semibold text-[var(--color-text-primary)]"><IconChip icon={AlarmClock} tone="danger" size="sm" /> Revisão Final — {minutes} min</h1>
         <button onClick={() => setMinutes(null)} className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
           trocar duração
         </button>
@@ -123,7 +124,7 @@ export function FinalReviewPage() {
 
       {doneQuestions && (
         <Card padding="lg" className="text-center">
-          <p className="mb-4 text-lg font-medium text-[var(--color-text-primary)]">Boa sorte na prova! 🍀</p>
+          <p className="mb-4 flex items-center justify-center gap-2 text-lg font-medium text-[var(--color-text-primary)]"><PartyPopper size={18} className="text-[var(--color-amber)]" /> Boa sorte na prova!</p>
           <div className="flex justify-center gap-3">
             <Button onClick={() => start(minutes)}>Repetir revisão</Button>
             <Link to="/">

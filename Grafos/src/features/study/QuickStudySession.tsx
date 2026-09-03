@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Zap } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { pickQuickReview } from '@/content/questions';
 import { getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { recordAttempt } from '@/store/progress';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 
 const REVIEW_COUNT = 5;
 
@@ -99,13 +100,15 @@ export function QuickStudySession() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">⚡ Revisão rápida</h1>
+        <h1 className="flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
+          <IconChip icon={Zap} tone="amber" size="sm" /> Revisão rápida
+        </h1>
         <span className="mono text-xs text-[var(--color-text-tertiary)]">
           Questão {index + 1} de {batch.length}
         </span>
       </div>
       <ProgressBar value={(index / batch.length) * 100} />
-      <Card className="p-6">
+      <Card padding="lg">
         <ExerciseRenderer key={question.id} question={question} onComplete={(r) => handleComplete(question, r)} />
       </Card>
     </div>

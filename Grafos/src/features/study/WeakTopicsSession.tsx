@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Target, Zap } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { pickWeakTopicSession } from '@/content/questions';
 import { getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { loadProgress, recordAttempt, weakestTopics } from '@/store/progress';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 
 interface Answered {
   question: Question;
@@ -60,7 +61,7 @@ export function WeakTopicsSession() {
           Responda algumas questões primeiro (numa revisão rápida ou sessão de estudo) para o GraphLab identificar seus pontos fracos.
         </p>
         <Link to="/estudar/rapido">
-          <Button>⚡ Fazer uma revisão rápida</Button>
+          <Button icon={<Zap size={15} />}>Fazer uma revisão rápida</Button>
         </Link>
       </Card>
     );
@@ -73,7 +74,9 @@ export function WeakTopicsSession() {
     const wrongTopics = [...new Set(answered.filter((a) => !a.correct).map((a) => a.question.topic))];
     return (
       <Card padding="lg" className="mx-auto max-w-xl">
-        <h1 className="mb-1 text-2xl font-semibold text-[var(--color-text-primary)]">🎯 Pontos fracos — sessão concluída</h1>
+        <h1 className="mb-1 flex items-center gap-2 text-2xl font-semibold text-[var(--color-text-primary)]">
+          <IconChip icon={Target} tone="danger" /> Pontos fracos — sessão concluída
+        </h1>
         <p className="mb-6 text-[var(--color-text-secondary)]">
           {correctCount}/{batch.length} corretas
         </p>
@@ -102,7 +105,9 @@ export function WeakTopicsSession() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">🎯 Meus pontos fracos</h1>
+        <h1 className="flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
+          <IconChip icon={Target} tone="danger" size="sm" /> Meus pontos fracos
+        </h1>
         <span className="mono text-xs text-[var(--color-text-tertiary)]">
           Questão {index + 1} de {batch.length}
         </span>

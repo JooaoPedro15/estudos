@@ -2,16 +2,9 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { modules } from '@/content/modules';
 import { topicsForModule } from '@/content/topics';
-import { Card, ExamLikelihoodBadge } from '@/components/ui';
+import { Card, ExamLikelihoodBadge, IconChip } from '@/components/ui';
+import { moduleIcon } from './moduleIcons';
 import type { ExamLikelihood } from '@/content/types';
-
-const ICON_GLYPH: Record<string, string> = {
-  graph: '🕸️',
-  matrix: '🔢',
-  shuffle: '🔀',
-  search: '🔍',
-  route: '🧭',
-};
 
 const LIKELIHOOD_RANK: Record<ExamLikelihood, number> = { low: 0, medium: 1, high: 2 };
 
@@ -43,9 +36,7 @@ export function ModuleListPage() {
               <Link to={`/modulos/${module.id}`} className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] rounded-2xl">
                 <Card interactive padding="lg" className="flex h-full flex-col gap-3">
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-2xl" aria-hidden="true">
-                      {ICON_GLYPH[module.icon] ?? '📘'}
-                    </span>
+                    <IconChip icon={moduleIcon(module.icon)} tone="accent" size="lg" />
                     <ExamLikelihoodBadge level={moduleLikelihood(module.id)} />
                   </div>
                   <div className="flex flex-col gap-1.5">

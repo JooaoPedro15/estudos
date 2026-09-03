@@ -1,16 +1,10 @@
 import { motion } from 'motion/react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { getModule } from '@/content/modules';
 import { topicsForModule } from '@/content/topics';
-import { Button, Card, ExamLikelihoodBadge } from '@/components/ui';
-
-const ICON_GLYPH: Record<string, string> = {
-  graph: '🕸️',
-  matrix: '🔢',
-  shuffle: '🔀',
-  search: '🔍',
-  route: '🧭',
-};
+import { Button, Card, ExamLikelihoodBadge, IconChip } from '@/components/ui';
+import { moduleIcon } from './moduleIcons';
 
 function teaser(text: string, maxLength = 140): string {
   if (text.length <= maxLength) return text;
@@ -39,13 +33,11 @@ export function ModulePage() {
   return (
     <div className="flex flex-col gap-8">
       <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-col gap-3">
-        <Link to="/modulos" className="w-fit text-xs font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
-          ← Todos os módulos
+        <Link to="/modulos" className="inline-flex w-fit items-center gap-1 text-xs font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
+          <ArrowLeft size={13} /> Todos os módulos
         </Link>
         <div className="flex items-center gap-3">
-          <span className="text-3xl" aria-hidden="true">
-            {ICON_GLYPH[module.icon] ?? '📘'}
-          </span>
+          <IconChip icon={moduleIcon(module.icon)} tone="accent" size="lg" />
           <div className="flex flex-col gap-1">
             <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
               Módulo {module.order.toString().padStart(2, '0')}

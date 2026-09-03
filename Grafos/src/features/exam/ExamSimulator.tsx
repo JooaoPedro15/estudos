@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import clsx from 'clsx';
+import { Star } from 'lucide-react';
 import { getExam } from '@/content/exams';
 import { getQuestion } from '@/content/questions';
 import type { ExerciseType, Question, QuestionAttempt } from '@/content/types';
 import { validateAnswer } from '@/engine/validate';
+import { TeachMePanel } from '@/engine/TeachMePanel';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { recordAttempt } from '@/store/progress';
 import { Badge, Button, Card } from '@/components/ui';
@@ -382,13 +384,14 @@ function RunningScreen({
             type="button"
             onClick={() => onToggleMarked(current.question.id)}
             className={clsx(
-              'rounded-full border px-3 py-1 text-xs font-medium transition',
+              'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition',
               isMarked
                 ? 'border-[var(--color-amber)]/50 bg-[var(--color-amber-soft)] text-[var(--color-amber)]'
                 : 'border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)]',
             )}
           >
-            {isMarked ? '★ Marcada para revisar' : '☆ Marcar para revisar'}
+            <Star size={12} className={isMarked ? 'fill-current' : ''} />
+            {isMarked ? 'Marcada para revisar' : 'Marcar para revisar'}
           </button>
         </div>
 
@@ -655,12 +658,7 @@ function ResultsScreen({ examTitle, results }: { examTitle: string; results: Gra
               <AnswerDisplay question={r.question} answer={r.answer} />
             </div>
 
-            {(!r.autoGraded || !r.correct) && (
-              <div className="rounded-lg border border-[var(--color-accent)]/40 bg-[var(--color-accent-soft)] p-3">
-                <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Solução</p>
-                <p className="whitespace-pre-wrap text-sm text-[var(--color-text-primary)]">{r.question.solution}</p>
-              </div>
-            )}
+            <TeachMePanel question={r.question} />
           </Card>
         ))}
       </div>

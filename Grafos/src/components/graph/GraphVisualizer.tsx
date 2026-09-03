@@ -123,18 +123,26 @@ export function GraphVisualizer({
     dragState.current = null;
   };
 
-  const onWheel = (e: React.WheelEvent) => {
-    if (!interactive) return;
-    e.preventDefault();
-    const point = toSvgPoint(e.clientX, e.clientY);
-    const factor = e.deltaY > 0 ? 0.9 : 1.1;
-    setView((v) => {
-      const newScale = Math.min(3, Math.max(0.35, v.scale * factor));
-      const tx = e.nativeEvent.offsetX - point.x * newScale;
-      const ty = e.nativeEvent.offsetY - point.y * newScale;
-      return { scale: newScale, tx, ty };
-    });
-  };
+  // React anexa wheel como listener passivo por padrão — preventDefault() ali dentro
+  // falha silenciosamente (e gera warning no console) e a página rola em vez do
+  // grafo dar zoom. Por isso o listener é anexado manualmente como não-passivo.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || !interactive) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const point = toSvgPoint(e.clientX, e.clientY);
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      setView((v) => {
+        const newScale = Math.min(3, Math.max(0.35, v.scale * factor));
+        const tx = e.offsetX - point.x * newScale;
+        const ty = e.offsetY - point.y * newScale;
+        return { scale: newScale, tx, ty };
+      });
+    };
+    svg.addEventListener('wheel', handler, { passive: false });
+    return () => svg.removeEventListener('wheel', handler);
+  }, [interactive, toSvgPoint]);
 
   const edges = useMemo(() => groupEdges(graph), [graph]);
   const selectedV = new Set(selectedVertexIds);
@@ -182,7 +190,6 @@ export function GraphVisualizer({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
-      onWheel={onWheel}
     >
       <defs>
         <marker id="gv-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
