@@ -88,3 +88,24 @@ export function pickWeakTopicSession(weakTopicIds: string[], count = 8): Questio
   const rest = shuffle(questions.filter((q) => !weakTopicIds.includes(q.topic)));
   return [...pool, ...rest].slice(0, count);
 }
+
+/**
+ * Escolhe UMA próxima questão para o modo "Prática livre" (sem fim
+ * pré-definido — a sessão pede uma questão de cada vez até o aluno parar).
+ * Evita repetir qualquer id em `excludeIds` (últimas N mostradas), pondera
+ * por `topicWeights` (ver store/progress topicWeight) e por examLikelihood.
+ * Retorna undefined só se TODAS as questões estiverem em excludeIds.
+ */
+export function pickNextPracticeQuestion(excludeIds: string[], topicWeights?: Record<string, number>): Question | undefined {
+  const excluded = new Set(excludeIds);
+  let pool = questions.filter((q) => !excluded.has(q.id));
+  if (pool.length === 0) pool = questions; // esgotou tudo — permite repetir
+  const weights = pool.map((q) => (topicWeights?.[q.topic] ?? 1) * examWeight(q));
+  const total = weights.reduce((a, b) => a + b, 0);
+  let roll = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) return pool[i];
+  }
+  return pool[pool.length - 1];
+}

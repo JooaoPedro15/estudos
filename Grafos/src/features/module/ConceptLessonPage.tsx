@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Flame, TriangleAlert, Star, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Flame, TriangleAlert, Star, CheckCircle2, CircleHelp } from 'lucide-react';
 import { getModule } from '@/content/modules';
 import { getTopic } from '@/content/topics';
 import { questionsForTopic } from '@/content/questions';
@@ -51,6 +51,23 @@ function buildTopicGraph(topicId: string): GraphData {
       return makeGraph(false, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e']]);
     case 'scc-kosaraju':
       return makeGraph(true, ['a', 'b', 'c', 'd', 'e', 'f'], [['a', 'b'], ['b', 'c'], ['c', 'a'], ['c', 'd'], ['d', 'e'], ['e', 'f'], ['f', 'd']]);
+    case 'euleriano':
+      return makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'a'], ['a', 'c']]);
+    case 'dijkstra':
+      return makeGraph(
+        false,
+        ['a', 'b', 'c', 'd', 'e'],
+        [
+          ['a', 'b', 2],
+          ['a', 'c', 5],
+          ['b', 'c', 1],
+          ['b', 'd', 4],
+          ['c', 'd', 1],
+          ['d', 'e', 3],
+        ],
+      );
+    case 'topologica-maior-caminho':
+      return makeGraph(true, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['a', 'c'], ['b', 'd'], ['c', 'd'], ['d', 'e']]);
     default:
       return makeGraph(false, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e'], ['e', 'a']]);
   }
@@ -352,6 +369,19 @@ export function ConceptLessonPage() {
           )}
         </div>
       </motion.div>
+
+      {topic.scopeNote && (
+        <motion.div
+          variants={itemVariants}
+          className="flex items-start gap-2.5 rounded-xl border border-[var(--color-cyan)]/35 bg-[var(--color-cyan-soft)] px-4 py-3"
+        >
+          <CircleHelp size={16} className="mt-0.5 shrink-0 text-[var(--color-cyan)]" />
+          <div className="flex flex-col gap-0.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-cyan)]">P1 ou P2? Fontes divergem</p>
+            <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{topic.scopeNote}</p>
+          </div>
+        </motion.div>
+      )}
 
       <motion.section variants={itemVariants} aria-labelledby="lesson-know">
         <Card padding="lg" className="flex flex-col gap-3">

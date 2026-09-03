@@ -90,6 +90,8 @@ export interface Topic {
   understand: string[];
   commonPitfall?: string;
   conceptConflict?: ConceptConflict;
+  /** Quando as fontes de escopo (cronograma vs. provas antigas) discordam sobre se isso cai na P1 ou só na P2 — explica o conflito para o aluno decidir quanto priorizar. */
+  scopeNote?: string;
   sources: Source[];
 }
 

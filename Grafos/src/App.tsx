@@ -7,6 +7,7 @@ import { ConceptLessonPage } from '@/features/module/ConceptLessonPage';
 import { QuickStudySession } from '@/features/study/QuickStudySession';
 import { DeepStudySession } from '@/features/study/DeepStudySession';
 import { WeakTopicsSession } from '@/features/study/WeakTopicsSession';
+import { PracticeSession } from '@/features/study/PracticeSession';
 import { ExamListPage } from '@/features/exam/ExamListPage';
 import { ExamSimulator } from '@/features/exam/ExamSimulator';
 import { ProgressPage } from '@/features/progress/ProgressPage';
@@ -24,6 +25,7 @@ function App() {
         <Route path="/estudar/rapido" element={<QuickStudySession />} />
         <Route path="/estudar/sessao" element={<DeepStudySession />} />
         <Route path="/estudar/pontos-fracos" element={<WeakTopicsSession />} />
+        <Route path="/estudar/pratica-livre" element={<PracticeSession />} />
         <Route path="/simulado" element={<ExamListPage />} />
         <Route path="/simulado/:examId" element={<ExamSimulator />} />
         <Route path="/progresso" element={<ProgressPage />} />

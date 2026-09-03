@@ -1,6 +1,8 @@
 # P1 Scope — Teoria dos Grafos e Computabilidade (Prof. Silvio Jamil F. Guimarães)
 
-**Revisão 2** — corrigida após o usuário fornecer o cronograma oficial 2026/2 (`Materiais/Cronograma/2026-2-schedule-tgc-cc-coreu-manha.pdf`). Substitui a Revisão 1 (mantida implicitamente no histórico do git). A Revisão 1 inferiu o escopo apenas a partir do padrão das provas antigas — na ausência de cronograma, essa era a melhor fonte disponível. Com o cronograma em mãos (prioridade 3, acima de provas antigas — prioridade 4, na hierarquia de fontes deste projeto), a fronteira P1/P2 muda em pontos concretos. Ver seção "O que mudou" abaixo.
+**Revisão 3** — o usuário pediu explicitamente para NÃO deixar a Revisão 2 (só cronograma) substituir sozinha a evidência de provas antigas: ele não tem certeza se o cronograma será seguido à risca este semestre, e quer as duas fontes combinadas, não uma escolhida às cegas no lugar da outra. Mudança concreta: **euleriano, Dijkstra e ordenação topológica/maior caminho voltaram a aparecer no app** (a Revisão 2 os havia removido por estarem, no cronograma, depois da data da P1). Continuam visíveis, mas cada um agora tem um campo `scopeNote` explicando o conflito de fontes diretamente na lição (e um selo "P1 ou P2?" na lista de tópicos do módulo) — decisão de quanto priorizar cada um fica com o aluno, não escondida pelo app. Ver seção "Conflitos mantidos visíveis" abaixo.
+
+**Revisão 2** (histórico, parcialmente revertida pela Revisão 3) — corrigida após o usuário fornecer o cronograma oficial 2026/2 (`Materiais/Cronograma/2026-2-schedule-tgc-cc-coreu-manha.pdf`). A Revisão 1 inferiu o escopo apenas a partir do padrão das provas antigas — na ausência de cronograma, essa era a melhor fonte disponível. Com o cronograma em mãos (prioridade 3, acima de provas antigas — prioridade 4, na hierarquia de fontes deste projeto), a fronteira P1/P2 mudava em pontos concretos — ver "O que mudou" abaixo. A parte da Revisão 2 sobre lógica/conjuntos ENTRAREM no escopo continua valendo (não há conflito de fontes ali — só ausência de amostra antiga, não contradição).
 
 ## Decisão de escopo (atualizada)
 
@@ -71,18 +73,27 @@ Isso não significa que as provas antigas "erraram" — significa que o professo
 | Lógica proposicional (conectivos, tabelas-verdade, equivalências) | 03/09 | `06-graphs-propositional-logic.pdf` |
 | Lógica de predicados (quantificadores, negação, tradução) | 09/09 | `07-graphs-predicate-logic.pdf` |
 
-## OUT_OF_SCOPE_P1 (atualizado)
+## UNCERTAIN_P1 (Revisão 3 — mantidos visíveis, com `scopeNote` explicando o conflito)
+
+Estes três tinham evidência de provas antigas (Revisão 1) mas o cronograma 2026/2 os coloca depois da P1 (Revisão 2). Por pedido do usuário, ficam visíveis no app — módulo "Conectividade e Caminhos Especiais" — em vez de escondidos, para ele decidir quanto estudar:
+
+| Tópico | Evidência a favor (provas antigas) | Evidência contra (cronograma 2026/2) |
+|---|---|---|
+| Caminho/circuito euleriano | 2/8 provas (2023/2, 2026/1) | "Grafos hamiltonianos e eulerianos" em 17/09 — 3 dias depois da P1 (14/09) |
+| Dijkstra | Não isolado em nenhuma prova; só lista de exercícios/aulão | A partir de 30/09 — mais de 2 semanas depois |
+| Ordenação topológica / maior caminho DAG | 2/8 provas (2024/2, 2026/1) | 09–12/11 — depois até da Prova 2 (22/10) |
+
+## OUT_OF_SCOPE_P1 (sem evidência de nenhuma fonte — nem provas antigas, nem cronograma antes da P1)
 
 | Material | Motivo |
 |---|---|
-| Caminho/circuito euleriano | Cronograma: 17/09, depois da P1 (14/09) |
-| Dijkstra | Cronograma: a partir de 30/09 |
-| Bellman-Ford, Floyd-Warshall | Cronograma: outubro, claramente P2/P3 |
-| Ordenação topológica, maior caminho DAG | Cronograma: novembro, depois até da Prova 2 |
-| Árvores, AGM (Prim/Kruskal) | Cronograma: a partir de 23/09 |
-| Fluxo máximo, emparelhamento, planaridade, coloração, conjuntos de vértices (independência/dominância/cobertura) | Cronograma: outubro–dezembro, P2/P3 |
-| Grafos hamiltonianos | Cronograma: 17/09, junto com euleriano |
-| Indução | Cronograma: 16/09, depois da P1 |
+| Bellman-Ford, Floyd-Warshall | Cronograma: outubro, claramente P2/P3; nunca apareceu em prova antiga |
+| Árvores, AGM (Prim/Kruskal) | Cronograma: a partir de 23/09; nunca apareceu em prova antiga |
+| Fluxo máximo, emparelhamento, planaridade, coloração, conjuntos de vértices (independência/dominância/cobertura) | Cronograma: outubro–dezembro, P2/P3; nunca apareceu em prova antiga |
+| Grafos hamiltonianos | Cronograma: 17/09; nunca apareceu em prova antiga do Prof. Silvio (só do Prof. Zenilton, fora de escopo) |
+| Indução | Cronograma: 16/09, depois da P1; nunca apareceu em prova antiga |
+
+Estes SIM ficam de fora do app — diferente da tabela UNCERTAIN acima, não há nenhum sinal de prova antiga puxando a favor deles.
 
 Provas do Prof. Zenilton Kleber continuam fora de escopo (professor diferente do especificado pelo usuário).
 

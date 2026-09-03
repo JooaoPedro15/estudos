@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CircleHelp } from 'lucide-react';
 import { getModule } from '@/content/modules';
 import { topicsForModule } from '@/content/topics';
 import { Button, Card, ExamLikelihoodBadge, IconChip } from '@/components/ui';
@@ -58,7 +58,14 @@ export function ModulePage() {
               <Card interactive className="flex flex-col gap-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-base font-semibold text-[var(--color-text-primary)]">{topic.title}</h2>
-                  <ExamLikelihoodBadge level={topic.examLikelihood} />
+                  <div className="flex items-center gap-1.5">
+                    {topic.scopeNote && (
+                      <span title={topic.scopeNote} className="inline-flex cursor-help items-center gap-1 rounded-full border border-[var(--color-cyan)]/40 bg-[var(--color-cyan-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-cyan)]">
+                        <CircleHelp size={11} /> P1 ou P2?
+                      </span>
+                    )}
+                    <ExamLikelihoodBadge level={topic.examLikelihood} />
+                  </div>
                 </div>
                 <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{teaser(topic.whatYouNeedToKnow)}</p>
               </Card>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import clsx from 'clsx';
-import { Zap, BookOpen, FileText, Target, type LucideIcon } from 'lucide-react';
+import { Zap, BookOpen, FileText, Target, Dumbbell, type LucideIcon } from 'lucide-react';
 import type { ExamLikelihood, ProgressState } from '@/content/types';
 import { Button, Card, ExamLikelihoodBadge, IconChip, type IconChipTone, ProgressBar } from '@/components/ui';
 import { modules } from '@/content/modules';
@@ -22,6 +22,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { icon: BookOpen, tone: 'accent', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
   { icon: FileText, tone: 'cyan', title: 'Simulado P1', description: 'Prova completa, no estilo real do professor.', href: '/simulado' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
+  { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
 ];
 
 const EXAM_LIKELIHOOD_RANK: Record<ExamLikelihood, number> = { low: 0, medium: 1, high: 2 };
@@ -133,7 +134,7 @@ export function HomePage() {
         </Card>
       </motion.div>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ações rápidas">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" aria-label="Ações rápidas">
         {QUICK_ACTIONS.map((action, i) => (
           <QuickActionCard key={action.title} action={action} index={i} />
         ))}
