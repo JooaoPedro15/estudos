@@ -42,9 +42,18 @@ export const modules: Module[] = [
     order: 5,
     title: 'Conectividade e Caminhos Especiais',
     shortTitle: 'Conectividade',
-    description: 'Excentricidade/raio/diâmetro/centro, componentes fortemente conexos, caminho euleriano, Dijkstra e ordenação topológica.',
+    description: 'Excentricidade/raio/diâmetro/centro e componentes fortemente conexos (Kosaraju).',
     icon: 'route',
-    topicIds: ['excentricidade-raio-diametro', 'scc-kosaraju', 'euleriano', 'dijkstra', 'topologica-maior-caminho'],
+    topicIds: ['excentricidade-raio-diametro', 'scc-kosaraju'],
+  },
+  {
+    id: 'logica-conjuntos',
+    order: 6,
+    title: 'Lógica e Teoria dos Conjuntos',
+    shortTitle: 'Lógica & Conjuntos',
+    description: 'Conjuntos e funções, lógica proposicional e lógica de predicados — dadas nos dias imediatamente antes da P1, conforme o cronograma.',
+    icon: 'logic',
+    topicIds: ['teoria-de-conjuntos', 'logica-proposicional', 'logica-de-predicados'],
   },
 ];
 

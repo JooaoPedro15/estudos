@@ -4,6 +4,7 @@ import { representacoesQuestions } from './02-representacoes';
 import { isomorfismoQuestions } from './03-isomorfismo';
 import { buscaQuestions } from './04-busca';
 import { conectividadeQuestions } from './05-conectividade';
+import { logicaConjuntosQuestions } from './06-logica-conjuntos';
 
 export const questions: Question[] = [
   ...fundamentosQuestions,
@@ -11,6 +12,7 @@ export const questions: Question[] = [
   ...isomorfismoQuestions,
   ...buscaQuestions,
   ...conectividadeQuestions,
+  ...logicaConjuntosQuestions,
 ];
 
 export function getQuestion(id: string): Question | undefined {

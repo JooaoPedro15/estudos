@@ -4,14 +4,15 @@ Mapa de proveniência de todo material em `Materiais/`, com camada de prioridade
 
 | Arquivo | Prioridade | Papel | Status P1 |
 |---|---|---|---|
+| `Cronograma/2026-2-schedule-tgc-cc-coreu-manha.pdf` | 3 | Cronograma oficial 2026/2 — data da P1 (14/09) e ordem exata do conteúdo | **Fonte decisiva do escopo** — ver `docs/p1-scope.md` Revisão 2 |
 | `Slides/00-graphs-general-information.pdf` | 1 | Ementa, avaliação, contato | Contexto (não gera módulo) |
 | `Slides/01-graphs-concepts.pdf` | 1 | Definições fundamentais de grafo | IN_SCOPE |
-| `Slides/02-graphs-logic.pdf` | 1 | Lógica geral/paradoxos | OUT_OF_SCOPE |
-| `Slides/03-graphs-set-theory.pdf` | 1 | Conjuntos e funções | OUT_OF_SCOPE |
+| `Slides/02-graphs-logic.pdf` | 1 | Introdução à lógica (aula de 31/08) | IN_SCOPE (Revisão 2) |
+| `Slides/03-graphs-set-theory.pdf` | 1 | Conjuntos e funções (aula de 02/09) | IN_SCOPE (Revisão 2) |
 | `Slides/04-graphs-data-structures.pdf` | 1 | Representações de grafo | IN_SCOPE |
 | `Slides/05-graphs-isomorphism-and-concepts.pdf` | 1 | Isomorfismo, complemento, subgrafo | IN_SCOPE |
-| `Slides/06-graphs-propositional-logic.pdf` | 1 | Lógica proposicional | OUT_OF_SCOPE |
-| `Slides/07-graphs-predicate-logic.pdf` | 1 | Lógica de predicados | OUT_OF_SCOPE |
+| `Slides/06-graphs-propositional-logic.pdf` | 1 | Lógica proposicional (aula de 03/09) | IN_SCOPE (Revisão 2) |
+| `Slides/07-graphs-predicate-logic.pdf` | 1 | Lógica de predicados (aula de 09/09) | IN_SCOPE (Revisão 2) |
 | `FotosDoQuadro/*.jpeg` (6 arquivos, incl. 4 do zip) | 2 | Resolução ao vivo: SCC, base/anti-base Γ⁺, detecção de ciclo DFS 3 estados, classificação de arestas | IN_SCOPE — fonte primária para pseudocódigo do professor |
 | `Outros/Resumo Prova 1 Grafos.pdf` (aluna Sophia Carrazza) | 3 | Resumo de estudo rotulado "prova 1": BFS/DFS, fechos, excentricidade/raio/diâmetro/centro, Kosaraju, fórmulas de contagem | IN_SCOPE — sinal forte de escopo |
 | `Outros/Lista-de-exercicios-1.pdf` | 3 | 20 exercícios oficiais PUC com resolução manuscrita | IN_SCOPE — fonte de variações/exercícios gerados |
@@ -26,5 +27,5 @@ Mapa de proveniência de todo material em `Materiais/`, com camada de prioridade
 
 ## Notas
 
-- Nenhum arquivo de cronograma/calendário explícito foi encontrado. A fronteira P1/P2 foi inferida cruzando slides, material de apoio e — decisivamente — as 8 provas P1 reais do professor (ver `docs/p1-scope.md`).
+- **Atualização**: o cronograma oficial 2026/2 foi fornecido pelo usuário após a auditoria inicial. Como cronograma é prioridade 3 (acima de provas antigas, prioridade 4), ele decide a fronteira P1/P2 quando conflita com o padrão histórico — ver `docs/p1-scope.md` Revisão 2. Euleriano, Dijkstra e ordenação topológica apareciam em provas antigas mas o cronograma deste semestre os coloca depois da P1 (17/09 em diante) — tratados como OUT_OF_SCOPE nesta versão.
 - Os livros da bibliografia (prioridade 5) nunca determinam sozinhos o escopo; usados apenas para comparar definições dos tópicos já confirmados como IN_SCOPE.

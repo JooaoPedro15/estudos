@@ -68,9 +68,9 @@ export const flashFacts: FlashFact[] = [
   },
   {
     id: 'ff-10',
-    text: 'Euleriano: circuito ⟺ todos os graus pares; caminho ⟺ exatamente 2 vértices de grau ímpar. Método esperado: priorizar arestas que não desconectam o grafo (Fleury), não Hierholzer.',
+    text: 'De Morgan (lógica e conjuntos): ¬(p∧q)≡¬p∨¬q, ¬(p∨q)≡¬p∧¬q; (A∪B)ᶜ=Aᶜ∩Bᶜ, (A∩B)ᶜ=Aᶜ∪Bᶜ. Negação de quantificador: ¬∀xP(x)≡∃x¬P(x); ¬∃xP(x)≡∀x¬P(x).',
     tier: 'extra',
-    source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
+    source: { type: 'professor_slide', file: '06-graphs-propositional-logic.pdf' },
   },
   {
     id: 'ff-11',
@@ -98,9 +98,15 @@ export const flashFacts: FlashFact[] = [
   },
   {
     id: 'ff-15',
-    text: 'Ordenação topológica: remova incrementalmente vértices de grau de entrada 0 (Kahn) OU use a ordem decrescente de tempo de término de uma DFS completa — qualquer um é aceito, sem preferência documentada do professor.',
+    text: 'p→q só é FALSA no caso p=V,q=F — se p é falsa, a implicação já é verdadeira (vacuamente). Contrapositiva ¬q→¬p é a única equivalente logicamente ao original (recíproca e inversa não são).',
     tier: 'extra',
-    source: { type: 'old_exam', note: '2024/2, P1-TGC (2026/1)' },
+    source: { type: 'professor_slide', file: '06-graphs-propositional-logic.pdf' },
+  },
+  {
+    id: 'ff-16',
+    text: 'Restrição de domínio dentro de quantificador: use → com ∀ ("∀x, se x é par então...") e ∧ com ∃ ("∃x tal que x é par e..."). Trocar um pelo outro muda o significado.',
+    tier: 'extra',
+    source: { type: 'professor_slide', file: '07-graphs-predicate-logic.pdf' },
   },
 ];
 

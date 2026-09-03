@@ -1,69 +1,95 @@
 # P1 Scope — Teoria dos Grafos e Computabilidade (Prof. Silvio Jamil F. Guimarães)
 
-Documento final de escopo (Fase 1). Substitui `p1-scope-candidate.md` (mantido como rascunho histórico).
+**Revisão 2** — corrigida após o usuário fornecer o cronograma oficial 2026/2 (`Materiais/Cronograma/2026-2-schedule-tgc-cc-coreu-manha.pdf`). Substitui a Revisão 1 (mantida implicitamente no histórico do git). A Revisão 1 inferiu o escopo apenas a partir do padrão das provas antigas — na ausência de cronograma, essa era a melhor fonte disponível. Com o cronograma em mãos (prioridade 3, acima de provas antigas — prioridade 4, na hierarquia de fontes deste projeto), a fronteira P1/P2 muda em pontos concretos. Ver seção "O que mudou" abaixo.
 
-## Decisão de escopo
+## Decisão de escopo (atualizada)
 
-**A P1 deste professor cobre exclusivamente Teoria dos Grafos** (definições, representações, propriedades, isomorfismo, e algoritmos de busca/conectividade). **Não cobre lógica proposicional, lógica de predicados nem teoria de conjuntos**, apesar desses temas fazerem parte da ementa geral da disciplina ("Parte 1 — Computabilidade") e existirem slides dedicados a eles.
+A **Prova 1 de 2026/2 é no dia 14/09/2026** (segunda-feira), conforme o cronograma. O conteúdo dado até a aula de revisão (10/09) é:
 
-### Evidência decisiva
+```
+03/08 seg — Apresentação / Introdução / Conceitos fundamentais
+05/08 qua — Conceitos fundamentais de grafos
+06/08 qui — Estruturas de dados para representação
+10/08 seg — Estruturas de dados para representação
+12/08 qua — Isomorfismo / Subgrafo
+13/08 qui — Busca em largura
+17/08 seg — Caminho / Noções básicas de conectividade
+19/08 qua — Caminho / Noções básicas de conectividade
+20/08 qui — Busca em profundidade
+24/08 seg — Busca em profundidade
+26/08 qua — Conectividade e Separabilidade
+27/08 qui — Conectividade e Separabilidade
+31/08 seg — Introdução à Lógica
+02/09 qua — Teoria de conjuntos
+03/09 qui — Lógica proposicional
+09/09 qua — Lógica de predicados
+10/09 qui — Aula de exercícios e revisão
+14/09 seg — PROVA 1
+```
 
-Analisamos **8 provas P1 reais do Prof. Silvio Jamil** (2022/1 a 2026/1, ver `docs/exam-pattern.md`). Nenhuma das ~37 sub-questões testa lógica proposicional, lógica de predicados, ou teoria de conjuntos como assunto autônomo. 100% das questões são sobre grafos: definições, propriedades, provas envolvendo contagem/grau, representações (matriz/lista), isomorfismo/complemento, e projeto de algoritmos de grafo (busca, fecho transitivo, base/anti-base, ciclos, SCC, Euler, caminho mínimo, diâmetro).
+Logo após a revisão, sem nenhum outro conteúdo intercalado, entram temas que **NÃO fazem parte da P1** deste semestre: Grafos hamiltonianos e eulerianos (17/09), corte/caminhos mínimos (21/09), árvores/AGM (23/09 em diante), Dijkstra (30/09–05/10), Bellman-Ford, Floyd-Warshall, Prova 2 (22/10), fluxo máximo, e só em novembro — depois da Prova 2 — ordenação topológica e emparelhamento.
 
-A ementa (`00-graphs-general-information.pdf`) lista duas partes: "Computabilidade" (lógica, conjuntos, funções, prova de teoremas) e "Teoria dos Grafos" (estruturas de dados, caminhos, busca, árvores, conectividade, isomorfismo, planaridade, coloração, particionamento, modelagem, fluxo em redes) — essas partes cobrem o semestre inteiro (P1+P2+trabalhos), não só a P1. A P1 amostrada testa apenas um subconjunto do bloco "Teoria dos Grafos".
+## O que mudou em relação à Revisão 1
 
-## IN_SCOPE_P1
+A Revisão 1 (baseada só nas 8 provas antigas do professor) havia concluído que a P1 é "só grafos + algoritmos de busca", excluindo lógica/conjuntos e incluindo euleriano/Dijkstra/ordenação topológica (que apareciam em provas de semestres passados). O cronograma oficial deste semestre mostra uma reorganização didática:
 
-| Tópico | Fonte primária | Confirmado por provas |
+| Tópico | Revisão 1 (por provas antigas) | Revisão 2 (por cronograma 2026/2) | Motivo da mudança |
+|---|---|---|---|
+| Lógica proposicional | OUT_OF_SCOPE (0/8 provas testaram) | **IN_SCOPE** | Dada em 03/09, imediatamente antes da revisão (10/09) e da prova (14/09) — sem nenhum outro assunto entre elas |
+| Lógica de predicados | OUT_OF_SCOPE | **IN_SCOPE** | Dada em 09/09, um dia antes da revisão |
+| Teoria de conjuntos | OUT_OF_SCOPE | **IN_SCOPE** | Dada em 02/09 |
+| Caminho/circuito euleriano | IN_SCOPE (2/8 provas antigas) | **OUT_OF_SCOPE** | Cronograma põe "Grafos hamiltonianos e eulerianos" em 17/09 — 3 dias **depois** da prova |
+| Dijkstra (menor caminho) | IN_SCOPE, prioridade média (0/8 provas, só material de apoio) | **OUT_OF_SCOPE** | Cronograma põe Dijkstra a partir de 30/09 — mais de 2 semanas depois da prova |
+| Ordenação topológica / maior caminho DAG | IN_SCOPE (2/8 provas antigas) | **OUT_OF_SCOPE** | Cronograma põe em 09–12/11 — depois até da **Prova 2** (22/10) |
+
+Isso não significa que as provas antigas "erraram" — significa que o professor reorganizou a ordem do conteúdo entre semestres (isso é comum: cursos ajustam o ritmo de um semestre para outro). Para efeitos de estudo, a fonte mais confiável de "o que VAI cair na P1 deste semestre" é o cronograma deste semestre, não o padrão de semestres com um ritmo diferente. Os tópicos removidos (euleriano, Dijkstra, ordenação topológica) permanecem implementados no motor de grafos (`src/lib/graph.ts`) e podem ser reincorporados facilmente quando fizerem sentido (P2, ou se surgir evidência de que caem mesmo na P1).
+
+**Limitação importante**: como o reordenamento é novo, não existe nenhuma prova antiga que teste lógica/conjuntos nesta posição do curso — não há amostra histórica para dizer "isso cai muito" com confiança estatística. Os tópicos de lógica/conjuntos são marcados com `examLikelihood: medium` e a evidência é "o cronograma oficial põe isso imediatamente antes da prova", não "caiu em X das Y provas".
+
+## IN_SCOPE_P1 (atualizado)
+
+### Grafos (confirmado por cronograma E por provas antigas — inalterado da Revisão 1)
+
+| Tópico | Aula do cronograma |
+|---|---|
+| Definição de grafo, terminologia (grau, laço, arestas paralelas, simples/nulo/regular) | Conceitos fundamentais (03–05/08) |
+| Walk/Trail/Path/Cycle, conexo, bipartido, famílias especiais, teorema do aperto de mãos | Conceitos fundamentais (03–05/08) |
+| Matriz de incidência, matriz de adjacência, lista de adjacência | Estruturas de dados para representação (06,10/08) |
+| Isomorfismo, complemento/subgrafo | Isomorfismo / Subgrafo (12/08) |
+| Teoremas de contagem (min/max arestas por componentes, pombos, nº subgrafos Kn) | Isomorfismo / Subgrafo (12/08) |
+| BFS | Busca em largura (13/08) |
+| DFS, classificação de arestas | Busca em profundidade (20,24/08) |
+| Fecho transitivo, base/anti-base (Γ⁺), detecção de ciclo, SCC/Kosaraju | Conectividade e Separabilidade (26,27/08) — também confirmado por 4+/8 provas antigas |
+| Excentricidade, raio, diâmetro, centro | Caminho / Noções básicas de conectividade (17,19/08) — também confirmado por provas antigas |
+
+### Lógica e Conjuntos (NOVO na Revisão 2 — confirmado só pelo cronograma, sem amostra de provas antigas)
+
+| Tópico | Aula do cronograma | Fonte de conteúdo |
 |---|---|---|
-| Definição de grafo, terminologia (grau, adjacência, laço, arestas paralelas, grafo simples/nulo/regular/valorado) | `01-graphs-concepts.pdf` | Sim (base de quase toda prova) |
-| Walk/Trail/Path/Cycle, grafo conexo, bipartido/completo/roda | `01-graphs-concepts.pdf`, Resumo | Sim (2023/1, 2025/1) |
-| Teorema do aperto de mãos, nº par de vértices de grau ímpar | `01-graphs-concepts.pdf`, `05-...pdf`, Lista Ex.1 | Sim (recorrente, quase toda prova) |
-| Operações sobre grafos (união, soma, remoção, contração) | `01-graphs-concepts.pdf`, Lista Ex.6-7 | Indireto (não é questão isolada, mas base conceitual) |
-| Matriz de incidência, matriz de adjacência, lista de adjacência | `04-graphs-data-structures.pdf` | Sim (2023/1-Q4, base de várias questões) |
-| Isomorfismo (condições necessárias, não suficientes) | `05-graphs-isomorphism-and-concepts.pdf` | Sim (2022/1-Q3, forte peso) |
-| Grafo complementar / auto-complementar | `05-...pdf` | Sim (2022/2, 2023/1, 2025/1) |
-| Subgrafo / subgrafo induzido, nº de subgrafos de Kn | `05-...pdf` | Sim (2022/2, 2024/1, 2024/2, 2026/1 — um dos + recorrentes) |
-| Teorema de mín/máx de arestas dado n vértices e k componentes | `05-...pdf`, Resumo | Sim (base da família "possibilidade de grafo", 4 de 8 provas) |
-| Prova de dois vértices com mesmo grau (casa dos pombos) | Lista Ex.2, Resumo | Sim (2024/1, 2024/2, 2026/1) |
-| BFS (busca em largura) | Resumo, Aulão | Sim (2023/1-Q5) |
-| DFS (busca em profundidade) | Resumo, Aulão | Sim (2022/2-Q3) |
-| Fecho transitivo direto/inverso (via grafo transposto) | Resumo | Sim (2022/1-Q2, 2022/2-Q2 — recorrente) |
-| Base e anti-base de grafo dirigido (notação Γ⁺) | Aulão, Quadro | Sim (2022/1, 2022/2, 2023/2, 2024/1 — muito recorrente) |
-| Detecção/classificação de ciclo em grafo dirigido (DFS 3 estados 0/1/2) | Quadro (fonte primária, ao vivo) | Sim (2024/2-Q3, 2026/1-Q4) |
-| Classificação de arestas em DFS (árvore/retorno/avanço/cruzamento) | Resumo, Quadro | Indireto (não vista isolada nas 8 provas do Silvio, mas ensinada ao vivo — manter como sub-habilidade do bloco DFS) |
-| Excentricidade, raio, diâmetro, centro | Resumo | Sim (2023/2-Q3, 2024/1-Q4) |
-| Caminho/circuito euleriano (condições + algoritmo) | Aulão | Sim (2023/2-Q4 narrativa, 2026/1-Q2 direta) |
-| Menor caminho / Dijkstra | Aulão, Lista Ex.8 | Indireto (não é questão isolada nas 8 provas amostradas, mas é pilar do curso e mencionado na Lista de Exercícios oficial — manter como tópico, com prioridade de exame "média") |
-| SCC — algoritmo de Kosaraju | Resumo, Aulão, Quadro (foto viva) | Sim (2022/1-Q5, 2024/2 relacionado) |
-| Ordenação topológica / maior caminho em DAG (agendamento) | Provas antigas apenas (2024/2-Q4, 2026/1-Q3) | Sim, mas SEM fonte de slide/resumo/aulão — incluído por evidência direta e repetida de prova real do mesmo professor |
-| Grafos especiais: Nn, Cn, Kn, Km,n, Qn (hipercubo), Wn (roda), Kr,s,t (tripartido completo) | Lista Ex.11, `01-...pdf`, prova 2025/1-Q3 | Sim (2025/1-Q3) |
-| Famílias de grafos-modelo (interseção de conjuntos, intervalos, grade, palavras, grafo de linha) | Lista Ex. 9,16-20 | Não testado diretamente nas 8 provas, mas é o estilo de "modelagem de problema como grafo" que a P1 cobra recorrentemente (2023/2-Q4, 2025/1-Q5, 2026/1-Q3) — manter como gerador de variações de questões aplicadas, não como tópico de teoria isolado |
+| Introdução à lógica (contexto, não muito testável isoladamente) | 31/08 | `02-graphs-logic.pdf` |
+| Teoria de conjuntos e funções (operações, De Morgan, injetora/sobrejetora/bijetora) | 02/09 | `03-graphs-set-theory.pdf` |
+| Lógica proposicional (conectivos, tabelas-verdade, equivalências) | 03/09 | `06-graphs-propositional-logic.pdf` |
+| Lógica de predicados (quantificadores, negação, tradução) | 09/09 | `07-graphs-predicate-logic.pdf` |
 
-## OUT_OF_SCOPE_P1 (não gerar módulos visíveis)
+## OUT_OF_SCOPE_P1 (atualizado)
 
 | Material | Motivo |
 |---|---|
-| `02-graphs-logic.pdf` (lógica geral/paradoxos) | Zero ocorrência nas 8 provas P1; pertence à Parte 1 "Computabilidade" da ementa, provavelmente avaliada em outro momento do curso |
-| `03-graphs-set-theory.pdf` (conjuntos e funções) | Idem — zero ocorrência nas provas |
-| `06-graphs-propositional-logic.pdf` | Idem |
-| `07-graphs-predicate-logic.pdf` (slide mais novo/extenso) | Idem — apesar de ser o material mais recente e completo, nenhuma das 8 provas P1 (nem o resumo, nem o aulão) menciona predicados/quantificadores. Guardado para possível P2/outra avaliação. |
-| Planaridade, coloração, particionamento, fluxo em redes, árvores (menção na ementa geral) | Não aparecem em nenhum slide lido nem em nenhuma das 8 provas — conteúdo de curso completo (provavelmente P2), não de P1 |
-| Provas do Prof. Zenilton Kleber (matching bipartido/fluxo máximo, teoremas de Dirac/Ore/Bondy-Chvátal para hamiltonicidade, Bellman-Ford com pesos negativos) | Professor diferente do especificado pelo usuário ("passar na P1 do professor Silvio") — mantido só como referência em `docs/exam-pattern.md`, não usado para moldar o formato/conteúdo do app |
+| Caminho/circuito euleriano | Cronograma: 17/09, depois da P1 (14/09) |
+| Dijkstra | Cronograma: a partir de 30/09 |
+| Bellman-Ford, Floyd-Warshall | Cronograma: outubro, claramente P2/P3 |
+| Ordenação topológica, maior caminho DAG | Cronograma: novembro, depois até da Prova 2 |
+| Árvores, AGM (Prim/Kruskal) | Cronograma: a partir de 23/09 |
+| Fluxo máximo, emparelhamento, planaridade, coloração, conjuntos de vértices (independência/dominância/cobertura) | Cronograma: outubro–dezembro, P2/P3 |
+| Grafos hamiltonianos | Cronograma: 17/09, junto com euleriano |
+| Indução | Cronograma: 16/09, depois da P1 |
 
-## UNCERTAIN (registrado, não vira módulo isolado por ora)
+Provas do Prof. Zenilton Kleber continuam fora de escopo (professor diferente do especificado pelo usuário).
 
-- **Dijkstra/menor caminho ponderado**: mencionado no aulão e na lista de exercícios oficial, mas não aparece como questão isolada nas 8 provas amostradas (amostra pequena — pode ter caído em semestre não capturado). Mantido como tópico de prioridade "média" dentro do bloco de algoritmos de busca, não como card de destaque "aparece muito".
-- **Classificação de arestas DFS (árvore/retorno/avanço/cruzamento)**: ensinada ao vivo (quadro) mas não vista como questão isolada nas provas amostradas — tratada como sub-habilidade dentro do módulo DFS, não módulo próprio.
+## Materiais usados (atualizado)
 
-## Materiais usados
+Adiciona `Materiais/Cronograma/2026-2-schedule-tgc-cc-coreu-manha.pdf` (prioridade 3) à lista da Revisão 1. Reincorpora `Materiais/Slides/02-graphs-logic.pdf`, `03-graphs-set-theory.pdf`, `06-graphs-propositional-logic.pdf`, `07-graphs-predicate-logic.pdf` — antes listados como "ignorados", agora confirmados em escopo pelo cronograma.
 
-`Materiais/Slides/00,01,04,05-*.pdf`, `Materiais/Outros/Resumo Prova 1 Grafos.pdf`, `Materiais/Outros/Lista-de-exercicios-1.pdf`, `Materiais/Outros/Flash Cards Grafos-1.pdf` (na verdade aulão de monitoria), `Materiais/FotosDoQuadro/*` (6 fotos, incl. zip), `Materiais/Provas/Prova 1/*` (8 provas do Prof. Silvio).
+## Materiais agora ignorados (atualizado)
 
-## Materiais ignorados (para este escopo)
-
-`Materiais/Slides/02,03,06,07-*.pdf` (ver OUT_OF_SCOPE acima). Continuam armazenados em `Materiais/` para uso futuro (ex.: se o usuário quiser expandir o app para P2 ou para computabilidade).
-
-## Materiais incertos / tratados com ressalva
-
-Provas do Prof. Zenilton Kleber (`Materiais/Provas/Prova 1/*.jpeg`) — mesma disciplina, professor diferente. Mantidas como referência de comparação em `docs/exam-pattern.md`, não usadas para gerar conteúdo do app salvo indicação futura do usuário.
+Nenhum slide de grafos é ignorado. O conteúdo de algoritmos mais avançados (euleriano, Dijkstra, AGM, fluxo, planaridade, coloração) não tem slide dedicado no material fornecido — é ensinado só em aula, depois da P1 — e por isso não gera módulo nesta versão do app.

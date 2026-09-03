@@ -3,7 +3,11 @@ import type { Exam } from './types';
 // Estrutura, contagem de questões e distribuição de peso baseadas no padrão
 // real das 8 provas do Prof. Silvio Jamil analisadas (ver docs/exam-pattern.md):
 // 4-5 questões dissertativas, nota em %, sempre somando 100%, sem múltipla
-// escolha, exigindo justificativa explícita.
+// escolha, exigindo justificativa explícita. O Simulado A troca uma questão
+// de estilo antigo (euleriano, agora fora do escopo — ver docs/p1-scope.md)
+// por uma de lógica de predicados, já que o cronograma 2026/2 confirma esse
+// assunto como conteúdo real da P1 deste semestre (sem prova antiga como
+// referência de formato, então o estilo é 'generated', não 'old_exam').
 
 export const exams: Exam[] = [
   {
@@ -15,7 +19,7 @@ export const exams: Exam[] = [
       { questionId: 'fund-fam-05', weightPercent: 25 },
       { questionId: 'base-03', weightPercent: 25 },
       { questionId: 'ciclo-02', weightPercent: 25 },
-      { questionId: 'euler-03', weightPercent: 25 },
+      { questionId: 'pred-05', weightPercent: 25 },
     ],
   },
   {

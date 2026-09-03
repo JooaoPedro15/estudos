@@ -51,23 +51,6 @@ function buildTopicGraph(topicId: string): GraphData {
       return makeGraph(false, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e']]);
     case 'scc-kosaraju':
       return makeGraph(true, ['a', 'b', 'c', 'd', 'e', 'f'], [['a', 'b'], ['b', 'c'], ['c', 'a'], ['c', 'd'], ['d', 'e'], ['e', 'f'], ['f', 'd']]);
-    case 'euleriano':
-      return makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'a'], ['a', 'c']]);
-    case 'dijkstra':
-      return makeGraph(
-        false,
-        ['a', 'b', 'c', 'd', 'e'],
-        [
-          ['a', 'b', 2],
-          ['a', 'c', 5],
-          ['b', 'c', 1],
-          ['b', 'd', 4],
-          ['c', 'd', 1],
-          ['d', 'e', 3],
-        ],
-      );
-    case 'topologica-maior-caminho':
-      return makeGraph(true, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['a', 'c'], ['b', 'd'], ['c', 'd'], ['d', 'e']]);
     default:
       return makeGraph(false, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e'], ['e', 'a']]);
   }
@@ -80,6 +63,186 @@ function buildIsomorphismExample(): { graphA: GraphData; graphB: GraphData } {
   return { graphA, graphB };
 }
 
+type SetOp = 'union' | 'intersection' | 'diffAB' | 'complement';
+const SET_OPS: { id: SetOp; label: string }[] = [
+  { id: 'union', label: 'A ∪ B' },
+  { id: 'intersection', label: 'A ∩ B' },
+  { id: 'diffAB', label: 'A \\ B' },
+  { id: 'complement', label: '(A ∪ B)ᶜ' },
+];
+
+/** Diagrama de Venn interativo — clique numa operação para destacar a região correspondente. */
+function VennExplorer() {
+  const [op, setOp] = useState<SetOp>('union');
+  const fill = (region: 'onlyA' | 'onlyB' | 'both' | 'outside') => {
+    const active =
+      (op === 'union' && region !== 'outside') ||
+      (op === 'intersection' && region === 'both') ||
+      (op === 'diffAB' && region === 'onlyA') ||
+      (op === 'complement' && region === 'outside');
+    return active ? 'var(--color-accent)' : 'var(--color-bg-elevated-2)';
+  };
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-wrap justify-center gap-2">
+        {SET_OPS.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => setOp(o.id)}
+            className="mono rounded-full border px-3 py-1.5 text-xs font-medium transition"
+            style={{
+              borderColor: op === o.id ? 'var(--color-accent)' : 'var(--color-border)',
+              background: op === o.id ? 'var(--color-accent-soft)' : 'var(--color-bg-elevated)',
+              color: op === o.id ? 'var(--color-accent-strong)' : 'var(--color-text-secondary)',
+            }}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+      <svg viewBox="0 0 320 200" className="w-full max-w-sm">
+        <rect x="4" y="4" width="312" height="192" rx="12" fill={fill('outside')} stroke="var(--color-border)" />
+        <circle cx="130" cy="100" r="70" fill={fill('onlyA')} fillOpacity="0.9" stroke="var(--color-border-strong)" />
+        <circle cx="190" cy="100" r="70" fill={fill('onlyB')} fillOpacity="0.9" stroke="var(--color-border-strong)" />
+        <path
+          d="M160,42 A70,70 0 0,1 160,158 A70,70 0 0,1 160,42 Z"
+          fill={fill('both')}
+          fillOpacity="0.95"
+          stroke="var(--color-border-strong)"
+        />
+        <text x="95" y="55" fontSize="16" fontWeight={700} fill="var(--color-text-primary)">A</text>
+        <text x="220" y="55" fontSize="16" fontWeight={700} fill="var(--color-text-primary)">B</text>
+      </svg>
+    </div>
+  );
+}
+
+const CONNECTIVES = [
+  { id: 'and', label: 'p ∧ q', fn: (p: boolean, q: boolean) => p && q },
+  { id: 'or', label: 'p ∨ q', fn: (p: boolean, q: boolean) => p || q },
+  { id: 'xor', label: 'p ⊕ q', fn: (p: boolean, q: boolean) => p !== q },
+  { id: 'implies', label: 'p → q', fn: (p: boolean, q: boolean) => !p || q },
+  { id: 'iff', label: 'p ↔ q', fn: (p: boolean, q: boolean) => p === q },
+];
+const BOOL_ROWS: [boolean, boolean][] = [
+  [true, true],
+  [true, false],
+  [false, true],
+  [false, false],
+];
+
+/** Tabela-verdade completa dos 5 conectivos, com a linha do (p,q) escolhido destacada. */
+function TruthTableExplorer() {
+  const [p, setP] = useState(true);
+  const [q, setQ] = useState(false);
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex gap-4">
+        <button
+          onClick={() => setP((v) => !v)}
+          className="mono rounded-lg border px-4 py-2 text-sm font-semibold transition"
+          style={{ borderColor: 'var(--color-border-strong)', background: p ? 'var(--color-success-soft)' : 'var(--color-danger-soft)', color: p ? 'var(--color-success)' : 'var(--color-danger)' }}
+        >
+          p = {p ? 'V' : 'F'}
+        </button>
+        <button
+          onClick={() => setQ((v) => !v)}
+          className="mono rounded-lg border px-4 py-2 text-sm font-semibold transition"
+          style={{ borderColor: 'var(--color-border-strong)', background: q ? 'var(--color-success-soft)' : 'var(--color-danger-soft)', color: q ? 'var(--color-success)' : 'var(--color-danger)' }}
+        >
+          q = {q ? 'V' : 'F'}
+        </button>
+      </div>
+      <div className="overflow-auto">
+        <table className="mono border-collapse text-sm">
+          <thead>
+            <tr>
+              <th className="border-b border-[var(--color-border)] px-3 py-1.5 text-left text-[var(--color-text-tertiary)]">p</th>
+              <th className="border-b border-[var(--color-border)] px-3 py-1.5 text-left text-[var(--color-text-tertiary)]">q</th>
+              {CONNECTIVES.map((c) => (
+                <th key={c.id} className="border-b border-[var(--color-border)] px-3 py-1.5 text-[var(--color-text-tertiary)]">
+                  {c.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {BOOL_ROWS.map(([rp, rq]) => {
+              const isCurrent = rp === p && rq === q;
+              return (
+                <tr key={`${rp}-${rq}`} style={isCurrent ? { background: 'var(--color-accent-soft)' } : undefined}>
+                  <td className="px-3 py-1.5 text-[var(--color-text-primary)]">{rp ? 'V' : 'F'}</td>
+                  <td className="px-3 py-1.5 text-[var(--color-text-primary)]">{rq ? 'V' : 'F'}</td>
+                  {CONNECTIVES.map((c) => (
+                    <td key={c.id} className="px-3 py-1.5 text-center text-[var(--color-text-primary)]">
+                      {c.fn(rp, rq) ? 'V' : 'F'}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/** Explorador de quantificadores: marque quais elementos do domínio satisfazem P(x) e veja ∀xP(x)/∃xP(x) mudarem ao vivo. */
+function QuantifierExplorer() {
+  const [satisfied, setSatisfied] = useState<Set<number>>(new Set([2, 4, 6, 8]));
+  const domain = [1, 2, 3, 4, 5, 6, 7, 8];
+  const toggle = (n: number) =>
+    setSatisfied((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+  const forAll = satisfied.size === domain.length;
+  const exists = satisfied.size > 0;
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <p className="text-center text-xs text-[var(--color-text-tertiary)]">
+        Domínio = {'{1..8}'}. Clique nos números para marcar quais satisfazem P(x) (ex.: "x é par").
+      </p>
+      <div className="flex flex-wrap justify-center gap-2">
+        {domain.map((n) => {
+          const on = satisfied.has(n);
+          return (
+            <button
+              key={n}
+              onClick={() => toggle(n)}
+              className="mono flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition"
+              style={{
+                borderColor: on ? 'var(--color-accent)' : 'var(--color-border-strong)',
+                background: on ? 'var(--color-accent-soft)' : 'var(--color-bg-elevated)',
+                color: on ? 'var(--color-accent-strong)' : 'var(--color-text-tertiary)',
+              }}
+            >
+              {n}
+            </button>
+          );
+        })}
+      </div>
+      <div className="grid w-full max-w-sm grid-cols-2 gap-3">
+        <div
+          className="rounded-lg border px-3 py-2 text-center text-sm font-semibold"
+          style={{ borderColor: forAll ? 'var(--color-success)' : 'var(--color-danger)', background: forAll ? 'var(--color-success-soft)' : 'var(--color-danger-soft)', color: forAll ? 'var(--color-success)' : 'var(--color-danger)' }}
+        >
+          ∀xP(x) = {forAll ? 'V' : 'F'}
+        </div>
+        <div
+          className="rounded-lg border px-3 py-2 text-center text-sm font-semibold"
+          style={{ borderColor: exists ? 'var(--color-success)' : 'var(--color-danger)', background: exists ? 'var(--color-success-soft)' : 'var(--color-danger-soft)', color: exists ? 'var(--color-success)' : 'var(--color-danger)' }}
+        >
+          ∃xP(x) = {exists ? 'V' : 'F'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VisualizeSection({ topicId }: { topicId: string }) {
   if (topicId === 'matriz-adjacencia' || topicId === 'matriz-incidencia' || topicId === 'lista-adjacencia') {
     const graph = buildTopicGraph(topicId);
@@ -89,6 +252,9 @@ function VisualizeSection({ topicId }: { topicId: string }) {
     const { graphA, graphB } = buildIsomorphismExample();
     return <IsomorphismVisualizer graphA={graphA} graphB={graphB} expectedIsomorphic />;
   }
+  if (topicId === 'teoria-de-conjuntos') return <VennExplorer />;
+  if (topicId === 'logica-proposicional') return <TruthTableExplorer />;
+  if (topicId === 'logica-de-predicados') return <QuantifierExplorer />;
   const graph = buildTopicGraph(topicId);
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)]">

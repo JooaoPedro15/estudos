@@ -1,12 +1,14 @@
 import type { Question } from '@/content/types';
-import { radiusDiameterCenter, stronglyConnectedComponents, eulerianClassification, dijkstra, topologicalSort, longestPathDAG } from '@/lib/graph';
-import { UG_SIX, UG_SIX_LAID_OUT, PROFESSOR_SCC_EXAMPLE, EULER_CIRCUIT_GRAPH, EULER_PATH_GRAPH, EULER_NONE_GRAPH, WEIGHTED_GRAPH, DAG_SEVEN } from './graphs';
+import { radiusDiameterCenter, stronglyConnectedComponents } from '@/lib/graph';
+import { UG_SIX, UG_SIX_LAID_OUT, PROFESSOR_SCC_EXAMPLE } from './graphs';
+
+// Euleriano, Dijkstra e ordenação topológica saíram do banco de questões
+// nesta revisão — cronograma 2026/2 confirma que são ensinados depois da P1
+// (14/09). Ver docs/p1-scope.md "O que mudou". Os grafos EULER_*/WEIGHTED_GRAPH/
+// DAG_SEVEN continuam em ./graphs.ts para reaproveitar quando isso virar P2.
 
 const rdc = radiusDiameterCenter(UG_SIX);
 const sccResult = stronglyConnectedComponents(PROFESSOR_SCC_EXAMPLE);
-const dij = dijkstra(WEIGHTED_GRAPH, 's');
-const topo = topologicalSort(DAG_SEVEN)!;
-const longest = longestPathDAG(DAG_SEVEN)!;
 
 export const conectividadeQuestions: Question[] = [
   {
@@ -97,146 +99,5 @@ export const conectividadeQuestions: Question[] = [
     source: { type: 'professor_support_material' },
     hints: ['"Fortemente conexo" já significa que todo par de vértices se alcança mutuamente.'],
     solution: 'Correto — por definição, se o grafo TODO é fortemente conexo, ele forma um único SCC contendo todos os vértices.',
-  },
-  {
-    id: 'euler-01',
-    topic: 'euleriano',
-    difficulty: 'medium',
-    duration: 'quick',
-    examLikelihood: 'medium',
-    sourceStyle: 'generated',
-    type: 'MULTIPLE_CHOICE',
-    prompt: 'O grafo abaixo tem circuito euleriano, caminho euleriano (mas não circuito), ou nenhum dos dois?',
-    displayGraphs: { a: EULER_CIRCUIT_GRAPH },
-    options: [
-      { id: 'a', label: 'Circuito euleriano' },
-      { id: 'b', label: 'Caminho euleriano (não circuito)' },
-      { id: 'c', label: 'Nenhum dos dois' },
-    ],
-    correctOptionId: eulerianClassification(EULER_CIRCUIT_GRAPH).kind === 'circuit' ? 'a' : eulerianClassification(EULER_CIRCUIT_GRAPH).kind === 'path' ? 'b' : 'c',
-    source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
-    hints: ['Calcule o grau de cada vértice — todos são pares?'],
-    solution: 'Todos os vértices têm grau par (0 vértices de grau ímpar) — o grafo tem circuito euleriano.',
-  },
-  {
-    id: 'euler-02',
-    topic: 'euleriano',
-    difficulty: 'medium',
-    duration: 'quick',
-    examLikelihood: 'medium',
-    sourceStyle: 'generated',
-    type: 'GRAPH_SELECT_VERTEX',
-    prompt: 'Selecione os dois vértices de grau ÍMPAR do grafo abaixo (início e fim de um possível caminho euleriano).',
-    graph: EULER_PATH_GRAPH,
-    multi: true,
-    correctVertexIds: eulerianClassification(EULER_PATH_GRAPH).oddVertices,
-    source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
-    hints: ['Conte o grau de cada vértice — a maioria é par, só 2 são ímpares.'],
-    solution: `Vértices de grau ímpar: {${eulerianClassification(EULER_PATH_GRAPH).oddVertices.join(', ')}} — o caminho euleriano começa em um e termina no outro.`,
-  },
-  {
-    id: 'euler-02b',
-    topic: 'euleriano',
-    difficulty: 'easy',
-    duration: 'quick',
-    examLikelihood: 'medium',
-    sourceStyle: 'generated',
-    type: 'MULTIPLE_CHOICE',
-    prompt: 'O grafo abaixo tem circuito euleriano, caminho euleriano, ou nenhum dos dois?',
-    displayGraphs: { a: EULER_NONE_GRAPH },
-    options: [
-      { id: 'a', label: 'Circuito euleriano' },
-      { id: 'b', label: 'Caminho euleriano (não circuito)' },
-      { id: 'c', label: 'Nenhum dos dois' },
-    ],
-    correctOptionId: 'c',
-    source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
-    hints: [`Vértices de grau ímpar: ${eulerianClassification(EULER_NONE_GRAPH).oddVertices.join(', ')} — quantos são?`],
-    solution: `Este grafo tem ${eulerianClassification(EULER_NONE_GRAPH).oddVertices.length} vértices de grau ímpar (mais de 2) — não existe caminho nem circuito euleriano. Só funciona com exatamente 0 (circuito) ou exatamente 2 (caminho) vértices de grau ímpar.`,
-  },
-  {
-    id: 'euler-03',
-    topic: 'euleriano',
-    difficulty: 'hard',
-    duration: 'deep',
-    examLikelihood: 'medium',
-    sourceStyle: 'old_exam',
-    type: 'PROOF_OR_JUSTIFICATION',
-    prompt: 'Explique as condições de existência de um circuito euleriano e projete uma solução para encontrá-lo, caso exista, no grafo abaixo.',
-    displayGraphs: { a: EULER_CIRCUIT_GRAPH },
-    rubric: [
-      'Enuncia a condição: grafo conexo e todos os vértices com grau par',
-      'Descreve o método: DFS priorizando arestas que não desconectam o grafo (evitar pontes, exceto quando não há alternativa)',
-      'Verifica a condição no grafo dado (todos os graus pares)',
-      'Constrói/descreve um circuito euleriano válido para o exemplo',
-    ],
-    source: { type: 'old_exam', file: 'P1-TGC.pdf' },
-    professorStyleSimilarity: 'high',
-    hints: ['Confira o grau de cada vértice do grafo primeiro.', 'A estratégia do professor: percorrer evitando "queimar pontes" — só use uma aresta de corte quando não houver outra opção.'],
-    solution:
-      'Circuito euleriano existe ⟺ grafo conexo e todos os vértices com grau par. Aqui todos os graus são pares, logo existe. Método: a partir de um vértice qualquer, siga arestas priorizando sempre as que NÃO desconectam o grafo restante (evite pontes a menos que seja a única opção), até voltar ao vértice inicial — nesse ponto, se ainda restarem arestas não visitadas, repita o processo a partir de um vértice do circuito atual que ainda tenha arestas livres, inserindo o novo sub-circuito no ponto correspondente.',
-  },
-  {
-    id: 'dij-01',
-    topic: 'dijkstra',
-    difficulty: 'medium',
-    duration: 'normal',
-    examLikelihood: 'medium',
-    sourceStyle: 'generated',
-    type: 'NUMBER_INPUT',
-    prompt: 'No grafo ponderado abaixo, qual a distância do menor caminho de "s" até "t"?',
-    displayGraphs: { a: WEIGHTED_GRAPH },
-    correctNumber: dij.distances.t,
-    unit: 'unidades',
-    source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
-    hints: ['Rode Dijkstra a partir de s, relaxando as arestas na ordem de menor distância acumulada.', `Distâncias parciais até cada vértice: ${JSON.stringify(dij.distances)}.`],
-    solution: `Menor caminho s→t = ${dij.distances.t} (via s→a→b→t: 2+1+3=6, mais curto que s→b→t=5+3=8 ou s→a→c→t=2+6+1=9).`,
-  },
-  {
-    id: 'dij-02',
-    topic: 'dijkstra',
-    difficulty: 'easy',
-    duration: 'quick',
-    examLikelihood: 'low',
-    sourceStyle: 'generated',
-    type: 'TRUE_FALSE',
-    prompt: 'O algoritmo de Dijkstra funciona corretamente mesmo quando o grafo tem arestas de peso negativo.',
-    correctValue: false,
-    source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
-    hints: ['Pense em por que "sempre escolher o menor D atual" pode falhar se uma aresta negativa aparecer depois.'],
-    solution: 'Falso — Dijkstra assume que, uma vez que um vértice é processado, sua distância é final. Pesos negativos podem violar essa suposição (um caminho mais longo em nº de arestas, mas com peso negativo, pode ser mais curto). Para pesos negativos, usa-se Bellman-Ford.',
-  },
-  {
-    id: 'topo-01',
-    topic: 'topologica-maior-caminho',
-    difficulty: 'medium',
-    duration: 'normal',
-    examLikelihood: 'medium',
-    sourceStyle: 'old_exam',
-    type: 'ORDERING',
-    prompt: 'Encontre uma ordenação topológica válida do DAG abaixo (pode haver mais de uma correta — o sistema aceita a calculada pelo método de remoção incremental).',
-    displayGraphs: { a: DAG_SEVEN },
-    items: DAG_SEVEN.vertices.map((v) => ({ id: v.id, label: v.label })).sort(() => Math.random() - 0.5),
-    correctOrder: topo.order,
-    source: { type: 'old_exam', file: '2024-2-exam.pdf' },
-    hints: ['Comece pelos vértices sem nenhuma aresta de entrada.', 'Remova-os (junto das arestas de saída) e repita.'],
-    solution: `Uma ordenação topológica válida: ${topo.order.join(' → ')} (via remoção incremental de grau de entrada 0).`,
-  },
-  {
-    id: 'topo-02',
-    topic: 'topologica-maior-caminho',
-    difficulty: 'hard',
-    duration: 'deep',
-    examLikelihood: 'medium',
-    sourceStyle: 'old_exam',
-    type: 'NUMBER_INPUT',
-    prompt: 'No mesmo DAG, qual o comprimento (em nº de arestas) do MAIOR caminho que termina em "g"?',
-    displayGraphs: { a: DAG_SEVEN },
-    correctNumber: longest.distances.g,
-    unit: 'arestas',
-    source: { type: 'old_exam', file: '2024-2-exam.pdf' },
-    professorStyleSimilarity: 'high',
-    hints: ['Percorra os vértices na ordem topológica, acumulando a maior distância possível até cada um.', `Ordem topológica usada: ${topo.order.join(', ')}.`],
-    solution: `Maior caminho até g tem comprimento ${longest.distances.g} arestas — calculado processando os vértices em ordem topológica e acumulando dist[v] = máximo entre dist[u]+1 sobre toda aresta (u,v) que chega em v. Distâncias finais: ${Object.entries(longest.distances).map(([v, d]) => `${v}=${d}`).join(', ')}.`,
   },
 ];
