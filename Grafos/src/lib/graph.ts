@@ -64,7 +64,13 @@ export function incidentEdges(g: GraphData, id: string): EdgeData[] {
 // ---------------------------------------------------------------------------
 
 export function degree(g: GraphData, id: string): number {
-  if (!g.directed) return incidentEdges(g, id).length;
+  if (!g.directed) {
+    return g.edges.reduce((acc, e) => {
+      if (e.source === id && e.target === id) return acc + 2; // laço soma 2
+      if (e.source === id || e.target === id) return acc + 1;
+      return acc;
+    }, 0);
+  }
   return successors(g, id).length + predecessors(g, id).length;
 }
 
@@ -154,7 +160,7 @@ export function adjacencyList(g: GraphData): { successorsMap: Record<string, str
   const successorsMap: Record<string, string[]> = {};
   const predecessorsMap: Record<string, string[]> = {};
   for (const v of g.vertices) {
-    successorsMap[v.id] = successors(g, v.id);
+    successorsMap[v.id] = g.directed ? successors(g, v.id) : neighbors(g, v.id);
     predecessorsMap[v.id] = g.directed ? predecessors(g, v.id) : neighbors(g, v.id);
   }
   return { successorsMap, predecessorsMap };
