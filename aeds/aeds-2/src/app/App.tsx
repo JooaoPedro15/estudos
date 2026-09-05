@@ -32,6 +32,7 @@ import {
   getPracticeModules,
   type PracticeModuleId,
 } from '../content/practiceModules';
+import { prova1Blueprint } from '../content/prova1Blueprint';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
 import { buildSimulado } from '../content/simuladoBuilder';
 import { applyAttempt, createEmptyNotebook, getPriorityErrors } from '../engine/adaptiveReview';
@@ -206,6 +207,12 @@ export function App() {
   const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
   /** Prova escolhida pra filtrar o Treino de Codigo; null = ainda nao escolheu. */
   const [practiceScope, setPracticeScope] = useState<PracticeScope | null>(null);
+  /**
+   * Prova escolhida pro Simulado; comeca em 'reav' (comportamento de sempre,
+   * sem interromper quem so quer continuar o simulado). null = trocando de
+   * prova agora (mostra o seletor de novo).
+   */
+  const [examScope, setExamScope] = useState<PracticeScope | null>('reav');
   const [conceptualModuleId, setConceptualModuleId] = useState<ConceptualDrawingModuleId | null>(
     initialState.conceptualModuleId,
   );
@@ -415,15 +422,52 @@ export function App() {
     }));
   }
 
-  /** Novo simulado: sorteia uma nova combinacao evitando repetir a anterior. */
+  /**
+   * Novo simulado: sorteia uma nova combinacao evitando repetir a anterior.
+   * Na Prova 1 nao ha sorteio ainda (blueprint fixo de 3 questoes-referencia)
+   * — "novo simulado" so reinicia as mesmas 3 questoes.
+   */
   function newSimulado() {
     setLastAttempt(null);
     resetAnswerDrafts();
     setActiveMode('exam');
     setGame((currentGame) => {
+      if (examScope === 'p1') {
+        return { ...currentGame, blueprint: prova1Blueprint, session: createExamSession(prova1Blueprint) };
+      }
       const blueprint = buildSimulado({ previous: currentGame.blueprint });
       return { ...currentGame, blueprint, session: createExamSession(blueprint) };
     });
+  }
+
+  /**
+   * Troca a prova do Simulado. Prova 1 usa o blueprint fixo de referencia;
+   * Reavaliacao/"ver tudo" usa o simulado dinamico de sempre; Prova 2 e
+   * Prova 3 ainda nao tem blueprint — so troca o escopo pra mostrar o aviso.
+   */
+  function selectExamScope(scope: PracticeScope) {
+    setLastAttempt(null);
+    setExamScope(scope);
+
+    if (scope === 'p1') {
+      setGame((currentGame) => {
+        if (currentGame.blueprint.id === prova1Blueprint.id) {
+          return currentGame;
+        }
+        return { ...currentGame, blueprint: prova1Blueprint, session: createExamSession(prova1Blueprint) };
+      });
+      return;
+    }
+
+    if (scope === 'reav' || scope === 'all') {
+      setGame((currentGame) => {
+        if (currentGame.blueprint.id !== prova1Blueprint.id) {
+          return currentGame;
+        }
+        const blueprint = buildSimulado();
+        return { ...currentGame, blueprint, session: createExamSession(blueprint) };
+      });
+    }
   }
 
   function startQuickPractice() {
@@ -699,7 +743,15 @@ export function App() {
             )}
             <h2 id="exam-title">
               {activeMode === 'exam'
-                ? 'Simulado de 6 questoes'
+                ? examScope === null
+                  ? 'Escolha uma prova'
+                  : examScope === 'p1'
+                    ? 'Simulado da Prova 1'
+                    : examScope === 'p2'
+                      ? 'Simulado da Prova 2'
+                      : examScope === 'p3'
+                        ? 'Simulado da Prova 3'
+                        : 'Simulado de 6 questoes'
                 : activeMode === 'conceptual'
                   ? 'Conceitual'
                   : activeMode === 'drawing'
@@ -794,50 +846,73 @@ export function App() {
                 showTeaching={showTeaching}
               />
             )
-          ) : game.session.completed || !currentQuestion || !currentStep ? (
-            <div className="complete-state">
-              <CheckCircle2 aria-hidden="true" size={42} />
-              <h3>Simulado concluido</h3>
-              <p>
-                Pontuacao final: {game.session.score} de {game.session.maxScore}.
-              </p>
-              <div className="action-row">
-                <button className="primary-button" onClick={newSimulado} type="button">
-                  <Shuffle aria-hidden="true" size={18} />
-                  Novo simulado
-                </button>
-                <button className="ghost-button" onClick={restartSimulado} type="button">
+          ) : activeMode === 'exam' ? (
+            examScope === null ? (
+              <ProvaSelectionScreen onSelect={selectExamScope} />
+            ) : examScope === 'p2' || examScope === 'p3' ? (
+              <div className="complete-state">
+                <ClipboardList aria-hidden="true" size={42} />
+                <h3>Simulado ainda nao disponivel</h3>
+                <p>
+                  A {examScope === 'p2' ? 'Prova 2' : 'Prova 3'} ainda nao tem simulado pronto. Treine por modulo em
+                  "Treino de Codigo" enquanto isso.
+                </p>
+                <button className="ghost-button" onClick={() => setExamScope(null)} type="button">
                   <RotateCcw aria-hidden="true" size={18} />
-                  Refazer
+                  Trocar prova
                 </button>
               </div>
-            </div>
-          ) : (
-            <>
-              <div className="question-progress" aria-label={`Questao ${currentQuestion.number} de ${game.blueprint.questions.length}`}>
-                <div className="question-progress-dots" aria-hidden="true">
-                  {game.blueprint.questions.map((question, index) => (
-                    <span
-                      className={`question-dot ${
-                        index < game.session.currentQuestionIndex
-                          ? 'is-done'
-                          : index === game.session.currentQuestionIndex
-                            ? 'is-current'
-                            : ''
-                      }`}
-                      key={question.id}
-                    />
-                  ))}
+            ) : game.session.completed || !currentQuestion || !currentStep ? (
+              <div className="complete-state">
+                <CheckCircle2 aria-hidden="true" size={42} />
+                <h3>Simulado concluido</h3>
+                <p>
+                  Pontuacao final: {game.session.score} de {game.session.maxScore}.
+                </p>
+                <div className="action-row">
+                  <button className="primary-button" onClick={newSimulado} type="button">
+                    <Shuffle aria-hidden="true" size={18} />
+                    Novo simulado
+                  </button>
+                  <button className="ghost-button" onClick={restartSimulado} type="button">
+                    <RotateCcw aria-hidden="true" size={18} />
+                    Refazer
+                  </button>
+                  <button className="ghost-button compact" onClick={() => setExamScope(null)} type="button">
+                    <RotateCcw aria-hidden="true" size={16} />
+                    Trocar prova
+                  </button>
                 </div>
-                <span>
-                  Questao {currentQuestion.number} de {game.blueprint.questions.length} · Etapa{' '}
-                  {game.session.currentStepIndex + 1} de {currentQuestion.steps.length}
-                </span>
-                <button className="ghost-button compact" onClick={newSimulado} type="button">
-                  <Shuffle aria-hidden="true" size={16} />
-                  Novo simulado
-                </button>
               </div>
+            ) : (
+              <>
+                <div className="question-progress" aria-label={`Questao ${currentQuestion.number} de ${game.blueprint.questions.length}`}>
+                  <div className="question-progress-dots" aria-hidden="true">
+                    {game.blueprint.questions.map((question, index) => (
+                      <span
+                        className={`question-dot ${
+                          index < game.session.currentQuestionIndex
+                            ? 'is-done'
+                            : index === game.session.currentQuestionIndex
+                              ? 'is-current'
+                              : ''
+                        }`}
+                        key={question.id}
+                      />
+                    ))}
+                  </div>
+                  <span>
+                    Questao {currentQuestion.number} de {game.blueprint.questions.length} · Etapa{' '}
+                    {game.session.currentStepIndex + 1} de {currentQuestion.steps.length}
+                  </span>
+                  <button className="ghost-button compact" onClick={() => setExamScope(null)} type="button">
+                    Trocar prova
+                  </button>
+                  <button className="ghost-button compact" onClick={newSimulado} type="button">
+                    <Shuffle aria-hidden="true" size={16} />
+                    Novo simulado
+                  </button>
+                </div>
 
               <div className="learning-breadcrumb" aria-label="Caminho de estudo">
                 <span>Modulo</span><ChevronRight aria-hidden="true" size={14} /><span>{currentDomain.shortTitle}</span><ChevronRight aria-hidden="true" size={14} /><span>Exercicios</span>
@@ -919,7 +994,8 @@ export function App() {
                 </section>
               </div>
             </>
-          )}
+            )
+          ) : null}
         </section>
 
         <NotebookPanel masteredCount={masteredCount} onPractice={practiceError} priorityErrors={priorityErrors} />
