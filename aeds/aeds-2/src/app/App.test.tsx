@@ -13,25 +13,107 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+/**
+ * Painel dinamico de Provas (Simulado/Treino/pickers): o nome acessivel
+ * muda a cada passo da cascata, entao escopamos pelo container estavel em
+ * vez de tentar casar o nome toda hora.
+ */
+function examPanel(): HTMLElement {
+  const panel = document.querySelector('.exam-panel');
+  if (!panel) {
+    throw new Error('exam-panel nao encontrado');
+  }
+  return panel as HTMLElement;
+}
+
+/** Abre a aba "Provas", escolhe uma prova e chega no simulado dela. */
+async function openSimulado(user: ReturnType<typeof userEvent.setup>, examName: RegExp) {
+  await user.click(screen.getByRole('button', { name: 'Provas' }));
+  await user.click(within(examPanel()).getByRole('button', { name: examName }));
+  if (examName.source !== /Reavaliacao/.source) {
+    await user.click(within(examPanel()).getByRole('button', { name: /Prova teorica/ }));
+  }
+  await user.click(within(examPanel()).getByRole('button', { name: /Simulado/ }));
+  return examPanel;
+}
+
+/** Abre a aba "Provas", escolhe uma prova e chega na selecao de modulos do treino. */
+async function openTreinar(user: ReturnType<typeof userEvent.setup>, examName: RegExp) {
+  await user.click(screen.getByRole('button', { name: 'Provas' }));
+  await user.click(within(examPanel()).getByRole('button', { name: examName }));
+  if (examName.source !== /Reavaliacao/.source) {
+    await user.click(within(examPanel()).getByRole('button', { name: /Prova teorica/ }));
+  }
+  await user.click(within(examPanel()).getByRole('button', { name: /Treinar/ }));
+  return examPanel;
+}
+
 test('renderiza a experiencia principal da AEDS II', () => {
   render(<App />);
 
   expect(screen.getByRole('main')).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'AEDS II' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Provas' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Conceitual' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Desenho' })).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Conceituais e Desenho' })).not.toBeInTheDocument();
-  expect(screen.getByText('Lacos aninhados')).toBeInTheDocument();
   expect(screen.getByText('Estrutura Doidona')).toBeInTheDocument();
   expect(screen.getByText('Arvore TRIE')).toBeInTheDocument();
   expect(screen.getByText('Arvore AVL')).toBeInTheDocument();
   expect(screen.getByText('Somatorios')).toBeInTheDocument();
 });
 
+test('Provas abre com a escolha de prova (Prova 1/2/3/Reavaliacao)', async () => {
+  const user = userEvent.setup();
+
+  render(<App />);
+
+  await user.click(screen.getByRole('button', { name: 'Provas' }));
+  const provas = screen.getByRole('region', { name: 'Escolha o que estudar' });
+
+  expect(within(provas).getByRole('button', { name: /Prova 1/ })).toBeInTheDocument();
+  expect(within(provas).getByRole('button', { name: /Prova 2/ })).toBeInTheDocument();
+  expect(within(provas).getByRole('button', { name: /Prova 3/ })).toBeInTheDocument();
+  expect(within(provas).getByRole('button', { name: /Reavaliacao/ })).toBeInTheDocument();
+});
+
+test('Reavaliacao pula direto pra treinar/simulado (so tem prova teorica)', async () => {
+  const user = userEvent.setup();
+
+  render(<App />);
+
+  await user.click(screen.getByRole('button', { name: 'Provas' }));
+  const provas = screen.getByRole('region', { name: 'Escolha o que estudar' });
+  await user.click(within(provas).getByRole('button', { name: /Reavaliacao/ }));
+
+  const next = screen.getByRole('region', { name: /Reavaliacao/ });
+  expect(within(next).getByRole('button', { name: /Treinar/ })).toBeInTheDocument();
+  expect(within(next).getByRole('button', { name: /Simulado/ })).toBeInTheDocument();
+  expect(within(next).queryByRole('button', { name: /Prova teorica/ })).not.toBeInTheDocument();
+});
+
+test('Prova 1 pede teorica ou pratica antes de treinar ou simular', async () => {
+  const user = userEvent.setup();
+
+  render(<App />);
+
+  await user.click(screen.getByRole('button', { name: 'Provas' }));
+  const provas = screen.getByRole('region', { name: 'Escolha o que estudar' });
+  await user.click(within(provas).getByRole('button', { name: /Prova 1/ }));
+
+  const section = screen.getByRole('region', { name: /Prova 1/ });
+  expect(within(section).getByRole('button', { name: /Prova teorica/ })).toBeInTheDocument();
+  expect(within(section).getByRole('button', { name: /Prova pratica/ })).toBeInTheDocument();
+
+  await user.click(within(section).getByRole('button', { name: /Prova pratica/ }));
+
+  expect(screen.getAllByText(/prova pratica/i).length).toBeGreaterThan(0);
+});
+
 test('envia erro do simulado para o caderno adaptativo', async () => {
   const user = userEvent.setup();
 
   render(<App />);
+  await openSimulado(user, /Reavaliacao/);
 
   await user.click(screen.getByRole('button', { name: 'O(n)' }));
   await user.click(screen.getByRole('button', { name: /responder/i }));
@@ -40,22 +122,15 @@ test('envia erro do simulado para o caderno adaptativo', async () => {
   expect(screen.getByText('Limites de somatorio')).toBeInTheDocument();
 });
 
-test('abre a selecao de prova, depois a selecao de modulos, antes de comecar o treino', async () => {
+test('abre a selecao de modulos antes de comecar o treino', async () => {
   const user = userEvent.setup();
 
   render(<App />);
+  const training = await openTreinar(user, /Reavaliacao/);
 
-  await user.click(screen.getByRole('button', { name: 'Treino de Codigo' }));
-  const training = screen.getByRole('region', { name: 'Treino de Codigo' });
-
-  expect(within(training).getByRole('button', { name: /Prova 1/ })).toBeInTheDocument();
-  expect(within(training).getByRole('button', { name: /Reavaliacao/ })).toBeInTheDocument();
-
-  await user.click(within(training).getByRole('button', { name: /Ver todo o conteudo/ }));
-
-  expect(within(training).getByRole('button', { name: /Conteudo inteiro/ })).toBeInTheDocument();
-  expect(within(training).getByRole('button', { name: /Arvore TRIE/ })).toBeInTheDocument();
-  expect(within(training).getByRole('button', { name: /Algoritmos de ordenacao/ })).toBeInTheDocument();
+  expect(within(training()).getByRole('button', { name: /Conteudo inteiro/ })).toBeInTheDocument();
+  expect(within(training()).getByRole('button', { name: /Arvore TRIE/ })).toBeInTheDocument();
+  expect(within(training()).getByRole('button', { name: /Algoritmos de ordenacao/ })).toBeInTheDocument();
 });
 
 test('abre o modo Conceitual sem misturar questoes de desenho', async () => {
@@ -153,10 +228,7 @@ test('conteudo inteiro inicia o treino com uso rapido ou maratona', async () => 
   const user = userEvent.setup();
 
   render(<App />);
-  const training = () => screen.getByRole('region', { name: 'Treino de Codigo' });
-
-  await user.click(screen.getByRole('button', { name: 'Treino de Codigo' }));
-  await user.click(within(training()).getByRole('button', { name: /Ver todo o conteudo/ }));
+  const training = await openTreinar(user, /Reavaliacao/);
   await user.click(within(training()).getByRole('button', { name: /Conteudo inteiro/ }));
 
   expect(screen.getByText('Modulo: Conteudo inteiro')).toBeInTheDocument();
@@ -172,10 +244,7 @@ test('modulo especifico foca no conteudo e permite trocar', async () => {
   const user = userEvent.setup();
 
   render(<App />);
-  const training = () => screen.getByRole('region', { name: 'Treino de Codigo' });
-
-  await user.click(screen.getByRole('button', { name: 'Treino de Codigo' }));
-  await user.click(within(training()).getByRole('button', { name: /Ver todo o conteudo/ }));
+  const training = await openTreinar(user, /Reavaliacao/);
   await user.click(within(training()).getByRole('button', { name: /Somatorios/ }));
 
   expect(screen.getByText('Modulo: Somatorios')).toBeInTheDocument();
@@ -189,10 +258,7 @@ test('mostra explicacao linha a linha quando a pessoa pede ensino', async () => 
   const user = userEvent.setup();
 
   render(<App />);
-  const training = () => screen.getByRole('region', { name: 'Treino de Codigo' });
-
-  await user.click(screen.getByRole('button', { name: 'Treino de Codigo' }));
-  await user.click(within(training()).getByRole('button', { name: /Ver todo o conteudo/ }));
+  const training = await openTreinar(user, /Reavaliacao/);
   await user.click(within(training()).getByRole('button', { name: /Conteudo inteiro/ }));
   await user.click(screen.getByRole('button', { name: 'Me ensine' }));
 

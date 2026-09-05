@@ -16,7 +16,7 @@ import {
 
 import { codeDrillCatalog } from '../content/codeDrills';
 import { domainCatalog } from '../content/domains';
-import { getExam } from '../content/examCatalog';
+import { getExam, type ExamId } from '../content/examCatalog';
 import {
   getConceptualDrawingModuleTitle,
   getConceptualDrawingModules,
@@ -76,7 +76,13 @@ import type { ErrorRecord, StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import { ExploreScreen } from './ExploreScreen';
 import { NotebookPanel } from './NotebookPanel';
-import { ProvaSelectionScreen, type PracticeScope } from './ProvaSelectionScreen';
+import {
+  ProvaSelectionScreen,
+  SectionPicker,
+  TeoricaModePicker,
+  type ProvaSection,
+  type TeoricaMode,
+} from './ProvaSelectionScreen';
 
 const formatLabels: Record<QuestionFormat, string> = {
   'summation-from-code': 'Somatorio por codigo',
@@ -200,19 +206,40 @@ function loadInitialState(): {
   };
 }
 
+/** Titulo do painel de Provas, conforme o quanto ja foi escolhido na cascata. */
+function getProvasTitle(
+  provaScope: ExamId | null,
+  effectiveProvaSection: ProvaSection | null,
+  isPraticaMode: boolean,
+  teoricaMode: TeoricaMode | null,
+): string {
+  if (provaScope === null) {
+    return 'Escolha o que estudar';
+  }
+  const examTitle = getExam(provaScope).title;
+  if (effectiveProvaSection === null) {
+    return examTitle;
+  }
+  if (isPraticaMode) {
+    return `${examTitle}: prova pratica`;
+  }
+  if (teoricaMode === null) {
+    return `${examTitle}: prova teorica`;
+  }
+  return teoricaMode === 'simulado' ? `Simulado da ${examTitle}` : `Treino: ${examTitle}`;
+}
+
 export function App() {
   const [initialState] = useState(loadInitialState);
   const [game, setGame] = useState<SavedGameState>(initialState.game);
   const [activeMode, setActiveMode] = useState<ActiveMode>('exam');
   const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
-  /** Prova escolhida pra filtrar o Treino de Codigo; null = ainda nao escolheu. */
-  const [practiceScope, setPracticeScope] = useState<PracticeScope | null>(null);
-  /**
-   * Prova escolhida pro Simulado; comeca em 'reav' (comportamento de sempre,
-   * sem interromper quem so quer continuar o simulado). null = trocando de
-   * prova agora (mostra o seletor de novo).
-   */
-  const [examScope, setExamScope] = useState<PracticeScope | null>('reav');
+  /** Prova escolhida (Prova 1/2/3/Reavaliacao); null = ainda nao escolheu, mostra o seletor. */
+  const [provaScope, setProvaScope] = useState<ExamId | null>(null);
+  /** Teorica ou pratica dentro da prova escolhida; Reavaliacao pula essa tela (so tem teorica). */
+  const [provaSection, setProvaSection] = useState<ProvaSection | null>(null);
+  /** Dentro da prova teorica: treinar por modulo ou fazer o simulado. */
+  const [teoricaMode, setTeoricaMode] = useState<TeoricaMode | null>(null);
   const [conceptualModuleId, setConceptualModuleId] = useState<ConceptualDrawingModuleId | null>(
     initialState.conceptualModuleId,
   );
@@ -234,9 +261,23 @@ export function App() {
 
   const currentQuestion = game.blueprint.questions[game.session.currentQuestionIndex];
   const currentStep = getCurrentStep(game.blueprint, game.session);
-  const practiceScopeModuleIds =
-    practiceScope && practiceScope !== 'all' ? getExam(practiceScope).moduleIds : undefined;
-  const practiceDrills = getDrillsForModule(practiceModuleId ?? 'all', practiceScopeModuleIds);
+  /** Reavaliacao pula a escolha teorica/pratica: so existe o lado teorico. */
+  const effectiveProvaSection: ProvaSection | null = provaScope === 'reav' ? 'teorica' : provaSection;
+  const isPraticaMode = effectiveProvaSection === 'pratica';
+  const provaScopeModuleIds = provaScope ? getExam(provaScope).moduleIds : undefined;
+  const praticaDrills = useMemo(
+    () =>
+      codeDrillCatalog.filter((drill) => {
+        if (!drill.source.endsWith('-pratica')) {
+          return false;
+        }
+        return !provaScopeModuleIds || provaScopeModuleIds.includes(drill.moduleId ?? drill.domainId);
+      }),
+    [provaScopeModuleIds],
+  );
+  const practiceDrills = isPraticaMode
+    ? praticaDrills
+    : getDrillsForModule(practiceModuleId ?? 'all', provaScopeModuleIds);
   const practiceSession =
     game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
   const currentPracticeDrill = getCurrentPracticeDrill(practiceDrills, practiceSession);
@@ -432,7 +473,7 @@ export function App() {
     resetAnswerDrafts();
     setActiveMode('exam');
     setGame((currentGame) => {
-      if (examScope === 'p1') {
+      if (provaScope === 'p1') {
         return { ...currentGame, blueprint: prova1Blueprint, session: createExamSession(prova1Blueprint) };
       }
       const blueprint = buildSimulado({ previous: currentGame.blueprint });
@@ -441,13 +482,16 @@ export function App() {
   }
 
   /**
-   * Troca a prova do Simulado. Prova 1 usa o blueprint fixo de referencia;
-   * Reavaliacao/"ver tudo" usa o simulado dinamico de sempre; Prova 2 e
-   * Prova 3 ainda nao tem blueprint — so troca o escopo pra mostrar o aviso.
+   * Escolhe a prova (Prova 1/2/3/Reavaliacao). Prova 1 usa o blueprint fixo
+   * de referencia; Reavaliacao usa o simulado dinamico de sempre; Prova 2 e
+   * Prova 3 ainda nao tem blueprint proprio (o simulado delas mostra aviso).
    */
-  function selectExamScope(scope: PracticeScope) {
+  function selectProvaScope(scope: ExamId) {
     setLastAttempt(null);
-    setExamScope(scope);
+    setProvaScope(scope);
+    setProvaSection(null);
+    setTeoricaMode(null);
+    setPracticeModuleId(null);
 
     if (scope === 'p1') {
       setGame((currentGame) => {
@@ -459,7 +503,7 @@ export function App() {
       return;
     }
 
-    if (scope === 'reav' || scope === 'all') {
+    if (scope === 'reav') {
       setGame((currentGame) => {
         if (currentGame.blueprint.id !== prova1Blueprint.id) {
           return currentGame;
@@ -468,6 +512,25 @@ export function App() {
         return { ...currentGame, blueprint, session: createExamSession(blueprint) };
       });
     }
+  }
+
+  /** Escolhe teorica ou pratica dentro da prova. Pratica entra direto (nao tem sub-modo). */
+  function selectProvaSection(section: ProvaSection) {
+    setLastAttempt(null);
+    setProvaSection(section);
+    setTeoricaMode(null);
+    setPracticeModuleId(null);
+    if (section === 'pratica') {
+      setActiveMode('practice');
+    }
+  }
+
+  /** Escolhe treinar (Treino de Codigo) ou simulado dentro da prova teorica. */
+  function selectTeoricaMode(mode: TeoricaMode) {
+    setLastAttempt(null);
+    setTeoricaMode(mode);
+    setPracticeModuleId(null);
+    setActiveMode(mode === 'simulado' ? 'exam' : 'practice');
   }
 
   function startQuickPractice() {
@@ -511,7 +574,7 @@ export function App() {
   }
 
   function selectPracticeModule(moduleId: PracticeModuleId) {
-    const moduleDrills = getDrillsForModule(moduleId, practiceScopeModuleIds);
+    const moduleDrills = getDrillsForModule(moduleId, provaScopeModuleIds);
     setLastAttempt(null);
     setRecoveryTargetId(null);
     setPracticeModuleId(moduleId);
@@ -531,10 +594,28 @@ export function App() {
     setPracticeModuleId(null);
   }
 
+  /** Volta ate o inicio: escolher outra prova (Prova 1/2/3/Reavaliacao). */
   function backToProvaSelection() {
     setLastAttempt(null);
     setPracticeModuleId(null);
-    setPracticeScope(null);
+    setProvaScope(null);
+    setProvaSection(null);
+    setTeoricaMode(null);
+  }
+
+  /** Volta pra escolha teorica/pratica, mantendo a prova ja escolhida. */
+  function backToSectionPicker() {
+    setLastAttempt(null);
+    setPracticeModuleId(null);
+    setProvaSection(null);
+    setTeoricaMode(null);
+  }
+
+  /** Volta pra escolha treinar/simulado, mantendo prova e secao teorica. */
+  function backToTeoricaModePicker() {
+    setLastAttempt(null);
+    setPracticeModuleId(null);
+    setTeoricaMode(null);
   }
 
   function selectConceptualModule(moduleId: ConceptualDrawingModuleId) {
@@ -658,20 +739,12 @@ export function App() {
 
       <nav className="mode-tabs" aria-label="Modos de treino">
         <button
-          className={activeMode === 'exam' ? 'is-active' : ''}
-          onClick={() => setActiveMode('exam')}
+          className={activeMode === 'exam' || activeMode === 'practice' ? 'is-active' : ''}
+          onClick={() => setActiveMode(teoricaMode === 'simulado' ? 'exam' : 'practice')}
           type="button"
         >
           <ClipboardList aria-hidden="true" size={16} />
-          Simulado
-        </button>
-        <button
-          className={activeMode === 'practice' ? 'is-active' : ''}
-          onClick={() => setActiveMode('practice')}
-          type="button"
-        >
-          <Code2 aria-hidden="true" size={16} />
-          Treino de Codigo
+          Provas
         </button>
         <button
           className={activeMode === 'conceptual' ? 'is-active' : ''}
@@ -742,34 +815,32 @@ export function App() {
               <Code2 aria-hidden="true" size={18} />
             )}
             <h2 id="exam-title">
-              {activeMode === 'exam'
-                ? examScope === null
-                  ? 'Escolha uma prova'
-                  : examScope === 'p1'
-                    ? 'Simulado da Prova 1'
-                    : examScope === 'p2'
-                      ? 'Simulado da Prova 2'
-                      : examScope === 'p3'
-                        ? 'Simulado da Prova 3'
-                        : 'Simulado de 6 questoes'
+              {activeMode === 'exam' || activeMode === 'practice'
+                ? getProvasTitle(provaScope, effectiveProvaSection, isPraticaMode, teoricaMode)
                 : activeMode === 'conceptual'
                   ? 'Conceitual'
-                  : activeMode === 'drawing'
-                    ? 'Desenho'
-                    : 'Treino de Codigo'}
+                  : 'Desenho'}
             </h2>
           </div>
 
-          {activeMode === 'practice' ? (
-            practiceModuleId !== null ? (
+          {activeMode === 'practice' || activeMode === 'exam' ? (
+            provaScope === null ? (
+              <ProvaSelectionScreen onSelect={selectProvaScope} />
+            ) : effectiveProvaSection === null ? (
+              <SectionPicker
+                examTitle={getExam(provaScope).title}
+                onBack={backToProvaSelection}
+                onSelect={selectProvaSection}
+              />
+            ) : isPraticaMode ? (
               practiceDrills.length === 0 ? (
                 <div className="complete-state">
                   <Code2 aria-hidden="true" size={42} />
-                  <h3>Modulo sem exercicios</h3>
-                  <p>Este modulo ainda nao tem exercicios cadastrados.</p>
-                  <button className="primary-button" onClick={backToModuleSelection} type="button">
+                  <h3>Prova pratica ainda nao disponivel</h3>
+                  <p>A {getExam(provaScope).title} ainda nao tem exercicios de prova pratica prontos.</p>
+                  <button className="ghost-button" onClick={backToSectionPicker} type="button">
                     <RotateCcw aria-hidden="true" size={18} />
-                    Voltar aos modulos
+                    Voltar
                   </button>
                 </div>
               ) : (
@@ -781,9 +852,9 @@ export function App() {
                   fixId={fixId}
                   fixLineIndex={fixLineIndex}
                   lastAttempt={lastAttempt}
-                  moduleTitle={getModuleTitle(practiceModuleId)}
+                  moduleTitle={`${getExam(provaScope).title}: prova pratica`}
                   onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
-                  onChangeModule={backToModuleSelection}
+                  onChangeModule={backToSectionPicker}
                   onChoice={setChoiceAnswer}
                   onFixId={setFixId}
                   onFixLine={setFixLineIndex}
@@ -800,66 +871,67 @@ export function App() {
                   textAnswer={textAnswer}
                 />
               )
-            ) : practiceScope === null ? (
-              <ProvaSelectionScreen onSelect={setPracticeScope} />
-            ) : (
-              <ModuleSelection
-                allowedModuleIds={practiceScopeModuleIds}
-                onBackToProva={backToProvaSelection}
-                onSelect={selectPracticeModule}
+            ) : teoricaMode === null ? (
+              <TeoricaModePicker
+                examTitle={getExam(provaScope).title}
+                onBack={backToSectionPicker}
+                onSelect={selectTeoricaMode}
               />
-            )
-          ) : activeMode === 'conceptual' || activeMode === 'drawing' ? (
-            lista2ModuleId === null ? (
-              <ConceptualModuleSelection questionType={lista2QuestionType} onSelect={selectConceptualModule} />
-            ) : conceptualQuestions.length === 0 ? (
-              <div className="complete-state">
-                {activeMode === 'drawing' ? (
-                  <Shapes aria-hidden="true" size={42} />
+            ) : teoricaMode === 'treinar' ? (
+              practiceModuleId !== null ? (
+                practiceDrills.length === 0 ? (
+                  <div className="complete-state">
+                    <Code2 aria-hidden="true" size={42} />
+                    <h3>Modulo sem exercicios</h3>
+                    <p>Este modulo ainda nao tem exercicios cadastrados.</p>
+                    <button className="primary-button" onClick={backToModuleSelection} type="button">
+                      <RotateCcw aria-hidden="true" size={18} />
+                      Voltar aos modulos
+                    </button>
+                  </div>
                 ) : (
-                  <BookOpenCheck aria-hidden="true" size={42} />
-                )}
-                <h3>Modulo sem questoes</h3>
-                <p>Este filtro ainda nao tem questoes cadastradas.</p>
-                <button className="primary-button" onClick={backToConceptualModuleSelection} type="button">
-                  <RotateCcw aria-hidden="true" size={18} />
-                  Voltar aos filtros
-                </button>
-              </div>
-            ) : (
-              <ConceptualPracticeExperience
-                answeredOptionId={conceptualSession.answeredOptionId}
-                choiceAnswer={conceptualChoiceAnswer}
-                currentQuestion={currentConceptualQuestion}
-                lastAttempt={lastConceptualAttempt}
-                moduleTitle={getConceptualDrawingModuleTitle(lista2ModuleId)}
-                onAdvance={advanceConceptual}
-                onChangeModule={backToConceptualModuleSelection}
-                onChoice={setConceptualChoiceAnswer}
-                onResetDrafts={resetAnswerDrafts}
-                onRestartModule={restartConceptualModule}
-                onStartMarathon={startMarathonConceptual}
-                onStartQuick={startQuickConceptual}
-                onSubmit={submitAnswer}
-                onToggleTeaching={() => setShowTeaching((value) => !value)}
-                practiceSession={conceptualSession}
-                showTeaching={showTeaching}
-              />
-            )
-          ) : activeMode === 'exam' ? (
-            examScope === null ? (
-              <ProvaSelectionScreen onSelect={selectExamScope} />
-            ) : examScope === 'p2' || examScope === 'p3' ? (
+                  <PracticeExperience
+                    answer={answer}
+                    blockOrder={blockOrder}
+                    choiceAnswer={choiceAnswer}
+                    currentPracticeDrill={currentPracticeDrill}
+                    fixId={fixId}
+                    fixLineIndex={fixLineIndex}
+                    lastAttempt={lastAttempt}
+                    moduleTitle={getModuleTitle(practiceModuleId)}
+                    onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
+                    onChangeModule={backToModuleSelection}
+                    onChoice={setChoiceAnswer}
+                    onFixId={setFixId}
+                    onFixLine={setFixLineIndex}
+                    onResetBlocks={() => setBlockOrder([])}
+                    onResetDrafts={resetAnswerDrafts}
+                    onRestartModule={restartPracticeModule}
+                    onStartMarathon={startMarathonPractice}
+                    onStartQuick={startQuickPractice}
+                    onSubmit={submitAnswer}
+                    onText={setTextAnswer}
+                    onToggleTeaching={() => setShowTeaching((value) => !value)}
+                    practiceSession={practiceSession}
+                    showTeaching={showTeaching}
+                    textAnswer={textAnswer}
+                  />
+                )
+              ) : (
+                <ModuleSelection
+                  allowedModuleIds={provaScopeModuleIds}
+                  onBackToProva={backToTeoricaModePicker}
+                  onSelect={selectPracticeModule}
+                />
+              )
+            ) : provaScope === 'p2' || provaScope === 'p3' ? (
               <div className="complete-state">
                 <ClipboardList aria-hidden="true" size={42} />
                 <h3>Simulado ainda nao disponivel</h3>
-                <p>
-                  A {examScope === 'p2' ? 'Prova 2' : 'Prova 3'} ainda nao tem simulado pronto. Treine por modulo em
-                  "Treino de Codigo" enquanto isso.
-                </p>
-                <button className="ghost-button" onClick={() => setExamScope(null)} type="button">
+                <p>A {getExam(provaScope).title} ainda nao tem simulado pronto. Treine por modulo enquanto isso.</p>
+                <button className="ghost-button" onClick={backToTeoricaModePicker} type="button">
                   <RotateCcw aria-hidden="true" size={18} />
-                  Trocar prova
+                  Voltar
                 </button>
               </div>
             ) : game.session.completed || !currentQuestion || !currentStep ? (
@@ -878,9 +950,9 @@ export function App() {
                     <RotateCcw aria-hidden="true" size={18} />
                     Refazer
                   </button>
-                  <button className="ghost-button compact" onClick={() => setExamScope(null)} type="button">
+                  <button className="ghost-button compact" onClick={backToTeoricaModePicker} type="button">
                     <RotateCcw aria-hidden="true" size={16} />
-                    Trocar prova
+                    Voltar
                   </button>
                 </div>
               </div>
@@ -905,8 +977,8 @@ export function App() {
                     Questao {currentQuestion.number} de {game.blueprint.questions.length} · Etapa{' '}
                     {game.session.currentStepIndex + 1} de {currentQuestion.steps.length}
                   </span>
-                  <button className="ghost-button compact" onClick={() => setExamScope(null)} type="button">
-                    Trocar prova
+                  <button className="ghost-button compact" onClick={backToTeoricaModePicker} type="button">
+                    Voltar
                   </button>
                   <button className="ghost-button compact" onClick={newSimulado} type="button">
                     <Shuffle aria-hidden="true" size={16} />
@@ -994,6 +1066,43 @@ export function App() {
                 </section>
               </div>
             </>
+            )
+          ) : activeMode === 'conceptual' || activeMode === 'drawing' ? (
+            lista2ModuleId === null ? (
+              <ConceptualModuleSelection questionType={lista2QuestionType} onSelect={selectConceptualModule} />
+            ) : conceptualQuestions.length === 0 ? (
+              <div className="complete-state">
+                {activeMode === 'drawing' ? (
+                  <Shapes aria-hidden="true" size={42} />
+                ) : (
+                  <BookOpenCheck aria-hidden="true" size={42} />
+                )}
+                <h3>Modulo sem questoes</h3>
+                <p>Este filtro ainda nao tem questoes cadastradas.</p>
+                <button className="primary-button" onClick={backToConceptualModuleSelection} type="button">
+                  <RotateCcw aria-hidden="true" size={18} />
+                  Voltar aos filtros
+                </button>
+              </div>
+            ) : (
+              <ConceptualPracticeExperience
+                answeredOptionId={conceptualSession.answeredOptionId}
+                choiceAnswer={conceptualChoiceAnswer}
+                currentQuestion={currentConceptualQuestion}
+                lastAttempt={lastConceptualAttempt}
+                moduleTitle={getConceptualDrawingModuleTitle(lista2ModuleId)}
+                onAdvance={advanceConceptual}
+                onChangeModule={backToConceptualModuleSelection}
+                onChoice={setConceptualChoiceAnswer}
+                onResetDrafts={resetAnswerDrafts}
+                onRestartModule={restartConceptualModule}
+                onStartMarathon={startMarathonConceptual}
+                onStartQuick={startQuickConceptual}
+                onSubmit={submitAnswer}
+                onToggleTeaching={() => setShowTeaching((value) => !value)}
+                practiceSession={conceptualSession}
+                showTeaching={showTeaching}
+              />
             )
           ) : null}
         </section>
