@@ -38,7 +38,7 @@ export const prova1Blueprint: ExamBlueprint = {
           id: 'prova1-complexidade-theta-else',
           kind: 'gap',
           skillId: 'justify',
-          prompt: 'Digite a notacao Θ do ramo else (melhor caso).',
+          prompt: 'Digite a notacao Theta do ramo else (melhor caso).',
           answers: ['Theta(n)', 'O(n)'],
           mistakeTag: 'wrong-case-analysis',
           explanation: 'O ramo else tem um unico laco que decrementa i ate 0: Θ(n).',
