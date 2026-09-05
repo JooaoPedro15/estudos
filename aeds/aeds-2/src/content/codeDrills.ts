@@ -1306,6 +1306,7 @@ class ArvoreTrie {
   {
     id: 'code-ordenacao-insertion-sort',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-insercao',
     title: 'Ordenacao: insertion sort completo',
     source: 'lista-prova3',
     repetitionGroup: 'ordenacao-insercao-adaptada',
@@ -1360,6 +1361,7 @@ class ArvoreTrie {
   {
     id: 'code-ordenacao-insercao-par-impar',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-insercao',
     title: 'Ordenacao: adaptar insercao para pares e impares',
     source: 'reav-style',
     repetitionGroup: 'ordenacao-insercao-adaptada',
@@ -1412,6 +1414,7 @@ class ArvoreTrie {
   {
     id: 'code-ordenacao-comparador-par-impar',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-insercao',
     title: 'Ordenacao: comparador par e impar',
     source: 'reav-style',
     repetitionGroup: 'ordenacao-comparadores',
@@ -1458,6 +1461,7 @@ class ArvoreTrie {
   {
     id: 'code-ordenacao-selection-sort',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-selecao',
     title: 'Ordenacao: selection sort completo',
     source: 'lista-prova3',
     repetitionGroup: 'ordenacao-selection',
@@ -1512,6 +1516,7 @@ class ArvoreTrie {
   {
     id: 'code-ordenacao-bubble-otimizado',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-bolha',
     title: 'Ordenacao: bubble sort otimizado',
     source: 'reav-style',
     repetitionGroup: 'ordenacao-selection',

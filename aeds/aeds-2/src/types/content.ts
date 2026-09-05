@@ -10,7 +10,10 @@ export type ContentModuleId =
   | 'matriz'
   | 'arvore234'
   | 'alvinegra'
-  | 'patricia';
+  | 'patricia'
+  | 'ordenacao-bolha'
+  | 'ordenacao-insercao'
+  | 'ordenacao-selecao';
 
 export type QuestionFormat =
   | 'summation-from-code'

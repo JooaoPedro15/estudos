@@ -10,6 +10,24 @@ export type ContentModule = {
 
 const extraModules: ContentModule[] = [
   {
+    id: 'ordenacao-bolha',
+    title: 'Ordenacao: bolha',
+    shortTitle: 'Bolha',
+    description: 'Bubble sort classico, contagem de trocas, otimizacao com flag e melhor/pior caso.',
+  },
+  {
+    id: 'ordenacao-insercao',
+    title: 'Ordenacao: insercao',
+    shortTitle: 'Insercao',
+    description: 'Insertion sort classico, comparadores adaptados e busca binaria da posicao.',
+  },
+  {
+    id: 'ordenacao-selecao',
+    title: 'Ordenacao: selecao',
+    shortTitle: 'Selecao',
+    description: 'Selection sort classico, contagem de trocas e variante bidirecional (min-max).',
+  },
+  {
     id: 'complexidade',
     title: 'Complexidade',
     shortTitle: 'Complexidade',

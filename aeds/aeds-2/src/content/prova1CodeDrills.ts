@@ -462,7 +462,7 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
   {
     id: 'code-prova1-ordenacao-insercao-complexidade',
     domainId: 'ordenacao',
-    moduleId: 'complexidade',
+    moduleId: 'ordenacao-insercao',
     title: 'Complexidade do insertion sort',
     source: 'prova1',
     difficulty: 'basico',
@@ -485,7 +485,7 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
   {
     id: 'code-prova1-ordenacao-selection-complexidade',
     domainId: 'ordenacao',
-    moduleId: 'complexidade',
+    moduleId: 'ordenacao-selecao',
     title: 'Complexidade do selection sort',
     source: 'prova1',
     difficulty: 'basico',
@@ -503,6 +503,478 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
       answers: ['Theta(n^2)'],
       mistakeTag: 'wrong-case-analysis',
       explanation: 'Diferente do insertion sort, o laco interno do selection sort sempre percorre a cauda inteira: Theta(n^2) sempre, mesmo com o vetor ja ordenado.',
+    }),
+  },
+
+  // ---------------------------------------------------------------------
+  // ORDENACAO: BOLHA, INSERCAO, SELECAO — os 3 algoritmos mais cobrados.
+  // Cada um ganha modulo proprio (moduleId) pra treinar separado.
+  // ---------------------------------------------------------------------
+  {
+    id: 'code-prova1-ordenacao-bolha-completo',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-bolha',
+    title: 'Bolha: completo',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-ordenacao-bolha',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Escrever o bubble sort classico ate virar automatico.',
+    stem: 'Escreva a funcao de bubble sort classico: a cada passada, compara vizinhos e troca se estiverem fora de ordem.',
+    scaffold: `class Ordenacao {
+  void bolha(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Bolhas sobem', 'A cada passada, o maior ainda fora do lugar "sobe" ate sua posicao final.', ['5', '2', '8', '1']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-bolha-completo-step',
+      prompt: 'Escreva a funcao bolha completa.',
+      signature: 'void bolha(int[] array)',
+      solution: `void bolha(int[] array) {
+  for (int i = array.length - 1; i > 0; i--) {
+    for (int j = 0; j < i; j++) {
+      if (array[j] > array[j + 1]) {
+        int tmp = array[j];
+        array[j] = array[j + 1];
+        array[j + 1] = tmp;
+      }
+    }
+  }
+}`,
+      requiredFragments: [
+        req('outer', 'laco externo decrescente', 'for (int i = array.length - 1; i > 0; i--)'),
+        req('inner', 'laco interno ate i', 'for (int j = 0; j < i; j++)'),
+        req('compare', 'compara vizinhos', 'if (array[j] > array[j + 1])'),
+        req('swap', 'troca se fora de ordem', 'array[j] = array[j + 1];'),
+      ],
+      lineExplanations: [
+        { code: 'for (int i = array.length - 1; i > 0; i--)', note: 'A cada passada, o maior elemento da parte nao ordenada "borbulha" ate o fim.' },
+        { code: 'for (int j = 0; j < i; j++)', note: 'So precisa comparar ate i, porque depois de i ja esta tudo ordenado.' },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Pior caso Theta(n^2): vetor decrescente troca em toda comparacao de toda passada.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-bolha-contar-trocas',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-bolha',
+    title: 'Bolha: contar trocas',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-bolha',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Adaptar o bubble sort pra devolver uma metrica em vez de so ordenar.',
+    stem: 'Adapte a bolha pra tambem contar e devolver quantas trocas aconteceram no total.',
+    scaffold: `class Ordenacao {
+  int bolhaContarTrocas(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Contando trocas', 'Cada troca de vizinhos incrementa o contador.', ['troca?', 'troca?', 'troca?']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-bolha-contar-trocas-step',
+      prompt: 'Escreva a funcao bolhaContarTrocas completa.',
+      signature: 'int bolhaContarTrocas(int[] array)',
+      solution: `int bolhaContarTrocas(int[] array) {
+  int trocas = 0;
+  for (int i = array.length - 1; i > 0; i--) {
+    for (int j = 0; j < i; j++) {
+      if (array[j] > array[j + 1]) {
+        int tmp = array[j];
+        array[j] = array[j + 1];
+        array[j + 1] = tmp;
+        trocas++;
+      }
+    }
+  }
+  return trocas;
+}`,
+      requiredFragments: [
+        req('init', 'contador comeca em 0', 'int trocas = 0;'),
+        req('count', 'incrementa a cada troca real', 'trocas++;'),
+        req('return', 'devolve o total', 'return trocas;'),
+      ],
+      lineExplanations: [{ code: 'trocas++;', note: 'So conta quando o if entra (troca de verdade), nao a cada comparacao.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Vetor ja ordenado: 0 trocas. Vetor totalmente invertido: numero maximo de trocas, igual ao numero de pares fora de ordem (inversoes).',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-bolha-decrescente',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-bolha',
+    title: 'Bolha: ordem decrescente',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-ordenacao-bolha',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Reconhecer que so o sinal da comparacao muda pra inverter o sentido.',
+    stem: 'Adapte a bolha pra ordem DECRESCENTE.',
+    scaffold: `class Ordenacao {
+  void bolhaDecrescente(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Bolha ao contrario', 'So troca o sinal da comparacao.', ['1', '8', '2', '5']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-bolha-decrescente-step',
+      prompt: 'Escreva a funcao bolhaDecrescente completa.',
+      signature: 'void bolhaDecrescente(int[] array)',
+      solution: `void bolhaDecrescente(int[] array) {
+  for (int i = array.length - 1; i > 0; i--) {
+    for (int j = 0; j < i; j++) {
+      if (array[j] < array[j + 1]) {
+        int tmp = array[j];
+        array[j] = array[j + 1];
+        array[j + 1] = tmp;
+      }
+    }
+  }
+}`,
+      requiredFragments: [req('compare', 'inverte o sinal da comparacao', 'if (array[j] < array[j + 1])')],
+      lineExplanations: [{ code: 'if (array[j] < array[j + 1])', note: 'Trocar > por < basta: agora "fora de ordem" significa o menor vindo depois do maior.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'O esqueleto (dois lacos, troca) e sempre o mesmo; so a condicao do if muda o sentido da ordenacao.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-bolha-complexidade',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-bolha',
+    title: 'Complexidade da bolha otimizada',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-bolha',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Diferenciar a bolha classica da versao com flag de parada antecipada.',
+    stem: 'A versao otimizada da bolha usa uma flag: se uma passada inteira nao faz nenhuma troca, o vetor ja esta ordenado e o metodo para.',
+    scaffold: `// com a flag de parada antecipada, um vetor ja ordenado so precisa de 1 passada`,
+    visual: visual('array', 'Para na primeira passada limpa', 'Se nenhuma troca acontece numa passada, o vetor ja esta ordenado.', ['1', '2', '3', '4']),
+    step: gapStep({
+      id: 'code-prova1-ordenacao-bolha-complexidade-step',
+      prompt: 'Digite a complexidade Theta da bolha OTIMIZADA (com flag) no MELHOR caso (vetor ja ordenado).',
+      answers: ['Theta(n)', 'O(n)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: 'Sem a flag, a bolha sempre roda Theta(n^2), mesmo se o vetor ja estiver ordenado. Com a flag, o melhor caso cai pra Theta(n): uma unica passada sem trocas ja confirma que esta ordenado.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-insercao-busca-binaria',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-insercao',
+    title: 'Insercao: posicao por busca binaria',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-ordenacao-insercao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Combinar busca binaria com insertion sort pra reduzir comparacoes.',
+    stem:
+      'insertionSortBinario ja esta pronto e chama buscarPosicao. Implemente buscarPosicao(array, esq, dir, chave): busca binaria recursiva que retorna a posicao onde chave deveria entrar dentro do prefixo array[esq..dir], ja ordenado.',
+    scaffold: `class Ordenacao {
+  void insertionSortBinario(int[] array) {
+    for (int i = 1; i < array.length; i++) {
+      int chave = array[i];
+      int pos = buscarPosicao(array, 0, i - 1, chave);
+      for (int j = i - 1; j >= pos; j--) {
+        array[j + 1] = array[j];
+      }
+      array[pos] = chave;
+    }
+  }
+
+  int buscarPosicao(int[] array, int esq, int dir, int chave) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Busca binaria pela posicao', 'Acha a posicao certa em log(i) passos; ainda precisa deslocar em O(i) pra abrir espaco.', ['esq', 'meio', 'dir']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-insercao-busca-binaria-step',
+      prompt: 'Escreva a funcao buscarPosicao completa.',
+      signature: 'int buscarPosicao(int[] array, int esq, int dir, int chave)',
+      solution: `int buscarPosicao(int[] array, int esq, int dir, int chave) {
+  if (esq > dir) {
+    return esq;
+  }
+  int meio = (esq + dir) / 2;
+  if (array[meio] > chave) {
+    return buscarPosicao(array, esq, meio - 1, chave);
+  }
+  return buscarPosicao(array, meio + 1, dir, chave);
+}`,
+      requiredFragments: [
+        req('base', 'para quando o intervalo fecha', 'if (esq > dir) {\n    return esq;\n  }'),
+        req('meio', 'calcula o meio', 'int meio = (esq + dir) / 2;'),
+        req('left', 'busca a esquerda se o meio ja e maior', 'return buscarPosicao(array, esq, meio - 1, chave);'),
+        req('right', 'busca a direita caso contrario', 'return buscarPosicao(array, meio + 1, dir, chave);'),
+      ],
+      lineExplanations: [
+        { code: 'if (esq > dir) { return esq; }', note: 'Quando o intervalo fecha, esq ja e a posicao certa pra inserir a chave.' },
+      ],
+      mistakeTag: 'missing-base-case',
+      explanation: 'A busca da posicao cai pra Theta(log n), mas os deslocamentos continuam Theta(n) — no pior caso a complexidade total nao muda, so o numero de COMPARACOES melhora.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-insercao-decrescente',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-insercao',
+    title: 'Insercao: ordem decrescente',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-ordenacao-insercao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Reconhecer que so o sinal da comparacao muda pra inverter o sentido.',
+    stem: 'Adapte o insertion sort pra ordem DECRESCENTE.',
+    scaffold: `class Ordenacao {
+  void insertionSortDecrescente(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Insercao ao contrario', 'So troca o sinal da comparacao no while.', ['9', '2', '7', '4']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-insercao-decrescente-step',
+      prompt: 'Escreva a funcao insertionSortDecrescente completa.',
+      signature: 'void insertionSortDecrescente(int[] array)',
+      solution: `void insertionSortDecrescente(int[] array) {
+  for (int i = 1; i < array.length; i++) {
+    int chave = array[i];
+    int j = i - 1;
+    while (j >= 0 && array[j] < chave) {
+      array[j + 1] = array[j];
+      j--;
+    }
+    array[j + 1] = chave;
+  }
+}`,
+      requiredFragments: [req('compare', 'inverte o sinal da comparacao', 'while (j >= 0 && array[j] < chave)')],
+      lineExplanations: [{ code: 'while (j >= 0 && array[j] < chave)', note: 'Trocar > por < basta: agora desloca enquanto o vizinho for MENOR que a chave.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Mesmo esqueleto do insertion sort de sempre; so o sinal da comparacao no while inverte o sentido.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-insercao-contar-comparacoes',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-insercao',
+    title: 'Insercao: contar comparacoes',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-insercao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Instrumentar o algoritmo pra enxergar a complexidade na pratica.',
+    stem:
+      'Adapte o insertion sort pra tambem contar e devolver quantas vezes array[j] e comparado com chave (conte so as comparacoes que realmente avaliam array[j], nao a checagem de j >= 0 sozinha).',
+    scaffold: `class Ordenacao {
+  int insertionSortContarComparacoes(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Contando comparacoes', 'Cada vez que array[j] e comparado com a chave, o contador sobe.', ['chave', 'array[j]?']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-insercao-contar-comparacoes-step',
+      prompt: 'Escreva a funcao insertionSortContarComparacoes completa.',
+      signature: 'int insertionSortContarComparacoes(int[] array)',
+      solution: `int insertionSortContarComparacoes(int[] array) {
+  int comparacoes = 0;
+  for (int i = 1; i < array.length; i++) {
+    int chave = array[i];
+    int j = i - 1;
+    while (j >= 0 && array[j] > chave) {
+      comparacoes++;
+      array[j + 1] = array[j];
+      j--;
+    }
+    if (j >= 0) {
+      comparacoes++;
+    }
+    array[j + 1] = chave;
+  }
+  return comparacoes;
+}`,
+      requiredFragments: [
+        req('init', 'contador comeca em 0', 'int comparacoes = 0;'),
+        req('count-loop', 'conta as comparacoes que continuam deslocando', 'comparacoes++;'),
+        req('count-last', 'conta tambem a comparacao que encerra o while', 'if (j >= 0) {\n      comparacoes++;\n    }'),
+      ],
+      lineExplanations: [
+        { code: 'if (j >= 0) { comparacoes++; }', note: 'O while para por dois motivos: j < 0 (acabou o prefixo) ou array[j] <= chave. So o segundo motivo e uma comparacao de verdade.' },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'No melhor caso (ja ordenado), 1 comparacao por elemento: Theta(n). No pior caso, ate i comparacoes pro elemento i: Theta(n^2).',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-selecao-decrescente',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-selecao',
+    title: 'Selecao: ordem decrescente',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-ordenacao-selecao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Reconhecer que so a busca (menor vira maior) muda pra inverter o sentido.',
+    stem: 'Adapte o selection sort pra ordem DECRESCENTE (procure o MAIOR da cauda a cada passada).',
+    scaffold: `class Ordenacao {
+  void selectionSortDecrescente(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Selecao ao contrario', 'Busca o maior da cauda em vez do menor.', ['i', 'busca o maior']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-selecao-decrescente-step',
+      prompt: 'Escreva a funcao selectionSortDecrescente completa.',
+      signature: 'void selectionSortDecrescente(int[] array)',
+      solution: `void selectionSortDecrescente(int[] array) {
+  for (int i = 0; i < array.length - 1; i++) {
+    int maior = i;
+    for (int j = i + 1; j < array.length; j++) {
+      if (array[j] > array[maior]) {
+        maior = j;
+      }
+    }
+    int tmp = array[i];
+    array[i] = array[maior];
+    array[maior] = tmp;
+  }
+}`,
+      requiredFragments: [
+        req('init', 'assume que i tem o maior', 'int maior = i;'),
+        req('compare', 'procura o maior, nao o menor', 'if (array[j] > array[maior])'),
+        req('swap', 'coloca o maior em i', 'array[i] = array[maior];'),
+      ],
+      lineExplanations: [{ code: 'if (array[j] > array[maior])', note: 'Trocar < por > (e "menor" por "maior") inverte o sentido da selecao.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Mesmo esqueleto do selection sort de sempre; so a busca interna muda de "achar o menor" pra "achar o maior".',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-selecao-contar-trocas',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-selecao',
+    title: 'Selecao: contar trocas',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-selecao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Perceber que selection sort faz poucas trocas, mesmo com muitas comparacoes.',
+    stem: 'Adapte o selection sort pra so trocar quando o menor encontrado NAO for a propria posicao i, e devolver quantas trocas de verdade aconteceram.',
+    scaffold: `class Ordenacao {
+  int selectionSortContarTrocas(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Trocar so quando precisa', 'Se o menor ja esta em i, nao ha troca.', ['i ja e o menor?', 'pula a troca']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-selecao-contar-trocas-step',
+      prompt: 'Escreva a funcao selectionSortContarTrocas completa.',
+      signature: 'int selectionSortContarTrocas(int[] array)',
+      solution: `int selectionSortContarTrocas(int[] array) {
+  int trocas = 0;
+  for (int i = 0; i < array.length - 1; i++) {
+    int menor = i;
+    for (int j = i + 1; j < array.length; j++) {
+      if (array[j] < array[menor]) {
+        menor = j;
+      }
+    }
+    if (menor != i) {
+      int tmp = array[i];
+      array[i] = array[menor];
+      array[menor] = tmp;
+      trocas++;
+    }
+  }
+  return trocas;
+}`,
+      requiredFragments: [
+        req('guard', 'so troca se o menor nao for a propria posicao', 'if (menor != i)'),
+        req('count', 'conta a troca de verdade', 'trocas++;'),
+      ],
+      lineExplanations: [{ code: 'if (menor != i)', note: 'Sem essa checagem, o metodo "trocaria" um elemento com ele mesmo e contaria uma troca que nao mudou nada.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Selection sort faz NO MAXIMO n-1 trocas totais, nao importa a entrada — bem menos que bolha ou insercao, que podem trocar Theta(n^2) vezes no pior caso.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-selecao-bidirecional',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-selecao',
+    title: 'Selecao: bidirecional (min-max)',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-ordenacao-selecao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Otimizar o selection sort achando o menor e o maior na mesma passada.',
+    stem:
+      'Implemente selectionSortBidirecional: a cada passada, ache o MENOR e o MAIOR da faixa [esq, dir] ao mesmo tempo, coloque o menor em esq e o maior em dir, depois encolha a faixa dos dois lados. Cuidado com o caso em que o maior estava na posicao esq (o mesmo lugar que acabou de receber o menor).',
+    scaffold: `class Ordenacao {
+  void selectionSortBidirecional(int[] array) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Duas pontas por passada', 'Cada passada resolve o inicio E o fim da faixa, encolhendo dos dois lados.', ['esq', '...', 'dir']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-selecao-bidirecional-step',
+      prompt: 'Escreva a funcao selectionSortBidirecional completa.',
+      signature: 'void selectionSortBidirecional(int[] array)',
+      solution: `void selectionSortBidirecional(int[] array) {
+  int esq = 0, dir = array.length - 1;
+  while (esq < dir) {
+    int posMenor = esq, posMaior = dir;
+    for (int k = esq; k <= dir; k++) {
+      if (array[k] < array[posMenor]) posMenor = k;
+      if (array[k] > array[posMaior]) posMaior = k;
+    }
+    int tmp = array[esq];
+    array[esq] = array[posMenor];
+    array[posMenor] = tmp;
+    if (posMaior == esq) {
+      posMaior = posMenor;
+    }
+    tmp = array[dir];
+    array[dir] = array[posMaior];
+    array[posMaior] = tmp;
+    esq++;
+    dir--;
+  }
+}`,
+      requiredFragments: [
+        req('find', 'acha os dois extremos na mesma passada', 'if (array[k] < array[posMenor]) posMenor = k;'),
+        req('swap-min', 'coloca o menor em esq', 'array[esq] = array[posMenor];'),
+        req('edge-case', 'corrige posMaior se ele apontava pra esq', 'if (posMaior == esq)'),
+        req('swap-max', 'coloca o maior em dir', 'array[dir] = array[posMaior];'),
+        req('shrink', 'encolhe a faixa dos dois lados', 'esq++;'),
+      ],
+      lineExplanations: [
+        {
+          code: 'if (posMaior == esq) { posMaior = posMenor; }',
+          note: 'Se o maior valor estava bem na posicao esq, a primeira troca ja o moveu pra posMenor — sem esse ajuste, a segunda troca pegaria o valor errado.',
+        },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Ainda e Theta(n^2) (a busca dos extremos continua O(n) por passada), mas faz metade das passadas do selection sort normal — otimizacao de constante, nao de classe assintotica.',
     }),
   },
 
