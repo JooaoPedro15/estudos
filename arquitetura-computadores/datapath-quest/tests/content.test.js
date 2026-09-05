@@ -4,8 +4,22 @@ const assert = require('assert');
 const vm = require('vm');
 
 const htmlPath = path.join(__dirname, '..', 'mips-datapath-quest.html');
+const baseDir = path.dirname(htmlPath);
 const html = fs.readFileSync(htmlPath, 'utf8');
-const script = html.match(/<script>([\s\S]*)<\/script>/)[1];
+
+// The app now loads its question banks from content/*.js via <script src="...">
+// tags (see datapath-quest/content/), split between two inline <script> blocks.
+// Reconstruct the same load order here: for each <script ...>...</script> tag,
+// use the referenced file's contents if it has a src, otherwise its inline body.
+const script = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)]
+  .map(([, attrs, body]) => {
+    const srcMatch = attrs.match(/src="([^"]+)"/);
+    if (srcMatch) {
+      return fs.readFileSync(path.join(baseDir, srcMatch[1]), 'utf8');
+    }
+    return body;
+  })
+  .join('\n');
 
 const expectedQuestionKeys = [
   'vet_trinta',
