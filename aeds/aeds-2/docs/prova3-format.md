@@ -1,7 +1,7 @@
 # Formato da Prova 3
 
-Baseado em 2 edicoes reais em `materiais-privados/Provas3/` (Prova III) e
-em `materiais/Listas/lista-aeds2-prova3.pdf` (bate fortemente com o padrao
+Baseado em 2 edicoes reais em `aeds/materiais-privados/Provas3/` (Prova III) e
+em `aeds/materiais/Listas/lista-aeds2-prova3.pdf` (bate fortemente com o padrao
 observado). Cobre u06 (balanceamento: AVL, 2-3-4, alvinegra), u07 (hash) e
 u08 (TRIE/PATRICIA), com forte tendencia a estruturas hibridas/doidona.
 

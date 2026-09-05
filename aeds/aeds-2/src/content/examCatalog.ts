@@ -31,7 +31,7 @@ export const examCatalog: ExamCatalogEntry[] = [
       'pilha',
       'matriz',
     ],
-    materialsRefs: ['materiais-privados/Provas1'],
+    materialsRefs: ['aeds/materiais-privados/Provas1'],
   },
   {
     id: 'p2',
@@ -39,7 +39,7 @@ export const examCatalog: ExamCatalogEntry[] = [
     shortTitle: 'P2',
     description: 'Estruturas flexiveis/encadeadas e arvore binaria basica (u04-u05).',
     moduleIds: ['lista', 'fila', 'pilha', 'matriz', 'arvore'],
-    materialsRefs: ['materiais-privados/Provas2'],
+    materialsRefs: ['aeds/materiais-privados/Provas2'],
   },
   {
     id: 'p3',
@@ -47,14 +47,14 @@ export const examCatalog: ExamCatalogEntry[] = [
     shortTitle: 'P3',
     description: 'Balanceamento (AVL, alvinegra, 2-3-4), hash e TRIE/PATRICIA (u06-u08).',
     moduleIds: ['avl', 'alvinegra', 'arvore234', 'hash', 'trie', 'patricia', 'doidona'],
-    materialsRefs: ['materiais-privados/Provas3', 'materiais/Listas/lista-aeds2-prova3.pdf'],
+    materialsRefs: ['aeds/materiais-privados/Provas3', 'aeds/materiais/Listas/lista-aeds2-prova3.pdf'],
   },
   {
     id: 'reav',
     title: 'Reavaliacao',
     shortTitle: 'Reav',
     description: 'Cumulativa: cai questao de todas as provas (u00-u08).',
-    materialsRefs: ['materiais-privados/ProvasReav'],
+    materialsRefs: ['aeds/materiais-privados/ProvasReav'],
   },
 ];
 

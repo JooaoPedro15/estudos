@@ -1,6 +1,6 @@
 # Formato da Prova 1
 
-Baseado na foto real em `materiais-privados/Provas1/` (Prova I, disciplina
+Baseado na foto real em `aeds/materiais-privados/Provas1/` (Prova I, disciplina
 Algoritmos e Estruturas de Dados II, PUC Minas). Cobre u00-u04 (fundamentos
 de analise, estruturas lineares estaticas, ordenacao, e u04 flexivel do
 lado teorico).

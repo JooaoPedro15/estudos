@@ -1,6 +1,6 @@
 # Formato da Prova 2
 
-Baseado em 2 edicoes reais em `materiais-privados/Provas2/` (Prova II).
+Baseado em 2 edicoes reais em `aeds/materiais-privados/Provas2/` (Prova II).
 Cobre u04 (estruturas flexiveis/encadeadas, teorica e pratica) e u05
 (arvore binaria/ABB basica, sem balanceamento ainda).
 
