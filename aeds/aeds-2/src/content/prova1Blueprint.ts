@@ -90,7 +90,7 @@ export const prova1Blueprint: ExamBlueprint = {
       domainId: 'vetores',
       moduleId: 'fila',
       format: 'code-modification',
-      title: 'Fila circular: metodo novo alem dos basicos',
+      title: 'Fila circular: desfazer e mostrar invertido',
       stem:
         'A partir da Fila circular oficial (array de tamanho n + 1, indices primeiro/ultimo), implemente int desfazer(), que remove o ultimo elemento inserido e retorna -1 se a fila estiver vazia, e void mostrarInverso(), que exibe os elementos da fila do ultimo ao primeiro, recursivamente, sem alterar a fila.',
       scaffold: `class Fila {
