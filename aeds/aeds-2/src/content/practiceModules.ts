@@ -38,12 +38,18 @@ function countByModule(): Map<ContentModuleId, number> {
  * Sempre começa por "Conteúdo inteiro" e segue com os domínios que
  * têm ao menos um exercício, reaproveitando título/descrição de
  * `domainCatalog`.
+ *
+ * `allowedModuleIds`, quando informado, restringe a lista aos módulos de
+ * uma prova específica (ver `src/content/examCatalog.ts`) — "Conteúdo
+ * inteiro" nesse caso passa a significar "toda a prova", não o app inteiro.
  */
-export function getPracticeModules(): PracticeModule[] {
+export function getPracticeModules(allowedModuleIds?: ContentModuleId[]): PracticeModule[] {
   const counts = countByModule();
+  const allowed = allowedModuleIds ? new Set(allowedModuleIds) : null;
 
   const specificModules: PracticeModule[] = contentModuleCatalog
     .filter((module) => (counts.get(module.id) ?? 0) > 0)
+    .filter((module) => !allowed || allowed.has(module.id))
     .map((module) => ({
       id: module.id,
       title: module.title,
@@ -51,23 +57,36 @@ export function getPracticeModules(): PracticeModule[] {
       count: counts.get(module.id) ?? 0,
     }));
 
+  const allDrillsCount = allowed
+    ? codeDrillCatalog.filter((drill) => allowed.has(getDrillModuleId(drill))).length
+    : codeDrillCatalog.length;
+
   return [
     {
       id: 'all',
-      title: 'Conteudo inteiro',
-      description: 'Todas as questoes, em ordem aleatoria. Funciona como um treino geral da materia.',
-      count: codeDrillCatalog.length,
+      title: allowed ? 'Todo o conteudo desta prova' : 'Conteudo inteiro',
+      description: allowed
+        ? 'Todas as questoes dos modulos desta prova, em ordem aleatoria.'
+        : 'Todas as questoes, em ordem aleatoria. Funciona como um treino geral da materia.',
+      count: allDrillsCount,
     },
     ...specificModules,
   ];
 }
 
-/** Drills do módulo escolhido ("all" = catálogo completo). */
-export function getDrillsForModule(moduleId: PracticeModuleId): CodeDrill[] {
+/**
+ * Drills do módulo escolhido ("all" = catálogo completo, ou toda a prova
+ * quando `allowedModuleIds` restringe o escopo).
+ */
+export function getDrillsForModule(moduleId: PracticeModuleId, allowedModuleIds?: ContentModuleId[]): CodeDrill[] {
+  const pool = allowedModuleIds
+    ? codeDrillCatalog.filter((drill) => allowedModuleIds.includes(getDrillModuleId(drill)))
+    : codeDrillCatalog;
+
   if (moduleId === 'all') {
-    return codeDrillCatalog;
+    return pool;
   }
-  return codeDrillCatalog.filter((drill) => getDrillModuleId(drill) === moduleId);
+  return pool.filter((drill) => getDrillModuleId(drill) === moduleId);
 }
 
 /** Título curto do módulo, para mostrar durante o treino. */

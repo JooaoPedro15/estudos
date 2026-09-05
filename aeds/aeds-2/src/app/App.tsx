@@ -16,6 +16,7 @@ import {
 
 import { codeDrillCatalog } from '../content/codeDrills';
 import { domainCatalog } from '../content/domains';
+import { getExam } from '../content/examCatalog';
 import {
   getConceptualDrawingModuleTitle,
   getConceptualDrawingModules,
@@ -61,6 +62,7 @@ import type {
   BlocksStep,
   ChallengeStep,
   CodeDrill,
+  ContentModuleId,
   DomainId,
   ExamBlueprint,
   FixStep,
@@ -73,6 +75,7 @@ import type { ErrorRecord, StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import { ExploreScreen } from './ExploreScreen';
 import { NotebookPanel } from './NotebookPanel';
+import { ProvaSelectionScreen, type PracticeScope } from './ProvaSelectionScreen';
 
 const formatLabels: Record<QuestionFormat, string> = {
   'summation-from-code': 'Somatorio por codigo',
@@ -201,6 +204,8 @@ export function App() {
   const [game, setGame] = useState<SavedGameState>(initialState.game);
   const [activeMode, setActiveMode] = useState<ActiveMode>('exam');
   const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
+  /** Prova escolhida pra filtrar o Treino de Codigo; null = ainda nao escolheu. */
+  const [practiceScope, setPracticeScope] = useState<PracticeScope | null>(null);
   const [conceptualModuleId, setConceptualModuleId] = useState<ConceptualDrawingModuleId | null>(
     initialState.conceptualModuleId,
   );
@@ -222,7 +227,9 @@ export function App() {
 
   const currentQuestion = game.blueprint.questions[game.session.currentQuestionIndex];
   const currentStep = getCurrentStep(game.blueprint, game.session);
-  const practiceDrills = getDrillsForModule(practiceModuleId ?? 'all');
+  const practiceScopeModuleIds =
+    practiceScope && practiceScope !== 'all' ? getExam(practiceScope).moduleIds : undefined;
+  const practiceDrills = getDrillsForModule(practiceModuleId ?? 'all', practiceScopeModuleIds);
   const practiceSession =
     game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
   const currentPracticeDrill = getCurrentPracticeDrill(practiceDrills, practiceSession);
@@ -460,7 +467,7 @@ export function App() {
   }
 
   function selectPracticeModule(moduleId: PracticeModuleId) {
-    const moduleDrills = getDrillsForModule(moduleId);
+    const moduleDrills = getDrillsForModule(moduleId, practiceScopeModuleIds);
     setLastAttempt(null);
     setRecoveryTargetId(null);
     setPracticeModuleId(moduleId);
@@ -478,6 +485,12 @@ export function App() {
   function backToModuleSelection() {
     setLastAttempt(null);
     setPracticeModuleId(null);
+  }
+
+  function backToProvaSelection() {
+    setLastAttempt(null);
+    setPracticeModuleId(null);
+    setPracticeScope(null);
   }
 
   function selectConceptualModule(moduleId: ConceptualDrawingModuleId) {
@@ -581,7 +594,7 @@ export function App() {
       <header className="app-topbar">
         <div>
           <p className="app-kicker">AEDS II · PUC Minas</p>
-          <h1>Reavaliacao AEDS II</h1>
+          <h1>AEDS II</h1>
         </div>
         <div className="score-board" aria-label="Pontuacao do simulado">
           <span className="score-board-icon">
@@ -696,44 +709,52 @@ export function App() {
           </div>
 
           {activeMode === 'practice' ? (
-            practiceModuleId === null ? (
-              <ModuleSelection onSelect={selectPracticeModule} />
-            ) : practiceDrills.length === 0 ? (
-              <div className="complete-state">
-                <Code2 aria-hidden="true" size={42} />
-                <h3>Modulo sem exercicios</h3>
-                <p>Este modulo ainda nao tem exercicios cadastrados.</p>
-                <button className="primary-button" onClick={backToModuleSelection} type="button">
-                  <RotateCcw aria-hidden="true" size={18} />
-                  Voltar aos modulos
-                </button>
-              </div>
+            practiceModuleId !== null ? (
+              practiceDrills.length === 0 ? (
+                <div className="complete-state">
+                  <Code2 aria-hidden="true" size={42} />
+                  <h3>Modulo sem exercicios</h3>
+                  <p>Este modulo ainda nao tem exercicios cadastrados.</p>
+                  <button className="primary-button" onClick={backToModuleSelection} type="button">
+                    <RotateCcw aria-hidden="true" size={18} />
+                    Voltar aos modulos
+                  </button>
+                </div>
+              ) : (
+                <PracticeExperience
+                  answer={answer}
+                  blockOrder={blockOrder}
+                  choiceAnswer={choiceAnswer}
+                  currentPracticeDrill={currentPracticeDrill}
+                  fixId={fixId}
+                  fixLineIndex={fixLineIndex}
+                  lastAttempt={lastAttempt}
+                  moduleTitle={getModuleTitle(practiceModuleId)}
+                  onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
+                  onChangeModule={backToModuleSelection}
+                  onChoice={setChoiceAnswer}
+                  onFixId={setFixId}
+                  onFixLine={setFixLineIndex}
+                  onResetBlocks={() => setBlockOrder([])}
+                  onResetDrafts={resetAnswerDrafts}
+                  onRestartModule={restartPracticeModule}
+                  onStartMarathon={startMarathonPractice}
+                  onStartQuick={startQuickPractice}
+                  onSubmit={submitAnswer}
+                  onText={setTextAnswer}
+                  onToggleTeaching={() => setShowTeaching((value) => !value)}
+                  practiceSession={practiceSession}
+                  showTeaching={showTeaching}
+                  textAnswer={textAnswer}
+                />
+              )
+            ) : practiceScope === null ? (
+              <ProvaSelectionScreen onSelect={setPracticeScope} />
             ) : (
-              <PracticeExperience
-                answer={answer}
-                blockOrder={blockOrder}
-                choiceAnswer={choiceAnswer}
-                currentPracticeDrill={currentPracticeDrill}
-                fixId={fixId}
-                fixLineIndex={fixLineIndex}
-                lastAttempt={lastAttempt}
-                moduleTitle={getModuleTitle(practiceModuleId)}
-                onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
-                onChangeModule={backToModuleSelection}
-                onChoice={setChoiceAnswer}
-                onFixId={setFixId}
-                onFixLine={setFixLineIndex}
-                onResetBlocks={() => setBlockOrder([])}
-                onResetDrafts={resetAnswerDrafts}
-                onRestartModule={restartPracticeModule}
-                onStartMarathon={startMarathonPractice}
-                onStartQuick={startQuickPractice}
-                onSubmit={submitAnswer}
-                onText={setTextAnswer}
-                onToggleTeaching={() => setShowTeaching((value) => !value)}
-                practiceSession={practiceSession}
-                showTeaching={showTeaching}
-                textAnswer={textAnswer}
+              <ModuleSelection
+                allowedModuleIds={practiceScopeModuleIds}
+                onBackToProva={backToProvaSelection}
+                onSelect={selectPracticeModule}
               />
             )
           ) : activeMode === 'conceptual' || activeMode === 'drawing' ? (
@@ -908,11 +929,23 @@ export function App() {
   );
 }
 
-function ModuleSelection({ onSelect }: { onSelect: (moduleId: PracticeModuleId) => void }) {
-  const modules = getPracticeModules();
+function ModuleSelection({
+  allowedModuleIds,
+  onBackToProva,
+  onSelect,
+}: {
+  allowedModuleIds?: ContentModuleId[];
+  onBackToProva: () => void;
+  onSelect: (moduleId: PracticeModuleId) => void;
+}) {
+  const modules = getPracticeModules(allowedModuleIds);
 
   return (
     <div className="module-select">
+      <button className="ghost-button compact" onClick={onBackToProva} type="button">
+        <RotateCcw aria-hidden="true" size={16} />
+        Trocar prova
+      </button>
       <p className="question-stem">
         Escolha um modulo para treinar. "Conteudo inteiro" mistura todos os conteudos em ordem aleatoria; os demais
         trazem so as questoes daquele assunto.
