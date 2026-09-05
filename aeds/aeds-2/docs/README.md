@@ -14,6 +14,10 @@ Esta pasta guarda a documentacao de produto e engenharia do modulo interativo.
 | `architecture.md` | Arquitetura atual e proximos incrementos. |
 | `testing-strategy.md` | Estrategia e comandos de testes automatizados. |
 | `implementation-roadmap.md` | Estado implementado e proximos passos. |
+| `regras-professor.md` | Regras obrigatorias de codigo do professor (fora as de logistica de correcao). |
+| `prova1-format.md` | Como o modulo deve imitar o formato observado na Prova 1. |
+| `prova2-format.md` | Como o modulo deve imitar o formato observado na Prova 2. |
+| `prova3-format.md` | Como o modulo deve imitar o formato observado na Prova 3. |
 
 ## Principio
 

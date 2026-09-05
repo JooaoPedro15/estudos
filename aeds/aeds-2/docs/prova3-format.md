@@ -43,5 +43,5 @@ u08 (TRIE/PATRICIA), com forte tendencia a estruturas hibridas/doidona.
 ## Como evitar copia de prova
 
 Mesma politica das demais provas. `lista-aeds2-prova3.pdf` reforca esse
-padrao com mais 39 variacoes de estrutura hibrida — usar como banco de
+padrao com mais 39 variacoes de estrutura hibrida - usar como banco de
 inspiracao para variar valores/estrutura, nunca copiar enunciado.

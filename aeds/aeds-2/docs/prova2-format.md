@@ -8,14 +8,14 @@ Cobre u04 (estruturas flexiveis/encadeadas, teorica e pratica) e u05
 
 - 3-4 questoes, cada uma dando uma estrutura composta ou hibrida pronta
   (classes completas) e pedindo 1 metodo novo especifico.
-- Recorrente: estrutura "de estrutura" — lista de pilhas, arvore de arvore
+- Recorrente: estrutura "de estrutura" - lista de pilhas, arvore de arvore
   (arvore de caracteres + arvore de palavras), matriz encadeada com listas
   na diagonal. O aluno precisa decidir em qual camada agir.
 - Uma edicao trouxe bloco de verdadeiro-ou-falso com justificativa sobre
   percursos de arvore, complexidade de Merge/Heap Sort, ponteiros (C) e
   complexidade de insercao/remocao em lista com celula cabeca.
 - ABB pode ser cobrada com variacao da regra padrao (ex.: permitir
-  repetidos com contador em vez de ignorar) — nao so o ABB de sempre.
+  repetidos com contador em vez de ignorar) - nao so o ABB de sempre.
 
 ## Macroformatos
 
@@ -30,7 +30,7 @@ Cobre u04 (estruturas flexiveis/encadeadas, teorica e pratica) e u05
 
 | Modulo | Formato mais natural |
 | --- | --- |
-| lista | Q1/Q2: metodo em lista simples/dupla, variacao de regra (ex.: `meiose`, remover valor) |
+| lista | Q1/Q2: metodo em lista simples/dupla, variacao de regra (ex.: dividir cada celula em duas, ou remover valor) |
 | fila | Q1: metodo em fila encadeada, decidir camada composta |
 | pilha | Q1: metodo em pilha encadeada, estrutura "lista de pilhas" |
 | matriz | Q3: metodo em matriz encadeada percorrendo/religando 4 direcoes |

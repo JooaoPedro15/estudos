@@ -11,20 +11,21 @@ lado teorico).
   Reavaliacao (varios subitens a, b, c... por questao).
 - Questao 1 e so complexidade: trecho de codigo com metodo `foo()`
   invocado em lacos aninhados dependentes de uma condicao (`if (a > b)`),
-  cobrando melhor caso, pior caso, forma fechada por somatorio e notacao Θ
+  cobrando melhor caso, pior caso, forma fechada por somatorio e notacao Theta
   separadamente.
 - Questao 2 e prova por inducao usando a propriedade de perturbacao de
   somatorios (`Sn + a(n+1) = a0 + soma(a(i+1))`) para achar formula fechada
   e depois provar por inducao.
 - Questao 3 e implementacao em estrutura estatica dada (fila circular por
-  array, com `primeiro`/`ultimo` e tamanho + 1) — pede metodos alem dos
-  basicos (`desfazer`, `mostrarInverso`), nao so os metodos de sempre.
+  array, com `primeiro`/`ultimo` e tamanho + 1) - pede metodos alem dos
+  basicos (ex.: um metodo que desfaz a ultima operacao e um metodo que
+  mostra os elementos em ordem inversa), nao so os metodos de sempre.
 
 ## Macroformatos
 
 | Questao | Formato observado | Como virar atividade |
 | --- | --- | --- |
-| Q1 | Complexidade de lacos aninhados por Θ, separado por melhor/pior caso e por bloco de codigo | Apresentar trecho com 2 ramos (if/else), pedir Θ de cada ramo e justificar qual e melhor/pior caso |
+| Q1 | Complexidade de lacos aninhados por Theta, separado por melhor/pior caso e por bloco de codigo | Apresentar trecho com 2 ramos (if/else), pedir Theta de cada ramo e justificar qual e melhor/pior caso |
 | Q2 | Formula fechada de somatorio por perturbacao + prova por inducao | Dar Sn generico, pedir fechamento por perturbacao e depois inducao (passo base + passo indutivo) |
 | Q3 | Metodo novo em estrutura estatica dada (fila/pilha/lista por array) | Dar classe oficial completa, pedir metodo que nao e um dos basicos (inserir/remover/mostrar) |
 
@@ -32,7 +33,7 @@ lado teorico).
 
 | Modulo | Formato mais natural |
 | --- | --- |
-| complexidade | Q1: Θ por bloco/ramo, melhor e pior caso |
+| complexidade | Q1: Theta por bloco/ramo, melhor e pior caso |
 | somatorio | Q2: formula fechada + inducao |
 | vetores | Q1/Q3: analise de lacos sobre array, metodo novo em vetor |
 | ordenacao | Q3 (variante): metodo que usa/adapta um algoritmo de ordenacao dado |
@@ -42,6 +43,6 @@ lado teorico).
 ## Como evitar copia de prova
 
 Mesma politica da Reavaliacao (ver `docs/reavaliacao-format.md`): usar a
-prova para aprender o formato e criar exercicios novos — trocar valores,
+prova para aprender o formato e criar exercicios novos - trocar valores,
 nomes de variaveis e estrutura especifica mantendo a mesma habilidade
 cobrada.
