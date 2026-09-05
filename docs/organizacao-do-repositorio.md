@@ -25,7 +25,7 @@ novos modulos educacionais devem ser adicionados.
       specs/
   aeds/
     README.md
-    reavaliacao-aeds-2/
+    aeds-2/
     materiais/
     materiais-privados/      ignorado pelo Git
   arquitetura-computadores/
@@ -41,8 +41,8 @@ novos modulos educacionais devem ser adicionados.
 | Item | Regra | Exemplo |
 | --- | --- | --- |
 | Materia | minusculo, sem acento, hifenizado quando necessario | `arquitetura-computadores` |
-| Modulo educacional | nome hifenizado e descritivo | `reavaliacao-aeds-2` |
-| Docs do projeto | dentro do proprio modulo | `aeds/reavaliacao-aeds-2/docs/` |
+| Modulo educacional | nome hifenizado e descritivo | `aeds-2` |
+| Docs do projeto | dentro do proprio modulo | `aeds/aeds-2/docs/` |
 | Materiais versionados | dentro da materia | `aeds/materiais/` |
 | Materiais privados | pasta ignorada localmente | `aeds/materiais-privados/` |
 | Versoes preservadas | dentro da materia correspondente | `arquitetura-computadores/datapath-quest/` |
@@ -74,9 +74,9 @@ modulo pode versionar materiais de referencia em `<materia>/materiais/` quando
 o dono do repositorio decidir que eles podem subir.
 
 No caso atual de AEDS II, provas oficiais ficam em
-`aeds/materiais-privados/Provas/`, ignorada pelo Git. Materiais versionaveis,
-como listas e slides autorizados, ficam em `aeds/materiais/` e sao usados como
-base do modulo `aeds/reavaliacao-aeds-2`.
+`aeds/materiais-privados/Provas1|2|3|Reav/`, ignoradas pelo Git. Materiais
+versionaveis, como listas e slides autorizados, ficam em `aeds/materiais/` e
+sao usados como base do modulo `aeds/aeds-2`.
 
 ## Independencia dos modulos
 

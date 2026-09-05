@@ -1,22 +1,30 @@
-# Reavaliacao AEDS II
+# AEDS II
 
-Modulo interativo para estudo de estruturas de dados de AEDS II, com foco no
-formato real da reavaliacao. Este e o modulo atual de AEDS no repositorio.
+Modulo interativo para estudo de Algoritmos e Estruturas de Dados II (AEDS II),
+organizado por prova: Prova 1, Prova 2, Prova 3 e Reavaliacao (cumulativa,
+cobra tudo). Cada prova tem escopo proprio de modulos, alem da lista completa
+de conteudo para estudo livre sem filtro. Este e o modulo atual de AEDS no
+repositorio.
 
 ## Objetivo do modulo
 
-Ajudar o aluno a praticar ate conseguir resolver questoes de reavaliacao que
-cobram simulacao, justificativa, codigo, complexidade e manipulacao de
-estruturas de dados.
+Ajudar o aluno a praticar ate conseguir resolver questoes no formato real de
+cada prova, que cobram simulacao, justificativa, codigo, complexidade e
+manipulacao de estruturas de dados.
 
 ## Principais funcionalidades
 
-- Campanha com 6 dominios da reavaliacao.
+- Selecao de prova (Prova 1/2/3/Reavaliacao) que filtra o Treino de Codigo e
+  o Simulado pelos modulos daquela prova; "Ver todo o conteudo" mantem o
+  estudo livre sem filtro.
+- Campanha com os dominios da Reavaliacao.
 - Oficina de codigo com escolha, lacuna, blocos, correcao, codigo curto e
   funcoes inteiras.
 - Treino de codigo em sessoes rapidas ou maratona continua.
 - Caderno adaptativo de erros com persistencia em `localStorage`.
-- Simulado final com 6 questoes no formato da reavaliacao.
+- Simulado da Reavaliacao com 6 questoes; Prova 1 tem um simulado de
+  referencia com as 3 questoes reais; Prova 2 e Prova 3 ainda nao tem
+  simulado proprio.
 - Aba de estruturas com visualizacoes animadas, insercao, remocao, busca,
   execucao passo a passo e visualizacao de codigo.
 - Visualizacoes dedicadas para estruturas como Doidona, TRIE e AVL.
@@ -54,7 +62,7 @@ O `package.json` nao define comando de preview.
 ## Principais pastas
 
 ```text
-reavaliacao-aeds-2/
+aeds-2/
   docs/         Documentacao de produto, arquitetura, interacoes e testes
   src/app/      Telas principais da experiencia
   src/content/  Dominios, questoes e treinos de codigo
@@ -79,7 +87,11 @@ reavaliacao-aeds-2/
 ## Documentacao
 
 - [Visao de produto](docs/product-spec.md)
-- [Formato da reavaliacao](docs/reavaliacao-format.md)
+- [Regras obrigatorias de codigo do professor](docs/regras-professor.md)
+- [Formato da Prova 1](docs/prova1-format.md)
+- [Formato da Prova 2](docs/prova2-format.md)
+- [Formato da Prova 3](docs/prova3-format.md)
+- [Formato da Reavaliacao](docs/reavaliacao-format.md)
 - [Experiencia de aprendizagem](docs/game-mechanics.md)
 - [Mapa de conteudo](docs/content-map.md)
 - [Caderno adaptativo de erros](docs/adaptive-error-notebook.md)

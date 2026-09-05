@@ -1,4 +1,4 @@
-# Documentacao do Reavaliacao AEDS II
+# Documentacao do AEDS II
 
 Esta pasta guarda a documentacao de produto e engenharia do modulo interativo.
 
@@ -22,4 +22,4 @@ Esta pasta guarda a documentacao de produto e engenharia do modulo interativo.
 ## Principio
 
 Toda interacao deve responder a uma pergunta simples: isso ajuda o aluno a errar
-menos em uma questao real de reavaliacao?
+menos em uma questao real de prova (Prova 1, Prova 2, Prova 3 ou Reavaliacao)?

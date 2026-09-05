@@ -1,8 +1,8 @@
-# Product Spec: Reavaliacao AEDS II
+# Product Spec: AEDS II
 
 ## Resumo
 
-`Reavaliacao AEDS II` sera um modulo de treino direcionado para uma prova de
+`AEDS II` sera um modulo de treino direcionado para uma prova de
 reavaliacao com questoes discursivas, codigo Java/C-like e estruturas de dados.
 O aluno passa por 6 dominios de conteudo, pratica os formatos de questao mais
 provaveis e revisita automaticamente os pontos em que mais errou.

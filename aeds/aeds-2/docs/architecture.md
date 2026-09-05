@@ -2,7 +2,7 @@
 
 ## Decisao
 
-Criar um app independente em `aeds/reavaliacao-aeds-2`, com modelo de dominio,
+Criar um app independente em `aeds/aeds-2`, com modelo de dominio,
 progresso e revisao proprios, centrados no formato da reavaliacao. Este modulo
 e tratado como o modulo principal de AEDS no repositorio atual.
 

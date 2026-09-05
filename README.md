@@ -12,7 +12,7 @@ propria pasta, dependencias, testes e comandos.
   .gitignore
   docs/                         Documentacao geral do repositorio
   aeds/                         Materia AEDS II
-    reavaliacao-aeds-2/         Modulo interativo de AEDS II
+    aeds-2/         Modulo interativo de AEDS II
     materiais/                  Materiais academicos versionados
   arquitetura-computadores/     Materia Arquitetura de Computadores II
     datapath-quest/             Modulo interativo de datapath MIPS
@@ -25,7 +25,7 @@ propria pasta, dependencias, testes e comandos.
 
 | Modulo | Materia | Estado | Pasta |
 | --- | --- | --- | --- |
-| Reavaliacao AEDS II | AEDS II | Modulo interativo atual | [`aeds/reavaliacao-aeds-2/`](aeds/reavaliacao-aeds-2/) |
+| AEDS II | AEDS II | Modulo interativo atual | [`aeds/aeds-2/`](aeds/aeds-2/) |
 | Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Preservado | [`arquitetura-computadores/datapath-quest/`](arquitetura-computadores/datapath-quest/) |
 
 ## Materiais da disciplina
@@ -40,7 +40,7 @@ ignorada pelo Git.
 ## Como executar o modulo atual de AEDS
 
 ```bash
-cd aeds/reavaliacao-aeds-2
+cd aeds/aeds-2
 npm install
 npm run dev
 ```
@@ -58,4 +58,4 @@ npm run build
 - [Organizacao do repositorio](docs/organizacao-do-repositorio.md)
 - [Inventario dos modulos](docs/inventario-dos-projetos.md)
 - [README da materia AEDS](aeds/README.md)
-- [README do modulo atual de AEDS](aeds/reavaliacao-aeds-2/README.md)
+- [README do modulo atual de AEDS](aeds/aeds-2/README.md)

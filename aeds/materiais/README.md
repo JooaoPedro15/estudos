@@ -5,10 +5,10 @@ modulos de AEDS II.
 
 ## Uso atual
 
-O modulo `aeds/reavaliacao-aeds-2` usa os materiais versionados desta pasta e as
-provas locais privadas para entender:
+O modulo `aeds/aeds-2` usa os materiais versionados desta pasta e as provas
+locais privadas (Prova 1, Prova 2, Prova 3 e Reavaliacao) para entender:
 
-- o formato das reavaliacoes;
+- o formato de cada prova;
 - os tipos de questao cobrados;
 - os dominios de conteudo mais importantes;
 - exemplos de codigo, estruturas e algoritmos dos materiais.
@@ -33,7 +33,10 @@ aeds/materiais/
 Provas oficiais e materiais sensiveis ficam fora do Git em:
 
 ```text
-aeds/materiais-privados/Provas/
+aeds/materiais-privados/Provas1/
+aeds/materiais-privados/Provas2/
+aeds/materiais-privados/Provas3/
+aeds/materiais-privados/ProvasReav/
 ```
 
 ## Regra do repositorio
@@ -52,5 +55,7 @@ A aplicacao deve usar os materiais como referencia de formato e conteudo,
 criando exercicios proprios com valores, enunciados e variacoes novas. A ideia
 nao e copiar uma prova inteira, mas treinar as habilidades que ela cobra.
 
-A lista `lista-aeds2-prova3.pdf` deve guiar principalmente os treinos de codigo:
-classes prontas, metodo pedido, estrutura visual e adaptacao de logica.
+A lista `lista-aeds2-prova3.pdf` e material da Prova 3 (arvores, hash, TRIE e
+estruturas hibridas) e deve guiar principalmente os treinos de codigo desse
+escopo: classes prontas, metodo pedido, estrutura visual e adaptacao de
+logica.

@@ -4,12 +4,12 @@ Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-07-03.
 
 ---
 
-## Modulo 1: Reavaliacao AEDS II
+## Modulo 1: AEDS II
 
 | Campo | Valor |
 | --- | --- |
-| Nome | Reavaliacao AEDS II |
-| Pasta | `aeds/reavaliacao-aeds-2/` |
+| Nome | AEDS II |
+| Pasta | `aeds/aeds-2/` |
 | Materia | AEDS II |
 | Tecnologia | React, TypeScript, Vite, Vitest, Testing Library |
 | Estado | Modulo interativo atual |
@@ -18,16 +18,19 @@ Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-07-03.
 
 Modulo interativo para estudo de estruturas de dados, com visualizacoes,
 simulacoes, exercicios de codigo e atividades conceituais. A aplicacao prepara
-para a reavaliacao de AEDS II com painel de dominios, treino de codigo, caderno
-adaptativo de erros e simulado final no formato das reavaliacoes.
+para as provas de AEDS II (Prova 1, Prova 2, Prova 3 e Reavaliacao
+cumulativa) com selecao de prova, treino de codigo, caderno adaptativo de
+erros e simulado no formato de cada prova.
 
 ### Dominios iniciais
 
-Doidona, TRIE, AVL, arvore normal/binaria, somatorios e algoritmos de ordenacao.
+Doidona, TRIE, AVL, arvore normal/binaria, somatorios, algoritmos de
+ordenacao e estruturas lineares (lista, fila, pilha, matriz), estaticas e
+flexiveis.
 
 ### Comandos
 
-Dentro de `aeds/reavaliacao-aeds-2/`:
+Dentro de `aeds/aeds-2/`:
 
 | Acao | Comando |
 | --- | --- |
@@ -39,13 +42,13 @@ Dentro de `aeds/reavaliacao-aeds-2/`:
 
 ### Documentacao
 
-- `aeds/reavaliacao-aeds-2/README.md`
-- `aeds/reavaliacao-aeds-2/docs/`
+- `aeds/aeds-2/README.md`
+- `aeds/aeds-2/docs/`
 - `docs/superpowers/specs/2026-07-01-reavaliacao-aeds-2-design.md`
 
 ### Materiais relacionados
 
-- `aeds/materiais-privados/Provas/` (local e ignorado pelo Git)
+- `aeds/materiais-privados/Provas1/`, `Provas2/`, `Provas3/` e `ProvasReav/` (locais e ignorados pelo Git)
 - `aeds/materiais/Slides AEDS 2/`
 - `aeds/materiais/Listas/`
 

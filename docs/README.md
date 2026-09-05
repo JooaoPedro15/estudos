@@ -16,7 +16,7 @@ especifica do modulo educacional.
 
 Cada modulo ativo possui sua propria documentacao em sua pasta:
 
-- [`aeds/reavaliacao-aeds-2/docs/`](../aeds/reavaliacao-aeds-2/docs/) - spec e documentacao do modulo interativo de AEDS II;
+- [`aeds/aeds-2/docs/`](../aeds/aeds-2/docs/) - spec e documentacao do modulo interativo de AEDS II;
 - [`arquitetura-computadores/README.md`](../arquitetura-computadores/README.md) - visao geral da materia e dos modulos existentes.
 
 Versoes antigas preservadas ficam nas pastas existentes de cada materia e nao

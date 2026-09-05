@@ -42,7 +42,7 @@ o modelo de dados e avaliadores, porque eles sustentam o resto da aplicacao.
 
 ## Comandos esperados
 
-Dentro de `aeds/reavaliacao-aeds-2`:
+Dentro de `aeds/aeds-2`:
 
 ```bash
 npm test

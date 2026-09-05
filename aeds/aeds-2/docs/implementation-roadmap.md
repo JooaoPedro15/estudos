@@ -2,7 +2,7 @@
 
 ## Estado atual
 
-Primeira versao funcional concluida em `aeds/reavaliacao-aeds-2`.
+Primeira versao funcional concluida em `aeds/aeds-2`.
 
 ## Etapa 0: Fundacao documental
 
