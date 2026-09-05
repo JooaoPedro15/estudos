@@ -4,9 +4,12 @@
 
 O conteudo deve ser guiado por:
 
-- `aeds/materiais-privados/Provas/REAV1` como referencia principal de formato;
-- `aeds/materiais-privados/Provas/REAV2_incompleta` como referencia secundaria;
-- `aeds/materiais/Listas/lista-aeds2-prova3.pdf` como referencia principal para treinos de codigo;
+- `aeds/materiais-privados/ProvasReav/REAV1` como referencia principal de formato da Reavaliacao;
+- `aeds/materiais-privados/ProvasReav/REAV2_incompleta` como referencia secundaria da Reavaliacao;
+- `aeds/materiais-privados/Provas1` como referencia da Prova 1 (ver `docs/prova1-format.md`);
+- `aeds/materiais-privados/Provas2` como referencia da Prova 2 (ver `docs/prova2-format.md`);
+- `aeds/materiais-privados/Provas3` como referencia da Prova 3 (ver `docs/prova3-format.md`);
+- `aeds/materiais/Listas/lista-aeds2-prova3.pdf` como referencia principal de treino de codigo da Prova 3 (arvores, hash, TRIE e hibridas - ver `docs/prova3-format.md`);
 - `aeds/materiais/Slides AEDS 2` como base de conteudo.
 
 ## Estilo da lista da prova 3
