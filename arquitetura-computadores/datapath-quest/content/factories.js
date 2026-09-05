@@ -96,20 +96,17 @@ const REVIEW_TOPICS = [
   {id:'jal_jr_pilha', examId:'p3', topic:'QCall', label:'JAL, JR e pilha', desc:'Chamada, retorno, função chamando função e salvamento de $ra.'},
   {id:'loops_dinamicos', examId:'p3', topic:'QLoops', label:'Loops e contagem dinâmica', desc:'Linhas do código versus instruções realmente executadas.'},
   {id:'cpi_medio', examId:'p3', topic:'QCpi', label:'CPI médio e tempo', desc:'Tabela dinâmica, ciclos totais, CPI médio e tempo de execução.'},
-  {id:'questoes_abertas', examId:'p3', isOpen:true, topic:'QOpen', label:'Questões abertas', desc:'Autoavaliação guiada por critérios, sem correspondência textual exata.'},
   {id:'simulado_prova3', examId:'p3', topic:'QSim', label:'Simulado Modelo da Prova 3', desc:'Mistura variada com anulação, gabarito e treino dos erros.'},
 
   {id:'cla_somador', examId:'p1', topic:'QCla', label:'CLA e somador completo', desc:'Propagador e gerador de carry, somador completo, atraso por porta e frequência máxima.'},
   {id:'ieee754_custom', examId:'p1', topic:'QFloat', label:'Ponto flutuante (IEEE754)', desc:'Formatos sinal+expoente+mantissa sob medida, conversão hexadecimal ↔ decimal e armazenamento.'},
   {id:'amdahl_speedup', examId:'p1', topic:'QAmdahl', label:'Lei de Amdahl e speedup', desc:'Fração melhorada, speedup parcial e total, coprocessadores e mistura de instruções.'},
   {id:'cpi_desempenho_p1', examId:'p1', topic:'QCpiP1', label:'CPI médio e desempenho', desc:'Tabela instrução×CPI, tempo de execução, MIPS e comparação entre máquinas.'},
-  {id:'p1_questoes_abertas', examId:'p1', isOpen:true, topic:'QOpenP1', label:'Questões abertas — Prova 1', desc:'Autoavaliação guiada por critérios sobre CLA, ponto flutuante e desempenho.'},
 
   {id:'enderecamento_vetor', examId:'p2', topic:'QAddr', label:'Endereçamento e vetores', desc:'lw/sw com offset, deslocamento em bytes por índice e acesso a elementos de vetores.'},
   {id:'deslocamento_shift', examId:'p2', topic:'QShift', label:'Deslocamento (sll/srl/sra)', desc:'Construir constantes e multiplicar/dividir por potências de 2 usando shift.'},
   {id:'cpi_desempenho_p2', examId:'p2', topic:'QCpiP2', label:'CPI médio e desempenho', desc:'Contagem de instruções executadas, CPI médio, tempo total e taxa MIPS a partir de um programa.'},
-  {id:'pilha_funcoes_p2', examId:'p2', topic:'QStackP2', label:'Pilha em chamadas de função', desc:'Quando salvar $ra e uso mínimo da pilha em chamadas aninhadas.'},
-  {id:'p2_questoes_abertas', examId:'p2', isOpen:true, topic:'QOpenP2', label:'Questões abertas — Prova 2', desc:'Autoavaliação guiada por critérios sobre endereçamento, shifts e pilha.'}
+  {id:'pilha_funcoes_p2', examId:'p2', topic:'QStackP2', label:'Pilha em chamadas de função', desc:'Quando salvar $ra e uso mínimo da pilha em chamadas aninhadas.'}
 ];
 function topicForCategory(category){
   const t=REVIEW_TOPICS.find(x=>x.id===category);

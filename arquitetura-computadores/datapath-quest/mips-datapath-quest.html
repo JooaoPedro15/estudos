@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" href="data:,">
-<title>MIPS Datapath Quest</title>
+<title>Arquitetura 2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -40,9 +40,9 @@
   --bg2:#111a17;
   --bg3:#17221e;
   --panel:#121c19;
-  --accent:#dd9552;
-  --accent2:#f0b06b;
-  --accent-glow:rgba(221,149,82,.45);
+  --accent:#2596ad;
+  --accent2:#22d3ee;
+  --accent-glow:rgba(34,211,238,.35);
   --green:#22c55e;
   --green-glow:rgba(34,197,94,.55);
   --red:#ef4444;
@@ -61,8 +61,8 @@ html,body{height:100%;}
 body{
   font-family:var(--sans);
   background:
-    radial-gradient(900px 500px at 85% -10%,rgba(221,149,82,.12),transparent 60%),
-    radial-gradient(700px 500px at -10% 110%,rgba(34,211,238,.08),transparent 55%),
+    radial-gradient(900px 500px at 85% -10%,rgba(34,211,238,.08),transparent 60%),
+    radial-gradient(700px 500px at -10% 110%,rgba(34,211,238,.06),transparent 55%),
     var(--bg);
   color:var(--text);
   min-height:100%;
@@ -96,7 +96,7 @@ h1,h2,h3{line-height:1.15;}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
   font-family:var(--display);
   background:linear-gradient(180deg,var(--accent2),var(--accent));
-  color:#1a1006;font-weight:600;font-size:15px;padding:12px 22px;border-radius:12px;
+  color:#04252b;font-weight:600;font-size:15px;padding:12px 22px;border-radius:12px;
   box-shadow:0 6px 20px -6px var(--accent-glow);transition:transform .12s,box-shadow .12s,filter .12s;}
 .btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px -8px var(--accent-glow);}
 .btn:active{transform:translateY(0);}
@@ -107,12 +107,8 @@ h1,h2,h3{line-height:1.15;}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 
 /* ---- Home / Dashboard ---- */
-.dash-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  padding:2px 0 22px;}
-.dash-brand{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.2px;
-  color:var(--text);display:flex;align-items:center;gap:8px;}
-.dash-brand .mark{color:var(--accent2);font-size:18px;}
-.dash-stats{display:flex;gap:8px;flex-wrap:wrap;}
+.dash-header{padding:2px 0 22px;}
+.dash-brand{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.2px;color:var(--muted);}
 
 .dash-hero{padding:8px 0 26px;border-bottom:1px solid var(--line);margin-bottom:26px;position:relative;}
 .dash-hero::before{content:'';position:absolute;left:0;top:-4px;width:46px;height:3px;background:var(--accent);
@@ -483,7 +479,7 @@ table.ctl td.x{color:var(--muted);}
 <div id="app">
   <!-- ===================== BARRA DE TOPO / HUD ===================== -->
   <div class="topbar" id="topbar" style="display:none">
-    <div class="brand">⚡ MIPS<span style="color:var(--cyan)">Quest</span><span class="chip" id="modeChip">—</span></div>
+    <div class="brand">Arquitetura 2<span class="chip" id="modeChip">—</span></div>
     <div class="spacer"></div>
     <div class="hud">
       <div class="stat">Nível <b id="hudLevel">1</b></div>
@@ -499,12 +495,7 @@ table.ctl td.x{color:var(--muted);}
   <!-- ===================== HOME / DASHBOARD ===================== -->
   <section class="screen active" id="scr-home">
     <div class="dash-header">
-      <div class="dash-brand"><span class="mark">⌁</span> MIPS Datapath Quest</div>
-      <div class="dash-stats">
-        <div class="stat">Nível <b id="dashLevel">1</b>/10</div>
-        <div class="stat">XP <b id="dashXP">0</b></div>
-        <div class="stat">🏆 <b id="dashAch">0</b></div>
-      </div>
+      <div class="dash-brand">Arquitetura 2</div>
     </div>
 
     <div class="dash-hero">
@@ -536,7 +527,7 @@ table.ctl td.x{color:var(--muted);}
       <div class="prova-card">
         <span class="tag">PROVA 3</span>
         <h3>Datapath, controle e pipeline</h3>
-        <p>Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e questão aberta.</p>
+        <p>Tempo de instruções, SLT, J, registradores de função e loop com CPI médio.</p>
         <span class="best" id="best-p3"></span>
         <div class="row">
           <button class="btn ghost" data-review="p3">Revisar</button>
@@ -560,12 +551,12 @@ table.ctl td.x{color:var(--muted);}
       <button class="tool-card" id="btnFree">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h3.5L14 18h3.5M14 6h3.5L21 6M4 18h3.5L10 12M18 4l3 2-3 2M18 16l3 2-3 2"/></svg>
         <div class="tt">Modo Livre</div>
-        <div class="td">Perguntas soltas, sem vidas</div>
+        <div class="td">Perguntas infinitas por prova, sem vidas</div>
       </button>
       <button class="tool-card" id="btnProvaInf">
         <span style="font-family:var(--display);font-size:20px;color:var(--accent2);line-height:1;display:block;margin-bottom:8px;">∞</span>
         <div class="tt">Prova Infinita</div>
-        <div class="td">Só questões fechadas, sem parar</div>
+        <div class="td">Só questões fechadas, por prova, sem parar</div>
       </button>
       <button class="tool-card" id="btnTargeted">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
@@ -575,13 +566,13 @@ table.ctl td.x{color:var(--muted);}
     </div>
 
     <div class="util-bar">
-      <button class="iconbtn" id="btnSimulado">📝 Simulado geral</button>
-      <button class="iconbtn" id="btnReview">📌 Todas as revisões</button>
-      <button class="iconbtn" id="btnTutorial">❓ Como jogar</button>
-      <button class="iconbtn" id="btnAch2">🏆 Conquistas</button>
-      <button class="iconbtn" id="btnErrors">📒 Caderno de erros</button>
-      <button class="iconbtn" id="btnLoad">💾 Carregar progresso</button>
-      <button class="iconbtn" id="btnReset">🗑 Resetar</button>
+      <button class="iconbtn" id="btnSimulado">Simulado geral</button>
+      <button class="iconbtn" id="btnReview">Todas as revisões</button>
+      <button class="iconbtn" id="btnTutorial">Como usar</button>
+      <button class="iconbtn" id="btnAch2">Conquistas</button>
+      <button class="iconbtn" id="btnErrors">Caderno de erros</button>
+      <button class="iconbtn" id="btnLoad">Carregar progresso</button>
+      <button class="iconbtn" id="btnReset">Resetar</button>
     </div>
   </section>
 
@@ -657,8 +648,22 @@ table.ctl td.x{color:var(--muted);}
     </div>
     <div class="actionsbar" style="justify-content:center;flex-wrap:wrap">
       <button class="btn" id="reviewStart">Começar revisão</button>
+      <button class="btn ghost" id="reviewFree">Modo Livre (infinito)</button>
       <button class="btn ghost" id="reviewTargeted">Praticar pelo caderno de erros</button>
       <button class="btn ghost" id="reviewBack">← Início</button>
+    </div>
+  </section>
+
+  <!-- ===================== MODO LIVRE / PROVA INFINITA — ESCOLHA DE CONTEÚDO ===================== -->
+  <section class="screen" id="scr-free-setup">
+    <div class="panel center">
+      <h2 id="freeSetupTitle">Modo Livre</h2>
+      <p class="muted" id="freeSetupSub">Escolha o conteúdo. Perguntas infinitas, sem vidas, valores sempre variando.</p>
+      <div class="exam-tabs" id="freeSetupTabs" style="justify-content:center"></div>
+      <div class="actionsbar" style="justify-content:center;margin-top:14px">
+        <button class="btn" id="freeSetupStart">Começar</button>
+        <button class="btn ghost" id="freeSetupBack">← Início</button>
+      </div>
     </div>
   </section>
 
@@ -734,7 +739,7 @@ table.ctl td.x{color:var(--muted);}
     <div class="panel center">
       <div class="result-big">📝</div>
       <h2 id="simSetupTitle">Simulado — Modelo da Prova 3</h2>
-      <p class="muted" id="simSetupSub">Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e pelo menos uma questão aberta. Você pode anular uma questão ao finalizar.</p>
+      <p class="muted" id="simSetupSub">Tempo de instruções, SLT, J, registradores de função e loop com CPI médio. Você pode anular uma questão ao finalizar.</p>
       <div class="exam-tabs" id="simSetupTabs" style="justify-content:center"></div>
       <div id="simBestInfo" style="margin:12px 0;font-size:14px;"></div>
       <div class="actionsbar" style="justify-content:center;flex-direction:column;max-width:320px;margin:12px auto;">
@@ -844,9 +849,6 @@ function persist(){
 function refreshHUD(){
   document.getElementById('hudLevel').textContent = G.level || save.unlocked;
   document.getElementById('hudXP').textContent = save.xp;
-  document.getElementById('dashLevel').textContent = save.unlocked;
-  document.getElementById('dashXP').textContent = save.xp;
-  document.getElementById('dashAch').textContent = save.achievements.length;
   ['p1','p2','p3'].forEach(id=>{
     const best=save.simBest[id];
     document.getElementById('best-'+id).textContent = best>0 ? `Melhor simulado: ${best.toFixed(1)}/10` : '';
@@ -1141,13 +1143,13 @@ function seededShuffle(arr,r){
   return a;
 }
 function allReviewQuestions(){
-  return REVIEW_BANK.concat(OPEN_QUESTIONS);
+  return REVIEW_BANK;
 }
 function buildReviewQueue(r,examFilter){
   const mixed=[];
   REVIEW_TOPICS.filter(t=>t.id!=='simulado_prova3' && (!examFilter||examFilter==='all'||t.examId===examFilter)).forEach(t=>{
     const pool=allReviewQuestions().filter(q=>q.category===t.id);
-    if(pool.length) mixed.push(...seededShuffle(pool,r).slice(0, t.isOpen?3:4));
+    if(pool.length) mixed.push(...seededShuffle(pool,r).slice(0,4));
   });
   return seededShuffle(mixed.length?mixed:allReviewQuestions(),r);
 }
@@ -1188,10 +1190,8 @@ function buildTargetedPracticeQueue(r){
   const errors=Object.entries(save.conceptErrors||{})
     .sort((a,b)=>(b[1].count-a[1].count)||String(b[1].lastAt||'').localeCompare(String(a[1].lastAt||'')));
   errors.forEach(([type])=>{
-    const matches=seededShuffle(all.filter(q=>q.errorType===type && !seen.has(q.id)),r).slice(0,2);
+    const matches=seededShuffle(all.filter(q=>q.errorType===type && !seen.has(q.id)),r).slice(0,3);
     matches.forEach(q=>{ selected.push(q); seen.add(q.id); });
-    const open=seededShuffle(OPEN_QUESTIONS.filter(q=>q.errorType===type && !seen.has(q.id)),r)[0];
-    if(open){ selected.push(open); seen.add(open.id); }
   });
   const fill=seededShuffle(all.filter(q=>!seen.has(q.id)),r);
   while(selected.length<12 && fill.length){ selected.push(fill.shift()); }
@@ -1322,7 +1322,7 @@ const HINT_COST = 50;
 const G = {                 // estado da partida em andamento
   level:1, mode:'levels', queue:[], idx:0, lives:3,
   earned:0, usedHint:false, correctInQ:0, errInQ:0,
-  timeStreak:0, qStart:0, free:false
+  timeStreak:0, qStart:0, free:false, scopeExamId:'all'
 };
 const $ = id => document.getElementById(id);
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
@@ -1337,22 +1337,16 @@ function startLevel(n){
   renderQuestion();
 }
 // ---- Modo Livre: fila aleatória infinita (turbinado com procedurais) ----
-function startFree(){
-  G.free=true; G.mode='free';
-  G.queue = buildFreeQueue(); G.idx=0; G.lives=99; G.earned=0;
+function startFree(examId){
+  G.free=true; G.mode='free'; G.scopeExamId=examId||'all';
+  G.queue = buildFreeQueue(Math.random,G.scopeExamId); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
 }
 // ---- Prova Infinita: só questões fechadas, sem vidas ----
-function startProvaInfinita(){
-  G.free=true; G.mode='provaInfinita';
-  const all=[];
-  for(let i=0;i<4;i++) all.push(geraQ5Random());
-  for(let i=0;i<3;i++) all.push(geraBenchmarkQ3());
-  for(let i=0;i<3;i++) all.push(geraTempoQ5());
-  for(let i=0;i<5;i++) all.push(geraProgramaQ5());
-  all.push(...seededShuffle(REVIEW_BANK).slice(0,18));
-  G.queue = shuffle(all); G.idx=0; G.lives=99; G.earned=0;
+function startProvaInfinita(examId){
+  G.free=true; G.mode='provaInfinita'; G.scopeExamId=examId||'all';
+  G.queue = buildProvaInfinitaQueue(G.scopeExamId); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
 }
@@ -1368,6 +1362,29 @@ function startTargetedPractice(){
   G.queue=buildTargetedPracticeQueue(); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
+}
+let freeSetupMode='free';
+let freeSetupExamId='all';
+const FREE_SETUP_TABS=[
+  {id:'all', label:'Todo conteúdo'},
+  {id:'p1', label:'Prova 1'},
+  {id:'p2', label:'Prova 2'},
+  {id:'p3', label:'Prova 3'}
+];
+function showFreeSetup(mode){
+  freeSetupMode=mode;
+  const tabsWrap=$('freeSetupTabs');
+  tabsWrap.innerHTML=FREE_SETUP_TABS.map(t=>
+    `<button type="button" class="exam-tab${freeSetupExamId===t.id?' active':''}" data-exam="${t.id}">${t.label}</button>`
+  ).join('');
+  tabsWrap.querySelectorAll('.exam-tab').forEach(btn=>{
+    btn.onclick=()=>{ sfx.click(); freeSetupExamId=btn.dataset.exam; showFreeSetup(mode); };
+  });
+  $('freeSetupTitle').textContent = mode==='provaInfinita' ? 'Prova Infinita' : 'Modo Livre';
+  $('freeSetupSub').textContent = mode==='provaInfinita'
+    ? 'Só questões fechadas, sem parar. Escolha o conteúdo.'
+    : 'Perguntas infinitas, sem vidas, valores sempre variando. Escolha o conteúdo.';
+  showScreen('scr-free-setup');
 }
 const REVIEW_EXAM_TABS=[
   {id:'all', label:'Tudo'},
@@ -1403,7 +1420,7 @@ function renderReviewHub(){
   REVIEW_TOPICS.forEach(t=>{
     if(t.id==='simulado_prova3') return;
     if(reviewExamFilter!=='all' && t.examId!==reviewExamFilter) return;
-    const count=t.isOpen ? OPEN_QUESTIONS.filter(q=>q.category===t.id).length : REVIEW_BANK.filter(q=>q.category===t.id).length;
+    const count=REVIEW_BANK.filter(q=>q.category===t.id).length;
     const c=document.createElement('div'); c.className='review-card';
     c.innerHTML=`<b>${t.label}</b><span>${t.desc}</span><br><span class="mono">${count} questão(ões)</span>`;
     grid.appendChild(c);
@@ -1500,7 +1517,9 @@ function nextQuestion(){
   G.idx++;
   if(!G.free && G.idx>=G.queue.length){ winLevel(); return; }
   if(G.free && G.idx>=G.queue.length){
-    G.queue = G.mode==='free' ? buildFreeQueue() : shuffle(G.queue);
+    if(G.mode==='free') G.queue = buildFreeQueue(Math.random,G.scopeExamId);
+    else if(G.mode==='provaInfinita') G.queue = buildProvaInfinitaQueue(G.scopeExamId);
+    else G.queue = shuffle(G.queue);
     G.idx=0;
   }
   renderQuestion();
@@ -2345,7 +2364,7 @@ function renderLevels(){
 
 // ---- Tutorial (5 telas) ----
 const TUTORIAL = [
-  {e:'🧩', h:'Bem-vindo ao MIPS Datapath Quest', b:`
+  {e:'🧩', h:'Bem-vindo à Arquitetura 2', b:`
     <p>Você vai dominar o <b>caminho de dados do MIPS uniciclo</b> jogando. São <b>4 modos</b> distribuídos em <b>10 níveis</b> de dificuldade crescente.</p>
     <p class="muted">A cada acerto você ganha XP. Cada nível dá <b>3 vidas</b> — 3 erros e o nível reinicia (com questões embaralhadas).</p>`},
   {e:'🎬', h:'Modo 1 — Roteirista & Modo 4 — Pipeline', b:`
@@ -2563,24 +2582,93 @@ function proceduralControlQuestion(instr,diff,r){
 function proceduralSingleTimeQuestion(instr,diff,r){
   return q3('single',{instr,times:rngTimes(r),label:randomInstructionLabel(instr,r)},diff||'med');
 }
-function buildFreeQueue(r){
-  r=r||Math.random;
+// examId: 'all' (padrão, mistura as 3 provas) | 'p1' | 'p2' | 'p3'.
+// Os geradores de caminho/controle/tempo são conteúdo da Prova 3 (datapath);
+// só entram quando o escopo é 'p3' ou 'all'. Ponto flutuante procedural
+// (Prova 1) entra em 'p1' ou 'all'.
+function buildFreeQueue(r,examId){
+  r=r||Math.random; examId=examId||'all';
   const all=[];
-  const pathInstrs=['lw','sw','add','sub','slt','addi','beq','bne','j'];
-  const controlInstrs=['add','sub','slt','addi','lw','sw','beq','bne'];
-  for(let round=0; round<3; round++){
-    pathInstrs.forEach(instr=>all.push(proceduralPathQuestion(instr,round===0?'easy':round===1?'med':'hard',r)));
-    controlInstrs.forEach(instr=>all.push(proceduralControlQuestion(instr,round===0?'easy':round===1?'med':'hard',r)));
+  if(examId==='all' || examId==='p3'){
+    const pathInstrs=['lw','sw','add','sub','slt','addi','beq','bne','j'];
+    const controlInstrs=['add','sub','slt','addi','lw','sw','beq','bne'];
+    for(let round=0; round<3; round++){
+      pathInstrs.forEach(instr=>all.push(proceduralPathQuestion(instr,round===0?'easy':round===1?'med':'hard',r)));
+      controlInstrs.forEach(instr=>all.push(proceduralControlQuestion(instr,round===0?'easy':round===1?'med':'hard',r)));
+    }
+    for(let i=0;i<12;i++) all.push(proceduralSingleTimeQuestion(rngPick(['lw','sw','add','sub','slt','addi','beq','bne','j'],r), i<4?'easy':i<8?'med':'hard', r));
+    for(let i=0;i<10;i++) all.push(geraTempoQ5(r));
+    for(let i=0;i<8;i++) all.push(geraQ5Random(r));
+    for(let i=0;i<5;i++) all.push(geraBenchmarkQ3(r));
+    for(let i=0;i<7;i++) all.push(geraProgramaQ5(r));
+    for(let i=0;i<2;i++) all.push(q4('med'));
   }
-  for(let i=0;i<12;i++) all.push(proceduralSingleTimeQuestion(rngPick(['lw','sw','add','sub','slt','addi','beq','bne','j'],r), i<4?'easy':i<8?'med':'hard', r));
-  for(let i=0;i<10;i++) all.push(geraTempoQ5(r));
-  for(let i=0;i<8;i++) all.push(geraQ5Random(r));
-  for(let i=0;i<5;i++) all.push(geraBenchmarkQ3(r));
-  for(let i=0;i<7;i++) all.push(geraProgramaQ5(r));
-  for(let i=0;i<2;i++) all.push(q4('med'));
-  all.push(...seededShuffle(REVIEW_BANK,r).slice(0,18));
-  all.push(...seededShuffle(OPEN_QUESTIONS,r).slice(0,5));
+  if(examId==='all' || examId==='p1'){
+    for(let i=0;i<10;i++) all.push(geraFloatCustomQ5(r));
+  }
+  const bankPool = examId==='all' ? REVIEW_BANK : REVIEW_BANK.filter(q=>{
+    const t=REVIEW_TOPICS.find(x=>x.id===q.category);
+    return t && t.examId===examId;
+  });
+  all.push(...seededShuffle(bankPool,r).slice(0, examId==='all'?18:bankPool.length));
   return seededShuffle(all,r);
+}
+// Prova Infinita: só questões fechadas (Modo 5), sem vidas, com o mesmo
+// escopo por prova do Modo Livre.
+function buildProvaInfinitaQueue(examId,r){
+  r=r||Math.random; examId=examId||'all';
+  const all=[];
+  if(examId==='all' || examId==='p3'){
+    for(let i=0;i<4;i++) all.push(geraQ5Random(r));
+    for(let i=0;i<3;i++) all.push(geraBenchmarkQ3(r));
+    for(let i=0;i<3;i++) all.push(geraTempoQ5(r));
+    for(let i=0;i<5;i++) all.push(geraProgramaQ5(r));
+  }
+  if(examId==='all' || examId==='p1'){
+    for(let i=0;i<6;i++) all.push(geraFloatCustomQ5(r));
+  }
+  const bankPool = examId==='all' ? REVIEW_BANK : REVIEW_BANK.filter(q=>{
+    const t=REVIEW_TOPICS.find(x=>x.id===q.category);
+    return t && t.examId===examId;
+  });
+  all.push(...seededShuffle(bankPool,r).slice(0, examId==='all'?18:bankPool.length));
+  return shuffle(all);
+}
+// Ponto flutuante customizado com bits/valores sempre diferentes (decodificação).
+function geraFloatCustomQ5(r){
+  r=r||Math.random;
+  const expBits=rngPick([4,5,6],r);
+  const mantBits=rngPick([4,5,6],r);
+  const bias=Math.pow(2,expBits-1)-1;
+  const sign=rngPick([0,1],r);
+  const expReal=rngInt(-3,4,r);
+  const expStored=expReal+bias;
+  const mantVal=rngInt(0,8,r) % Math.pow(2,mantBits);
+  const mantFrac=mantVal/Math.pow(2,mantBits);
+  const significand=1+mantFrac;
+  const value=roundN((sign?-1:1)*significand*Math.pow(2,expReal),4);
+  const expBin=expStored.toString(2).padStart(expBits,'0');
+  const mantBin=mantVal.toString(2).padStart(mantBits,'0');
+  const binStr=`${sign} ${expBin} ${mantBin}`;
+  const wrongForgetImplicit=roundN((sign?-1:1)*mantFrac*Math.pow(2,expReal),4);
+  const wrongForgetSign=roundN(significand*Math.pow(2,expReal),4);
+  const wrongForgetBias=roundN((sign?-1:1)*significand*Math.pow(2,expStored),4);
+  const uniqueWrongs=[];
+  [wrongForgetImplicit,wrongForgetSign,wrongForgetBias].forEach(w=>{
+    if(Math.abs(w-value)>1e-9 && !uniqueWrongs.some(u=>Math.abs(u-w)<1e-9)) uniqueWrongs.push(w);
+  });
+  while(uniqueWrongs.length<3) uniqueWrongs.push(roundN(value+(uniqueWrongs.length+1)*0.5*(sign?-1:1),4));
+  const fmt=v=>String(v);
+  const options=reviewShuffle([value,...uniqueWrongs.slice(0,3)]).map(fmt);
+  return q5('mc','med',{
+    topic:'QFloat', category:'ieee754_custom', subtopic:'decodificação procedural',
+    errorType:'ponto flutuante', procedural:true,
+    question:`Em um formato de ponto flutuante customizado de ${1+expBits+mantBits} bits (1 sinal + ${expBits} expoente + ${mantBits} mantissa, bias ${bias}), o número está armazenado como <span class="mono">${binStr}</span>. Qual o valor decimal representado?`,
+    options,
+    correct:options.indexOf(fmt(value)),
+    explain:`Sinal=${sign?'negativo':'positivo'}. Expoente armazenado ${expBin} = ${expStored}, expoente real = ${expStored} − ${bias} = ${expReal}. Mantissa ${mantBin} dá fração ${mantFrac.toFixed(4)}, significando 1+${mantFrac.toFixed(4)} = ${significand.toFixed(4)} (bit implícito 1). Valor = ${significand.toFixed(4)} × 2^${expReal} = ${value}.`,
+    hint:'Valor = (1 + mantissa/2^bits de mantissa) × 2^(expoente armazenado − bias).'
+  });
 }
 function geraProgramaQ5(r){
   r=r||Math.random;
@@ -3012,7 +3100,7 @@ function buildProva3SimQueue(r){
     FUNCTION_REG_REVIEW.find(q=>q.id==='rev_p3_func_v0_return'),
     FUNCTION_REG_REVIEW.find(q=>q.id==='rev_p3_func_ra_return_addr'),
     CPI_REVIEW.find(q=>q.id==='rev_p3_cpi_hard_full_table'),
-    OPEN_QUESTIONS.find(q=>q.id==='rev_p3_open_avg_cpi'),
+    CONTROL_REVIEW.find(q=>q.id==='rev_p3_control_lw_add_memtoreg'),
     CALL_STACK_REVIEW.find(q=>q.id==='rev_p3_call_nested_problem'),
     PARALLEL_REVIEW.find(q=>q.id==='rev_p3_parallel_lw_mux_13'),
     qProva('stack_minimo','hard')
@@ -3031,7 +3119,7 @@ function buildProva1SimQueue(r){
     AMDAHL_SPEEDUP_REVIEW.find(q=>q.id==='rev_p1_amdahl_solve_fm'),
     CPI_DESEMPENHO_P1_REVIEW.find(q=>q.id==='rev_p1_cpi_avg_table'),
     CPI_DESEMPENHO_P1_REVIEW.find(q=>q.id==='rev_p1_cpi_mips_rate'),
-    OPEN_QUESTIONS.find(q=>q.id==='rev_p1_open_amdahl_small_fm')
+    AMDAHL_SPEEDUP_REVIEW.find(q=>q.id==='rev_p1_amdahl_basic_speedup')
   ].filter(Boolean);
   return seededShuffle(fixed,r);
 }
@@ -3047,7 +3135,7 @@ function buildProva2SimQueue(r){
     CPI_DESEMPENHO_P2_REVIEW.find(q=>q.id==='rev_p2_cpi_mips_rate'),
     PILHA_FUNCOES_P2_REVIEW.find(q=>q.id==='rev_p2_stack_one_level'),
     PILHA_FUNCOES_P2_REVIEW.find(q=>q.id==='rev_p2_stack_two_levels'),
-    OPEN_QUESTIONS.find(q=>q.id==='rev_p2_open_shift_types')
+    DESLOCAMENTO_SHIFT_REVIEW.find(q=>q.id==='rev_p2_shift_build_mask')
   ].filter(Boolean);
   return seededShuffle(fixed,r);
 }
@@ -3300,7 +3388,7 @@ const SIM_SETUP_TABS=[
 const SIM_SETUP_INFO={
   p1:{h2:'Simulado — Modelo da Prova 1', sub:'CLA/somador, ponto flutuante, Lei de Amdahl e CPI/desempenho. Você pode anular uma questão ao finalizar.'},
   p2:{h2:'Simulado — Modelo da Prova 2', sub:'Endereçamento de vetores, deslocamento (shift), CPI/desempenho e pilha em funções. Você pode anular uma questão ao finalizar.'},
-  p3:{h2:'Simulado — Modelo da Prova 3', sub:'Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e pelo menos uma questão aberta. Você pode anular uma questão ao finalizar.'},
+  p3:{h2:'Simulado — Modelo da Prova 3', sub:'Tempo de instruções, SLT, J, registradores de função e loop com CPI médio. Você pode anular uma questão ao finalizar.'},
   geral:{h2:'Simulado Geral — Mistura das 3 Provas', sub:'Uma amostra das três provas embaralhada em um único simulado. Você pode anular uma questão ao finalizar.'}
 };
 function showSimSetup(examId){
@@ -3331,8 +3419,14 @@ function boot(){
   refreshHUD();
   // Home
   $('btnStart').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); };
-  $('btnFree').onclick=()=>{ sfx.click(); startFree(); };
-  $('btnProvaInf').onclick=()=>{ sfx.click(); startProvaInfinita(); };
+  $('btnFree').onclick=()=>{ sfx.click(); showFreeSetup('free'); };
+  $('btnProvaInf').onclick=()=>{ sfx.click(); showFreeSetup('provaInfinita'); };
+  $('freeSetupStart').onclick=()=>{
+    sfx.click();
+    if(freeSetupMode==='provaInfinita') startProvaInfinita(freeSetupExamId);
+    else startFree(freeSetupExamId);
+  };
+  $('freeSetupBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   $('btnSimulado').onclick=()=>{ sfx.click(); showSimSetup(); };
   $('btnReview').onclick=()=>{ sfx.click(); renderReviewHub(); };
   $('btnTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
@@ -3354,6 +3448,7 @@ function boot(){
   };
   // Revisão / caderno de erros
   $('reviewStart').onclick=()=>{ sfx.click(); startReview(); };
+  $('reviewFree').onclick=()=>{ sfx.click(); startFree(reviewExamFilter); };
   $('reviewTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
   $('reviewBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   $('errorsPractice').onclick=()=>{ sfx.click(); startTargetedPractice(); };

@@ -25,8 +25,6 @@ const REVIEW_BANK = [
   ...PILHA_FUNCOES_P2_REVIEW
 ];
 
-const OPEN_QUESTIONS = [
-  ...P3_OPEN_QUESTIONS,
-  ...P1_OPEN_QUESTIONS,
-  ...P2_OPEN_QUESTIONS
-];
+// Questoes abertas removidas do banco: as provas reais sao 100% fechadas
+// (multipla escolha), entao o motor nao usa mais formato aberto na pratica.
+const OPEN_QUESTIONS = [];
