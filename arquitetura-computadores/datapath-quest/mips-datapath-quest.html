@@ -399,6 +399,10 @@ table.ctl td.x{color:var(--muted);}
 .program-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:8px;}
 .program-summary .numrow{margin:0;}
 
+.exam-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+.exam-tab{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;}
+.exam-tab:hover{border-color:var(--accent);}
+.exam-tab.active{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.10);}
 .review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px;}
 .review-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;}
 .review-card b{display:block;color:var(--cyan);font-size:14px;margin-bottom:4px;}
@@ -470,7 +474,7 @@ table.ctl td.x{color:var(--muted);}
       <button class="btn ghost" id="btnFree">🎲 Modo Livre</button>
       <button class="btn ghost" id="btnProvaInf">♾️ Prova Infinita</button>
       <button class="btn ghost" id="btnSimulado">📝 Simulado da Prova</button>
-      <button class="btn ghost" id="btnReview">📌 Revisão — Prova 3 e Reavaliação</button>
+      <button class="btn ghost" id="btnReview">📌 Revisão por Prova</button>
       <button class="btn ghost" id="btnTargeted">🎯 Praticar dificuldades</button>
       <button class="btn ghost" id="btnLoad">💾 Carregar Progresso</button>
     </div>
@@ -547,8 +551,9 @@ table.ctl td.x{color:var(--muted);}
   <!-- ===================== REVISÃO PROVA 3 ===================== -->
   <section class="screen" id="scr-review">
     <div class="panel">
-      <h2>Revisão — Prova 3 e Reavaliação</h2>
-      <p class="muted">Questões novas integradas ao mesmo sistema de alternativas, feedback, progresso local e prática por dificuldade.</p>
+      <h2 id="reviewTitle">Revisão por Prova</h2>
+      <p class="muted" id="reviewSub">Questões novas integradas ao mesmo sistema de alternativas, feedback, progresso local e prática por dificuldade.</p>
+      <div class="exam-tabs" id="reviewExamTabs"></div>
       <div class="review-grid" id="reviewTopicGrid"></div>
     </div>
     <div class="actionsbar" style="justify-content:center;flex-wrap:wrap">
@@ -629,8 +634,9 @@ table.ctl td.x{color:var(--muted);}
   <section class="screen" id="scr-sim-setup">
     <div class="panel center">
       <div class="result-big">📝</div>
-      <h2>Simulado — Modelo da Prova 3</h2>
-      <p class="muted">Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e pelo menos uma questão aberta. Você pode anular uma questão ao finalizar.</p>
+      <h2 id="simSetupTitle">Simulado — Modelo da Prova 3</h2>
+      <p class="muted" id="simSetupSub">Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e pelo menos uma questão aberta. Você pode anular uma questão ao finalizar.</p>
+      <div class="exam-tabs" id="simSetupTabs" style="justify-content:center"></div>
       <div id="simBestInfo" style="margin:12px 0;font-size:14px;"></div>
       <div class="actionsbar" style="justify-content:center;flex-direction:column;max-width:320px;margin:12px auto;">
         <button class="btn" id="simStartReal" style="margin-bottom:10px;">⏱ Simulado Real (cronometrado)</button>
@@ -690,9 +696,9 @@ const DEFAULT_SAVE = {
   lessonsDone:[],      // ids de capítulos da Academia concluídos
   // contadores p/ conquistas
   ctlPerfectInstr:[],  // instruções com os 8 sinais corretos sem dica
-  // simulado / modo prova
-  simBest:0,           // melhor nota no simulado (0–10)
-  simHistory:[],       // últimas 3 tentativas: {date, score, perTopic}
+  // simulado / modo prova (uma nota/histórico por prova: p1, p2, p3, geral)
+  simBest:{p1:0,p2:0,p3:0,geral:0},           // melhor nota no simulado (0–10) por prova
+  simHistory:{p1:[],p2:[],p3:[],geral:[]},    // últimas 3 tentativas por prova: {date, score, perTopic}
   provaMastery:{
     Q2:0,Q3a:0,Q3b:0,Q4:0,QProg:0,QISA:0,QStack:0,QTimeExt:0,
     QDatapath:0,QParallel:0,QSlt:0,QControlExt:0,QFunc:0,QCall:0,QLoops:0,QCpi:0,QOpen:0
@@ -711,7 +717,15 @@ function normalizeSave(data){
   merged.achievements=Array.isArray(merged.achievements)?merged.achievements:[];
   merged.lessonsDone=Array.isArray(merged.lessonsDone)?merged.lessonsDone:[];
   merged.ctlPerfectInstr=Array.isArray(merged.ctlPerfectInstr)?merged.ctlPerfectInstr:[];
-  merged.simHistory=Array.isArray(merged.simHistory)?merged.simHistory:[];
+  // migra saves antigos: simBest era um número único e simHistory um array único (sempre da Prova 3)
+  const oldSimBest=data&&data.simBest;
+  merged.simBest=(typeof oldSimBest==='number')
+    ? Object.assign({}, DEFAULT_SAVE.simBest, {p3:oldSimBest})
+    : Object.assign({}, DEFAULT_SAVE.simBest, oldSimBest||{});
+  const oldSimHistory=data&&data.simHistory;
+  merged.simHistory=Array.isArray(oldSimHistory)
+    ? Object.assign({}, DEFAULT_SAVE.simHistory, {p3:oldSimHistory})
+    : Object.assign({}, DEFAULT_SAVE.simHistory, oldSimHistory||{});
   merged.provaMastery=Object.assign({}, DEFAULT_SAVE.provaMastery, (data&&data.provaMastery)||{});
   merged.conceptErrors=Object.assign({}, (data&&data.conceptErrors)||{});
   merged.errorNotebook=Array.isArray(data&&data.errorNotebook)?data.errorNotebook:[];
@@ -1038,16 +1052,28 @@ function q5(sub, diff, params){
 }
 
 const REVIEW_TOPICS = [
-  {id:'datapath_tempo', topic:'QDatapath', label:'Caminho de dados e tempo', desc:'ADD, SUB, SLT, ADDI, LW, SW, BEQ, BNE e J com atrasos por enunciado.'},
-  {id:'sequencia_paralelismo', topic:'QParallel', label:'Sequência e paralelismo', desc:'Quando somar atrasos e quando usar o maior caminho.'},
-  {id:'slt', topic:'QSlt', label:'SLT', desc:'Set on Less Than, tipo R, ULA, sem alterar diretamente o PC.'},
-  {id:'sinais_controle', topic:'QControlExt', label:'Sinais de controle', desc:'RegDst, ALUSrc, MemToReg, RegWrite, memórias, Branch e ALUOp.'},
-  {id:'registradores_funcoes', topic:'QFunc', label:'Registradores de funções', desc:'Argumentos, retorno, $ra, $sp, temporários, salvos, HI e LO.'},
-  {id:'jal_jr_pilha', topic:'QCall', label:'JAL, JR e pilha', desc:'Chamada, retorno, função chamando função e salvamento de $ra.'},
-  {id:'loops_dinamicos', topic:'QLoops', label:'Loops e contagem dinâmica', desc:'Linhas do código versus instruções realmente executadas.'},
-  {id:'cpi_medio', topic:'QCpi', label:'CPI médio e tempo', desc:'Tabela dinâmica, ciclos totais, CPI médio e tempo de execução.'},
-  {id:'questoes_abertas', topic:'QOpen', label:'Questões abertas', desc:'Autoavaliação guiada por critérios, sem correspondência textual exata.'},
-  {id:'simulado_prova3', topic:'QSim', label:'Simulado Modelo da Prova 3', desc:'Mistura variada com anulação, gabarito e treino dos erros.'}
+  {id:'datapath_tempo', examId:'p3', topic:'QDatapath', label:'Caminho de dados e tempo', desc:'ADD, SUB, SLT, ADDI, LW, SW, BEQ, BNE e J com atrasos por enunciado.'},
+  {id:'sequencia_paralelismo', examId:'p3', topic:'QParallel', label:'Sequência e paralelismo', desc:'Quando somar atrasos e quando usar o maior caminho.'},
+  {id:'slt', examId:'p3', topic:'QSlt', label:'SLT', desc:'Set on Less Than, tipo R, ULA, sem alterar diretamente o PC.'},
+  {id:'sinais_controle', examId:'p3', topic:'QControlExt', label:'Sinais de controle', desc:'RegDst, ALUSrc, MemToReg, RegWrite, memórias, Branch e ALUOp.'},
+  {id:'registradores_funcoes', examId:'p3', topic:'QFunc', label:'Registradores de funções', desc:'Argumentos, retorno, $ra, $sp, temporários, salvos, HI e LO.'},
+  {id:'jal_jr_pilha', examId:'p3', topic:'QCall', label:'JAL, JR e pilha', desc:'Chamada, retorno, função chamando função e salvamento de $ra.'},
+  {id:'loops_dinamicos', examId:'p3', topic:'QLoops', label:'Loops e contagem dinâmica', desc:'Linhas do código versus instruções realmente executadas.'},
+  {id:'cpi_medio', examId:'p3', topic:'QCpi', label:'CPI médio e tempo', desc:'Tabela dinâmica, ciclos totais, CPI médio e tempo de execução.'},
+  {id:'questoes_abertas', examId:'p3', isOpen:true, topic:'QOpen', label:'Questões abertas', desc:'Autoavaliação guiada por critérios, sem correspondência textual exata.'},
+  {id:'simulado_prova3', examId:'p3', topic:'QSim', label:'Simulado Modelo da Prova 3', desc:'Mistura variada com anulação, gabarito e treino dos erros.'},
+
+  {id:'cla_somador', examId:'p1', topic:'QCla', label:'CLA e somador completo', desc:'Propagador e gerador de carry, somador completo, atraso por porta e frequência máxima.'},
+  {id:'ieee754_custom', examId:'p1', topic:'QFloat', label:'Ponto flutuante (IEEE754)', desc:'Formatos sinal+expoente+mantissa sob medida, conversão hexadecimal ↔ decimal e armazenamento.'},
+  {id:'amdahl_speedup', examId:'p1', topic:'QAmdahl', label:'Lei de Amdahl e speedup', desc:'Fração melhorada, speedup parcial e total, coprocessadores e mistura de instruções.'},
+  {id:'cpi_desempenho_p1', examId:'p1', topic:'QCpiP1', label:'CPI médio e desempenho', desc:'Tabela instrução×CPI, tempo de execução, MIPS e comparação entre máquinas.'},
+  {id:'p1_questoes_abertas', examId:'p1', isOpen:true, topic:'QOpenP1', label:'Questões abertas — Prova 1', desc:'Autoavaliação guiada por critérios sobre CLA, ponto flutuante e desempenho.'},
+
+  {id:'enderecamento_vetor', examId:'p2', topic:'QAddr', label:'Endereçamento e vetores', desc:'lw/sw com offset, deslocamento em bytes por índice e acesso a elementos de vetores.'},
+  {id:'deslocamento_shift', examId:'p2', topic:'QShift', label:'Deslocamento (sll/srl/sra)', desc:'Construir constantes e multiplicar/dividir por potências de 2 usando shift.'},
+  {id:'cpi_desempenho_p2', examId:'p2', topic:'QCpiP2', label:'CPI médio e desempenho', desc:'Contagem de instruções executadas, CPI médio, tempo total e taxa MIPS a partir de um programa.'},
+  {id:'pilha_funcoes_p2', examId:'p2', topic:'QStackP2', label:'Pilha em chamadas de função', desc:'Quando salvar $ra e uso mínimo da pilha em chamadas aninhadas.'},
+  {id:'p2_questoes_abertas', examId:'p2', isOpen:true, topic:'QOpenP2', label:'Questões abertas — Prova 2', desc:'Autoavaliação guiada por critérios sobre endereçamento, shifts e pilha.'}
 ];
 function topicForCategory(category){
   const t=REVIEW_TOPICS.find(x=>x.id===category);
@@ -1286,6 +1312,288 @@ const CPI_REVIEW = [
   reviewCpiProgram({id:'rev_p3_cpi_hard_full_table',category:'cpi_medio',subtopic:'difícil',errorType:'CPI médio'}, makeCpiProgram('Tabela completa com loop e função', 250, ['lw','sw','add','addi','slt','bne','jal','jr'], {lw:8,sw:1,add:12,addi:8,slt:9,bne:9,jal:4,jr:4}, {lw:6,sw:6,add:3,addi:3,slt:3,bne:2,jal:4,jr:4}, 'Loop de 8 voltas chama função em metade das voltas; teste SLT ocorre uma vez a mais.', ['Conte tabela por tipo antes de somar ciclos.','JAL e JR contam separadamente.','CPI médio usa ciclos totais ÷ total de instruções.'], ['teste: slt $t0,$s0,$s1','bne $t0,$zero,corpo','j fim','corpo: lw $a0,0($s2)','jal ajusta','add $s3,$s3,$v0','addi $s0,$s0,1','j teste','ajusta: add $v0,$a0,$a1','jr $ra','fim: sw $s3,0($s4)'], 'Chamadas executadas', 4))
 ];
 
+// ===== PROVA 1: CLA/somador, ponto flutuante, Amdahl/speedup, CPI/desempenho =====
+const CLA_SOMADOR_REVIEW = [
+  reviewMC({id:'rev_p1_cla_prop',category:'cla_somador',subtopic:'propagador',errorType:'CLA',quickRule:'Pi = Ai XOR Bi: propaga um carry que já existir.'},
+    'No método de antecipação de carry (CLA), qual é a definição do bit propagador <b>Pi</b>?',
+    ['Pi = Ai XOR Bi','Pi = Ai AND Bi','Pi = Ai OR NOT Bi','Pi = NOT(Ai) AND NOT(Bi)'],0,
+    'O propagador indica que, se já existir um carry de entrada, ele passará adiante: Pi = Ai XOR Bi. Quando Pi=1, um carry de entrada vira carry de saída.'),
+  reviewMC({id:'rev_p1_cla_gen',category:'cla_somador',subtopic:'gerador',errorType:'CLA',quickRule:'Gi = Ai AND Bi: gera carry sozinho, sem depender de Ci.'},
+    'Qual é a definição do bit gerador <b>Gi</b> no CLA?',
+    ['Gi = Ai AND Bi','Gi = Ai XOR Bi','Gi = Ai OR Bi','Gi = NOT(Ai XOR Bi)'],0,
+    'Gi=1 quando os dois bits de entrada são 1: Ai AND Bi. Nessa posição, o carry de saída é gerado sozinho, sem depender do carry de entrada.'),
+  reviewMC({id:'rev_p1_cla_carry_formula',category:'cla_somador',subtopic:'fórmula do carry',errorType:'CLA',quickRule:'Ci+1 = Gi + Pi·Ci.'},
+    'Qual fórmula calcula corretamente o carry de saída <b>Ci+1</b> a partir de Pi, Gi e do carry de entrada Ci?',
+    ['Ci+1 = Gi + (Pi · Ci)','Ci+1 = Gi · Pi · Ci','Ci+1 = Gi XOR Ci','Ci+1 = Pi + Ci'],0,
+    'O carry sai por dois motivos: a posição gera carry sozinha (Gi) ou propaga um carry que já chegou (Pi·Ci). Por isso Ci+1 = Gi + Pi·Ci.'),
+  reviewTF({id:'rev_p1_cla_gen_independente',category:'cla_somador',subtopic:'gerador independente',errorType:'CLA',quickRule:'Gi=1 garante carry de saída mesmo com Ci=0.'},
+    'Se Gi = 1 em uma posição, o carry de saída dessa posição é 1 independente do valor do carry de entrada.',
+    true,
+    'Verdadeiro. Gi=1 significa Ai=Bi=1, o que já garante carry de saída 1 mesmo que Ci=0. É essa independência que permite calcular o CLA sem esperar a propagação bit a bit.'),
+  reviewTF({id:'rev_p1_cla_no_gen_no_prop',category:'cla_somador',subtopic:'sem geração nem propagação',errorType:'CLA',quickRule:'Pi=Gi=0 força Ci+1=0.'},
+    'Se Pi = 0 e Gi = 0 em uma posição, o carry de saída dessa posição será sempre 1.',
+    false,
+    'Falso. Pi=0 e Gi=0 significa Ai=Bi=0: não há geração nem propagação, então Ci+1 = 0 + 0·Ci = 0, sempre 0, independente do carry de entrada.'),
+  reviewMC({id:'rev_p1_cla_fulladder_sum',category:'cla_somador',subtopic:'somador completo',errorType:'somador completo',quickRule:'Si = Ai XOR Bi XOR Ci.'},
+    'Considere um somador completo (full adder) tradicional com entradas Ai, Bi e Ci. Qual expressão calcula corretamente a soma <b>Si</b>?',
+    ['Si = Ai XOR Bi XOR Ci','Si = Ai AND Bi AND Ci','Si = Ai OR Bi OR Ci','Si = (Ai AND Bi) OR Ci'],0,
+    'A soma de um bit é 1 quando um número ímpar das três entradas é 1 — exatamente a função XOR de três entradas: Si = Ai XOR Bi XOR Ci.'),
+  reviewAR({id:'rev_p1_cla_ripple_sequencial',category:'cla_somador',subtopic:'ripple-carry',errorType:'somador completo',quickRule:'Ripple-carry: cada estágio espera o carry do anterior.'},
+    '"Em um somador ripple-carry de N bits, o carry de cada estágio só pode ser calculado depois que o carry do estágio anterior estiver pronto, formando uma cadeia sequencial de atrasos."',
+    true,
+    'Verdadeiro. Essa dependência sequencial (o Cout de um estágio vira o Cin do próximo) faz o atraso total crescer com N no ripple-carry — motivo pelo qual o CLA existe: calcular os carries a partir de Pi e Gi sem esperar a cadeia inteira.'),
+  reviewMC({id:'rev_p1_cla_freq_ripple4',category:'cla_somador',subtopic:'atraso e frequência',errorType:'somador completo',quickRule:'Atraso total do ripple-carry = nº de estágios × atraso por estágio; freq = 1/atraso.'},
+    'Um somador completo gasta 2 ns entre o carry de entrada e o carry de saída (Cin → Cout) de um mesmo estágio. Em um somador ripple-carry de 4 bits, o carry se propaga estágio a estágio até o último bit. Qual a frequência máxima aproximada de operação, considerando apenas esse caminho crítico do carry?',
+    ['125 MHz','500 MHz','250 MHz','62,5 MHz'],0,
+    'O carry atravessa 4 estágios em cadeia, 2 ns cada: atraso total = 4 × 2 ns = 8 ns. A frequência máxima nesse caminho é F = 1/8ns = 125 MHz.')
+];
+
+const IEEE754_CUSTOM_REVIEW = [
+  reviewMC({id:'rev_p1_float_bias',category:'ieee754_custom',subtopic:'bias',errorType:'ponto flutuante',quickRule:'Bias = 2^(bits do expoente - 1) - 1.'},
+    'Em um formato de ponto flutuante customizado de 12 bits (1 sinal + 5 expoente + 6 mantissa), qual é o valor do bias (excesso) usado no expoente?',
+    ['15','31','16','7'],0,
+    'Com 5 bits de expoente, o bias é 2^(5-1) − 1 = 15. O expoente armazenado é o expoente real somado a esse bias.'),
+  reviewMC({id:'rev_p1_float_decode',category:'ieee754_custom',subtopic:'conversão para decimal',errorType:'ponto flutuante',quickRule:'valor = (1+mantissa) × 2^(expoente armazenado − bias).'},
+    'Nesse formato (1 sinal + 5 expoente + 6 mantissa, bias 15), um número está armazenado como <span class="mono">0 10000 100000</span>. Qual o valor decimal representado?',
+    ['3,0','1,5','6,0','0,75'],0,
+    'Sinal positivo. Expoente armazenado 10000 = 16, expoente real = 16 − 15 = 1. Mantissa 100000 = 0,5 em fração, dando significando 1,5 (bit implícito 1). Valor = 1,5 × 2¹ = 3,0.'),
+  reviewMC({id:'rev_p1_float_encode_neg',category:'ieee754_custom',subtopic:'conversão para binário',errorType:'ponto flutuante',quickRule:'Normalize a 1,xxx × 2^e antes de montar os campos.'},
+    'Qual é a representação em binário (1 sinal + 5 expoente + 6 mantissa, bias 15) do número <b>−8,0</b>?',
+    ['1 10010 000000','0 10010 000000','1 01101 000000','1 10011 000000'],0,
+    '−8 é negativo: sinal=1. 8 = 1,0 × 2³, expoente real=3, armazenado = 3+15=18 = 10010. A mantissa (parte fracionária após o 1 implícito) é 000000.'),
+  reviewTF({id:'rev_p1_float_implicit_bit',category:'ieee754_custom',subtopic:'bit implícito',errorType:'ponto flutuante',quickRule:'O 1 antes da vírgula não é armazenado.'},
+    'Nesse formato de ponto flutuante, o bit mais à esquerda da mantissa (o "1" antes da vírgula) é armazenado explicitamente nos bits do número.',
+    false,
+    'Falso. Como todo número normalizado começa com 1,xxx, esse bit é implícito — só a parte fracionária (mantissa) ocupa espaço nos bits armazenados.'),
+  reviewMC({id:'rev_p1_float_range_precision_tradeoff',category:'ieee754_custom',subtopic:'faixa vs precisão',errorType:'ponto flutuante',quickRule:'Expoente = faixa; mantissa = precisão.'},
+    'Em um formato de ponto flutuante de tamanho fixo, se aumentarmos o número de bits do expoente e diminuirmos o da mantissa (mantendo o total), o que acontece?',
+    ['Aumenta a faixa (range) de valores representáveis, mas diminui a precisão','Aumenta a precisão, mas diminui a faixa de valores','Não há nenhuma mudança, pois o total de bits é o mesmo','Aumenta tanto a faixa quanto a precisão'],0,
+    'Mais bits de expoente permitem representar números muito maiores ou menores (mais faixa), mas sobram menos bits para a mantissa, reduzindo a precisão (quantidade de dígitos significativos).'),
+  reviewMC({id:'rev_p1_float_sum_decimal',category:'ieee754_custom',subtopic:'soma decimal',errorType:'ponto flutuante',quickRule:'Some os valores decimais já convertidos.'},
+    'Some os dois números <span class="mono">0 01111 000000</span> (que vale 1,0) e <span class="mono">0 10000 100000</span> (que vale 3,0) nesse formato de ponto flutuante e indique o valor decimal do resultado.',
+    ['4,0','3,5','2,0','4,5'],0,
+    'O primeiro número vale 1,0 e o segundo vale 3,0. A soma é 1,0 + 3,0 = 4,0.'),
+  reviewAR({id:'rev_p1_float_overflow_exponent',category:'ieee754_custom',subtopic:'overflow',errorType:'ponto flutuante',quickRule:'Overflow depende do expoente, não da mantissa.'},
+    '"Overflow em ponto flutuante ocorre quando o expoente calculado é grande demais para caber nos bits reservados para o expoente, e não está relacionado à quantidade de bits da mantissa."',
+    true,
+    'Verdadeiro. Overflow (e underflow) em ponto flutuante dependem da faixa do expoente. A mantissa afeta apenas a precisão, não a faixa de valores representáveis.'),
+  reviewTF({id:'rev_p1_float_same_bits_diff_format',category:'ieee754_custom',subtopic:'formatos diferentes',errorType:'ponto flutuante',quickRule:'A divisão expoente/mantissa muda o conjunto de números representáveis.'},
+    'Dois formatos de ponto flutuante com a mesma quantidade total de bits sempre representam exatamente os mesmos números.',
+    false,
+    'Falso. A divisão de bits entre expoente e mantissa muda a faixa e a precisão representáveis; dois formatos com o mesmo total de bits mas larguras diferentes de expoente/mantissa representam conjuntos de números diferentes.')
+];
+
+const AMDAHL_SPEEDUP_REVIEW = [
+  reviewMC({id:'rev_p1_amdahl_basic_speedup',category:'amdahl_speedup',subtopic:'speedup básico',errorType:'Amdahl',quickRule:'speedup = tempo antigo / tempo novo.'},
+    'Uma máquina A executa um programa em 8 s e uma máquina B executa o mesmo programa em 20 s. Quantas vezes A é mais rápida que B?',
+    ['2,5','0,4','12','28'],0,
+    'Speedup = tempo de B / tempo de A = 20/8 = 2,5. A é 2,5 vezes mais rápida que B.'),
+  reviewMC({id:'rev_p1_amdahl_formula_basic',category:'amdahl_speedup',subtopic:'fórmula de Amdahl',errorType:'Amdahl',quickRule:'Sup_total = 1 / ((1−Fm) + Fm/SupFm).'},
+    'Uma parte de um programa corresponde a 40% (Fm=0,4) do tempo de execução e será acelerada 5 vezes (SupFm=5). Qual o speedup total, pela Lei de Amdahl?',
+    ['≈1,47','≈2,00','≈5,00','≈0,68'],0,
+    'Sup_total = 1/((1−Fm)+Fm/SupFm) = 1/(0,6+0,4/5) = 1/(0,6+0,08) = 1/0,68 ≈ 1,47.'),
+  reviewMC({id:'rev_p1_amdahl_coprocessor',category:'amdahl_speedup',subtopic:'coprocessador',errorType:'Amdahl',quickRule:'Aplique a fórmula com o Fm e o SupFm do enunciado.'},
+    'Um coprocessador torna certas operações 4 vezes mais rápidas. Essas operações correspondem a 25% do tempo de execução (Fm=0,25) e o coprocessador é usado sempre que possível. Qual o speedup total?',
+    ['≈1,23','≈1,33','≈4,00','≈0,81'],0,
+    'Sup_total = 1/((1−0,25)+0,25/4) = 1/(0,75+0,0625) = 1/0,8125 ≈ 1,23.'),
+  reviewTF({id:'rev_p1_amdahl_limit_suptotal',category:'amdahl_speedup',subtopic:'limite do speedup',errorType:'Amdahl',quickRule:'Sup_total nunca ultrapassa SupFm.'},
+    'Pela Lei de Amdahl, o speedup total pode ultrapassar o speedup da parte melhorada isoladamente (SupFm), mesmo que essa parte seja usada o tempo todo (Fm=1).',
+    false,
+    'Falso. O speedup total nunca ultrapassa SupFm; o máximo teórico (Fm=1, toda a execução usa a melhoria) faz Sup_total = SupFm. Com Fm<1 na prática, o speedup total fica sempre abaixo disso — essa é a essência da Lei de Amdahl: a parte não melhorada limita o ganho.'),
+  reviewTF({id:'rev_p1_amdahl_fm_zero',category:'amdahl_speedup',subtopic:'Fm=0',errorType:'Amdahl',quickRule:'Fm=0 → Sup_total=1, sempre.'},
+    'Se Fm=0 (a melhoria não é usada em nenhuma parte do tempo de execução), o speedup total é sempre 1, independente do valor de SupFm.',
+    true,
+    'Verdadeiro. Sem nenhuma fração do tempo usando a melhoria (Fm=0), o desempenho não muda: Sup_total = 1/(1+0) = 1.'),
+  reviewMC({id:'rev_p1_amdahl_solve_fm',category:'amdahl_speedup',subtopic:'resolver para Fm',errorType:'Amdahl',quickRule:'Isole Fm na fórmula de Amdahl a partir do speedup desejado.'},
+    'Queremos um speedup total de 2 vezes melhorando uma parte do sistema em 10 vezes (SupFm=10). Qual fração do tempo (Fm) essa parte melhorada precisa representar?',
+    ['≈55,6%','≈50,0%','≈20,0%','≈90,0%'],0,
+    '2 = 1/((1−Fm)+Fm/10) → (1−Fm)+0,1·Fm = 0,5 → 1 − 0,9·Fm = 0,5 → Fm = 0,5/0,9 ≈ 0,556, ou seja, ≈55,6%.'),
+  reviewMC({id:'rev_p1_amdahl_common_case',category:'amdahl_speedup',subtopic:'caso comum',errorType:'Amdahl',quickRule:'Otimize o que acontece com mais frequência.'},
+    'Segundo o princípio do caso comum, ao otimizar o desempenho de um processador devemos priorizar:',
+    ['O caso mais frequente de uso, mesmo que otimizar casos raros seja tecnicamente mais fácil','Sempre o caso mais raro, pois ele geralmente é o mais lento','Todos os casos igualmente, sem priorização','Apenas casos que envolvem overflow'],0,
+    'O princípio do caso comum (common case) diz que vale mais a pena otimizar o que acontece com mais frequência: mesmo um pequeno ganho num caso muito frequente costuma superar um grande ganho num caso raro.'),
+  reviewAR({id:'rev_p1_amdahl_speedup_equivalence',category:'amdahl_speedup',subtopic:'definições equivalentes',errorType:'Amdahl',quickRule:'Performance = 1/tempo, então as duas razões coincidem.'},
+    '"Duas definições equivalentes de speedup são: a razão entre as performances (Performance nova / Performance antiga) e a razão inversa entre os tempos de execução (Tempo antigo / Tempo novo)."',
+    true,
+    'Verdadeiro. Como performance = 1/tempo, Performance_nova/Performance_antiga = Tempo_antigo/Tempo_novo — as duas formas são equivalentes.')
+];
+
+const CPI_DESEMPENHO_P1_REVIEW = [
+  reviewMC({id:'rev_p1_cpi_avg_table',category:'cpi_desempenho_p1',subtopic:'CPI médio',errorType:'CPI médio',quickRule:'CPI médio = soma(fração_i × CPI_i).'},
+    'Máquina X roda a 400 MHz. Tabela de instruções: ULA 50% (CPI 4) · Desvios 15% (CPI 3) · Memória 30% (CPI 6) · Outras 5% (CPI 8). Qual o CPI médio dessa máquina?',
+    ['4,65','4,00','5,00','3,80'],0,
+    'CPI médio = 0,50×4 + 0,15×3 + 0,30×6 + 0,05×8 = 2 + 0,45 + 1,8 + 0,4 = 4,65.'),
+  reviewMC({id:'rev_p1_cpi_cycle_time',category:'cpi_desempenho_p1',subtopic:'tempo de ciclo',errorType:'CPI médio',quickRule:'Tempo de ciclo = 1/frequência.'},
+    'Qual o tempo de ciclo de clock de uma máquina que opera a 400 MHz?',
+    ['2,5 ns','4,0 ns','0,4 ns','25 ns'],0,
+    'Tempo de ciclo = 1/frequência = 1/(400×10⁶) = 2,5 ns.'),
+  reviewMC({id:'rev_p1_cpi_total_time',category:'cpi_desempenho_p1',subtopic:'tempo total',errorType:'CPI médio',quickRule:'Tempo total = instruções × CPI médio × tempo de ciclo.'},
+    'Uma máquina com clock de 400 MHz e CPI médio de 4,65 executa um programa de 10.000 instruções. Qual o tempo total de execução?',
+    ['116,25 µs','46,50 µs','25,00 µs','186,00 µs'],0,
+    'Tempo de ciclo = 2,5 ns. Tempo total = 10.000 × 4,65 × 2,5 ns = 116.250 ns = 116,25 µs.'),
+  reviewMC({id:'rev_p1_cpi_mips_rate',category:'cpi_desempenho_p1',subtopic:'taxa MIPS',errorType:'CPI médio',quickRule:'MIPS = frequência / (CPI médio × 10⁶).'},
+    'Qual a taxa de MIPS (milhões de instruções por segundo) de uma máquina com clock de 400 MHz e CPI médio de 4,65?',
+    ['≈86,0','≈400,0','≈4,65','≈21,5'],0,
+    'MIPS = frequência(Hz) / (CPI médio × 10⁶) = 400×10⁶ / (4,65×10⁶) ≈ 86,0.'),
+  reviewTF({id:'rev_p1_cpi_weighted_avg_tf',category:'cpi_desempenho_p1',subtopic:'média ponderada',errorType:'CPI médio',quickRule:'CPI médio é ponderado pela fração de uso, não uma média simples.'},
+    'O CPI médio é calculado somando os CPIs de cada tipo de instrução e dividindo pela quantidade de tipos diferentes, sem considerar a frequência de uso de cada um.',
+    false,
+    'Falso. O CPI médio é uma média ponderada pela fração (%) de uso de cada tipo: CPI médio = Σ(fração_i × CPI_i), não uma média simples entre os CPIs.'),
+  reviewMC({id:'rev_p1_cpi_speedup_compiler',category:'cpi_desempenho_p1',subtopic:'speedup por CPI',errorType:'CPI médio',quickRule:'Com mesma frequência e instruções, speedup = CPI antigo / CPI novo.'},
+    'Se um novo compilador reduzir o CPI médio de uma máquina de 4,65 para 3,00 (mantendo a mesma frequência e a mesma quantidade de instruções), qual o speedup obtido?',
+    ['≈1,55','≈0,65','≈3,00','≈4,65'],0,
+    'Com a mesma frequência e mesma quantidade de instruções, o tempo é proporcional ao CPI. Speedup = CPI_antigo / CPI_novo = 4,65 / 3,00 ≈ 1,55.'),
+  reviewAR({id:'rev_p1_cpi_mips_isa_caveat',category:'cpi_desempenho_p1',subtopic:'MIPS e ISA',errorType:'CPI médio',quickRule:'MIPS só compara máquinas com o mesmo conjunto de instruções.'},
+    '"Para comparar duas máquinas usando MIPS, é necessário que ambas executem o mesmo conjunto de instruções (mesmo programa), pois máquinas com conjuntos de instruções diferentes podem precisar de quantidades de instruções muito diferentes para a mesma tarefa."',
+    true,
+    'Verdadeiro. MIPS é sensível ao conjunto de instruções: uma máquina pode ter MIPS alto usando instruções simples demais, precisando de mais instruções para a mesma tarefa — por isso comparar MIPS entre ISAs diferentes pode enganar.'),
+  reviewTF({id:'rev_p1_cpi_reduce_time_tf',category:'cpi_desempenho_p1',subtopic:'reduzir CPI',errorType:'CPI médio',quickRule:'Tempo = instruções × CPI × tempo de ciclo.'},
+    'Reduzir o CPI médio de uma máquina, mantendo a frequência do clock e a quantidade de instruções executadas, sempre reduz o tempo total de execução.',
+    true,
+    'Verdadeiro. Tempo de execução = nº instruções × CPI médio × tempo de ciclo. Se instruções e tempo de ciclo não mudam, reduzir o CPI médio reduz diretamente o tempo total.')
+];
+
+// ===== PROVA 2: endereçamento/vetores, shift, CPI/desempenho, pilha em funções =====
+const ENDERECAMENTO_VETOR_REVIEW = [
+  reviewMC({id:'rev_p2_addr_index_offset',category:'enderecamento_vetor',subtopic:'offset por índice',errorType:'endereçamento',quickRule:'Deslocamento em bytes = índice × tamanho do elemento.'},
+    'O endereço-base de um vetor de inteiros (4 bytes cada) está em $s2. Qual instrução carrega o elemento <span class="mono">vet[7]</span> em $t0?',
+    ['lw $t0, 28($s2)','lw $t0, 7($s2)','lw $t0, 32($s2)','lw $s2, 28($t0)'],0,
+    'Cada inteiro ocupa 4 bytes, então vet[7] está a 7×4=28 bytes da base. A instrução correta é lw $t0, 28($s2).'),
+  reviewMC({id:'rev_p2_addr_last_element',category:'enderecamento_vetor',subtopic:'último elemento',errorType:'endereçamento',quickRule:'Com N elementos, o último tem índice N-1.'},
+    'O registrador $s3 contém o endereço inicial de um vetor de 12 inteiros consecutivos (4 bytes cada). Qual instrução carrega o último elemento em $t1?',
+    ['lw $t1, 44($s3)','lw $t1, 48($s3)','lw $t1, 12($s3)','lw $t1, 11($s3)'],0,
+    'Com 12 elementos indexados de 0 a 11, o último tem índice 11: deslocamento = 11×4=44 bytes.'),
+  reviewMC({id:'rev_p2_addr_store_element',category:'enderecamento_vetor',subtopic:'sw em vetor',errorType:'endereçamento',quickRule:'Gravar usa sw; o offset continua índice×4.'},
+    'O registrador $t2 guarda um valor que deve ser salvo na posição <span class="mono">vet[5]</span> de um vetor cujo endereço-base está em $s0 (inteiros de 4 bytes). Qual instrução faz isso?',
+    ['sw $t2, 20($s0)','lw $t2, 20($s0)','sw $s0, 20($t2)','sw $t2, 5($s0)'],0,
+    'Para gravar usa-se sw. O deslocamento continua sendo índice×4 = 5×4=20 bytes: sw $t2, 20($s0).'),
+  reviewMC({id:'rev_p2_addr_build_const_shift',category:'enderecamento_vetor',subtopic:'constante via shift',errorType:'endereçamento',quickRule:'sll desloca à esquerda = multiplica por 2^shamt.'},
+    'O registrador $s0 contém o valor 1. Qual instrução resulta em $s0 = 0x10000000 (um "1" seguido de 28 bits zero)?',
+    ['sll $s0, $s0, 28','sll $s0, $s0, 4','sll $s0, $s0, 16','srl $s0, $s0, 28'],0,
+    '0x10000000 = 2²⁸. Deslocar 1 à esquerda 28 vezes (sll $s0,$s0,28) multiplica por 2²⁸, produzindo exatamente esse valor.'),
+  reviewMC({id:'rev_p2_addr_dynamic_index',category:'enderecamento_vetor',subtopic:'índice em registrador',errorType:'endereçamento',quickRule:'Índice em registrador → sll por 2 (×4) e some à base.'},
+    'O índice de um elemento está guardado em $t0 (não é uma constante fixa), e o endereço-base do vetor (inteiros de 4 bytes) está em $s1. Qual sequência calcula o endereço do elemento e carrega seu valor em $t2?',
+    ['sll $t1, $t0, 2<br>add $t1, $t1, $s1<br>lw $t2, 0($t1)','add $t1, $t0, $s1<br>lw $t2, 0($t1)','sll $t1, $t0, 4<br>add $t1, $t1, $s1<br>lw $t2, 0($t1)','lw $t2, 0($t0)'],0,
+    'Como o índice está em um registrador, não dá para usar índice×4 como imediato. sll $t1,$t0,2 multiplica o índice por 4 (tamanho do inteiro), soma-se à base com add, e só então usa-se lw com deslocamento 0.'),
+  reviewTF({id:'rev_p2_addr_offset_formula_tf',category:'enderecamento_vetor',subtopic:'fórmula do offset',errorType:'endereçamento',quickRule:'A fórmula índice×tamanho vale tanto pra constante quanto pra registrador.'},
+    'Ao acessar vet[i] em um vetor de inteiros (4 bytes cada), o deslocamento em bytes a partir da base é sempre i×4, mesmo quando i está guardado em um registrador em tempo de execução.',
+    true,
+    'Verdadeiro. A fórmula do deslocamento (índice × tamanho do elemento) não muda; o que muda é como ela é calculada: constante vira imediato direto, e registrador exige sll (ou multiplicação) mais soma em tempo de execução.'),
+  reviewMC({id:'rev_p2_addr_reverse_index',category:'enderecamento_vetor',subtopic:'índice a partir do endereço',errorType:'endereçamento',quickRule:'índice = diferença de endereços ÷ tamanho do elemento.'},
+    'O endereço-base de um vetor de inteiros está em $s0. Um ponteiro em $t0 aponta para um elemento do vetor, e $t0 − $s0 = 36 (em bytes). Qual é o índice desse elemento?',
+    ['9','36','4','144'],0,
+    'O índice é a diferença de endereços dividida pelo tamanho do elemento: 36 ÷ 4 = 9.'),
+  reviewAR({id:'rev_p2_addr_byte_array_ar',category:'enderecamento_vetor',subtopic:'vetor de bytes',errorType:'endereçamento',quickRule:'Vetor de 1 byte por elemento: offset = índice, sem multiplicar.'},
+    '"Para um vetor de bytes (char, 1 byte cada), o deslocamento em memória para acessar o elemento de índice i é igual a i, sem precisar multiplicar por nenhum tamanho de elemento."',
+    true,
+    'Verdadeiro. Como cada elemento ocupa exatamente 1 byte, o deslocamento em bytes é igual ao próprio índice — diferente de vetores de inteiros (4 bytes), que exigem multiplicar o índice por 4.')
+];
+
+const DESLOCAMENTO_SHIFT_REVIEW = [
+  reviewMC({id:'rev_p2_shift_divide_1024',category:'deslocamento_shift',subtopic:'divisão com sinal',errorType:'shift',quickRule:'Dividir por 2^n com sinal: sra por n.'},
+    'Qual instrução divide (parte inteira) o valor com sinal de um registrador por 1024, preservando corretamente o sinal do resultado?',
+    ['sra $s0, $s1, 10','srl $s0, $s1, 10','sll $s0, $s1, 10','sra $s0, $s1, 1024'],0,
+    'Dividir por 1024=2¹⁰ corresponde a deslocar 10 bits à direita. Para números com sinal, usa-se sra (shift right arithmetic), que preserva o bit de sinal.'),
+  reviewMC({id:'rev_p2_shift_multiply_32',category:'deslocamento_shift',subtopic:'multiplicação',errorType:'shift',quickRule:'Multiplicar por 2^n: sll por n.'},
+    'Qual instrução multiplica o valor de $t0 por 32 e guarda o resultado em $t1?',
+    ['sll $t1, $t0, 5','sll $t1, $t0, 32','srl $t1, $t0, 5','sra $t1, $t0, 5'],0,
+    'Multiplicar por 32=2⁵ equivale a deslocar 5 bits à esquerda: sll $t1,$t0,5.'),
+  reviewTF({id:'rev_p2_shift_srl_zero_fill_tf',category:'deslocamento_shift',subtopic:'srl',errorType:'shift',quickRule:'srl sempre preenche com zero.'},
+    'srl (shift right logical) preenche os bits mais à esquerda com zero, independente do sinal do número original.',
+    true,
+    'Verdadeiro. srl sempre preenche com zeros, por isso não deve ser usado para dividir números negativos (nesse caso o correto é sra, que replica o bit de sinal).'),
+  reviewTF({id:'rev_p2_shift_sra_sign_tf',category:'deslocamento_shift',subtopic:'sra',errorType:'shift',quickRule:'sra replica o bit de sinal.'},
+    'sra (shift right arithmetic) preenche os bits mais à esquerda repetindo o bit de sinal original, preservando corretamente a divisão de números negativos por potências de 2.',
+    true,
+    'Verdadeiro. sra copia o bit de sinal nos bits que entram pela esquerda, o que corresponde à divisão inteira correta de números negativos.'),
+  reviewMC({id:'rev_p2_shift_sra_example',category:'deslocamento_shift',subtopic:'exemplo numérico',errorType:'shift',quickRule:'sra por n divide por 2^n preservando sinal.'},
+    '$s1 contém o valor −16. Qual o resultado de <span class="mono">sra $s0, $s1, 2</span>?',
+    ['-4','4','-64','-8'],0,
+    'sra desloca 2 bits à direita preservando o sinal, equivalente a dividir por 4 (2²): −16 ÷ 4 = −4.'),
+  reviewMC({id:'rev_p2_shift_srl_misuse',category:'deslocamento_shift',subtopic:'uso incorreto de srl',errorType:'shift',quickRule:'srl em número negativo destrói o sinal.'},
+    '$s1 contém o valor −8 (complemento de dois, 32 bits). O que acontece se usarmos <span class="mono">srl $s0, $s1, 1</span> em vez de sra?',
+    ['O resultado vira um número positivo muito grande, porque o bit de sinal é substituído por zero','O resultado é -4, igual ao sra','O resultado é 0','O programa trava (exceção de hardware)'],0,
+    'srl sempre insere zero pela esquerda. Em um número negativo (bit de sinal 1), isso destrói o sinal: o valor deixa de representar −4 e passa a ser um número positivo enorme.'),
+  reviewMC({id:'rev_p2_shift_build_mask',category:'deslocamento_shift',subtopic:'montar constante',errorType:'shift',quickRule:'Cada dígito hexadecimal desocupado à direita = 4 bits de shift.'},
+    'Qual instrução coloca o valor 0xFF00 em $s0, partindo de $s0 = 0xFF?',
+    ['sll $s0, $s0, 8','sll $s0, $s0, 16','srl $s0, $s0, 8','sra $s0, $s0, 8'],0,
+    '0xFF00 = 0xFF deslocado 8 bits (2 dígitos hexadecimais = 8 bits) à esquerda: sll $s0,$s0,8.'),
+  reviewAR({id:'rev_p2_shift_sll_both_signs_ar',category:'deslocamento_shift',subtopic:'sll e sinal',errorType:'shift',quickRule:'sll não distingue sinal; por isso só existe uma versão dele.'},
+    '"sll (shift left logical) sempre preenche os bits que entram pela direita com zero, e isso vale tanto para deslocar números positivos quanto negativos."',
+    true,
+    'Verdadeiro. sll sempre insere zeros pela direita, independente do sinal — por isso só existe uma versão de shift left, mas duas de shift right (lógica e aritmética).')
+];
+
+const CPI_DESEMPENHO_P2_REVIEW = [
+  reviewMC({id:'rev_p2_cpi_program_total_instr',category:'cpi_desempenho_p2',subtopic:'contagem dinâmica',errorType:'CPI médio',quickRule:'Conte instruções fora do loop + (instruções do loop × repetições).'},
+    'Considere o programa MIPS abaixo, sabendo que o loop (linhas 3 a 7) executa exatamente 5 vezes antes de sair:<pre class="program-code">1  ori  $s0, $zero, 5     ; ULA\n2  addi $s1, $zero, 0     ; ULA\n3  loop: lw $t0, 0($s2)   ; Memória\n4  add  $s1, $s1, $t0     ; ULA\n5  addi $s2, $s2, 4       ; ULA\n6  addi $s0, $s0, -1      ; ULA\n7  bne  $s0, $zero, loop  ; Desvio\n8  sw   $s1, 0($s3)       ; Memória</pre>Quantas instruções são executadas dinamicamente ao todo?',
+    ['28','25','30','8'],0,
+    'Linhas 1, 2 e 8 executam 1 vez cada (3). As linhas 3 a 7 (5 instruções) executam 5 vezes cada (25). Total = 3 + 25 = 28.'),
+  reviewMC({id:'rev_p2_cpi_program_ula_count',category:'cpi_desempenho_p2',subtopic:'contagem por tipo',errorType:'CPI médio',quickRule:'Classifique cada linha e multiplique pelas repetições do loop.'},
+    'No mesmo programa, sabendo que o loop (linhas 3 a 7) executa exatamente 5 vezes:<pre class="program-code">1  ori  $s0, $zero, 5     ; ULA\n2  addi $s1, $zero, 0     ; ULA\n3  loop: lw $t0, 0($s2)   ; Memória\n4  add  $s1, $s1, $t0     ; ULA\n5  addi $s2, $s2, 4       ; ULA\n6  addi $s0, $s0, -1      ; ULA\n7  bne  $s0, $zero, loop  ; Desvio\n8  sw   $s1, 0($s3)       ; Memória</pre>Quantas dessas instruções executadas são do tipo ULA?',
+    ['17','15','20','12'],0,
+    '2 instruções de ULA fora do loop (linhas 1 e 2) + 3 instruções de ULA dentro do loop (linhas 4, 5 e 6) × 5 repetições = 2 + 15 = 17.'),
+  reviewMC({id:'rev_p2_cpi_avg_given_counts',category:'cpi_desempenho_p2',subtopic:'CPI médio',errorType:'CPI médio',quickRule:'CPI médio = ciclos totais / instruções totais.'},
+    'Um programa executa dinamicamente 17 instruções de ULA (CPI=4), 5 desvios (CPI=3) e 6 acessos à memória (CPI=5). Qual o CPI médio desse programa?',
+    ['≈4,04','≈4,00','≈3,50','≈5,00'],0,
+    'Ciclos totais = 17×4 + 5×3 + 6×5 = 68+15+30 = 113. Total de instruções = 17+5+6 = 28. CPI médio = 113/28 ≈ 4,04.'),
+  reviewMC({id:'rev_p2_cpi_total_time_given_cycles',category:'cpi_desempenho_p2',subtopic:'tempo total',errorType:'CPI médio',quickRule:'Tempo total = ciclos totais × tempo de ciclo.'},
+    'Uma máquina com clock de 250 MHz executa um programa cujo total de ciclos gastos é 113. Qual o tempo total de execução?',
+    ['452 ns','448 ns','500 ns','113 ns'],0,
+    'Tempo de ciclo = 1/250MHz = 4 ns. Tempo total = 113 × 4 ns = 452 ns.'),
+  reviewTF({id:'rev_p2_cpi_dynamic_loop_tf',category:'cpi_desempenho_p2',subtopic:'contagem dinâmica',errorType:'CPI médio',quickRule:'Contagem dinâmica conta execuções reais, não linhas de código.'},
+    'Instruções dentro de um loop que se repete N vezes devem ser contadas N vezes na contagem dinâmica de instruções, mesmo aparecendo apenas uma vez no código-fonte.',
+    true,
+    'Verdadeiro. Contagem dinâmica reflete a execução real: uma instrução dentro de um loop de N repetições é executada N vezes, mesmo escrita uma única vez no programa.'),
+  reviewMC({id:'rev_p2_cpi_loop_control_instr',category:'cpi_desempenho_p2',subtopic:'controle do loop',errorType:'CPI médio',quickRule:'Quem decide o fluxo é o desvio condicional, não o decremento.'},
+    'Em um loop controlado por uma instrução <span class="mono">addi $s0, $s0, -1</span> seguida de <span class="mono">bne $s0, $zero, loop</span>, qual instrução decide se o loop deve continuar ou terminar?',
+    ['bne $s0, $zero, loop','addi $s0, $s0, -1','Nenhuma das duas: isso depende do compilador','As duas decidem igualmente'],0,
+    'O bne é o desvio condicional: compara $s0 com zero e decide se volta para "loop". O addi só atualiza o contador; quem decide o fluxo é o bne.'),
+  reviewAR({id:'rev_p2_cpi_loop_change_ar',category:'cpi_desempenho_p2',subtopic:'mudar o passo do loop',errorType:'CPI médio',quickRule:'Mudar quantas vezes o loop repete muda a contagem dinâmica total.'},
+    '"Se alterarmos a instrução de decremento de um loop para decrementar de 2 em 2 em vez de 1 em 1, a quantidade de vezes que o loop executa (e portanto a contagem dinâmica total de instruções) pode mudar."',
+    true,
+    'Verdadeiro. Decrementar mais rápido normalmente faz o contador chegar à condição de parada mais cedo, reduzindo quantas vezes as instruções do corpo do loop são contadas dinamicamente.'),
+  reviewMC({id:'rev_p2_cpi_mips_rate',category:'cpi_desempenho_p2',subtopic:'taxa MIPS',errorType:'CPI médio',quickRule:'MIPS = frequência / (CPI médio × 10⁶).'},
+    'Qual a taxa de MIPS de uma máquina com clock de 250 MHz e CPI médio de 4,04?',
+    ['≈61,9','≈250,0','≈4,04','≈100,0'],0,
+    'MIPS = frequência / (CPI médio × 10⁶) = 250×10⁶ / (4,04×10⁶) ≈ 61,9.')
+];
+
+const PILHA_FUNCOES_P2_REVIEW = [
+  reviewMC({id:'rev_p2_stack_one_level',category:'pilha_funcoes_p2',subtopic:'uso mínimo da pilha',errorType:'pilha',quickRule:'Só quem chama outra função depois de ser chamada precisa salvar $ra.'},
+    'main() chama funcaoA(); funcaoA() chama funcaoB(); funcaoB() não chama nenhuma outra função. Usando a estratégia de uso mínimo da pilha, quantas vezes o registrador $ra precisa ser salvo na pilha ao todo?',
+    ['1','0','2','3'],0,
+    'Só quem chama outra função depois de já ter sido chamado precisa preservar seu próprio $ra. funcaoA é chamada por main e chama funcaoB — precisa salvar seu $ra antes do jal para funcaoB. funcaoB é folha e não precisa salvar nada.'),
+  reviewMC({id:'rev_p2_stack_two_levels',category:'pilha_funcoes_p2',subtopic:'uso mínimo da pilha',errorType:'pilha',quickRule:'Conte um salvamento por função não-folha na cadeia.'},
+    'main() chama A(); A() chama B(); B() chama C(); C() não chama ninguém. Quantas vezes $ra precisa ser salvo na pilha, no uso mínimo?',
+    ['2','1','3','0'],0,
+    'A e B chamam outra função depois de terem sido chamadas, então cada uma salva seu próprio $ra uma vez (2 salvamentos). C é folha e não precisa salvar.'),
+  reviewTF({id:'rev_p2_stack_leaf_never_tf',category:'pilha_funcoes_p2',subtopic:'função-folha',errorType:'pilha',quickRule:'Função-folha nunca executa jal, então nunca sobrescreve seu $ra.'},
+    'Uma função que não chama nenhuma outra função (função-folha) nunca precisa salvar $ra na pilha, mesmo sendo chamada por outra função.',
+    true,
+    'Verdadeiro. $ra só é sobrescrito quando a própria função executa um jal para chamar outra função. Uma função-folha nunca faz isso, então seu $ra permanece intacto até o jr $ra de retorno.'),
+  reviewTF({id:'rev_p2_stack_sequential_calls_tf',category:'pilha_funcoes_p2',subtopic:'chamadas sequenciais',errorType:'pilha',quickRule:'Chamadas sequenciais (não aninhadas) reaproveitam um único salvamento.'},
+    'Se uma função chama outra função duas vezes em sequência (não aninhadas), ela precisa salvar $ra duas vezes, uma para cada chamada.',
+    false,
+    'Falso. Entre chamadas sequenciais (não aninhadas), $ra pode ser salvo uma única vez antes da primeira chamada e restaurado só ao final, contanto que nenhuma chamada aninhada sobrescreva esse valor salvo entre elas.'),
+  reviewMC({id:'rev_p2_stack_save_sequence',category:'pilha_funcoes_p2',subtopic:'sequência de salvamento',errorType:'pilha',quickRule:'Primeiro reserva espaço (decrementa $sp), depois grava.'},
+    'Para salvar $ra na pilha em MIPS, qual sequência de instruções está correta?',
+    ['addi $sp, $sp, -4<br>sw $ra, 0($sp)','sw $ra, 0($sp)<br>addi $sp, $sp, -4','addi $sp, $sp, 4<br>sw $ra, 0($sp)','lw $ra, 0($sp)<br>addi $sp, $sp, -4'],0,
+    'Primeiro reserva-se espaço decrementando $sp (a pilha cresce para endereços menores), depois grava-se o valor com sw. Fazer sw antes de mover $sp arrisca sobrescrever dados de outra função.'),
+  reviewMC({id:'rev_p2_stack_restore_sequence',category:'pilha_funcoes_p2',subtopic:'sequência de restauração',errorType:'pilha',quickRule:'Primeiro lê o valor salvo, depois libera o espaço (incrementa $sp).'},
+    'Qual sequência restaura corretamente $ra da pilha antes de retornar com jr $ra?',
+    ['lw $ra, 0($sp)<br>addi $sp, $sp, 4','addi $sp, $sp, 4<br>lw $ra, 0($sp)','sw $ra, 0($sp)<br>addi $sp, $sp, 4','addi $sp, $sp, -4<br>lw $ra, 0($sp)'],0,
+    'Primeiro lê-se o valor salvo com lw (enquanto $sp ainda aponta para ele), depois libera-se o espaço incrementando $sp. Inverter a ordem leria um endereço já considerado livre.'),
+  reviewAR({id:'rev_p2_stack_sp_grows_down_ar',category:'pilha_funcoes_p2',subtopic:'$sp cresce para baixo',errorType:'pilha',quickRule:'Reservar espaço = diminuir $sp; liberar = aumentar $sp.'},
+    '"O ponteiro de pilha ($sp) deve apontar sempre para o topo da pilha, e reservar espaço na pilha significa diminuir o valor de $sp, pois a pilha em MIPS cresce em direção a endereços menores."',
+    true,
+    'Verdadeiro. Por convenção MIPS, a pilha cresce para baixo (endereços decrescentes): reservar espaço é subtrair de $sp, e liberar espaço é somar a $sp.'),
+  reviewMC({id:'rev_p2_stack_sequential_two_calls',category:'pilha_funcoes_p2',subtopic:'chamadas sequenciais',errorType:'pilha',quickRule:'Chamadas sequenciais da mesma função reaproveitam um único salvamento.'},
+    'main() chama f1(); f1() chama f2() duas vezes, em sequência (não aninhadas); nenhuma chamada de f2() faz outra chamada. Quantas vezes $ra precisa ser salvo na pilha, no uso mínimo?',
+    ['1','2','0','3'],0,
+    'f1 chama f2 duas vezes, mas não são chamadas aninhadas — um único salvamento de $ra antes da primeira chamada é suficiente, pois o valor salvo continua protegido na pilha durante toda a sequência.')
+];
+
 const REVIEW_BANK = [
   ...DATAPATH_TIME_REVIEW,
   ...PARALLEL_REVIEW,
@@ -1294,7 +1602,15 @@ const REVIEW_BANK = [
   ...FUNCTION_REG_REVIEW,
   ...CALL_STACK_REVIEW,
   ...LOOP_REVIEW,
-  ...CPI_REVIEW
+  ...CPI_REVIEW,
+  ...CLA_SOMADOR_REVIEW,
+  ...IEEE754_CUSTOM_REVIEW,
+  ...AMDAHL_SPEEDUP_REVIEW,
+  ...CPI_DESEMPENHO_P1_REVIEW,
+  ...ENDERECAMENTO_VETOR_REVIEW,
+  ...DESLOCAMENTO_SHIFT_REVIEW,
+  ...CPI_DESEMPENHO_P2_REVIEW,
+  ...PILHA_FUNCOES_P2_REVIEW
 ];
 
 const OPEN_QUESTIONS = [
@@ -1317,7 +1633,15 @@ const OPEN_QUESTIONS = [
   reviewOpen({id:'rev_p3_open_ula_vs_branch',category:'questoes_abertas',subtopic:'ULA vs desvio',errorType:'SLT'}, 'Explique a diferença entre instrução de ULA e instrução de desvio.', 'Instrução de ULA produz um resultado de dados, geralmente gravado em registrador. Instrução de desvio testa uma condição ou alvo e pode alterar o PC.', ['ULA produz dado','Desvio pode alterar PC','Exemplos: SLT vs BNE'], 'Tratar toda comparação como salto.', 'Resultado de dado não é fluxo de controle.', 'SLT é ULA e grava 0/1; BNE é desvio e usa esse valor ou uma comparação para mudar o PC.'),
   reviewOpen({id:'rev_p3_open_lw_uses_mux',category:'questoes_abertas',subtopic:'LW MemToReg',errorType:'MUX MemToReg'}, 'Explique por que o <b>LW</b> utiliza o MUX MemToReg.', 'Porque o valor que será escrito no registrador vem da Memória de Dados, não da ULA. O MUX seleciona essa fonte para o write-back.', ['LW escreve registrador','Dado vem da memória','MemToReg seleciona memória'], 'Esquecer o MUX no write-back.', 'LW volta da memória.', 'A ULA calcula o endereço, mas o resultado final do LW é o dado lido na memória.'),
   reviewOpen({id:'rev_p3_open_add_uses_mux',category:'questoes_abertas',subtopic:'ADD MemToReg',errorType:'MUX MemToReg'}, 'Explique por que o <b>ADD</b> também passa pelo MUX MemToReg.', 'Porque o banco de registradores recebe uma única entrada de write-back escolhida pelo MUX. No ADD, o MUX seleciona a saída da ULA, com MemToReg=0.', ['ADD escreve registrador','Valor vem da ULA','MUX seleciona saída da ULA'], 'Achar que o MUX só existe no LW.', 'Mesmo MUX, entrada diferente.', 'O caminho físico de write-back pode ser compartilhado por ADD e LW; o sinal escolhe qual fonte entra.'),
-  reviewOpen({id:'rev_p3_open_sw_no_regwrite',category:'questoes_abertas',subtopic:'SW RegWrite',errorType:'sinais de controle'}, 'Explique por que o <b>SW</b> não escreve no banco de registradores.', 'SW armazena na Memória de Dados o valor lido de um registrador. Como seu destino é a memória, RegWrite=0 e RegDst/MemToReg são indiferentes.', ['Destino é memória','RegWrite=0','RegDst/MemToReg são X'], 'Confundir SW com LW.', 'SW escreve memória, não registrador.', 'A ULA só calcula o endereço; a escrita acontece na memória de dados por MemWrite=1.')
+  reviewOpen({id:'rev_p3_open_sw_no_regwrite',category:'questoes_abertas',subtopic:'SW RegWrite',errorType:'sinais de controle'}, 'Explique por que o <b>SW</b> não escreve no banco de registradores.', 'SW armazena na Memória de Dados o valor lido de um registrador. Como seu destino é a memória, RegWrite=0 e RegDst/MemToReg são indiferentes.', ['Destino é memória','RegWrite=0','RegDst/MemToReg são X'], 'Confundir SW com LW.', 'SW escreve memória, não registrador.', 'A ULA só calcula o endereço; a escrita acontece na memória de dados por MemWrite=1.'),
+
+  reviewOpen({id:'rev_p1_open_prop_gen',category:'p1_questoes_abertas',subtopic:'propagador vs gerador',errorType:'CLA'}, 'Explique a diferença entre o bit <b>propagador (Pi)</b> e o bit <b>gerador (Gi)</b> no método CLA.', 'Pi = Ai XOR Bi indica que a posição propagaria um carry de entrada, se existisse algum. Gi = Ai AND Bi indica que a posição gera um carry de saída sozinha, mesmo sem carry de entrada.', ['Pi é XOR e indica propagação de um carry existente','Gi é AND e indica geração independente de carry de entrada','Os dois juntos permitem calcular Ci+1 sem esperar a cadeia bit a bit'], 'Trocar as fórmulas de Pi e Gi, ou achar que ambos dependem do carry de entrada.', 'Pi propaga; Gi gera, independente do carry de entrada.', 'O CLA usa Ci+1 = Gi + Pi·Ci: se Gi=1, sai carry mesmo sem Ci; se Pi=1 e Ci=1, o carry de entrada é propagado. Calcular Pi e Gi de todos os bits em paralelo é o que permite montar o carry de cada posição sem esperar a propagação sequencial do ripple-carry.'),
+  reviewOpen({id:'rev_p1_open_float_tradeoff',category:'p1_questoes_abertas',subtopic:'faixa vs precisão',errorType:'ponto flutuante'}, 'Explique por que um formato de ponto flutuante com mais bits de expoente e menos bits de mantissa tem mais faixa (range) mas menos precisão.', 'O expoente controla a magnitude do número, enquanto a mantissa controla quantos algarismos significativos são guardados. Mais bits de expoente ampliam a faixa de valores representáveis; menos bits de mantissa reduzem a quantidade de dígitos precisos armazenados.', ['Expoente define a faixa/magnitude','Mantissa define a precisão/dígitos significativos','Aumentar um às custas do outro troca faixa por precisão'], 'Achar que expoente e mantissa afetam a mesma coisa, ou que aumentar bits totais sempre resolve sem trade-off quando o total é fixo.', 'Expoente = faixa; mantissa = precisão. Com bits fixos, um cresce às custas do outro.', 'Valor ≈ 1,mantissa × 2^(expoente−bias). O expoente escala o número em potências de 2 (faixa); a mantissa refina o valor dentro dessa escala (precisão). Com um número fixo de bits, dar mais bits a um campo tira do outro.'),
+  reviewOpen({id:'rev_p1_open_amdahl_small_fm',category:'p1_questoes_abertas',subtopic:'Fm pequeno',errorType:'Amdahl'}, 'Explique, usando a Lei de Amdahl, por que otimizar uma parte pouco usada do sistema traz pouco ganho de desempenho total, mesmo com um speedup enorme nessa parte.', 'O speedup total é limitado pela fração de tempo (Fm) em que a melhoria é realmente usada. Se Fm é pequeno, mesmo um SupFm muito grande produz um Sup_total próximo de 1, porque a maior parte do tempo de execução (1−Fm) continua sem nenhuma melhoria.', ['Sup_total = 1/((1−Fm)+Fm/SupFm)','Fm pequeno limita o ganho mesmo com SupFm grande','(1−Fm) representa o tempo que não é acelerado e domina o resultado'], 'Achar que um SupFm muito alto (ex: 100x) sempre garante grande ganho total, ignorando o peso de Fm.', 'Fm pequeno domina a fórmula: pouco uso da melhoria = pouco ganho total.', 'Se Fm=0,05 (5% do tempo) e SupFm=100, Sup_total=1/(0,95+0,05/100)=1/0,9505≈1,05 — quase nenhum ganho. Essa é a lição prática da Lei de Amdahl: vale mais otimizar o que é usado com frequência do que perseguir speedups gigantes em partes raramente executadas.'),
+
+  reviewOpen({id:'rev_p2_open_index_offset',category:'p2_questoes_abertas',subtopic:'offset de vetor',errorType:'endereçamento'}, 'Explique por que, ao acessar vet[i] em um vetor de inteiros armazenado na memória, é preciso multiplicar o índice i por 4 para obter o deslocamento em bytes.', 'Cada inteiro em MIPS ocupa 4 bytes. O deslocamento em bytes até o elemento de índice i é i×4, porque para "pular" i elementos é preciso avançar i vezes o tamanho de cada elemento em bytes.', ['Cada inteiro ocupa 4 bytes','Deslocamento = índice × tamanho do elemento','Vale tanto para offset imediato (índice constante) quanto para cálculo em tempo de execução (índice em registrador)'], 'Usar o índice diretamente como deslocamento em bytes, esquecendo de multiplicar pelo tamanho do elemento.', 'Deslocamento em bytes = índice × tamanho do elemento (4 bytes para inteiros).', 'A memória é endereçada em bytes, não em "elementos". Um vetor de inteiros de 4 bytes cada precisa que cada passo de índice avance 4 endereços de memória; por isso vet[i] fica no endereço base + i×4.'),
+  reviewOpen({id:'rev_p2_open_shift_types',category:'p2_questoes_abertas',subtopic:'sll/srl/sra',errorType:'shift'}, 'Explique a diferença entre <b>sll</b>, <b>srl</b> e <b>sra</b> e diga quando cada um deve ser usado.', 'sll (shift left logical) desloca bits à esquerda preenchendo com zero, usado para multiplicar por potências de 2. srl (shift right logical) desloca à direita preenchendo com zero — serve para dividir números sem sinal. sra (shift right arithmetic) desloca à direita replicando o bit de sinal — serve para dividir corretamente números com sinal.', ['sll multiplica, sempre preenche com zero','srl divide números sem sinal, preenche com zero','sra divide números com sinal, preserva o bit de sinal'], 'Usar srl para dividir números negativos, o que destrói o sinal e produz um resultado positivo incorreto.', 'sll multiplica; srl divide sem sinal; sra divide com sinal preservado.', 'A escolha entre srl e sra depende só do sinal do número original: como sll nunca precisa se preocupar com sinal, só existe uma versão dele — mas há duas versões de shift right.'),
+  reviewOpen({id:'rev_p2_open_leaf_no_save',category:'p2_questoes_abertas',subtopic:'função-folha',errorType:'pilha'}, 'Explique por que uma função-folha (que não chama nenhuma outra função) nunca precisa salvar $ra na pilha, enquanto uma função que chama outra função geralmente precisa.', 'O $ra só é sobrescrito quando a própria função executa um jal para chamar outra função. Uma função-folha nunca faz isso, então seu $ra permanece intacto do início ao jr $ra final. Uma função que chama outra precisa salvar seu $ra antes do jal, porque esse jal vai sobrescrevê-lo com o endereço de retorno da nova chamada.', ['jal sobrescreve $ra','função-folha nunca executa jal','quem chama outra função deve salvar $ra antes de fazer a chamada'], 'Achar que toda função precisa salvar $ra, independentemente de fazer ou não outras chamadas.', 'Só quem faz outra chamada (jal) arrisca perder seu próprio $ra e precisa salvá-lo antes.', 'Isso é a base da contagem de "uso mínimo da pilha": conta-se um salvamento de $ra para cada função que, depois de ser chamada, ela mesma chama outra função — não um salvamento por chamada realizada.')
 ];
 
 function seededShuffle(arr,r){
@@ -1329,11 +1653,11 @@ function seededShuffle(arr,r){
 function allReviewQuestions(){
   return REVIEW_BANK.concat(OPEN_QUESTIONS);
 }
-function buildReviewQueue(r){
+function buildReviewQueue(r,examFilter){
   const mixed=[];
-  REVIEW_TOPICS.filter(t=>t.id!=='simulado_prova3').forEach(t=>{
+  REVIEW_TOPICS.filter(t=>t.id!=='simulado_prova3' && (!examFilter||examFilter==='all'||t.examId===examFilter)).forEach(t=>{
     const pool=allReviewQuestions().filter(q=>q.category===t.id);
-    if(pool.length) mixed.push(...seededShuffle(pool,r).slice(0, t.id==='questoes_abertas'?3:4));
+    if(pool.length) mixed.push(...seededShuffle(pool,r).slice(0, t.isOpen?3:4));
   });
   return seededShuffle(mixed.length?mixed:allReviewQuestions(),r);
 }
@@ -1542,9 +1866,10 @@ function startProvaInfinita(){
   showScreen('scr-game');
   renderQuestion();
 }
+let reviewExamFilter='all';
 function startReview(){
   G.free=true; G.mode='review';
-  G.queue=buildReviewQueue(); G.idx=0; G.lives=99; G.earned=0;
+  G.queue=buildReviewQueue(Math.random,reviewExamFilter); G.idx=0; G.lives=99; G.earned=0;
   showScreen('scr-game');
   renderQuestion();
 }
@@ -1554,11 +1879,41 @@ function startTargetedPractice(){
   showScreen('scr-game');
   renderQuestion();
 }
+const REVIEW_EXAM_TABS=[
+  {id:'all', label:'Tudo'},
+  {id:'p1', label:'Prova 1'},
+  {id:'p2', label:'Prova 2'},
+  {id:'p3', label:'Prova 3'}
+];
+const REVIEW_EXAM_TITLES={
+  all:{h2:'Revisão por Prova', sub:'Questões novas integradas ao mesmo sistema de alternativas, feedback, progresso local e prática por dificuldade.'},
+  p1:{h2:'Revisão — Prova 1', sub:'CLA/somador, ponto flutuante (IEEE754), Lei de Amdahl/speedup e CPI/desempenho.'},
+  p2:{h2:'Revisão — Prova 2', sub:'Endereçamento de vetores, deslocamento (sll/srl/sra), CPI/desempenho e pilha em chamadas de função.'},
+  p3:{h2:'Revisão — Prova 3 e Reavaliação', sub:'Questões novas integradas ao mesmo sistema de alternativas, feedback, progresso local e prática por dificuldade.'}
+};
+function setReviewExamFilter(examId){
+  reviewExamFilter=examId;
+  renderReviewHub();
+}
 function renderReviewHub(){
+  const tabsWrap=$('reviewExamTabs');
+  if(tabsWrap){
+    tabsWrap.innerHTML=REVIEW_EXAM_TABS.map(t=>
+      `<button type="button" class="exam-tab${reviewExamFilter===t.id?' active':''}" data-exam="${t.id}">${t.label}</button>`
+    ).join('');
+    tabsWrap.querySelectorAll('.exam-tab').forEach(btn=>{
+      btn.onclick=()=>{ sfx.click(); setReviewExamFilter(btn.dataset.exam); };
+    });
+  }
+  const titleInfo=REVIEW_EXAM_TITLES[reviewExamFilter]||REVIEW_EXAM_TITLES.all;
+  const h2=$('reviewTitle'), sub=$('reviewSub');
+  if(h2) h2.textContent=titleInfo.h2;
+  if(sub) sub.textContent=titleInfo.sub;
   const grid=$('reviewTopicGrid'); grid.innerHTML='';
   REVIEW_TOPICS.forEach(t=>{
     if(t.id==='simulado_prova3') return;
-    const count=t.id==='questoes_abertas' ? OPEN_QUESTIONS.length : REVIEW_BANK.filter(q=>q.category===t.id).length;
+    if(reviewExamFilter!=='all' && t.examId!==reviewExamFilter) return;
+    const count=t.isOpen ? OPEN_QUESTIONS.filter(q=>q.category===t.id).length : REVIEW_BANK.filter(q=>q.category===t.id).length;
     const c=document.createElement('div'); c.className='review-card';
     c.innerHTML=`<b>${t.label}</b><span>${t.desc}</span><br><span class="mono">${count} questão(ões)</span>`;
     grid.appendChild(c);
@@ -3200,7 +3555,8 @@ function renderProgramPractice(q,body,act,onDone){
 /* ===========================================================================
    14. JS — SEÇÃO K: SIMULADO CRONOMETRADO
    =========================================================================== */
-const SIM = { queue:[], idx:0, timed:false, timeLeft:0, timer:null, results:[], assistedAny:false, nullIndex:null };
+const SIM = { queue:[], idx:0, timed:false, timeLeft:0, timer:null, results:[], assistedAny:false, nullIndex:null, examId:'p3' };
+let simSetupExamId='p3';
 function buildProva3SimQueue(r){
   r=r||Math.random;
   const fixed=[
@@ -3217,12 +3573,58 @@ function buildProva3SimQueue(r){
   ].filter(Boolean);
   return seededShuffle(fixed,r);
 }
-function buildSimQueue(r){
+function buildProva1SimQueue(r){
   r=r||Math.random;
+  const fixed=[
+    CLA_SOMADOR_REVIEW.find(q=>q.id==='rev_p1_cla_freq_ripple4'),
+    CLA_SOMADOR_REVIEW.find(q=>q.id==='rev_p1_cla_carry_formula'),
+    IEEE754_CUSTOM_REVIEW.find(q=>q.id==='rev_p1_float_decode'),
+    IEEE754_CUSTOM_REVIEW.find(q=>q.id==='rev_p1_float_encode_neg'),
+    AMDAHL_SPEEDUP_REVIEW.find(q=>q.id==='rev_p1_amdahl_formula_basic'),
+    AMDAHL_SPEEDUP_REVIEW.find(q=>q.id==='rev_p1_amdahl_coprocessor'),
+    AMDAHL_SPEEDUP_REVIEW.find(q=>q.id==='rev_p1_amdahl_solve_fm'),
+    CPI_DESEMPENHO_P1_REVIEW.find(q=>q.id==='rev_p1_cpi_avg_table'),
+    CPI_DESEMPENHO_P1_REVIEW.find(q=>q.id==='rev_p1_cpi_mips_rate'),
+    OPEN_QUESTIONS.find(q=>q.id==='rev_p1_open_amdahl_small_fm')
+  ].filter(Boolean);
+  return seededShuffle(fixed,r);
+}
+function buildProva2SimQueue(r){
+  r=r||Math.random;
+  const fixed=[
+    ENDERECAMENTO_VETOR_REVIEW.find(q=>q.id==='rev_p2_addr_index_offset'),
+    ENDERECAMENTO_VETOR_REVIEW.find(q=>q.id==='rev_p2_addr_dynamic_index'),
+    DESLOCAMENTO_SHIFT_REVIEW.find(q=>q.id==='rev_p2_shift_divide_1024'),
+    DESLOCAMENTO_SHIFT_REVIEW.find(q=>q.id==='rev_p2_shift_sra_example'),
+    CPI_DESEMPENHO_P2_REVIEW.find(q=>q.id==='rev_p2_cpi_program_total_instr'),
+    CPI_DESEMPENHO_P2_REVIEW.find(q=>q.id==='rev_p2_cpi_avg_given_counts'),
+    CPI_DESEMPENHO_P2_REVIEW.find(q=>q.id==='rev_p2_cpi_mips_rate'),
+    PILHA_FUNCOES_P2_REVIEW.find(q=>q.id==='rev_p2_stack_one_level'),
+    PILHA_FUNCOES_P2_REVIEW.find(q=>q.id==='rev_p2_stack_two_levels'),
+    OPEN_QUESTIONS.find(q=>q.id==='rev_p2_open_shift_types')
+  ].filter(Boolean);
+  return seededShuffle(fixed,r);
+}
+function buildSimQueueGeral(r){
+  r=r||Math.random;
+  const mix=[
+    ...buildProva1SimQueue(r).slice(0,4),
+    ...buildProva2SimQueue(r).slice(0,4),
+    ...buildProva3SimQueue(r).slice(0,4)
+  ];
+  return seededShuffle(mix,r);
+}
+function buildSimQueue(examId,r){
+  if(typeof examId==='function'){ r=examId; examId='p3'; }
+  r=r||Math.random;
+  if(examId==='p1') return buildProva1SimQueue(r);
+  if(examId==='p2') return buildProva2SimQueue(r);
+  if(examId==='geral') return buildSimQueueGeral(r);
   return buildProva3SimQueue(r);
 }
-function startSim(timed){
-  SIM.queue=buildSimQueue(); SIM.idx=0; SIM.timed=!!timed; SIM.results=[]; SIM.assistedAny=false; SIM.nullIndex=null;
+function startSim(timed,examId){
+  SIM.examId=examId||simSetupExamId||'p3';
+  SIM.queue=buildSimQueue(SIM.examId); SIM.idx=0; SIM.timed=!!timed; SIM.results=[]; SIM.assistedAny=false; SIM.nullIndex=null;
   if(timed){ SIM.timeLeft=12*60; } // 12 minutos
   $('scr-sim').querySelector('.sim-timer').style.display=timed?'block':'none';
   showScreen('scr-sim');
@@ -3395,7 +3797,8 @@ function finishSim(){
   const total=SIM.queue.length;
   let correctCount=0, correctWithNull=0;
   const perTopic={Q2:[0,0],Q3a:[0,0],Q3b:[0,0],Q4:[0,0],QProg:[0,0],QISA:[0,0],QStack:[0,0],QTimeExt:[0,0]};
-  REVIEW_TOPICS.forEach(t=>{ perTopic[t.topic]=perTopic[t.topic]||[0,0]; });
+  const simExam=SIM.examId||'p3';
+  REVIEW_TOPICS.filter(t=>simExam==='geral'||t.examId===simExam).forEach(t=>{ perTopic[t.topic]=perTopic[t.topic]||[0,0]; });
   SIM.results.forEach(r=>{
     const ok = r.assisted ? false : r.ok;
     const annulled = SIM.nullIndex!==null && r.idx===SIM.nullIndex;
@@ -3408,18 +3811,20 @@ function finishSim(){
   const grade=Math.round((correctCount/total)*100)/10;
   const nullTotal=SIM.nullIndex===null?total:Math.max(1,total-1);
   const gradeWithNull=SIM.nullIndex===null?grade:Math.round((correctWithNull/nullTotal)*100)/10;
-  // salva histórico
-  save.simBest=Math.max(save.simBest,gradeWithNull);
+  // salva histórico (por prova)
+  const examKey=SIM.examId||'p3';
+  save.simBest[examKey]=Math.max(save.simBest[examKey]||0,gradeWithNull);
   const entry={date:new Date().toLocaleDateString('pt-BR'),score:gradeWithNull,scoreRaw:grade,nullIndex:SIM.nullIndex,perTopic:{}};
   for(const k in perTopic){ const [c,tot]=perTopic[k]; entry.perTopic[k]=tot?Math.round(c/tot*100)+'%':'—'; }
-  save.simHistory.push(entry); if(save.simHistory.length>3) save.simHistory.shift();
+  const hist=save.simHistory[examKey]=save.simHistory[examKey]||[];
+  hist.push(entry); if(hist.length>3) hist.shift();
   persist();
   // renderiza resultado
   $('simGrade').textContent=gradeWithNull.toFixed(1);
   $('simGrade').className='sim-grade '+(gradeWithNull>=6?'pass':'fail');
   $('simResTitle').textContent=gradeWithNull>=6?'Aprovado! 🎉':'Continue treinando 💪';
   $('simResEmoji').textContent=gradeWithNull>=6?'🎉':'📊';
-  $('simResSub').textContent=`Sem anulação: ${grade.toFixed(1)} · Com anulação: ${gradeWithNull.toFixed(1)} · ${correctCount} de ${total} corretas · Anulada: ${SIM.nullIndex===null?'nenhuma':'questão '+(SIM.nullIndex+1)} · Melhor nota: ${save.simBest.toFixed(1)}`;
+  $('simResSub').textContent=`Sem anulação: ${grade.toFixed(1)} · Com anulação: ${gradeWithNull.toFixed(1)} · ${correctCount} de ${total} corretas · Anulada: ${SIM.nullIndex===null?'nenhuma':'questão '+(SIM.nullIndex+1)} · Melhor nota: ${save.simBest[examKey].toFixed(1)}`;
   $('simTopics').innerHTML=Object.keys(perTopic).map(k=>{
     const [c,tot]=perTopic[k]; const pct=tot?Math.round(c/tot*100):0;
     return `<div class="sim-topic ${pct>=50?'good':'bad'}">${k}<b>${tot?pct+'%':'—'}</b></div>`;
@@ -3440,9 +3845,37 @@ function finishSim(){
   }).join('');
   showScreen('scr-sim-result');
 }
-function showSimSetup(){
-  $('simBestInfo').innerHTML=save.simBest>0
-    ?`🏆 Melhor nota: <b>${save.simBest.toFixed(1)}/10</b>${save.simHistory.length?` · Últimas: ${save.simHistory.map(h=>h.score.toFixed(1)).join(', ')}`:''}`
+const SIM_SETUP_TABS=[
+  {id:'p1', label:'Prova 1'},
+  {id:'p2', label:'Prova 2'},
+  {id:'p3', label:'Prova 3'},
+  {id:'geral', label:'Geral (mistura as 3)'}
+];
+const SIM_SETUP_INFO={
+  p1:{h2:'Simulado — Modelo da Prova 1', sub:'CLA/somador, ponto flutuante, Lei de Amdahl e CPI/desempenho. Você pode anular uma questão ao finalizar.'},
+  p2:{h2:'Simulado — Modelo da Prova 2', sub:'Endereçamento de vetores, deslocamento (shift), CPI/desempenho e pilha em funções. Você pode anular uma questão ao finalizar.'},
+  p3:{h2:'Simulado — Modelo da Prova 3', sub:'Tempo de instruções, SLT, J, registradores de função, loop com CPI médio e pelo menos uma questão aberta. Você pode anular uma questão ao finalizar.'},
+  geral:{h2:'Simulado Geral — Mistura das 3 Provas', sub:'Uma amostra das três provas embaralhada em um único simulado. Você pode anular uma questão ao finalizar.'}
+};
+function showSimSetup(examId){
+  if(examId) simSetupExamId=examId;
+  const tabsWrap=$('simSetupTabs');
+  if(tabsWrap){
+    tabsWrap.innerHTML=SIM_SETUP_TABS.map(t=>
+      `<button type="button" class="exam-tab${simSetupExamId===t.id?' active':''}" data-exam="${t.id}">${t.label}</button>`
+    ).join('');
+    tabsWrap.querySelectorAll('.exam-tab').forEach(btn=>{
+      btn.onclick=()=>{ sfx.click(); showSimSetup(btn.dataset.exam); };
+    });
+  }
+  const info=SIM_SETUP_INFO[simSetupExamId]||SIM_SETUP_INFO.p3;
+  const h2=$('simSetupTitle'), sub=$('simSetupSub');
+  if(h2) h2.textContent=info.h2;
+  if(sub) sub.textContent=info.sub;
+  const best=save.simBest[simSetupExamId]||0;
+  const hist=save.simHistory[simSetupExamId]||[];
+  $('simBestInfo').innerHTML=best>0
+    ?`🏆 Melhor nota: <b>${best.toFixed(1)}/10</b>${hist.length?` · Últimas: ${hist.map(h=>h.score.toFixed(1)).join(', ')}`:''}`
     :'Sem simulados ainda. Boa sorte no primeiro!';
   showScreen('scr-sim-setup');
 }
@@ -3508,7 +3941,7 @@ function boot(){
   $('simSetupBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   $('simStartReal').onclick=()=>{ sfx.click(); startSim(true); };
   $('simStartTreino').onclick=()=>{ sfx.click(); startSim(false); };
-  $('simRetry').onclick=()=>{ sfx.click(); showSimSetup(); };
+  $('simRetry').onclick=()=>{ sfx.click(); showSimSetup(SIM.examId); };
   $('simRetryWrong').onclick=()=>{ sfx.click(); startTargetedPractice(); };
   $('simHome').onclick=()=>{ sfx.click(); refreshHUD(); showScreen('scr-home'); };
 }

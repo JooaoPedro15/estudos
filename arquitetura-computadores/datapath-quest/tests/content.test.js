@@ -78,12 +78,12 @@ const sandbox = {
 vm.createContext(sandbox);
 vm.runInContext(
   script.replace(/\nboot\(\);\s*$/, '') +
-    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion: typeof skipFreeQuestion === "function" ? skipFreeQuestion : null, REVIEW_BANK: typeof REVIEW_BANK !== "undefined" ? REVIEW_BANK : null, REVIEW_TOPICS: typeof REVIEW_TOPICS !== "undefined" ? REVIEW_TOPICS : null, OPEN_QUESTIONS: typeof OPEN_QUESTIONS !== "undefined" ? OPEN_QUESTIONS : null, buildReviewQueue: typeof buildReviewQueue === "function" ? buildReviewQueue : null, buildTargetedPracticeQueue: typeof buildTargetedPracticeQueue === "function" ? buildTargetedPracticeQueue : null, recordConceptError: typeof recordConceptError === "function" ? recordConceptError : null, renderM5open: typeof renderM5open === "function" ? renderM5open : null, buildProva3SimQueue: typeof buildProva3SimQueue === "function" ? buildProva3SimQueue : null, nullSimQuestion: typeof nullSimQuestion === "function" ? nullSimQuestion : null, buildFreeQueue: typeof buildFreeQueue === "function" ? buildFreeQueue : null, instructionLabel: typeof instructionLabel === "function" ? instructionLabel : null, NARR: typeof NARR !== "undefined" ? NARR : null, PATHS: typeof PATHS !== "undefined" ? PATHS : null };',
+    '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion: typeof skipFreeQuestion === "function" ? skipFreeQuestion : null, REVIEW_BANK: typeof REVIEW_BANK !== "undefined" ? REVIEW_BANK : null, REVIEW_TOPICS: typeof REVIEW_TOPICS !== "undefined" ? REVIEW_TOPICS : null, OPEN_QUESTIONS: typeof OPEN_QUESTIONS !== "undefined" ? OPEN_QUESTIONS : null, buildReviewQueue: typeof buildReviewQueue === "function" ? buildReviewQueue : null, buildTargetedPracticeQueue: typeof buildTargetedPracticeQueue === "function" ? buildTargetedPracticeQueue : null, recordConceptError: typeof recordConceptError === "function" ? recordConceptError : null, renderM5open: typeof renderM5open === "function" ? renderM5open : null, buildProva3SimQueue: typeof buildProva3SimQueue === "function" ? buildProva3SimQueue : null, buildProva1SimQueue: typeof buildProva1SimQueue === "function" ? buildProva1SimQueue : null, buildProva2SimQueue: typeof buildProva2SimQueue === "function" ? buildProva2SimQueue : null, buildSimQueueGeral: typeof buildSimQueueGeral === "function" ? buildSimQueueGeral : null, nullSimQuestion: typeof nullSimQuestion === "function" ? nullSimQuestion : null, buildFreeQueue: typeof buildFreeQueue === "function" ? buildFreeQueue : null, instructionLabel: typeof instructionLabel === "function" ? instructionLabel : null, NARR: typeof NARR !== "undefined" ? NARR : null, PATHS: typeof PATHS !== "undefined" ? PATHS : null };',
   sandbox,
   { filename: 'mips-datapath-quest.html' }
 );
 
-const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion, REVIEW_BANK, REVIEW_TOPICS, OPEN_QUESTIONS, buildReviewQueue, buildTargetedPracticeQueue, recordConceptError, renderM5open, buildProva3SimQueue, nullSimQuestion, buildFreeQueue, instructionLabel, NARR, PATHS } = sandbox.__dq;
+const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion, REVIEW_BANK, REVIEW_TOPICS, OPEN_QUESTIONS, buildReviewQueue, buildTargetedPracticeQueue, recordConceptError, renderM5open, buildProva3SimQueue, buildProva1SimQueue, buildProva2SimQueue, buildSimQueueGeral, nullSimQuestion, buildFreeQueue, instructionLabel, NARR, PATHS } = sandbox.__dq;
 assert.strictEqual(typeof skipFreeQuestion, 'function', 'Expected skipFreeQuestion to be callable.');
 
 assert(SIGNAL_NAMES.includes('ALUOp'), 'Expected ALUOp to be part of the control signals.');
@@ -131,7 +131,15 @@ const minimumReviewCoverage = {
   registradores_funcoes: 10,
   jal_jr_pilha: 8,
   loops_dinamicos: 10,
-  cpi_medio: 10
+  cpi_medio: 10,
+  cla_somador: 8,
+  ieee754_custom: 8,
+  amdahl_speedup: 8,
+  cpi_desempenho_p1: 8,
+  enderecamento_vetor: 8,
+  deslocamento_shift: 8,
+  cpi_desempenho_p2: 8,
+  pilha_funcoes_p2: 8
 };
 for (const [category, minimum] of Object.entries(minimumReviewCoverage)) {
   assert(
@@ -139,10 +147,10 @@ for (const [category, minimum] of Object.entries(minimumReviewCoverage)) {
     `Expected at least ${minimum} new review questions for ${category}.`
   );
 }
-assert(OPEN_QUESTIONS.length >= 12, 'Expected at least 12 open questions.');
+assert(OPEN_QUESTIONS.length >= 24, 'Expected at least 24 open questions across Provas 1, 2 and 3.');
 
 for (const question of REVIEW_BANK) {
-  assert(question.id && question.id.startsWith('rev_p3_'), `Review question needs a stable unique id: ${question.id}`);
+  assert(question.id && /^rev_p[123]_/.test(question.id), `Review question needs a stable unique id: ${question.id}`);
   assert(question.topic && question.category && question.errorType, `${question.id} needs topic/category/errorType metadata.`);
   assert(question.explain && question.explain.length > 50, `${question.id} needs pedagogical feedback.`);
   assert(question.quickRule && question.quickRule.length > 10, `${question.id} needs a quick rule.`);
@@ -202,6 +210,29 @@ assert.strictEqual(prova3Queue.length, 10, 'Expected the Prova 3 simulado to kee
 assert(prova3Queue.some(question => question.sub === 'open'), 'Expected the simulado to include at least one open question.');
 assert(prova3Queue.some(question => question.category === 'cpi_medio' || question.topic === 'QProg'), 'Expected the simulado to include CPI/program counting.');
 assert(prova3Queue.some(question => question.category === 'slt'), 'Expected the simulado to include SLT.');
+
+const prova1Queue = buildProva1SimQueue(() => 0.42);
+assert.strictEqual(prova1Queue.length, 10, 'Expected the Prova 1 simulado to have 10 questions.');
+assert(prova1Queue.some(question => question.category === 'amdahl_speedup'), 'Expected the Prova 1 simulado to include Amdahl/speedup.');
+assert(prova1Queue.some(question => question.category === 'ieee754_custom'), 'Expected the Prova 1 simulado to include floating point.');
+assert(prova1Queue.some(question => question.sub === 'open'), 'Expected the Prova 1 simulado to include an open question.');
+
+const prova2Queue = buildProva2SimQueue(() => 0.42);
+assert.strictEqual(prova2Queue.length, 10, 'Expected the Prova 2 simulado to have 10 questions.');
+assert(prova2Queue.some(question => question.category === 'enderecamento_vetor'), 'Expected the Prova 2 simulado to include vector addressing.');
+assert(prova2Queue.some(question => question.category === 'pilha_funcoes_p2'), 'Expected the Prova 2 simulado to include stack/function calls.');
+assert(prova2Queue.some(question => question.sub === 'open'), 'Expected the Prova 2 simulado to include an open question.');
+
+const geralQueue = buildSimQueueGeral(() => 0.42);
+assert.strictEqual(geralQueue.length, 12, 'Expected the mixed (Geral) simulado to combine samples from all three exams.');
+assert(
+  geralQueue.some(q => (q.id || '').startsWith('rev_p1_')) &&
+  geralQueue.some(q => (q.id || '').startsWith('rev_p2_')) &&
+  (geralQueue.some(q => (q.id || '').startsWith('rev_p3_')) || geralQueue.some(q => q.examKey)),
+  'Expected the mixed simulado to contain questions from Prova 1, Prova 2 and Prova 3.'
+);
+assert.strictEqual(typeof buildSimQueue('p1', () => 0.42).length, 'number', 'Expected buildSimQueue to accept an exam id.');
+assert.strictEqual(buildSimQueue('p2', () => 0.42).length, 10, 'Expected buildSimQueue("p2", ...) to delegate to the Prova 2 queue.');
 
 const levelExamKeys = LEVELS.flatMap(level => level.qs)
   .filter(question => question.examKey)
