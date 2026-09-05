@@ -261,7 +261,7 @@ export type CodeDrill = {
   domainId: DomainId;
   moduleId?: ContentModuleId;
   title: string;
-  source: 'lista-prova3' | 'reav-style' | 'lista-2';
+  source: 'lista-prova3' | 'reav-style' | 'lista-2' | 'prova1' | 'prova1-pratica';
   difficulty?: 'basico' | 'intermediario' | 'avancado' | 'reavaliacao' | 'desafio';
   repetitionGroup: string;
   phase: CodeDrillPhase;
