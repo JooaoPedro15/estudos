@@ -3,7 +3,9 @@ import { lista2CodeDrillCatalog } from './lista2CodeDrills';
 import { prova1CodeDrillCatalog } from './prova1CodeDrills';
 import { prova1PraticaDrillCatalog } from './prova1PraticaDrills';
 import { prova2CodeDrillCatalog } from './prova2CodeDrills';
+import { prova2PraticaDrillCatalog } from './prova2PraticaDrills';
 import { prova3CodeDrillCatalog } from './prova3CodeDrills';
+import { prova3PraticaDrillCatalog } from './prova3PraticaDrills';
 
 type FunctionExamStep = FunctionStep & { skillId: 'program' };
 
@@ -2297,7 +2299,9 @@ export const codeDrillCatalog: CodeDrill[] = [
   ...prova1CodeDrillCatalog,
   ...prova1PraticaDrillCatalog,
   ...prova2CodeDrillCatalog,
+  ...prova2PraticaDrillCatalog,
   ...prova3CodeDrillCatalog,
+  ...prova3PraticaDrillCatalog,
 ];
 
 export function getDrillsByGroup(repetitionGroup: string): CodeDrill[] {

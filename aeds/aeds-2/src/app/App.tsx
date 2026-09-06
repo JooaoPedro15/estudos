@@ -33,6 +33,8 @@ import {
   type PracticeModuleId,
 } from '../content/practiceModules';
 import { prova1Blueprint } from '../content/prova1Blueprint';
+import { prova2Blueprint } from '../content/prova2Blueprint';
+import { prova3Blueprint } from '../content/prova3Blueprint';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
 import { buildSimulado } from '../content/simuladoBuilder';
 import { applyAttempt, createEmptyNotebook, getPriorityErrors } from '../engine/adaptiveReview';
@@ -229,6 +231,20 @@ function getProvasTitle(
   return teoricaMode === 'simulado' ? `Simulado da ${examTitle}` : `Treino: ${examTitle}`;
 }
 
+/** Blueprint fixo de referencia de cada prova (3 questoes reais); Reavaliacao usa o simulado dinamico. */
+function getFixedBlueprint(scope: ExamId) {
+  if (scope === 'p1') {
+    return prova1Blueprint;
+  }
+  if (scope === 'p2') {
+    return prova2Blueprint;
+  }
+  if (scope === 'p3') {
+    return prova3Blueprint;
+  }
+  return null;
+}
+
 export function App() {
   const [initialState] = useState(loadInitialState);
   const [game, setGame] = useState<SavedGameState>(initialState.game);
@@ -265,6 +281,24 @@ export function App() {
   const effectiveProvaSection: ProvaSection | null = provaScope === 'reav' ? 'teorica' : provaSection;
   const isPraticaMode = effectiveProvaSection === 'pratica';
   const provaScopeModuleIds = provaScope ? getExam(provaScope).moduleIds : undefined;
+  /** Fora de uma prova (ou na Reavaliacao, sem filtro), mostra os 8 dominios completos. */
+  const visibleDomains = useMemo(() => {
+    if ((activeMode !== 'practice' && activeMode !== 'exam') || !provaScopeModuleIds) {
+      return domainCatalog;
+    }
+    const ids = new Set<DomainId>();
+    for (const id of provaScopeModuleIds) {
+      if (domainCatalog.some((domain) => domain.id === id)) {
+        ids.add(id as DomainId);
+      }
+    }
+    for (const drill of codeDrillCatalog) {
+      if (provaScopeModuleIds.includes(drill.moduleId ?? drill.domainId)) {
+        ids.add(drill.domainId);
+      }
+    }
+    return domainCatalog.filter((domain) => ids.has(domain.id));
+  }, [activeMode, provaScopeModuleIds]);
   const praticaDrills = useMemo(
     () =>
       codeDrillCatalog.filter((drill) => {
@@ -473,8 +507,9 @@ export function App() {
     resetAnswerDrafts();
     setActiveMode('exam');
     setGame((currentGame) => {
-      if (provaScope === 'p1') {
-        return { ...currentGame, blueprint: prova1Blueprint, session: createExamSession(prova1Blueprint) };
+      const fixedBlueprint = provaScope ? getFixedBlueprint(provaScope) : null;
+      if (fixedBlueprint) {
+        return { ...currentGame, blueprint: fixedBlueprint, session: createExamSession(fixedBlueprint) };
       }
       const blueprint = buildSimulado({ previous: currentGame.blueprint });
       return { ...currentGame, blueprint, session: createExamSession(blueprint) };
@@ -482,9 +517,9 @@ export function App() {
   }
 
   /**
-   * Escolhe a prova (Prova 1/2/3/Reavaliacao). Prova 1 usa o blueprint fixo
-   * de referencia; Reavaliacao usa o simulado dinamico de sempre; Prova 2 e
-   * Prova 3 ainda nao tem blueprint proprio (o simulado delas mostra aviso).
+   * Escolhe a prova (Prova 1/2/3/Reavaliacao). Prova 1/2/3 usam blueprint
+   * fixo de referencia (3 questoes reais cada); Reavaliacao usa o simulado
+   * dinamico de sempre.
    */
   function selectProvaScope(scope: ExamId) {
     setLastAttempt(null);
@@ -493,25 +528,27 @@ export function App() {
     setTeoricaMode(null);
     setPracticeModuleId(null);
 
-    if (scope === 'p1') {
+    const fixedBlueprint = getFixedBlueprint(scope);
+    if (fixedBlueprint) {
       setGame((currentGame) => {
-        if (currentGame.blueprint.id === prova1Blueprint.id) {
+        if (currentGame.blueprint.id === fixedBlueprint.id) {
           return currentGame;
         }
-        return { ...currentGame, blueprint: prova1Blueprint, session: createExamSession(prova1Blueprint) };
+        return { ...currentGame, blueprint: fixedBlueprint, session: createExamSession(fixedBlueprint) };
       });
       return;
     }
 
-    if (scope === 'reav') {
-      setGame((currentGame) => {
-        if (currentGame.blueprint.id !== prova1Blueprint.id) {
-          return currentGame;
-        }
-        const blueprint = buildSimulado();
-        return { ...currentGame, blueprint, session: createExamSession(blueprint) };
-      });
-    }
+    setGame((currentGame) => {
+      const isFixedBlueprint = currentGame.blueprint.id === prova1Blueprint.id
+        || currentGame.blueprint.id === prova2Blueprint.id
+        || currentGame.blueprint.id === prova3Blueprint.id;
+      if (!isFixedBlueprint) {
+        return currentGame;
+      }
+      const blueprint = buildSimulado();
+      return { ...currentGame, blueprint, session: createExamSession(blueprint) };
+    });
   }
 
   /** Escolhe teorica ou pratica dentro da prova. Pratica entra direto (nao tem sub-modo). */
@@ -789,7 +826,7 @@ export function App() {
           </div>
 
           <div className="domain-list">
-            {domainCatalog.map((domain) => (
+            {visibleDomains.map((domain) => (
               <button
                 className={`domain-button ${domain.id === selectedDomainId ? 'is-active' : ''}`}
                 key={domain.id}
@@ -924,16 +961,6 @@ export function App() {
                   onSelect={selectPracticeModule}
                 />
               )
-            ) : provaScope === 'p2' || provaScope === 'p3' ? (
-              <div className="complete-state">
-                <ClipboardList aria-hidden="true" size={42} />
-                <h3>Simulado ainda nao disponivel</h3>
-                <p>A {getExam(provaScope).title} ainda nao tem simulado pronto. Treine por modulo enquanto isso.</p>
-                <button className="ghost-button" onClick={backToTeoricaModePicker} type="button">
-                  <RotateCcw aria-hidden="true" size={18} />
-                  Voltar
-                </button>
-              </div>
             ) : game.session.completed || !currentQuestion || !currentStep ? (
               <div className="complete-state">
                 <CheckCircle2 aria-hidden="true" size={42} />
