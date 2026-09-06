@@ -48,18 +48,17 @@ async function openTreinar(user: ReturnType<typeof userEvent.setup>, examName: R
   return examPanel;
 }
 
-test('renderiza a experiencia principal da AEDS II', () => {
+test('renderiza a dashboard inicial da AEDS II', () => {
   render(<App />);
 
   expect(screen.getByRole('main')).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'AEDS II' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Sala de estudo' })).toBeInTheDocument();
+  expect(screen.getByText('AEDS II · PUC Minas')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Provas' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Conceitual' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Desenho' })).toBeInTheDocument();
-  expect(screen.getByText('Estrutura Doidona')).toBeInTheDocument();
-  expect(screen.getByText('Arvore TRIE')).toBeInTheDocument();
-  expect(screen.getByText('Arvore AVL')).toBeInTheDocument();
-  expect(screen.getByText('Somatorios')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Estruturas' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Caderno de erros' })).toBeInTheDocument();
 });
 
 test('Provas abre com a escolha de prova (Prova 1/2/3/Reavaliacao)', async () => {
@@ -119,7 +118,10 @@ test('envia erro do simulado para o caderno adaptativo', async () => {
   await user.click(screen.getByRole('button', { name: /responder/i }));
 
   expect(await screen.findByText('Resposta incorreta.')).toBeInTheDocument();
-  expect(screen.getByText('Limites de somatorio')).toBeInTheDocument();
+
+  // Caderno de erros mora na dashboard, nao junto do exercicio.
+  await user.click(screen.getByRole('button', { name: 'Voltar para a sala de estudo' }));
+  expect(screen.getByText(/Limites de somatorio/)).toBeInTheDocument();
 });
 
 test('abre a selecao de modulos antes de comecar o treino', async () => {
@@ -233,8 +235,6 @@ test('conteudo inteiro inicia o treino com uso rapido ou maratona', async () => 
 
   expect(screen.getByText('Modulo: Conteudo inteiro')).toBeInTheDocument();
   expect(screen.getByText('Arvore: caso base para contar nos')).toBeInTheDocument();
-  expect(within(training()).getByRole('button', { name: 'Pegar 2 questoes' })).toBeInTheDocument();
-  expect(within(training()).getByRole('button', { name: 'Maratona' })).toBeInTheDocument();
   expect(screen.getByText(/class No/)).toBeInTheDocument();
   expect(screen.getByText('Arvore binaria')).toBeInTheDocument();
   expect(screen.getByLabelText('Resposta')).toHaveAttribute('placeholder', 'Escreva a funcao completa');
@@ -249,7 +249,7 @@ test('modulo especifico foca no conteudo e permite trocar', async () => {
 
   expect(screen.getByText('Modulo: Somatorios')).toBeInTheDocument();
 
-  await user.click(within(training()).getByRole('button', { name: /Trocar modulo/ }));
+  await user.click(screen.getByRole('button', { name: 'Sair' }));
 
   expect(within(training()).getByRole('button', { name: /Conteudo inteiro/ })).toBeInTheDocument();
 });

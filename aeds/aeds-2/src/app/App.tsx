@@ -9,8 +9,6 @@ import {
   RotateCcw,
   Shapes,
   Shuffle,
-  Target,
-  Trophy,
   XCircle,
 } from 'lucide-react';
 
@@ -66,7 +64,6 @@ import type {
   ChallengeStep,
   CodeDrill,
   ContentModuleId,
-  DomainId,
   ExamBlueprint,
   FixStep,
   QuestionFormat,
@@ -76,8 +73,10 @@ import type {
 } from '../types/content';
 import type { ErrorRecord, StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
+import type { ActiveMode } from './appTypes';
+import { CategoryBar } from './CategoryBar';
+import { DashboardScreen } from './DashboardScreen';
 import { ExploreScreen } from './ExploreScreen';
-import { NotebookPanel } from './NotebookPanel';
 import {
   ProvaSelectionScreen,
   SectionPicker,
@@ -103,8 +102,6 @@ const skillLabels: Record<SkillId, string> = {
   program: 'Programar',
   justify: 'Justificar',
 };
-
-type ActiveMode = 'exam' | 'practice' | 'conceptual' | 'drawing' | 'explore';
 
 function createInitialGame(): SavedGameState {
   return {
@@ -248,6 +245,8 @@ function getFixedBlueprint(scope: ExamId) {
 export function App() {
   const [initialState] = useState(loadInitialState);
   const [game, setGame] = useState<SavedGameState>(initialState.game);
+  /** Dashboard = tela inicial (ponto de entrada unico); focused = dentro de uma categoria. */
+  const [view, setView] = useState<'dashboard' | 'focused'>('dashboard');
   const [activeMode, setActiveMode] = useState<ActiveMode>('exam');
   const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
   /** Prova escolhida (Prova 1/2/3/Reavaliacao); null = ainda nao escolheu, mostra o seletor. */
@@ -262,7 +261,6 @@ export function App() {
   const [drawingModuleId, setDrawingModuleId] = useState<ConceptualDrawingModuleId | null>(
     initialState.drawingModuleId,
   );
-  const [selectedDomainId, setSelectedDomainId] = useState<DomainId>('somatorio');
   const [choiceAnswer, setChoiceAnswer] = useState('');
   const [conceptualChoiceAnswer, setConceptualChoiceAnswer] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
@@ -281,24 +279,6 @@ export function App() {
   const effectiveProvaSection: ProvaSection | null = provaScope === 'reav' ? 'teorica' : provaSection;
   const isPraticaMode = effectiveProvaSection === 'pratica';
   const provaScopeModuleIds = provaScope ? getExam(provaScope).moduleIds : undefined;
-  /** Fora de uma prova (ou na Reavaliacao, sem filtro), mostra os 8 dominios completos. */
-  const visibleDomains = useMemo(() => {
-    if ((activeMode !== 'practice' && activeMode !== 'exam') || !provaScopeModuleIds) {
-      return domainCatalog;
-    }
-    const ids = new Set<DomainId>();
-    for (const id of provaScopeModuleIds) {
-      if (domainCatalog.some((domain) => domain.id === id)) {
-        ids.add(id as DomainId);
-      }
-    }
-    for (const drill of codeDrillCatalog) {
-      if (provaScopeModuleIds.includes(drill.moduleId ?? drill.domainId)) {
-        ids.add(drill.domainId);
-      }
-    }
-    return domainCatalog.filter((domain) => ids.has(domain.id));
-  }, [activeMode, provaScopeModuleIds]);
   const praticaDrills = useMemo(
     () =>
       codeDrillCatalog.filter((drill) => {
@@ -323,15 +303,13 @@ export function App() {
   const currentConceptualQuestion = getCurrentConceptualQuestion(conceptualQuestions, conceptualSession);
   const activeStep =
     activeMode === 'exam' ? currentStep : activeMode === 'practice' ? currentPracticeDrill?.step : undefined;
-  const selectedDomain = domainCatalog.find((domain) => domain.id === selectedDomainId) ?? domainCatalog[0];
   const currentDomain =
-    domainCatalog.find((domain) => domain.id === currentQuestion?.domainId) ?? selectedDomain;
+    domainCatalog.find((domain) => domain.id === currentQuestion?.domainId) ?? domainCatalog[0];
   const priorityErrors = useMemo(() => getPriorityErrors(game.notebook), [game.notebook]);
   const masteredCount = useMemo(
     () => game.notebook.records.filter((record) => record.resolved).length,
     [game.notebook],
   );
-  const progressPercent = Math.round((game.session.score / game.session.maxScore) * 100);
   const answer = activeStep ? buildAnswer(activeStep, choiceAnswer, textAnswer, blockOrder, fixLineIndex, fixId) : undefined;
 
   useEffect(() => {
@@ -479,7 +457,6 @@ export function App() {
     clearSavedGame();
     setLastAttempt(null);
     clearConceptualVisualState();
-    setSelectedDomainId('somatorio');
     setConceptualModuleId(null);
     setDrawingModuleId(null);
     setRecoveryTargetId(null);
@@ -684,26 +661,62 @@ export function App() {
     }
   }
 
-  function restartConceptualModule() {
-    clearConceptualVisualState();
-    setGame((currentGame) => ({
-      ...currentGame,
-      conceptualSession: createConceptualPracticeSession(conceptualQuestions, {
-        mode: conceptualSession.mode,
-        targetCount: conceptualSession.targetCount,
-      }),
-    }));
+  /** Volta pra sala de estudo. Nao mexe em nenhuma cascata: cada categoria retoma de onde parou. */
+  function goHome() {
+    setView('dashboard');
   }
 
-  function restartPracticeModule() {
-    setLastAttempt(null);
-    setGame((currentGame) => ({
-      ...currentGame,
-      practiceSession: createPracticeSession(practiceDrills, {
-        mode: practiceSession.mode,
-        targetCount: practiceSession.targetCount,
-      }),
-    }));
+  /** Abre uma categoria em foco, vinda da dashboard ou da barra de categorias. */
+  function openCategory(mode: ActiveMode) {
+    setActiveMode(mode);
+    setView('focused');
+  }
+
+  /**
+   * "Sair": fecha o passo atual e volta um nivel na cascata da categoria
+   * (o mesmo nivel que a propria renderizacao usa pra decidir a tela).
+   * Na tela mais externa de cada categoria, sai pra dashboard.
+   */
+  function backOneLevel() {
+    if (activeMode === 'exam' || activeMode === 'practice') {
+      if (provaScope === null) {
+        goHome();
+        return;
+      }
+      if (effectiveProvaSection === null) {
+        backToProvaSelection();
+        return;
+      }
+      if (isPraticaMode) {
+        backToSectionPicker();
+        return;
+      }
+      if (teoricaMode === null) {
+        backToSectionPicker();
+        return;
+      }
+      if (teoricaMode === 'treinar' && practiceModuleId === null) {
+        backToTeoricaModePicker();
+        return;
+      }
+      if (teoricaMode === 'treinar') {
+        backToModuleSelection();
+        return;
+      }
+      backToTeoricaModePicker();
+      return;
+    }
+
+    if (activeMode === 'conceptual' || activeMode === 'drawing') {
+      if (lista2ModuleId === null) {
+        goHome();
+        return;
+      }
+      backToConceptualModuleSelection();
+      return;
+    }
+
+    goHome();
   }
 
   /**
@@ -717,6 +730,7 @@ export function App() {
     clearConceptualVisualState();
     resetAnswerDrafts();
     setRecoveryTargetId(record.id);
+    setView('focused');
 
     if (target.mode === 'practice') {
       const drills = getDrillsForModule(target.moduleId);
@@ -753,93 +767,35 @@ export function App() {
 
   return (
     <main className="app-shell">
-      <header className="app-topbar">
-        <div>
-          <p className="app-kicker">AEDS II · PUC Minas</p>
-          <h1>AEDS II</h1>
-        </div>
-        <div className="score-board" aria-label="Pontuacao do simulado">
-          <span className="score-board-icon">
-            <Trophy aria-hidden="true" size={18} />
-          </span>
-          <div className="score-board-info">
-            <strong>
-              {game.session.score}/{game.session.maxScore} pts
-            </strong>
-            <span className="score-track" aria-hidden="true">
-              <span className="score-track-fill" style={{ width: `${progressPercent}%` }} />
-            </span>
-          </div>
-          <span className="score-percent">{progressPercent}%</span>
-        </div>
-      </header>
-
-      <nav className="mode-tabs" aria-label="Modos de treino">
-        <button
-          className={activeMode === 'exam' || activeMode === 'practice' ? 'is-active' : ''}
-          onClick={() => setActiveMode(teoricaMode === 'simulado' ? 'exam' : 'practice')}
-          type="button"
-        >
-          <ClipboardList aria-hidden="true" size={16} />
-          Provas
-        </button>
-        <button
-          className={activeMode === 'conceptual' ? 'is-active' : ''}
-          onClick={() => setActiveMode('conceptual')}
-          type="button"
-        >
-          <BookOpenCheck aria-hidden="true" size={16} />
-          Conceitual
-        </button>
-        <button
-          className={activeMode === 'drawing' ? 'is-active' : ''}
-          onClick={() => setActiveMode('drawing')}
-          type="button"
-        >
-          <Shapes aria-hidden="true" size={16} />
-          Desenho
-        </button>
-        <button
-          className={activeMode === 'explore' ? 'is-active' : ''}
-          onClick={() => setActiveMode('explore')}
-          type="button"
-        >
-          <Shapes aria-hidden="true" size={16} />
-          Estruturas
-        </button>
-      </nav>
-
-      {activeMode === 'explore' ? (
-        <section className="exam-panel explore-panel" aria-labelledby="explore-title">
-          <div className="panel-title">
-            <Shapes aria-hidden="true" size={18} />
-            <h2 id="explore-title">Estruturas de dados animadas</h2>
-          </div>
-          <ExploreScreen />
-        </section>
+      {view === 'dashboard' ? (
+        <DashboardScreen
+          masteredCount={masteredCount}
+          maxScore={game.session.maxScore}
+          onPractice={practiceError}
+          onSelectCategory={openCategory}
+          priorityErrors={priorityErrors}
+          score={game.session.score}
+        />
       ) : (
-      <div className="app-grid">
-        <section className="domain-panel" aria-labelledby="domains-title">
-          <div className="panel-title">
-            <Target aria-hidden="true" size={18} />
-            <h2 id="domains-title">Dominios</h2>
-          </div>
+        <>
+          <CategoryBar
+            activeMode={activeMode}
+            maxScore={game.session.maxScore}
+            onExit={backOneLevel}
+            onHome={goHome}
+            onSelectCategory={openCategory}
+            score={game.session.score}
+          />
 
-          <div className="domain-list">
-            {visibleDomains.map((domain) => (
-              <button
-                className={`domain-button ${domain.id === selectedDomainId ? 'is-active' : ''}`}
-                key={domain.id}
-                onClick={() => setSelectedDomainId(domain.id)}
-                type="button"
-              >
-                <strong>{domain.title}</strong>
-                <span>{domain.examRole}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-
+          {activeMode === 'explore' ? (
+            <section className="exam-panel explore-panel" aria-labelledby="explore-title">
+              <div className="panel-title">
+                <Shapes aria-hidden="true" size={18} />
+                <h2 id="explore-title">Estruturas de dados animadas</h2>
+              </div>
+              <ExploreScreen />
+            </section>
+          ) : (
         <section className="exam-panel" aria-labelledby="exam-title">
           <div className="panel-title">
             {activeMode === 'exam' ? (
@@ -897,7 +853,6 @@ export function App() {
                   onFixLine={setFixLineIndex}
                   onResetBlocks={() => setBlockOrder([])}
                   onResetDrafts={resetAnswerDrafts}
-                  onRestartModule={restartPracticeModule}
                   onStartMarathon={startMarathonPractice}
                   onStartQuick={startQuickPractice}
                   onSubmit={submitAnswer}
@@ -943,7 +898,6 @@ export function App() {
                     onFixLine={setFixLineIndex}
                     onResetBlocks={() => setBlockOrder([])}
                     onResetDrafts={resetAnswerDrafts}
-                    onRestartModule={restartPracticeModule}
                     onStartMarathon={startMarathonPractice}
                     onStartQuick={startQuickPractice}
                     onSubmit={submitAnswer}
@@ -1122,7 +1076,6 @@ export function App() {
                 onChangeModule={backToConceptualModuleSelection}
                 onChoice={setConceptualChoiceAnswer}
                 onResetDrafts={resetAnswerDrafts}
-                onRestartModule={restartConceptualModule}
                 onStartMarathon={startMarathonConceptual}
                 onStartQuick={startQuickConceptual}
                 onSubmit={submitAnswer}
@@ -1133,9 +1086,8 @@ export function App() {
             )
           ) : null}
         </section>
-
-        <NotebookPanel masteredCount={masteredCount} onPractice={practiceError} priorityErrors={priorityErrors} />
-      </div>
+          )}
+        </>
       )}
     </main>
   );
@@ -1229,7 +1181,6 @@ type ConceptualPracticeExperienceProps = {
   onSubmit: () => void;
   onAdvance: () => void;
   onChangeModule: () => void;
-  onRestartModule: () => void;
   onStartQuick: () => void;
   onStartMarathon: () => void;
   onToggleTeaching: () => void;
@@ -1246,7 +1197,6 @@ function ConceptualPracticeExperience({
   onChangeModule,
   onChoice,
   onResetDrafts,
-  onRestartModule,
   onStartMarathon,
   onStartQuick,
   onSubmit,
@@ -1301,22 +1251,6 @@ function ConceptualPracticeExperience({
             {practiceSession.mode === 'quick' ? 'Sessao rapida' : 'Maratona'} ·{' '}
             {getConceptualProgressLabel(practiceSession)} questoes · {practiceSession.score} pts · {currentQuestion.type}
           </span>
-        </div>
-        <div className="practice-actions">
-          <button className="ghost-button compact" onClick={onChangeModule} type="button">
-            <ListChecks aria-hidden="true" size={16} />
-            Trocar filtro
-          </button>
-          <button className="ghost-button compact" onClick={onRestartModule} type="button">
-            <RotateCcw aria-hidden="true" size={16} />
-            Reiniciar
-          </button>
-          <button className="ghost-button compact" onClick={onStartQuick} type="button">
-            Pegar 2 questoes
-          </button>
-          <button className="ghost-button compact" onClick={onStartMarathon} type="button">
-            Maratona
-          </button>
         </div>
       </div>
 
@@ -1551,7 +1485,6 @@ type PracticeExperienceProps = {
   onResetDrafts: () => void;
   onSubmit: () => void;
   onChangeModule: () => void;
-  onRestartModule: () => void;
   onStartQuick: () => void;
   onStartMarathon: () => void;
   onToggleTeaching: () => void;
@@ -1574,7 +1507,6 @@ function PracticeExperience({
   onFixLine,
   onResetBlocks,
   onResetDrafts,
-  onRestartModule,
   onStartMarathon,
   onStartQuick,
   onSubmit,
@@ -1619,22 +1551,6 @@ function PracticeExperience({
             {practiceSession.mode === 'quick' ? 'Sessao rapida' : 'Maratona'} ·{' '}
             {getPracticeProgressLabel(practiceSession)} questoes
           </span>
-        </div>
-        <div className="practice-actions">
-          <button className="ghost-button compact" onClick={onChangeModule} type="button">
-            <ListChecks aria-hidden="true" size={16} />
-            Trocar modulo
-          </button>
-          <button className="ghost-button compact" onClick={onRestartModule} type="button">
-            <RotateCcw aria-hidden="true" size={16} />
-            Reiniciar
-          </button>
-          <button className="ghost-button compact" onClick={onStartQuick} type="button">
-            Pegar 2 questoes
-          </button>
-          <button className="ghost-button compact" onClick={onStartMarathon} type="button">
-            Maratona
-          </button>
         </div>
       </div>
 

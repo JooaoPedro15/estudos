@@ -15,13 +15,16 @@ type NotebookPanelProps = {
   onPractice: (record: ErrorRecord) => void;
 };
 
-/** Caderno de erros: erros prioritarios com dominio e botao "Praticar". */
+/** Caderno de erros: lista completa, ordenada por prioridade de revisao. */
 export function NotebookPanel({ priorityErrors, masteredCount, onPractice }: NotebookPanelProps) {
   return (
-    <section className="review-panel" aria-labelledby="review-title">
-      <div className="panel-title">
-        <Brain aria-hidden="true" size={18} />
-        <h2 id="review-title">Caderno de erros</h2>
+    <section className="dash-section" aria-labelledby="review-title">
+      <div className="section-head">
+        <div className="panel-title">
+          <Brain aria-hidden="true" size={18} />
+          <h2 id="review-title">Caderno de erros</h2>
+        </div>
+        <span>ordenado por prioridade de revisao</span>
       </div>
 
       {priorityErrors.length === 0 ? (
@@ -33,7 +36,7 @@ export function NotebookPanel({ priorityErrors, masteredCount, onPractice }: Not
       ) : (
         <>
           <ol className="error-list">
-            {priorityErrors.slice(0, 4).map((record) => (
+            {priorityErrors.map((record) => (
               <NotebookItem key={record.id} onPractice={() => onPractice(record)} record={record} />
             ))}
           </ol>
@@ -51,17 +54,17 @@ function NotebookItem({ record, onPractice }: { record: ErrorRecord; onPractice:
   const hint = selectSimilarPractice(record)?.title ?? `Revise ${getSubjectLabel(record)} em ${moduleInfo.shortTitle}.`;
 
   return (
-    <li className="error-item">
-      <div className="error-head">
-        <span className={`error-type-badge type-${record.type}`}>{getErrorTypeLabel(record.type)}</span>
+    <li className="error-row">
+      <span className={`error-type-badge type-${record.type}`}>{getErrorTypeLabel(record.type)}</span>
+
+      <div className="error-subject">
         <strong>{moduleInfo.shortTitle}</strong>
-        <span className="error-subject">{getSubjectLabel(record)}</span>
+        <span>{getSubjectLabel(record)}</span>
       </div>
 
       <div className="error-meta">
-        <span>{record.attempts}x erros</span>
-        <span>{record.correctCount ?? 0} acertos</span>
-        <span>{formatRelativeTime(record.lastSeenAt)}</span>
+        <span>{record.attempts}x erros · {record.correctCount ?? 0} acertos</span>
+        <span>{formatRelativeTime(record.lastSeenAt)} · {hint}</span>
       </div>
 
       <div
@@ -74,10 +77,8 @@ function NotebookItem({ record, onPractice }: { record: ErrorRecord; onPractice:
         ))}
       </div>
 
-      <p className="error-hint">{hint}</p>
-
-      <button className="primary-button compact" onClick={onPractice} type="button">
-        <Target aria-hidden="true" size={16} />
+      <button className="btn-practice" onClick={onPractice} type="button">
+        <Target aria-hidden="true" size={14} />
         Praticar
       </button>
     </li>

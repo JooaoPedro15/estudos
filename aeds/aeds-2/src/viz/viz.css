@@ -74,7 +74,7 @@
 .viz-canvas {
   width: 100%;
   height: auto;
-  max-height: 340px;
+  max-height: 480px;
   touch-action: none;
   cursor: grab;
   background: linear-gradient(160deg, var(--viz-bg), var(--viz-bg-2));
@@ -541,7 +541,7 @@
 /* Modo compacto (dentro das questões) */
 
 .viz.is-compact .viz-canvas {
-  max-height: 280px;
+  max-height: 380px;
 }
 
 @media (max-width: 760px) {

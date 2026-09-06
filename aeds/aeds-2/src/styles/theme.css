@@ -5,8 +5,8 @@
 
 :root {
   /* Tipografia */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
 
   --text-xs: 0.75rem;
   --text-sm: 0.85rem;
@@ -15,51 +15,51 @@
   --text-xl: 1.35rem;
   --text-2xl: 1.75rem;
 
-  /* Superfícies claras (UI) */
-  --bg: #eef1f8;
-  --bg-soft: #f6f8fd;
-  --surface: #ffffff;
-  --surface-2: #f4f6fc;
-  --surface-3: #e9edf7;
-  --border: #dde3f0;
-  --border-strong: #c3cde2;
+  /* Superfícies — tema escuro, tipo ferramenta de dev */
+  --bg: #0a0d13;
+  --bg-soft: #0d1119;
+  --surface: #10141c;
+  --surface-2: #161b25;
+  --surface-3: #1c2230;
+  --border: #242b3a;
+  --border-strong: #343e52;
 
   /* Texto */
-  --ink: #101a2e;
-  --ink-soft: #3c4a63;
-  --ink-muted: #64748b;
-  --ink-faint: #94a3b8;
+  --ink: #e8ebf2;
+  --ink-soft: #b6bccb;
+  --ink-muted: #7d8598;
+  --ink-faint: #545d70;
 
-  /* Marca */
-  --primary: #4f46e5;
-  --primary-strong: #4338ca;
-  --primary-soft: #e5e4fb;
-  --primary-ink: #3730a3;
-  --accent: #0d9488;
-  --accent-soft: #d5f5f0;
-  --accent-ink: #0f5f57;
+  /* Marca — laranja-âmbar, nada de roxo-indigo generico */
+  --primary: #ff8a5c;
+  --primary-strong: #ff6a38;
+  --primary-soft: rgb(255 138 92 / 14%);
+  --primary-ink: #ffb495;
+  --accent: #62c1ff;
+  --accent-soft: rgb(98 193 255 / 12%);
+  --accent-ink: #8fd2ff;
 
   /* Semânticas */
-  --success: #059669;
-  --success-soft: #d9f4e7;
-  --success-ink: #065f46;
-  --danger: #e11d48;
-  --danger-soft: #fde5eb;
-  --danger-ink: #9f1239;
-  --warning: #d97706;
-  --warning-soft: #fdeed3;
-  --warning-ink: #92400e;
-  --info: #0284c7;
-  --info-soft: #dcf1fc;
+  --success: #35d399;
+  --success-soft: rgb(53 211 153 / 14%);
+  --success-ink: #35d399;
+  --danger: #fb4d6f;
+  --danger-soft: rgb(251 77 111 / 14%);
+  --danger-ink: #fb4d6f;
+  --warning: #f2b134;
+  --warning-soft: rgb(242 177 52 / 14%);
+  --warning-ink: #f2b134;
+  --info: #62c1ff;
+  --info-soft: rgb(98 193 255 / 12%);
 
   /* Canvas escuro das visualizações */
-  --viz-bg: #101a2e;
-  --viz-bg-2: #0b1424;
+  --viz-bg: #0c1018;
+  --viz-bg-2: #060810;
   --viz-grid: rgb(148 163 184 / 8%);
-  --viz-node-fill: #1b2a44;
-  --viz-node-stroke: #46628a;
+  --viz-node-fill: #131a2a;
+  --viz-node-stroke: #33415c;
   --viz-node-text: #e6edf7;
-  --viz-edge: #46628a;
+  --viz-edge: #33415c;
   --viz-label: #8aa0be;
 
   /* Estados dos nós (visualizações) */
@@ -72,12 +72,12 @@
   --state-error: #f87171;
 
   /* Cores por domínio */
-  --domain-doidona: #9333ea;
-  --domain-trie: #0d9488;
-  --domain-avl: #4f46e5;
-  --domain-arvore: #059669;
-  --domain-somatorio: #d97706;
-  --domain-ordenacao: #e11d48;
+  --domain-doidona: #b17bff;
+  --domain-trie: #2dd4bf;
+  --domain-avl: #7c93ff;
+  --domain-arvore: #4ade80;
+  --domain-somatorio: #f2b134;
+  --domain-ordenacao: #fb6a91;
 
   /* Geometria */
   --radius-sm: 8px;
@@ -86,10 +86,10 @@
   --radius-full: 999px;
 
   /* Sombras */
-  --shadow-sm: 0 1px 2px rgb(16 26 46 / 6%), 0 2px 8px rgb(16 26 46 / 5%);
-  --shadow-md: 0 2px 4px rgb(16 26 46 / 6%), 0 10px 24px rgb(16 26 46 / 8%);
-  --shadow-lg: 0 4px 8px rgb(16 26 46 / 8%), 0 18px 44px rgb(16 26 46 / 12%);
-  --shadow-primary: 0 6px 18px rgb(79 70 229 / 30%);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 20%), 0 2px 8px rgb(0 0 0 / 16%);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 20%), 0 10px 24px rgb(0 0 0 / 24%);
+  --shadow-lg: 0 4px 8px rgb(0 0 0 / 24%), 0 18px 44px rgb(0 0 0 / 32%);
+  --shadow-primary: 0 6px 18px rgb(255 138 92 / 22%);
 
   /* Espaçamento */
   --space-1: 4px;
@@ -107,7 +107,7 @@
   --dur-slow: 420ms;
 
   /* Foco */
-  --focus-ring: 0 0 0 3px rgb(79 70 229 / 30%);
+  --focus-ring: 0 0 0 3px rgb(255 138 92 / 35%);
 }
 
 @media (prefers-reduced-motion: reduce) {
