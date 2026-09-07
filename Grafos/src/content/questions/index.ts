@@ -1,4 +1,5 @@
 import type { Question, Duration } from '@/content/types';
+import { exams } from '@/content/exams';
 import { fundamentosQuestions } from './01-fundamentos';
 import { representacoesQuestions } from './02-representacoes';
 import { isomorfismoQuestions } from './03-isomorfismo';
@@ -14,6 +15,14 @@ export const questions: Question[] = [
   ...conectividadeQuestions,
   ...logicaConjuntosQuestions,
 ];
+
+/** IDs das questões que compõem algum dos simulados de prova (ver content/exams.ts). */
+const examQuestionIds = new Set(exams.flatMap((exam) => exam.questions.map((q) => q.questionId)));
+
+/** Questão "estilo prova": veio de prova antiga real ou foi usada em algum simulado — o que o aluno de fato vai ver na P1. */
+export function isExamStyleQuestion(q: Question): boolean {
+  return q.sourceStyle === 'old_exam' || examQuestionIds.has(q.id);
+}
 
 export function getQuestion(id: string): Question | undefined {
   return questions.find((q) => q.id === id);
@@ -36,24 +45,43 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-/** Monta uma revisão rápida: 3-7 questões `quick`, priorizando alta chance de prova e amostrando tópicos variados. */
+/**
+ * Monta uma revisão rápida: mistura questões conceituais `quick` com questões
+ * no estilo real de prova (ver `isExamStyleQuestion`), pra treinar o formato
+ * que vai cair na P1 mesmo numa sessão curta — não só teoria solta.
+ */
 export function pickQuickReview(count = 5): Question[] {
-  const pool = shuffle(questions.filter((q) => q.duration === 'quick'));
-  const byTopic = new Set<string>();
+  const examSlots = Math.min(count, count <= 3 ? 1 : 2);
+  const examPool = shuffle(questions.filter(isExamStyleQuestion)).sort((a, b) => examWeight(b) - examWeight(a));
+  const conceptPool = shuffle(questions.filter((q) => q.duration === 'quick' && !isExamStyleQuestion(q))).sort(
+    (a, b) => examWeight(b) - examWeight(a),
+  );
+
   const picked: Question[] = [];
-  const sorted = [...pool].sort((a, b) => examWeight(b) - examWeight(a));
-  for (const q of sorted) {
+  const byTopic = new Set<string>();
+
+  function fillDiverse(pool: Question[], limit: number) {
+    for (const q of pool) {
+      if (picked.length >= limit) break;
+      if (picked.some((p) => p.id === q.id) || byTopic.has(q.topic)) continue;
+      picked.push(q);
+      byTopic.add(q.topic);
+    }
+  }
+
+  fillDiverse(examPool, examSlots);
+  fillDiverse(conceptPool, count);
+
+  for (const pool of [examPool, conceptPool]) {
     if (picked.length >= count) break;
-    if (byTopic.has(q.topic) && byTopic.size < sorted.length) continue;
-    picked.push(q);
-    byTopic.add(q.topic);
+    for (const q of pool) {
+      if (picked.length >= count) break;
+      if (picked.some((p) => p.id === q.id)) continue;
+      picked.push(q);
+    }
   }
-  while (picked.length < count && picked.length < pool.length) {
-    const next = pool.find((q) => !picked.includes(q));
-    if (!next) break;
-    picked.push(next);
-  }
-  return picked.slice(0, count);
+
+  return shuffle(picked).slice(0, count);
 }
 
 function examWeight(q: Question): number {
