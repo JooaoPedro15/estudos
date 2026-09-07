@@ -92,7 +92,7 @@ function ModuleRow({ moduleId, title, percent, examLikelihood, index }: { module
   );
 }
 
-/** Página inicial do GraphLab P1 — visão geral de progresso, ações rápidas e módulos. */
+/** Página inicial do Grafos P1 — visão geral de progresso, ações rápidas e módulos. */
 export function HomePage() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState<ProgressState | null>(null);
@@ -108,7 +108,7 @@ export function HomePage() {
   return (
     <div className="flex flex-col gap-10">
       <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-col gap-1.5">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">GraphLab</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Grafos</h1>
         <p className="text-[var(--color-text-secondary)]">Preparação para P1 — Teoria dos Grafos, Prof. Silvio Jamil.</p>
       </motion.header>
 

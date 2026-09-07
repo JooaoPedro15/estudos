@@ -14,7 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Revisão Final', href: '/revisao-final' },
 ];
 
-function GraphLabGlyph() {
+function GrafosGlyph() {
   return (
     <svg width="20" height="20" viewBox="0 0 22 22" fill="none" aria-hidden="true">
       <path d="M7.3 15.3 9.6 6.4M14.7 15.3 12.4 6.4M8 17H14" stroke="var(--color-border-strong)" strokeWidth="1.4" strokeLinecap="round" />
@@ -38,8 +38,8 @@ export function AppShell() {
       <header className="sticky top-0 z-40 border-b border-[var(--color-border-soft)] bg-[var(--color-bg-overlay)] backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3.5">
           <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-[var(--color-text-primary)]">
-            <GraphLabGlyph />
-            GraphLab <span className="font-normal text-[var(--color-text-tertiary)]">P1</span>
+            <GrafosGlyph />
+            Grafos <span className="font-normal text-[var(--color-text-tertiary)]">P1</span>
           </Link>
           <nav aria-label="Navegação principal" className="hidden items-center gap-1 sm:flex">
             {NAV_ITEMS.map((item) => (

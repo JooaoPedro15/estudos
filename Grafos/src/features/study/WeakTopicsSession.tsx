@@ -58,7 +58,7 @@ export function WeakTopicsSession() {
       <Card padding="lg" className="mx-auto max-w-lg text-center">
         <h1 className="mb-2 text-xl font-semibold text-[var(--color-text-primary)]">Ainda não há dados suficientes</h1>
         <p className="mb-6 text-sm text-[var(--color-text-secondary)]">
-          Responda algumas questões primeiro (numa revisão rápida ou sessão de estudo) para o GraphLab identificar seus pontos fracos.
+          Responda algumas questões primeiro (numa revisão rápida ou sessão de estudo) para o Grafos identificar seus pontos fracos.
         </p>
         <Link to="/estudar/rapido">
           <Button icon={<Zap size={15} />}>Fazer uma revisão rápida</Button>

@@ -1,4 +1,4 @@
-// Modelo de conteúdo do GraphLab P1.
+// Modelo de conteúdo do Grafos P1.
 // Mantido separado da interface (ver seção 33 do briefing): nada de texto acadêmico em JSX.
 
 export type SourceType =

@@ -32,7 +32,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
 };
 
 /**
- * Botão base do design system do GraphLab P1.
+ * Botão base do design system do Grafos P1.
  *
  * Acessibilidade: mantém o `<button>` nativo (foco e ativação por teclado
  * funcionam sem esforço extra) e expõe um anel de foco visível via

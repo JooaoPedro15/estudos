@@ -44,7 +44,7 @@ export function ProgressPage() {
       <Card padding="lg" className="mx-auto max-w-lg text-center">
         <h1 className="mb-2 text-xl font-semibold text-[var(--color-text-primary)]">Você ainda não tem histórico por aqui</h1>
         <p className="mb-6 text-sm text-[var(--color-text-secondary)]">
-          Responda algumas questões (numa revisão rápida, sessão de estudo ou simulado) para o GraphLab montar seu painel de progresso e
+          Responda algumas questões (numa revisão rápida, sessão de estudo ou simulado) para o Grafos montar seu painel de progresso e
           identificar seus pontos fracos automaticamente.
         </p>
         <Link to="/">
