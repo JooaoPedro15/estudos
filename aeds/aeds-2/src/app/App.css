@@ -558,12 +558,13 @@ h1 {
 
 /* ---------- Layout "folha de prova" ---------- */
 
+/* Empilhado (nao lado a lado): a visualizacao precisa da largura toda pra
+   nao espremer o proprio layout interno dela (estagio + variaveis/codigo). */
 .paper-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  grid-template-columns: 1fr;
   gap: var(--space-4);
   margin: var(--space-4) 0;
-  align-items: start;
 }
 
 .code-scaffold {
@@ -1514,10 +1515,6 @@ h1 {
   .practice-toolbar {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .paper-layout {
-    grid-template-columns: 1fr;
   }
 
   .exercise-problem,
