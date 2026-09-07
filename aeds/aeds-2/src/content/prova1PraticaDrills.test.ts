@@ -2,11 +2,18 @@ import { prova1PraticaDrillCatalog } from './prova1PraticaDrills';
 import { evaluateStep } from '../engine/evaluator';
 
 test('catalogo pratico da Prova 1 cobre ordenacao, fila, pilha e lista', () => {
-  expect(prova1PraticaDrillCatalog.length).toBeGreaterThanOrEqual(4);
+  expect(prova1PraticaDrillCatalog.length).toBeGreaterThanOrEqual(9);
   const moduleIds = new Set(prova1PraticaDrillCatalog.map((drill) => drill.moduleId ?? drill.domainId));
   for (const expected of ['ordenacao', 'fila', 'pilha', 'lista']) {
     expect(moduleIds.has(expected as never)).toBe(true);
   }
+});
+
+test('todo drill pratico tem id e repetitionGroup unicos dentro do catalogo', () => {
+  const ids = prova1PraticaDrillCatalog.map((drill) => drill.id);
+  expect(new Set(ids).size).toBe(ids.length);
+  const groups = prova1PraticaDrillCatalog.map((drill) => drill.repetitionGroup);
+  expect(new Set(groups).size).toBe(groups.length);
 });
 
 test('todo drill pratico declara source prova1-pratica e tem enunciado com entrada e saida', () => {

@@ -2,24 +2,47 @@ import type { CodeDrill, FunctionRequirement, FunctionStep, StructureVisual } fr
 
 /**
  * Exercicios de prova pratica (estilo BeeCrowd/Verde) pra Prova 1: mesmo
- * escopo da prova teorica (ordenacao, fila, pilha, lista), so que como
- * programa completo com entrada/saida, no lugar de um metodo isolado.
+ * escopo da prova teorica (ordenacao, fila, pilha, lista, busca), so que
+ * como programa completo com entrada/saida, no lugar de um metodo isolado.
  *
- * Ordenacao, fila e pilha sao problemas REAIS do URI/beecrowd (mesmo
+ * Praticamente todos sao problemas REAIS do URI/beecrowd (mesmo
  * enunciado, mesmos exemplos de entrada/saida — a ideia e treinar a
  * questao que pode cair literalmente igual no Verde):
  *  - URI 1162 "Train Swapping" (ordenacao: numero minimo de trocas
  *    adjacentes pra ordenar, o mesmo que a contagem de trocas do bubble
  *    sort)
+ *  - URI 1566 "Altura" (ordenacao pura, N grande)
+ *  - URI 1259 "Even and Odd" (ordenacao com comparador customizado:
+ *    pares crescente, depois impares decrescente)
+ *  - URI 1025 "Where is the Marble?" (ordenar + busca binaria da
+ *    primeira ocorrencia)
  *  - URI 1110 "Throwing Cards Away" (fila: descarta o topo, manda o
  *    proximo pro fim, repete)
  *  - URI 1068 "Balanco de Parenteses I" (pilha: so parenteses, sem
  *    colchete/chave)
- *  - URI 2929 "Smallest on the Stack" (pilha, mais avancado: PUSH/POP/MIN
- *    com pilha auxiliar de minimos)
- * Estatutos consultados via web.archive.org (urionlinejudge.com.br), com
- * a prosa traduzida pro portugues e os valores de entrada/saida mantidos
- * exatamente como no problema original.
+ *  - URI 2929 "Smallest on the Stack" (pilha, avancado: PUSH/POP/MIN com
+ *    pilha auxiliar de minimos)
+ *  - URI 1062 "Trilhos" (pilha: e possivel reordenar os vagoes 1..N pra
+ *    sair na ordem pedida usando so uma pilha?)
+ *  - URI 1340 "Eu Posso Adivinhar a Estrutura de Dados!" (desafio: simula
+ *    pilha, fila e fila de prioridade em paralelo pra descobrir qual(is)
+ *    ainda sao compativeis com a sequencia de operacoes)
+ * Estatutos consultados via web.archive.org (urionlinejudge.com.br, ja
+ * que o judge atual exige login), com a prosa traduzida pro portugues e
+ * os valores de entrada/saida mantidos exatamente como no problema
+ * original. Todas as solucoes foram compiladas e rodadas de verdade
+ * contra os exemplos oficiais antes de entrar no catalogo.
+ *
+ * Pesquisado tambem (e descartado por fugir do escopo de estruturas de
+ * dados/ordenacao da Prova 1): 1022 TDA Racional, 1023 Estiagem, 1069
+ * Diamantes e Areia, 1077 Infixa pra Posfixa (avancado demais pra essa
+ * rodada), 1088 Bolhas e Baldes (e teoria dos jogos, nao bubble sort de
+ * verdade), 1244 Ordenacao por Tamanho (tem aviso de direitos autorais
+ * da TopCoder proibindo reproducao), 1256 Tabelas Hash (e escopo de
+ * Prova 3), 1281 Ida a Feira e 1430 Composicao de Jingles (parsing de
+ * string, nao estrutura de dados), 1258 Camisetas (ordenacao por 3
+ * chaves — real e no escopo, mas fica pra uma proxima rodada por ser bem
+ * mais complexo de implementar e verificar com confianca).
  *
  * "Lista" nao teve um problema real equivalente encontrado (o tema
  * "insercao/remocao com deslocamento" nao aparece como uma categoria
@@ -113,6 +136,253 @@ public class Principal {
       ],
       mistakeTag: 'algorithm-confusion',
       explanation: 'Custo Theta(l^2): dois lacos aninhados, o mesmo custo do bubble sort comum — aqui o valor que importa nao e o vetor ordenado, e sim quantas trocas ele fez.',
+    }),
+  },
+  {
+    id: 'code-prova1-pratica-ordenacao-altura',
+    domainId: 'ordenacao',
+    title: 'Pratica: ordenar alturas (URI 1566)',
+    source: 'prova1-pratica',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-pratica-ordenacao-altura',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Ordenacao pura, com varios casos de teste — questao real do URI/beecrowd.',
+    stem:
+      'Problema real: URI 1566 "Altura". Leia a altura (em cm) de todas as pessoas de uma cidade e imprima essas alturas em ordem crescente, numa unica linha separadas por espaco.\n\n' +
+      'Entrada: a primeira linha tem um inteiro NC (numero de cidades/casos de teste). Cada caso de teste tem duas linhas: a primeira com um inteiro N (numero de pessoas), a segunda com as N alturas separadas por espaco.\n\n' +
+      'Saida: para cada caso, uma linha com as alturas em ordem crescente, separadas por espaco.\n\n' +
+      'Exemplo de entrada:\n2\n10\n65 31 37 37 72 76 61 35 57 37\n6\n133 55 67 166 112 41\n\nExemplo de saida:\n31 35 37 37 37 57 61 65 72 76\n41 55 67 112 133 166\n\n' +
+      'Obs.: no problema real, N pode chegar a 3 milhoes e pede leitura/escrita rapida (o algoritmo ideal la e counting sort); aqui o foco e so o algoritmo de ordenacao em si.',
+    scaffold: `import java.util.Scanner;
+
+public class Principal {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    int nc = in.nextInt();
+    for (int c = 0; c < nc; c++) {
+      int n = in.nextInt();
+      int[] alturas = new int[n];
+      for (int i = 0; i < n; i++) {
+        alturas[i] = in.nextInt();
+      }
+      ordenar(alturas);
+      StringBuilder saida = new StringBuilder();
+      for (int i = 0; i < n; i++) {
+        if (i > 0) {
+          saida.append(" ");
+        }
+        saida.append(alturas[i]);
+      }
+      System.out.println(saida);
+    }
+  }
+
+  static void ordenar(int[] alturas) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Ordenar e imprimir espacado', 'Mesmo algoritmo de sempre; o cuidado extra e montar a linha de saida com espacos entre os valores.', ['ordenar', 'juntar com espaco', 'uma linha por caso']),
+    step: functionStep({
+      id: 'code-prova1-pratica-ordenacao-altura-step',
+      prompt: 'Escreva o corpo de ordenar(alturas).',
+      signature: 'static void ordenar(int[] alturas)',
+      solution: `static void ordenar(int[] alturas) {
+  for (int i = 1; i < alturas.length; i++) {
+    int chave = alturas[i];
+    int j = i - 1;
+    while (j >= 0 && alturas[j] > chave) {
+      alturas[j + 1] = alturas[j];
+      j--;
+    }
+    alturas[j + 1] = chave;
+  }
+}`,
+      requiredFragments: [
+        req('for', 'comeca em 1', 'for (int i = 1; i < alturas.length; i++)'),
+        req('key', 'guarda a chave', 'int chave = alturas[i];'),
+        req('while', 'desloca maiores', 'while (j >= 0 && alturas[j] > chave)'),
+        req('insert', 'encaixa a chave', 'alturas[j + 1] = chave;'),
+      ],
+      lineExplanations: [{ code: 'saida.append(" ");', note: 'So adiciona espaco ANTES de valores que nao sao o primeiro — senao sobra um espaco extra no comeco da linha.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Mesmo insertion sort de sempre; a diferenca da pratica e formatar a saida como uma unica linha espacada em vez de um valor por linha.',
+    }),
+  },
+  {
+    id: 'code-prova1-pratica-ordenacao-pares-impares',
+    domainId: 'ordenacao',
+    title: 'Pratica: pares crescente, impares decrescente (URI 1259)',
+    source: 'prova1-pratica',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-pratica-ordenacao-pares-impares',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Adaptar o criterio de comparacao do insertion sort — questao real do URI/beecrowd.',
+    stem:
+      'Problema real: URI 1259 "Even and Odd". Leia N inteiros nao negativos e ordene-os assim: primeiro os PARES em ordem CRESCENTE, depois os IMPARES em ordem DECRESCENTE.\n\n' +
+      'Entrada: a primeira linha tem um inteiro N; cada uma das N linhas seguintes tem um inteiro.\n\n' +
+      'Saida: os N valores reordenados, um por linha.\n\n' +
+      'Exemplo de entrada:\n10\n4\n32\n34\n543\n3456\n654\n567\n87\n6789\n98\n\nExemplo de saida:\n4\n32\n34\n98\n654\n3456\n6789\n567\n543\n87',
+    scaffold: `import java.util.Scanner;
+
+public class Principal {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    int n = in.nextInt();
+    int[] valores = new int[n];
+    for (int i = 0; i < n; i++) {
+      valores[i] = in.nextInt();
+    }
+    ordenar(valores);
+    for (int i = 0; i < n; i++) {
+      System.out.println(valores[i]);
+    }
+  }
+
+  static void ordenar(int[] valores) {
+    // implementar (pode criar um metodo auxiliar vemDepois(a, b))
+  }
+}`,
+    visual: visual('array', 'Criterio de ordem customizado', 'Todo par vem antes de todo impar; dentro de cada grupo, a ordem muda de sentido.', ['par < par: crescente', 'impar < impar: decrescente', 'par sempre antes de impar']),
+    step: functionStep({
+      id: 'code-prova1-pratica-ordenacao-pares-impares-step',
+      prompt: 'Escreva o corpo de ordenar(valores) (pode criar um metodo auxiliar vemDepois(a, b)).',
+      signature: 'static void ordenar(int[] valores)',
+      solution: `static void ordenar(int[] valores) {
+  for (int i = 1; i < valores.length; i++) {
+    int chave = valores[i];
+    int j = i - 1;
+    while (j >= 0 && vemDepois(valores[j], chave)) {
+      valores[j + 1] = valores[j];
+      j--;
+    }
+    valores[j + 1] = chave;
+  }
+}
+private static boolean vemDepois(int a, int b) {
+  boolean parA = a % 2 == 0;
+  boolean parB = b % 2 == 0;
+  boolean resp;
+  if (parA != parB) {
+    resp = parB;
+  } else if (parA) {
+    resp = a > b;
+  } else {
+    resp = a < b;
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('parity-split', 'par e impar nunca se misturam: par sempre vem antes', 'if (parA != parB)'),
+        req('even-order', 'pares entre si: crescente', 'resp = a > b;'),
+        req('odd-order', 'impares entre si: decrescente', 'resp = a < b;'),
+        req('reuse-insertion', 'reaproveita o insertion sort, so troca a comparacao', 'while (j >= 0 && vemDepois(valores[j], chave))'),
+      ],
+      lineExplanations: [{ code: 'if (parA != parB) {', note: 'Trocar o algoritmo de ordenacao nao e necessario — so o CRITERIO de comparacao muda, o insertion sort continua igual.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Custo Theta(n^2) no pior caso, igual a qualquer insertion sort — o que muda de um exercicio pro outro e so a funcao de comparacao, nao a estrutura do algoritmo.',
+    }),
+  },
+  {
+    id: 'code-prova1-pratica-busca-binaria',
+    domainId: 'ordenacao',
+    title: 'Pratica: ordenar e buscar (URI 1025)',
+    source: 'prova1-pratica',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-pratica-busca-binaria',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Combinar ordenacao com busca binaria da primeira ocorrencia — questao real do URI/beecrowd.',
+    stem:
+      'Problema real: URI 1025 "Where is the Marble?". Leia N bolinhas (com numeros, sem ordem definida) e Q consultas. Ordene as bolinhas e, pra cada consulta x, diga a posicao (1-indexada) da PRIMEIRA bolinha com valor x, ou que ela nao foi encontrada.\n\n' +
+      'Entrada: varios casos de teste. Cada um comeca com dois inteiros N e Q, seguidos de N valores das bolinhas e depois Q valores consultados. Termina com uma linha "0 0".\n\n' +
+      'Saida: para cada caso, imprima "CASE# k:" (k comecando em 1) e, pra cada consulta, "x found at y" ou "x not found".\n\n' +
+      'Exemplo de entrada:\n4 1\n2\n3\n5\n1\n5\n5 2\n1\n3\n3\n3\n1\n2\n3\n0 0\n\nExemplo de saida:\nCASE# 1:\n5 found at 4\nCASE# 2:\n2 not found\n3 found at 3',
+    scaffold: `import java.util.Scanner;
+
+public class Principal {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    int caso = 1;
+    int n = in.nextInt();
+    int q = in.nextInt();
+    while (n != 0 || q != 0) {
+      int[] bolinhas = new int[n];
+      for (int i = 0; i < n; i++) {
+        bolinhas[i] = in.nextInt();
+      }
+      ordenar(bolinhas);
+      System.out.println("CASE# " + caso + ":");
+      for (int i = 0; i < q; i++) {
+        int x = in.nextInt();
+        int pos = buscarPrimeiro(bolinhas, x);
+        if (pos == -1) {
+          System.out.println(x + " not found");
+        } else {
+          System.out.println(x + " found at " + (pos + 1));
+        }
+      }
+      caso++;
+      n = in.nextInt();
+      q = in.nextInt();
+    }
+  }
+
+  static void ordenar(int[] bolinhas) {
+    // implementar
+  }
+
+  static int buscarPrimeiro(int[] bolinhas, int x) {
+    // implementar: busca binaria pela PRIMEIRA ocorrencia de x; -1 se nao existir
+  }
+}`,
+    visual: visual('array', 'Ordena, depois busca binaria pela esquerda', 'Achar x na busca binaria nao basta: precisa continuar procurando mais a esquerda pra achar a PRIMEIRA ocorrencia.', ['ordenar', 'buscar meio', 'achou? continua a esquerda']),
+    step: functionStep({
+      id: 'code-prova1-pratica-busca-binaria-step',
+      prompt: 'Escreva o corpo de ordenar(bolinhas) e buscarPrimeiro(bolinhas, x).',
+      signature: 'static void ordenar(int[] bolinhas)',
+      solution: `static void ordenar(int[] bolinhas) {
+  for (int i = 1; i < bolinhas.length; i++) {
+    int chave = bolinhas[i];
+    int j = i - 1;
+    while (j >= 0 && bolinhas[j] > chave) {
+      bolinhas[j + 1] = bolinhas[j];
+      j--;
+    }
+    bolinhas[j + 1] = chave;
+  }
+}
+
+static int buscarPrimeiro(int[] bolinhas, int x) {
+  int esq = 0, dir = bolinhas.length - 1, resp = -1;
+  while (esq <= dir) {
+    int meio = (esq + dir) / 2;
+    if (bolinhas[meio] == x) {
+      resp = meio;
+      dir = meio - 1;
+    } else if (bolinhas[meio] < x) {
+      esq = meio + 1;
+    } else {
+      dir = meio - 1;
+    }
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('binary-loop', 'busca binaria classica', 'while (esq <= dir)'),
+        req('found-keep-left', 'achou, mas continua procurando mais a esquerda', 'resp = meio;'),
+        req('go-right', 'meio menor que x: busca na metade direita', 'esq = meio + 1;'),
+        req('go-left', 'meio maior que x: busca na metade esquerda', 'dir = meio - 1;'),
+      ],
+      lineExplanations: [
+        { code: 'resp = meio;', note: 'Uma busca binaria comum pararia aqui e retornaria — mas o problema pede a PRIMEIRA ocorrencia, entao o codigo logo abaixo (dir = meio - 1) continua procurando mais a esquerda mesmo depois de achar.' },
+      ],
+      mistakeTag: 'incomplete-layer-search',
+      explanation: 'Custo Theta(n log n) pra ordenar (insertion sort aqui, Theta(n^2) no pior caso — o professor aceitaria qualquer algoritmo de ordenacao ja visto) mais Theta(log n) por busca binaria.',
     }),
   },
   {
@@ -364,6 +634,236 @@ static void minimo() {
       ],
       mistakeTag: 'algorithm-confusion',
       explanation: 'Custo Theta(1) por operacao: PUSH, POP e MIN so leem/escrevem o topo das duas pilhas, sem percorrer nada.',
+    }),
+  },
+  {
+    id: 'code-prova1-pratica-pilha-trilhos',
+    domainId: 'vetores',
+    moduleId: 'pilha',
+    title: 'Pratica: reorganizar vagoes com uma pilha (URI 1062)',
+    source: 'prova1-pratica',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-pratica-pilha-trilhos',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Decidir se uma permutacao e alcancavel usando so uma pilha pra reordenar — questao real do URI/beecrowd.',
+    stem:
+      'Problema real: URI 1062 "Trilhos". Um trem chega numa estacao com N vagoes numerados 1, 2, ..., N nessa ordem. Cada vagao pode entrar na estacao (empilhar) e, quando sair, so pode sair na direcao B (nunca mais volta). ' +
+      'Dada uma ordem de saida desejada, diga se e possivel obte-la usando so uma pilha pra reorganizar os vagoes.\n\n' +
+      'Entrada: varios blocos. Cada bloco comeca com um inteiro N (quantidade de vagoes); as linhas seguintes tem cada uma uma permutacao de 1..N pra testar; uma linha soh com 0 encerra o bloco. Um bloco comecando com N=0 encerra a entrada.\n\n' +
+      'Saida: "Yes" ou "No" pra cada permutacao testada, com uma linha em branco apos cada bloco.\n\n' +
+      'Exemplo de entrada:\n5\n5 4 3 2 1\n1 2 3 4 5\n5 4 1 2 3\n0\n6\n1 3 2 5 4 6\n0\n0\n\nExemplo de saida:\nYes\nYes\nNo\n\nYes',
+    scaffold: `import java.util.Scanner;
+
+public class Principal {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    int n = in.nextInt();
+    while (n != 0) {
+      int primeiro = in.nextInt();
+      while (primeiro != 0) {
+        int[] alvo = new int[n];
+        alvo[0] = primeiro;
+        for (int i = 1; i < n; i++) {
+          alvo[i] = in.nextInt();
+        }
+        System.out.println(possivel(alvo, n) ? "Yes" : "No");
+        primeiro = in.nextInt();
+      }
+      System.out.println();
+      n = in.nextInt();
+    }
+  }
+
+  static boolean possivel(int[] alvo, int n) {
+    // implementar
+  }
+}`,
+    visual: visual(
+      'stack',
+      'Empilha ate achar, desempilha quando bate',
+      'Empilha 1, 2, 3, ... ate o topo bater com o proximo valor desejado; so entao desempilha.',
+      ['empilha 1..k', 'topo == alvo[pos]?', 'desempilha e avanca'],
+    ),
+    step: functionStep({
+      id: 'code-prova1-pratica-pilha-trilhos-step',
+      prompt: 'Escreva o corpo de possivel(alvo, n).',
+      signature: 'static boolean possivel(int[] alvo, int n)',
+      solution: `static boolean possivel(int[] alvo, int n) {
+  int[] pilha = new int[n];
+  int topo = -1;
+  int proximo = 1;
+  boolean resp = true;
+  for (int pos = 0; pos < n && resp; pos++) {
+    while ((topo == -1 || pilha[topo] != alvo[pos]) && proximo <= n) {
+      topo++;
+      pilha[topo] = proximo;
+      proximo++;
+    }
+    if (topo == -1 || pilha[topo] != alvo[pos]) {
+      resp = false;
+    } else {
+      topo--;
+    }
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('push-until-match', 'empilha vagoes novos ate o topo bater com o alvo', 'while ((topo == -1 || pilha[topo] != alvo[pos]) && proximo <= n)'),
+        req('give-up', 'se nao sobrou vagao pra empilhar e nao bateu, e impossivel', 'if (topo == -1 || pilha[topo] != alvo[pos])'),
+        req('pop-match', 'bateu: desempilha e avanca pro proximo alvo', 'topo--;'),
+      ],
+      lineExplanations: [
+        {
+          code: 'while ((topo == -1 || pilha[topo] != alvo[pos]) && proximo <= n)',
+          note: 'A estrategia gulosa que sempre funciona (quando e possivel): empilhar vagoes na ordem 1, 2, 3... ate o topo da pilha ser exatamente o proximo vagao que precisa sair.',
+        },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Custo Theta(n) por permutacao testada: cada vagao e empilhado e desempilhado no maximo uma vez.',
+    }),
+  },
+  {
+    id: 'code-prova1-pratica-adivinhar-estrutura',
+    domainId: 'vetores',
+    title: 'Desafio: pilha, fila ou fila de prioridade? (URI 1340)',
+    source: 'prova1-pratica',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-pratica-adivinhar-estrutura',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Simular pilha, fila e fila de prioridade em paralelo pra descobrir qual (ou quais) explicam a sequencia observada — questao real do URI/beecrowd.',
+    stem:
+      'Problema real: URI 1340 "Eu Posso Adivinhar a Estrutura de Dados!". Existe uma estrutura tipo "sacola" com duas operacoes: "1 x" (coloca x na sacola) e "2 x" (tira um elemento da sacola, que veio a ser x). ' +
+      'Descubra se a sacola SO PODE ser uma pilha, SO PODE ser uma fila, SO PODE ser uma fila de prioridade (sempre tira o maior), NENHUMA das tres (impossible), ou MAIS DE UMA delas explica a sequencia (not sure).\n\n' +
+      'Entrada: varios casos de teste ate o fim do arquivo. Cada um comeca com um inteiro N; seguem N linhas, cada uma com um comando "1 x" ou "2 x".\n\n' +
+      'Saida: para cada caso, uma linha: "stack", "queue", "priority queue", "impossible" ou "not sure".\n\n' +
+      'Exemplo de entrada:\n6\n1 1\n1 2\n1 3\n2 1\n2 2\n2 3\n2\n1 1\n2 2\n\nExemplo de saida:\nqueue\nimpossible',
+    scaffold: `import java.util.Scanner;
+
+public class Principal {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    while (in.hasNextInt()) {
+      int n = in.nextInt();
+      int[] tipo = new int[n];
+      int[] valor = new int[n];
+      for (int i = 0; i < n; i++) {
+        tipo[i] = in.nextInt();
+        valor[i] = in.nextInt();
+      }
+      System.out.println(adivinhar(tipo, valor, n));
+    }
+  }
+
+  static String adivinhar(int[] tipo, int[] valor, int n) {
+    // implementar: simule pilha, fila e fila de prioridade em paralelo,
+    // descartando cada uma assim que uma remocao nao bate com o que ela preveria
+  }
+}`,
+    visual: visual(
+      'stack',
+      'Tres candidatas simuladas ao mesmo tempo',
+      'Toda insercao entra nas tres; toda remocao testa as tres — quem errar uma vez sai da disputa.',
+      ['pilha: remove o topo', 'fila: remove a frente', 'fila de prioridade: remove o maior'],
+    ),
+    step: functionStep({
+      id: 'code-prova1-pratica-adivinhar-estrutura-step',
+      prompt: 'Escreva o corpo de adivinhar(tipo, valor, n).',
+      signature: 'static String adivinhar(int[] tipo, int[] valor, int n)',
+      solution: `static String adivinhar(int[] tipo, int[] valor, int n) {
+  int[] pilha = new int[n];
+  int topoPilha = -1;
+  boolean pilhaOk = true;
+
+  int[] fila = new int[n];
+  int inicioFila = 0, fimFila = 0;
+  boolean filaOk = true;
+
+  int[] prioridade = new int[n];
+  int tamPrioridade = 0;
+  boolean prioridadeOk = true;
+
+  for (int i = 0; i < n; i++) {
+    if (tipo[i] == 1) {
+      int x = valor[i];
+      if (pilhaOk) {
+        topoPilha++;
+        pilha[topoPilha] = x;
+      }
+      if (filaOk) {
+        fila[fimFila] = x;
+        fimFila++;
+      }
+      if (prioridadeOk) {
+        prioridade[tamPrioridade] = x;
+        tamPrioridade++;
+      }
+    } else {
+      int x = valor[i];
+      if (pilhaOk) {
+        if (topoPilha == -1 || pilha[topoPilha] != x) {
+          pilhaOk = false;
+        } else {
+          topoPilha--;
+        }
+      }
+      if (filaOk) {
+        if (inicioFila == fimFila || fila[inicioFila] != x) {
+          filaOk = false;
+        } else {
+          inicioFila++;
+        }
+      }
+      if (prioridadeOk) {
+        int posMaior = -1;
+        for (int j = 0; j < tamPrioridade; j++) {
+          if (posMaior == -1 || prioridade[j] > prioridade[posMaior]) {
+            posMaior = j;
+          }
+        }
+        if (posMaior == -1 || prioridade[posMaior] != x) {
+          prioridadeOk = false;
+        } else {
+          prioridade[posMaior] = prioridade[tamPrioridade - 1];
+          tamPrioridade--;
+        }
+      }
+    }
+  }
+
+  int quantos = (pilhaOk ? 1 : 0) + (filaOk ? 1 : 0) + (prioridadeOk ? 1 : 0);
+  String resp;
+  if (quantos == 0) {
+    resp = "impossible";
+  } else if (quantos > 1) {
+    resp = "not sure";
+  } else if (pilhaOk) {
+    resp = "stack";
+  } else if (filaOk) {
+    resp = "queue";
+  } else {
+    resp = "priority queue";
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('stack-check', 'confere se a remocao bate com o topo da pilha', 'pilha[topoPilha] != x'),
+        req('queue-check', 'confere se a remocao bate com a frente da fila', 'fila[inicioFila] != x'),
+        req('pq-find-max', 'acha o maior elemento ainda vivo na fila de prioridade', 'prioridade[j] > prioridade[posMaior]'),
+        req('pq-remove', 'remove o maior trocando com o ultimo (a ordem interna nao importa numa fila de prioridade)', 'prioridade[posMaior] = prioridade[tamPrioridade - 1];'),
+        req('decide', 'decide o resultado pela quantidade de candidatas que sobreviveram', 'quantos > 1'),
+      ],
+      lineExplanations: [
+        {
+          code: 'int quantos = (pilhaOk ? 1 : 0) + (filaOk ? 1 : 0) + (prioridadeOk ? 1 : 0);',
+          note: 'A sacola pode ser ambigua: se DUAS estruturas ainda explicam toda a sequencia observada, a resposta e "not sure", nao um palpite qualquer.',
+        },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Custo Theta(n^2) no pior caso: cada remocao da fila de prioridade escaneia os elementos restantes pra achar o maior — mais lento que pilha/fila (Theta(1) cada), mas simples de implementar corretamente.',
     }),
   },
   {
