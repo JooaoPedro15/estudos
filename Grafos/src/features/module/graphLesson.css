@@ -1,0 +1,66 @@
+.graph-lesson { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.lesson-heading { display: flex; flex-direction: column; gap: .35rem; }
+.lesson-heading h2 { color: var(--color-text-primary); font-size: 1.05rem; font-weight: 600; }
+.lesson-heading > span { color: var(--color-text-secondary); font-size: .8rem; }
+.lesson-concepts { display: flex; flex-wrap: wrap; gap: .45rem; }
+.lesson-concepts button { border: 1px solid var(--color-border); border-radius: .65rem; padding: .5rem .75rem; font-size: .8rem; color: var(--color-text-secondary); background: var(--color-bg-elevated); cursor: pointer; }
+.lesson-concepts button[aria-pressed=true] { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent-strong); }
+.graph-lesson :is(button,summary,[tabindex]):focus-visible { outline: 2px solid var(--color-accent-strong); outline-offset: 3px; }
+.lesson-content, .lesson-explanations, .lesson-player, .lesson-demonstration { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.lesson-eyebrow { display: block; color: var(--color-text-secondary); font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+.lesson-intuitive { border-left: 3px solid var(--color-cyan); padding: .3rem 0 .3rem 1rem; }
+.lesson-intuitive h3 { color: var(--color-cyan); }
+.lesson-intuitive p, .lesson-technical p { margin-top: .6rem; font-size: .9rem; line-height: 1.85; overflow-wrap: anywhere; }
+.lesson-technical { padding: 1rem; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: .8rem; }
+.lesson-technical h3 { color: var(--color-accent-strong); }
+.lesson-technical p { color: var(--color-text-secondary); }
+.lesson-demonstration-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.lesson-demonstration-heading > span { font-size: .8rem; color: var(--color-text-secondary); }
+.lesson-example-options { display: flex; flex-wrap: wrap; gap: .5rem; }
+.lesson-example-options button { white-space: normal; height: auto; min-height: 2rem; text-align: left; padding-top: .4rem; padding-bottom: .4rem; }
+.lesson-scene { border: 1px solid var(--color-border); border-radius: 1rem; background: var(--color-bg-elevated); overflow: hidden; }
+.lesson-graph { display: block; width: 100%; height: auto; aspect-ratio: 560 / 320; }
+.lesson-mobile-notes { display: none; }
+.lesson-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1rem; padding: .75rem; border-top: 1px solid var(--color-border); font-size: .65rem; color: var(--color-text-secondary); }
+.lesson-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.lesson-legend i { width: .5rem; height: .5rem; border-radius: 50%; }
+.legend-current { background: var(--color-amber); }
+.legend-visited { background: var(--color-cyan); }
+.lesson-groups { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .8rem .8rem 0; }
+.lesson-groups > div { display: flex; flex-direction: column; align-items: center; gap: .2rem; border: 1px solid; border-radius: .65rem; padding: .45rem; font-size: .75rem; }
+.lesson-sequence { text-align: center; font-family: var(--font-mono); color: var(--color-text-secondary); font-size: .95rem; }
+.lesson-sequence .is-current { color: var(--color-amber); }
+.lesson-queue { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; background: var(--color-bg-elevated); padding: .7rem 1rem; border-radius: .65rem; font-size: .8rem; }
+.lesson-queue small { color: var(--color-text-secondary); }
+.lesson-formula { padding: .7rem 1rem; border: 1px solid var(--color-accent); background: var(--color-accent-soft); border-radius: .65rem; color: var(--color-accent-strong); text-align: center; font-size: .85rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.lesson-table-wrap { overflow: auto; max-width: 100%; border: 1px solid var(--color-border); border-radius: .65rem; }
+.lesson-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+.lesson-table th, .lesson-table td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--color-border); }
+.lesson-table th { color: var(--color-text-secondary); background: var(--color-bg-elevated); }
+.lesson-step-message { min-height: 7rem; border-left: 3px solid var(--color-accent); padding: .35rem 0 .35rem 1rem; }
+.lesson-step-message p { color: var(--color-text-primary); font-size: .85rem; line-height: 1.75; margin-top: .4rem; }
+.lesson-controls { display: flex; flex-wrap: wrap; gap: .5rem; }
+.lesson-original { border-top: 1px solid var(--color-border); padding-top: 1rem; font-size: .8rem; color: var(--color-text-secondary); }
+.lesson-original summary { cursor: pointer; color: var(--color-text-primary); }
+.lesson-original ol { list-style: decimal; padding-left: 1.4rem; margin-top: 1rem; }
+.lesson-original li { line-height: 1.8; margin: .65rem 0; }
+@media (min-width: 1100px) {
+  .lesson-content { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 1.5rem; align-items: start; }
+  .lesson-explanations { position: sticky; top: 5.5rem; }
+}
+@media (max-width: 480px) {
+  .graph-lesson { padding: 1rem; }
+  .lesson-concepts button { flex-grow: 1; }
+  .lesson-controls { display: grid; grid-template-columns: 1fr 1fr; }
+  .lesson-controls button { width: 100%; }
+  .lesson-graph .gv-vertex-label { font-size: 21px; }
+  .lesson-graph .gv-edge-label { font-size: 17px; }
+  .lesson-graph .gv-vertex-note { display: none; }
+  .lesson-mobile-notes { display: flex; flex-direction: column; gap: .35rem; padding: .5rem .75rem; font-size: .75rem; }
+  .lesson-mobile-notes > div { display: flex; gap: .5rem; }
+  .lesson-mobile-notes dt { font-weight: 600; color: var(--color-text-primary); }
+  .lesson-mobile-notes dd { color: var(--color-text-secondary); overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .graph-lesson *, .graph-lesson *::before, .graph-lesson *::after { transition: none !important; animation: none !important; }
+}

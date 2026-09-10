@@ -4,6 +4,8 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Flame, TriangleAlert, Star, CheckCircle2, CircleHelp } from 'lucide-react';
 import { getModule } from '@/content/modules';
 import { getTopic } from '@/content/topics';
+import { lessons } from '@/content/lessons';
+import { GraphLesson } from './GraphLesson';
 import { questionsForTopic } from '@/content/questions';
 import { setLastPosition, recordAttempt } from '@/store/progress';
 import { makeGraph } from '@/lib/graph';
@@ -351,7 +353,7 @@ export function ConceptLessonPage() {
   const showExamHotBadge = topic.examLikelihood === 'high' && Boolean(topic.examEvidence);
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="mx-auto flex max-w-3xl flex-col gap-6">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="mx-auto flex max-w-5xl flex-col gap-6">
       <motion.div variants={itemVariants} className="flex flex-col gap-2">
         <Link to={`/modulos/${module.id}`} className="inline-flex w-fit items-center gap-1 text-xs font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
           <ArrowLeft size={13} /> {module.title}
@@ -383,6 +385,20 @@ export function ConceptLessonPage() {
         </motion.div>
       )}
 
+      {lessons[topic.id] ? (
+        <motion.section variants={itemVariants} aria-label="Aprendizado por conceito">
+          <GraphLesson key={topic.id} topic={topic} concepts={lessons[topic.id]} />
+        </motion.section>
+      ) : (
+        <motion.section variants={itemVariants} aria-label="Explicação técnica">
+          <Card padding="lg" className="flex flex-col gap-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Como o professor define / Para a prova</h2>
+            {topic.understand.map((text, i) => <p key={i} className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{text}</p>)}
+            <VisualizeSection topicId={topic.id} />
+          </Card>
+        </motion.section>
+      )}
+
       <motion.section variants={itemVariants} aria-labelledby="lesson-know">
         <Card padding="lg" className="flex flex-col gap-3">
           <h2 id="lesson-know" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
@@ -392,32 +408,14 @@ export function ConceptLessonPage() {
         </Card>
       </motion.section>
 
-      <motion.section variants={itemVariants} aria-labelledby="lesson-visualize">
-        <Card padding="lg" className="flex flex-col gap-4">
-          <h2 id="lesson-visualize" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
-            Visualize
-          </h2>
-          <VisualizeSection topicId={topic.id} />
-        </Card>
-      </motion.section>
-
-      <motion.section variants={itemVariants} aria-labelledby="lesson-understand">
-        <Card padding="lg" className="flex flex-col gap-3">
-          <h2 id="lesson-understand" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
-            Entenda
-          </h2>
-          <ol className="flex flex-col gap-3">
-            {topic.understand.map((step, i) => (
-              <li key={i} className="flex gap-3">
-                <span className="mono flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-semibold text-[var(--color-accent-strong)]">
-                  {i + 1}
-                </span>
-                <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{step}</p>
-              </li>
-            ))}
-          </ol>
-        </Card>
-      </motion.section>
+      {['matriz-adjacencia', 'matriz-incidencia', 'lista-adjacencia', 'isomorfismo', 'teoria-de-conjuntos', 'logica-proposicional', 'logica-de-predicados'].includes(topic.id) && (
+        <motion.section variants={itemVariants} aria-label="Exploração livre">
+          <Card padding="lg" className="flex flex-col gap-4">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Explore livremente</h2>
+            <VisualizeSection topicId={topic.id} />
+          </Card>
+        </motion.section>
+      )}
 
       {topic.commonPitfall && (
         <motion.section variants={itemVariants} aria-labelledby="lesson-pitfall">

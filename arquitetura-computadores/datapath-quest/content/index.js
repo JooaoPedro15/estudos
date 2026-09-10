@@ -1,7 +1,7 @@
 /* ===========================================================================
    CONTEUDO — index.js
    Junta os bancos de Prova 1, Prova 2 e Prova 3 em REVIEW_BANK e
-   OPEN_QUESTIONS, os arrays que o motor do jogo consome. Precisa carregar
+   OPEN_QUESTIONS, os arrays que o motor de estudo consome. Precisa carregar
    por ULTIMO entre os arquivos de content/, depois de factories.js,
    prova1.js, prova2.js e prova3.js.
    =========================================================================== */

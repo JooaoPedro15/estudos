@@ -15,6 +15,11 @@ export interface GraphVisualizerProps {
   edgeLabels?: Record<string, string>;
   /** Sobrepõe a cor de borda de um vértice específico (ex.: pares de mapeamento de isomorfismo). Tem prioridade sobre selected/highlight/visited. */
   vertexColorMap?: Record<string, string>;
+  edgeColorMap?: Record<string, string>;
+  /** Supplemental labels keep the vertex's name readable. */
+  vertexNotes?: Record<string, string>;
+  traversal?: { from: string; to: string; progress: number };
+  accessibleLabel?: string;
   onVertexClick?: (id: string) => void;
   onEdgeClick?: (id: string) => void;
   interactive?: boolean;
@@ -57,6 +62,10 @@ export function GraphVisualizer({
   vertexLabels,
   edgeLabels,
   vertexColorMap,
+  edgeColorMap,
+  vertexNotes,
+  traversal,
+  accessibleLabel,
   onVertexClick,
   onEdgeClick,
   interactive = true,
@@ -185,7 +194,9 @@ export function GraphVisualizer({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       className={className}
-      style={{ touchAction: 'none', cursor: interactive ? 'grab' : 'default' }}
+      role={accessibleLabel ? 'img' : undefined}
+      aria-label={accessibleLabel}
+      style={{ touchAction: interactive ? 'none' : 'auto', cursor: interactive ? 'grab' : 'default' }}
       onPointerDown={onBackgroundPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -213,7 +224,7 @@ export function GraphVisualizer({
           if (!d) return null;
           const isSelected = selectedE.has(e.id);
           const isHighlight = highlightE.has(e.id);
-          const stroke = isHighlight ? 'var(--color-cyan)' : isSelected ? 'var(--color-accent)' : 'var(--color-edge)';
+          const stroke = edgeColorMap?.[e.id] ?? (isHighlight ? 'var(--color-cyan)' : isSelected ? 'var(--color-accent)' : 'var(--color-edge)');
           const strokeWidth = isHighlight || isSelected ? 2.5 : 1.5;
           const label = edgeLabels?.[e.id] ?? (showWeights && e.weight !== undefined ? String(e.weight) : undefined);
           return (
@@ -238,7 +249,7 @@ export function GraphVisualizer({
                 style={{ transition: 'stroke 0.25s, stroke-width 0.25s', pointerEvents: 'none' }}
               />
               {label && (
-                <text x={labelPos.x} y={labelPos.y - 4} textAnchor="middle" fontSize={11} fill="var(--color-text-secondary)" className="mono" style={{ pointerEvents: 'none' }}>
+                <text x={labelPos.x} y={labelPos.y - 4} textAnchor="middle" fontSize={11} fill="var(--color-text-secondary)" className="mono gv-edge-label" stroke="var(--color-bg-elevated)" strokeWidth={3} paintOrder="stroke" style={{ pointerEvents: 'none' }}>
                   {label}
                 </text>
               )}
@@ -275,12 +286,24 @@ export function GraphVisualizer({
               style={{ cursor: interactive ? (onVertexClick ? 'pointer' : 'grab') : onVertexClick ? 'pointer' : 'default' }}
             >
               <circle r={R} fill="url(#gv-vertex-fill)" stroke={stroke} strokeWidth={isSelected || isHighlight || overrideColor ? 3 : 1.5} filter="url(#gv-shadow)" style={{ transition: 'stroke 0.25s' }} />
-              <text textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill="var(--color-text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              {overrideColor && isHighlight && <circle r={R + 6} fill="none" stroke="var(--color-amber)" strokeWidth={2} />}
+              <text className="gv-vertex-label" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill="var(--color-text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {label}
               </text>
+              {vertexNotes?.[v.id] && <text className="gv-vertex-note" y={R + 19} textAnchor="middle" fontSize={11} fill="var(--color-text-secondary)" stroke="var(--color-bg-elevated)" strokeWidth={3} paintOrder="stroke" style={{ pointerEvents: 'none' }}>{vertexNotes[v.id]}</text>}
             </g>
           );
         })}
+        {traversal && positions[traversal.from] && positions[traversal.to] && (
+          <circle
+            cx={positions[traversal.from].x + (positions[traversal.to].x - positions[traversal.from].x) * traversal.progress}
+            cy={positions[traversal.from].y + (positions[traversal.to].y - positions[traversal.from].y) * traversal.progress}
+            r={traversal.progress >= 1 ? 26 : 7}
+            fill={traversal.progress >= 1 ? 'none' : 'var(--color-amber)'}
+            stroke={traversal.progress >= 1 ? 'var(--color-amber)' : 'var(--color-bg)'} strokeWidth={2}
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
       </g>
     </svg>
   );

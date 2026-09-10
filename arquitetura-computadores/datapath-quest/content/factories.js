@@ -8,7 +8,7 @@
 
 // Helpers numericos/de calculo usados por reviewTime e pela questao tipo "prog"
 // (movidos para ca porque os bancos de questoes os chamam imediatamente ao
-// montar cada array, antes do resto do motor do jogo ser carregado).
+// montar cada array, antes do resto do motor de estudo ser carregado).
 function roundN(n,d=2){ const p=Math.pow(10,d); return Math.round(n*p)/p; }
 function cpiToTimeNs(cpi,freqMHz){ return roundN(cpi*1000/freqMHz,3); }
 function critStr(instr,t){

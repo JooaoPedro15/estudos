@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <!--
   ============================================================================
-  MIPS DATAPATH QUEST  —  Jogo educacional de Arquitetura de Computadores 2
+  MIPS DATAPATH QUEST  —  Forma interativa de estudar Arquitetura de Computadores 2
   Caminho de dados (datapath) do MIPS uniciclo.
   Sem build/bundler: abre direto (duplo-clique) ou por servidor local, nos
   dois casos carregando os arquivos de content/ via <script src> comuns.
@@ -18,7 +18,7 @@
 
   ÍNDICE DAS SEÇÕES:
     1. CSS (tema escuro/gamer)
-    2. HTML (telas: home, tutorial, mapa de níveis, jogo, resultado)
+    2. HTML (telas: home, tutorial, mapa de níveis, estudo, resultado)
     3. JS - Seção A: Estado + persistência (localStorage)
     4. JS - Seção B: Som (WebAudio)
     5. JS - Seção C: Dados do MIPS (unidades, sinais, tempos)
@@ -26,7 +26,7 @@
     7. JS - Seção E: banco de questões — ver content/factories.js,
        content/prova1.js, content/prova2.js, content/prova3.js e
        content/index.js (carregados nessa ordem via <script src>)
-    8. JS - Seção F: Motor dos 4 modos de jogo
+    8. JS - Seção F: Motor dos 4 modos de estudo
     9. JS - Seção G: Conquistas (achievements)
    10. JS - Seção H: Navegação de telas + tutorial + boot
   ============================================================================
@@ -162,7 +162,7 @@ h1,h2,h3{line-height:1.15;}
 .levelcard .done{position:absolute;top:8px;right:10px;color:var(--green);font-size:14px;}
 .levelcard .lock{position:absolute;top:8px;right:10px;font-size:14px;}
 
-/* ---- Área de jogo ---- */
+/* ---- Área de estudo ---- */
 .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
 .q-tag{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);font-weight:700;}
 .q-progress{font-size:12px;color:var(--muted);font-family:var(--mono);}
@@ -592,7 +592,7 @@ table.ctl td.x{color:var(--muted);}
     <div class="panel" style="margin-top:14px">
       <h2>📋 Lista 3 = Prova — onde estudar cada questão</h2>
       <table class="bench-table" style="margin-top:6px">
-        <tr><th>Questão da Lista 3</th><th>Onde treinar no jogo</th></tr>
+        <tr><th>Questão da Lista 3</th><th>Onde treinar na ferramenta</th></tr>
         <tr><td>Q2 — explicar as ações de cada unidade e o controle (LW, SW, BEQ, ADD)</td><td>Cap. 1 e 3 + Modo 1 (Roteirista) e Modo 2 (Controle)</td></tr>
         <tr><td>Q3a — tempo de execução de cada instrução</td><td>Cap. 4 + Modo 3 (tempo único / período)</td></tr>
         <tr><td>Q3b — comparar benchmarks GCC e ABC (speedup mono×multi)</td><td>Modo 3 benchmark — níveis 8 (GCC) e 9 (ABC), valores idênticos aos da lista</td></tr>
@@ -677,7 +677,7 @@ table.ctl td.x{color:var(--muted);}
     </div>
   </section>
 
-  <!-- ===================== JOGO ===================== -->
+  <!-- ===================== ESTUDO ===================== -->
   <section class="screen" id="scr-game">
     <div class="panel">
       <div class="q-head">
@@ -1103,7 +1103,7 @@ function wireTooltips(root){
    7. JS — SEÇÃO E: BANCO DE QUESTÕES
    Cada questão é um objeto {mode, diff, ...params, hint}. Factories e bancos
    de questões moraram aqui e agora ficam em content/ (ver abaixo);
-   LEVELS monta o jogo por nível (>35 instâncias).
+   LEVELS monta a sequência de estudo por nível (>35 instâncias).
    =========================================================================== */
 </script>
 
@@ -1297,7 +1297,7 @@ const LEVELS = [
 ];
 
 /* ===========================================================================
-   8. JS — SEÇÃO F: MOTOR DO JOGO
+   8. JS — SEÇÃO F: MOTOR DE ESTUDO
    =========================================================================== */
 const G = {                 // estado da partida em andamento
   level:1, mode:'levels', queue:[], idx:0,
