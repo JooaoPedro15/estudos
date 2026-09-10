@@ -28,6 +28,42 @@ const extraModules: ContentModule[] = [
     description: 'Selection sort classico, contagem de trocas e variante bidirecional (min-max).',
   },
   {
+    id: 'ordenacao-shell',
+    title: 'Ordenacao: shellsort',
+    shortTitle: 'Shellsort',
+    description: 'Insertion sort com passo h decrescente (sequencia de Knuth), por "cores".',
+  },
+  {
+    id: 'ordenacao-counting',
+    title: 'Ordenacao: counting sort',
+    shortTitle: 'Counting',
+    description: 'Contagem, acumulacao e posicionamento direto, sem comparar elementos.',
+  },
+  {
+    id: 'ordenacao-bucket',
+    title: 'Ordenacao: bucket sort',
+    shortTitle: 'Bucket',
+    description: 'Distribui em baldes por faixa de valor, ordena cada balde e concatena.',
+  },
+  {
+    id: 'ordenacao-radix',
+    title: 'Ordenacao: radix sort',
+    shortTitle: 'Radix',
+    description: 'Counting sort repetido por digito, das unidades ate o digito mais significativo.',
+  },
+  {
+    id: 'busca-sequencial',
+    title: 'Busca sequencial',
+    shortTitle: 'B. Sequencial',
+    description: 'Percorre o vetor do inicio ao fim procurando o elemento, sem exigir ordenacao.',
+  },
+  {
+    id: 'busca-binaria',
+    title: 'Busca binaria',
+    shortTitle: 'B. Binaria',
+    description: 'Divide o vetor ordenado ao meio a cada passo, iterativa e recursiva.',
+  },
+  {
     id: 'complexidade',
     title: 'Complexidade',
     shortTitle: 'Complexidade',

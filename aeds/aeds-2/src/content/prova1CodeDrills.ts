@@ -190,6 +190,7 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
   {
     id: 'code-prova1-ordenacao-shellsort',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-shell',
     title: 'Ordenacao: shellsort completo',
     source: 'prova1',
     difficulty: 'avancado',
@@ -252,6 +253,7 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
   {
     id: 'code-prova1-ordenacao-countingsort',
     domainId: 'ordenacao',
+    moduleId: 'ordenacao-counting',
     title: 'Ordenacao: counting sort completo',
     source: 'prova1',
     difficulty: 'intermediario',
@@ -319,7 +321,7 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
   {
     id: 'code-prova1-ordenacao-countingsort-complexidade',
     domainId: 'ordenacao',
-    moduleId: 'complexidade',
+    moduleId: 'ordenacao-counting',
     title: 'Complexidade do counting sort',
     source: 'prova1',
     difficulty: 'intermediario',
@@ -337,6 +339,444 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
       answers: ['Theta(n + k)', 'O(n + k)'],
       mistakeTag: 'wrong-summation-bound',
       explanation: 'Todo laco e O(n) ou O(k); somando os quatro lacos, fica Theta(n + k). Se k for muito maior que n, counting sort deixa de compensar.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-shellsort-porque',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-shell',
+    title: 'Por que o shellsort e mais rapido na pratica?',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-shellsort',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Entender por que ordenar com passos grandes primeiro reduz o trabalho do passo final (h=1).',
+    stem: 'O shellsort roda insercaoPorCor com h grande primeiro (poucos elementos por "cor", mas bem espalhados) e diminui h a cada rodada, terminando com h=1 (insertion sort comum).',
+    scaffold: `// ultima rodada de shellsort e sempre h = 1, ou seja, um insertion sort comum sobre o array quase pronto`,
+    visual: visual('array', 'Passos grandes primeiro, ajuste fino depois', 'Cada rodada com h maior ja deixa o array "quase ordenado" pra rodada seguinte.', ['h=13: poucas trocas longas', 'h=4', 'h=1: quase nada pra fazer']),
+    step: rubricStep({
+      id: 'code-prova1-ordenacao-shellsort-porque-step',
+      prompt: 'Por que o insertion sort final (h=1) do shellsort e tipicamente muito mais rapido que um insertion sort comum do zero?',
+      acceptableOptionIds: ['quase-ordenado'],
+      options: [
+        {
+          id: 'quase-ordenado',
+          label: 'Porque as rodadas anteriores (h maior) ja moveram os elementos pra perto da posicao final, entao o insertion sort com h=1 faz poucos deslocamentos.',
+        },
+        { id: 'menos-elementos', label: 'Porque sobram menos elementos pra ordenar na ultima rodada.', mistakeTag: 'algorithm-confusion' },
+        { id: 'sem-comparacao', label: 'Porque o shellsort para de comparar elementos depois da primeira rodada.', mistakeTag: 'algorithm-confusion' },
+      ],
+      explanation:
+        'O insertion sort comum e lento quando um elemento pequeno esta muito longe da sua posicao final (precisa deslocar um por um). As rodadas com h grande corrigem exatamente esse tipo de desordem "de longa distancia" rapido; sobra pouco trabalho de deslocamento pro insertion sort final.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-bucketsort',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-bucket',
+    title: 'Ordenacao: bucket sort completo',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-ordenacao-bucketsort',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Distribuir em baldes por faixa de valor, ordenar cada balde e concatenar.',
+    stem:
+      'getMaior() e insercao(balde, tamanho) ja estao prontos (insertion sort de um balde). Implemente bucketSort() assumindo array com elementos >= 0: distribua os elementos em n baldes ' +
+      '(balde de um elemento x = x * n / (maior + 1)), ordene cada balde com insercao(...) e concatene os baldes de volta no array, na ordem.',
+    scaffold: `class Ordenacao {
+  int[] array;
+  int n;
+
+  void bucketSort() {
+    // implementar
+  }
+
+  int getMaior() {
+    int maior = array[0];
+    for (int i = 1; i < n; i++) {
+      if (array[i] > maior) maior = array[i];
+    }
+    return maior;
+  }
+
+  void insercao(int[] balde, int tamanho) {
+    for (int i = 1; i < tamanho; i++) {
+      int chave = balde[i];
+      int j = i - 1;
+      while (j >= 0 && balde[j] > chave) {
+        balde[j + 1] = balde[j];
+        j--;
+      }
+      balde[j + 1] = chave;
+    }
+  }
+}`,
+    visual: visual('array', 'Distribui, ordena cada balde, concatena', 'Baldes cobrem faixas de valor crescentes e nao se sobrepoem — so falta ordenar dentro de cada um.', ['balde 0: valores baixos', 'balde n-1: valores altos', 'concatena em ordem']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-bucketsort-step',
+      prompt: 'Escreva a funcao bucketSort completa.',
+      signature: 'void bucketSort()',
+      solution: `void bucketSort() {
+  int numBaldes = n;
+  int maior = getMaior();
+  int[][] baldes = new int[numBaldes][n];
+  int[] tamanhos = new int[numBaldes];
+
+  for (int i = 0; i < n; i++) {
+    int indice = (int) ((long) array[i] * numBaldes / (maior + 1));
+    baldes[indice][tamanhos[indice]] = array[i];
+    tamanhos[indice]++;
+  }
+
+  int pos = 0;
+  for (int b = 0; b < numBaldes; b++) {
+    insercao(baldes[b], tamanhos[b]);
+    for (int i = 0; i < tamanhos[b]; i++) {
+      array[pos] = baldes[b][i];
+      pos++;
+    }
+  }
+}`,
+      requiredFragments: [
+        req('indice', 'calcula em qual balde o elemento cai', 'int indice = (int) ((long) array[i] * numBaldes / (maior + 1));'),
+        req('distribui', 'coloca o elemento no balde certo', 'baldes[indice][tamanhos[indice]] = array[i];'),
+        req('ordena-balde', 'ordena cada balde individualmente', 'insercao(baldes[b], tamanhos[b]);'),
+        req('concatena', 'copia o balde de volta pro array, em ordem', 'array[pos] = baldes[b][i];'),
+      ],
+      lineExplanations: [
+        {
+          code: 'int indice = (int) ((long) array[i] * numBaldes / (maior + 1));',
+          note: 'Essa formula garante que baldes cobrem faixas de valor CRESCENTES e sem sobreposicao — por isso basta concatenar os baldes na ordem 0, 1, 2... sem comparar um balde com outro.',
+        },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Bucket sort so funciona bem quando os valores estao bem distribuidos entre os baldes; se todos carem no mesmo balde, vira um insertion sort so, sem ganho nenhum.',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-bucketsort-complexidade',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-bucket',
+    title: 'Complexidade do bucket sort',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-bucketsort',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Perceber que bucket sort depende da distribuicao dos valores entre os baldes.',
+    stem: 'Se os valores caem bem distribuidos entre os n baldes (poucos elementos por balde), cada insercao(balde, tamanho) custa pouco. Se todos os valores carem no MESMO balde, esse balde sozinho tem os n elementos.',
+    scaffold: `// pior caso: todos os elementos caem no mesmo balde`,
+    visual: visual('array', 'Melhor caso vs pior caso', 'Distribuicao uniforme e rapida; todos no mesmo balde degenera pro custo do insertion sort.', ['uniforme: Theta(n)', 'tudo num balde: Theta(n^2)']),
+    step: gapStep({
+      id: 'code-prova1-ordenacao-bucketsort-complexidade-step',
+      prompt: 'Digite a complexidade Theta do bucket sort no PIOR caso (todos os elementos caem no mesmo balde), em funcao de n.',
+      answers: ['Theta(n^2)', 'O(n^2)', 'Theta(n^2)', 'Theta(n²)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: 'Se todos os n elementos carem no mesmo balde, ordenar esse balde com insercao custa Theta(n^2) — o mesmo pior caso do insertion sort comum. Com distribuicao uniforme, o custo esperado cai pra Theta(n).',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-radixsort',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-radix',
+    title: 'Ordenacao: radix sort completo',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-ordenacao-radixsort',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Repetir counting sort por digito (unidades, dezenas, centenas...) ate cobrir o maior numero.',
+    stem:
+      'sort(exp) ja esta pronto: e um counting sort que usa so o digito na posicao exp (unidades se exp=1, dezenas se exp=10, etc.) como chave. getMaior() tambem ja esta pronto. ' +
+      'Implemente sort(): chame sort(exp) pra exp = 1, 10, 100, ... enquanto ainda sobrar digito no maior valor (maior / exp > 0).',
+    scaffold: `class Ordenacao {
+  int[] array;
+  int n;
+
+  void sort() {
+    // implementar
+  }
+
+  void sort(int exp) {
+    int[] count = new int[10];
+    int[] output = new int[n];
+    for (int i = 0; i < 10; count[i] = 0, i++);
+    for (int i = 0; i < n; i++) {
+      count[(array[i] / exp) % 10]++;
+    }
+    for (int i = 1; i < 10; i++) {
+      count[i] += count[i - 1];
+    }
+    for (int i = n - 1; i >= 0; i--) {
+      output[count[(array[i] / exp) % 10] - 1] = array[i];
+      count[(array[i] / exp) % 10]--;
+    }
+    for (int i = 0; i < n; i++) {
+      array[i] = output[i];
+    }
+  }
+
+  int getMaior() {
+    int maior = array[0];
+    for (int i = 1; i < n; i++) {
+      if (maior < array[i]) maior = array[i];
+    }
+    return maior;
+  }
+}`,
+    visual: visual('array', 'Counting sort por digito, dos menos significativos aos mais', 'Cada passada ordena por UM digito; a estabilidade do counting sort garante que a ordem dos digitos ja processados se mantem.', ['exp=1: unidades', 'exp=10: dezenas', 'exp=100: centenas']),
+    step: functionStep({
+      id: 'code-prova1-ordenacao-radixsort-step',
+      prompt: 'Escreva a funcao sort() completa.',
+      signature: 'void sort()',
+      solution: `void sort() {
+  int max = getMaior();
+  for (int exp = 1; max / exp > 0; exp *= 10) {
+    sort(exp);
+  }
+}`,
+      requiredFragments: [
+        req('max', 'precisa saber quantos digitos o maior numero tem', 'int max = getMaior();'),
+        req('loop-condition', 'continua enquanto ainda sobrar digito no maior valor', 'max / exp > 0'),
+        req('call', 'chama o counting sort de cada digito', 'sort(exp);'),
+        req('advance', 'avanca pro proximo digito (unidade -> dezena -> centena...)', 'exp *= 10'),
+      ],
+      lineExplanations: [
+        {
+          code: 'for (int exp = 1; max / exp > 0; exp *= 10) {',
+          note: 'exp representa qual digito estamos olhando: exp=1 pega o digito das unidades (array[i]/1 % 10), exp=10 pega o das dezenas (array[i]/10 % 10), e assim por diante.',
+        },
+      ],
+      mistakeTag: 'wrong-summation-bound',
+      explanation: 'Custo Theta(d * (n + k)): d e o numero de digitos do maior valor, e cada passada de counting sort custa Theta(n + k) com k=10 (base decimal).',
+    }),
+  },
+  {
+    id: 'code-prova1-ordenacao-radixsort-complexidade',
+    domainId: 'ordenacao',
+    moduleId: 'ordenacao-radix',
+    title: 'Complexidade do radix sort',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-ordenacao-radixsort',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Perceber que radix sort depende do numero de digitos do maior valor, nao so de n.',
+    stem: 'Radix sort roda sort(exp) uma vez pra cada digito do maior valor; cada rodada de sort(exp) e um counting sort de base 10, custando Theta(n + 10).',
+    scaffold: `// d = numero de digitos do maior valor do array`,
+    visual: visual('array', 'd rodadas de counting sort', 'd depende de quantos digitos tem o maior numero, nao do tamanho n do array.', ['d rodadas', 'cada rodada: Theta(n + 10)']),
+    step: gapStep({
+      id: 'code-prova1-ordenacao-radixsort-complexidade-step',
+      prompt: 'Digite a complexidade Theta do radix sort em funcao de n (tamanho do array) e d (numero de digitos do maior valor).',
+      answers: ['Theta(d * n)', 'Theta(dn)', 'O(d * n)', 'O(dn)'],
+      mistakeTag: 'wrong-summation-bound',
+      explanation: 'Cada uma das d rodadas custa Theta(n + 10) = Theta(n) (10 e constante); com d rodadas no total, fica Theta(d * n).',
+    }),
+  },
+  {
+    id: 'code-prova1-busca-sequencial',
+    domainId: 'vetores',
+    moduleId: 'busca-sequencial',
+    title: 'Busca sequencial',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-busca-sequencial',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Implementar a busca mais simples possivel — a base antes de qualquer busca mais elaborada.',
+    stem: 'Implemente pesqSeq(vet, x): percorre o vetor do inicio ao fim procurando x; nao exige que o vetor esteja ordenado.',
+    scaffold: `class Pesquisa {
+  public static boolean pesqSeq(int[] vet, int x) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Percorre ate achar ou acabar', 'Sem ordenacao, nao ha atalho: precisa olhar posicao por posicao.', ['vet[0]', 'vet[1]', '...', 'achou ou acabou']),
+    step: functionStep({
+      id: 'code-prova1-busca-sequencial-step',
+      prompt: 'Escreva o corpo de pesqSeq(vet, x).',
+      signature: 'public static boolean pesqSeq(int[] vet, int x)',
+      solution: `public static boolean pesqSeq(int[] vet, int x) {
+  boolean resp = false;
+  int n = vet.length;
+  for (int i = 0; i < n; i++) {
+    if (vet[i] == x) {
+      resp = true;
+      i = n;
+    }
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('default', 'comeca assumindo que nao achou', 'boolean resp = false;'),
+        req('loop', 'percorre o vetor inteiro', 'for (int i = 0; i < n; i++)'),
+        req('found', 'marca que achou', 'resp = true;'),
+        req('stop', 'forca o fim do laco assim que acha', 'i = n;'),
+      ],
+      lineExplanations: [{ code: 'i = n;', note: 'Forcar i = n encerra o laco assim que acha — sem isso, continuaria comparando ate o fim do vetor a toa.' }],
+      mistakeTag: 'algorithm-confusion',
+      explanation: 'Melhor caso Theta(1) (x esta na primeira posicao); pior caso Theta(n) (x esta na ultima posicao ou nao existe).',
+    }),
+  },
+  {
+    id: 'code-prova1-busca-sequencial-complexidade',
+    domainId: 'vetores',
+    moduleId: 'busca-sequencial',
+    title: 'Melhor e pior caso da busca sequencial',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-busca-sequencial',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Fixar que a busca sequencial nao depende de o vetor estar ordenado.',
+    stem: 'pesqSeq percorre o vetor na ordem, comparando cada posicao com x, e para assim que encontra.',
+    scaffold: `// pesqSeq nao exige vetor ordenado`,
+    visual: visual('array', 'Pior caso: x no fim ou ausente', 'Se x esta na ultima posicao (ou nao existe), o laco roda ate o fim.', ['melhor caso: primeira posicao', 'pior caso: ultima posicao ou ausente']),
+    step: gapStep({
+      id: 'code-prova1-busca-sequencial-complexidade-step',
+      prompt: 'Digite a complexidade Theta do PIOR caso de pesqSeq, em funcao de n.',
+      answers: ['Theta(n)', 'O(n)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: 'Se x estiver na ultima posicao (ou nao existir no vetor), o laco percorre todas as n posicoes: Theta(n).',
+    }),
+  },
+  {
+    id: 'code-prova1-busca-binaria-iterativa',
+    domainId: 'vetores',
+    moduleId: 'busca-binaria',
+    title: 'Busca binaria iterativa',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-busca-binaria',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Aproveitar que o vetor esta ordenado pra descartar metade a cada passo.',
+    stem: 'Implemente pesqBin(vet, x): busca binaria ITERATIVA num vetor ORDENADO, com esq/dir/meio.',
+    scaffold: `class Pesquisa {
+  public static boolean pesqBin(int[] vet, int x) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Descarta metade a cada passo', 'Compara com o meio e descarta a metade que nao pode conter x.', ['esq', 'meio', 'dir']),
+    step: functionStep({
+      id: 'code-prova1-busca-binaria-iterativa-step',
+      prompt: 'Escreva o corpo de pesqBin(vet, x).',
+      signature: 'public static boolean pesqBin(int[] vet, int x)',
+      solution: `public static boolean pesqBin(int[] vet, int x) {
+  boolean resp = false;
+  int dir = (vet.length - 1), esq = 0, meio;
+
+  while (esq <= dir) {
+    meio = (esq + dir) / 2;
+    if (x == vet[meio]) {
+      resp = true;
+      esq = dir + 1;
+    } else if (x > vet[meio]) {
+      esq = meio + 1;
+    } else {
+      dir = meio - 1;
+    }
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('loop', 'continua enquanto ainda sobra intervalo pra procurar', 'while (esq <= dir)'),
+        req('meio', 'calcula o meio do intervalo atual', 'meio = (esq + dir) / 2;'),
+        req('right', 'x maior que o meio: descarta a metade esquerda', 'esq = meio + 1;'),
+        req('left', 'x menor que o meio: descarta a metade direita', 'dir = meio - 1;'),
+      ],
+      lineExplanations: [{ code: 'esq = dir + 1;', note: 'Forcar esq > dir encerra o laco assim que acha, igual ao "i = n" da busca sequencial.' }],
+      mistakeTag: 'incomplete-layer-search',
+      explanation: 'Melhor caso Theta(1) (x esta bem no meio); pior caso Theta(log n) — cada passo descarta metade do que sobrou.',
+    }),
+  },
+  {
+    id: 'code-prova1-busca-binaria-recursiva',
+    domainId: 'vetores',
+    moduleId: 'busca-binaria',
+    title: 'Busca binaria recursiva',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-busca-binaria',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Reescrever a mesma ideia da busca binaria em versao recursiva (publico chama privado).',
+    stem: 'Implemente a versao recursiva: o metodo publico pesqBinRec(vet, x) chama o privado pesqBinRec(vet, x, esq, dir), que se chama de novo em so uma das metades a cada vez.',
+    scaffold: `class Pesquisa {
+  public static boolean pesqBinRec(int[] vet, int x) {
+    // implementar
+  }
+
+  public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
+    // implementar
+  }
+}`,
+    visual: visual('array', 'Cada chamada recursiva so olha metade do intervalo anterior', 'Igual a versao iterativa, mas cada passo vira uma chamada recursiva nova, nao uma volta do laco.', ['pesqBinRec(esq, meio-1)', 'pesqBinRec(meio+1, dir)', 'esq > dir: nao achou']),
+    step: functionStep({
+      id: 'code-prova1-busca-binaria-recursiva-step',
+      prompt: 'Escreva o metodo publico e o privado de pesqBinRec.',
+      signature: 'public static boolean pesqBinRec(int[] vet, int x)',
+      solution: `public static boolean pesqBinRec(int[] vet, int x) {
+  return pesqBinRec(vet, x, 0, (vet.length - 1));
+}
+
+public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
+  boolean resp;
+  int meio = (esq + dir) / 2;
+
+  if (esq > dir) {
+    resp = false;
+  } else if (x == vet[meio]) {
+    resp = true;
+  } else if (x > vet[meio]) {
+    resp = pesqBinRec(vet, x, meio + 1, dir);
+  } else {
+    resp = pesqBinRec(vet, x, esq, meio - 1);
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('base-empty', 'caso base: intervalo vazio, nao achou', 'if (esq > dir)'),
+        req('base-found', 'caso base: achou no meio', 'x == vet[meio]'),
+        req('recurse-right', 'recorre so na metade direita', 'pesqBinRec(vet, x, meio + 1, dir)'),
+        req('recurse-left', 'recorre so na metade esquerda', 'pesqBinRec(vet, x, esq, meio - 1)'),
+      ],
+      lineExplanations: [{ code: 'if (esq > dir) {', note: 'Sem esse caso base, a recursao nunca para quando x nao existe no vetor — cai numa recursao infinita (ou estoura a pilha).' }],
+      mistakeTag: 'missing-base-case',
+      explanation: 'Mesma complexidade da versao iterativa (Theta(log n) no pior caso), so que cada nivel de recursao consome espaco extra na pilha de chamadas — a iterativa e mais econonomica em memoria.',
+    }),
+  },
+  {
+    id: 'code-prova1-busca-binaria-complexidade',
+    domainId: 'vetores',
+    moduleId: 'busca-binaria',
+    title: 'Complexidade da busca binaria',
+    source: 'prova1',
+    difficulty: 'basico',
+    repetitionGroup: 'prova1-busca-binaria',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Fixar por que a busca binaria e logaritmica, contra a busca sequencial linear.',
+    stem: 'A cada passo da busca binaria, o tamanho do intervalo restante cai pela metade (de n para n/2, depois n/4, e assim por diante) ate sobrar 1 elemento ou nenhum.',
+    scaffold: `// intervalo cai pela metade a cada passo: n, n/2, n/4, ..., 1`,
+    visual: visual('array', 'Divide pela metade ate sobrar 1', 'Quantas vezes da pra dividir n por 2 ate chegar em 1? log2(n) vezes.', ['n', 'n/2', 'n/4', '...', '1']),
+    step: gapStep({
+      id: 'code-prova1-busca-binaria-complexidade-step',
+      prompt: 'Digite a complexidade Theta do PIOR caso da busca binaria, em funcao de n.',
+      answers: ['Theta(log n)', 'O(log n)', 'Theta(lg n)', 'O(lg n)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: 'O intervalo cai pela metade a cada passo (n, n/2, n/4, ...); o numero de vezes que da pra dividir n por 2 ate chegar em 1 e log2(n): Theta(log n).',
     }),
   },
   {
@@ -1106,6 +1546,88 @@ export const prova1CodeDrillCatalog: CodeDrill[] = [
         },
       ],
       explanation: 'O return dentro do laco permite parar assim que encontra x — isso so ajuda o MELHOR caso. Se x nao existir (ou estiver no fim), o laco roda ate o fim: pior caso Theta(n).',
+    }),
+  },
+  {
+    id: 'code-prova1-inducao-soma-natural',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova por inducao: soma dos n primeiros naturais',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-inducao-soma-natural',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Praticar o passo indutivo: usar a hipotese pra construir o caso k+1, nao so verificar a formula.',
+    stem:
+      'Prove por inducao que Sn = 1 + 2 + ... + n = n(n+1)/2 pra todo n >= 1. Passo base (n=1): S1 = 1 = 1*2/2, confere. Hipotese de inducao: suponha que vale pra n=k, ou seja, Sk = k(k+1)/2.',
+    scaffold: `// hipotese: Sk = k(k+1)/2
+// objetivo do passo indutivo: mostrar que S(k+1) = (k+1)(k+2)/2`,
+    visual: visual('array', 'Passo indutivo parte da hipotese', 'S(k+1) = Sk + (k+1) — usa o valor de Sk que a hipotese ja garante, nao reescreve a formula do zero.', ['Sk (hipotese)', '+ (k+1)', '= (k+1)(k+2)/2']),
+    step: rubricStep({
+      id: 'code-prova1-inducao-soma-natural-step',
+      prompt: 'No passo indutivo, qual sequencia de igualdades usa CORRETAMENTE a hipotese de inducao pra chegar em S(k+1) = (k+1)(k+2)/2?',
+      acceptableOptionIds: ['certo'],
+      options: [
+        {
+          id: 'certo',
+          label: 'S(k+1) = Sk + (k+1) = k(k+1)/2 + (k+1) = (k+1)(k/2 + 1) = (k+1)(k+2)/2',
+        },
+        {
+          id: 'sem-hipotese',
+          label: 'S(k+1) = (k+1)(k+2)/2, substituindo n por k+1 direto na formula original.',
+          mistakeTag: 'algorithm-confusion',
+        },
+        {
+          id: 'termo-errado',
+          label: 'S(k+1) = Sk + k = k(k+1)/2 + k',
+          mistakeTag: 'wrong-summation-bound',
+        },
+      ],
+      explanation:
+        'O passo indutivo PRECISA partir da hipotese (Sk = k(k+1)/2) e mostrar que somar o proximo termo (k+1) da o resultado esperado pra n=k+1. So trocar n por k+1 na formula original nao prova nada — e so reescrever o que se quer provar, sem usar a hipotese.',
+    }),
+  },
+  {
+    id: 'code-prova1-inducao-soma-geometrica',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova por inducao: soma de potencias de 2',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-inducao-soma-natural',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Repetir a mesma tecnica de inducao numa soma geometrica, pra fixar que o metodo nao muda.',
+    stem:
+      'Prove por inducao que Sn = 2^0 + 2^1 + ... + 2^n = 2^(n+1) - 1 pra todo n >= 0. Passo base (n=0): S0 = 1 = 2^1 - 1, confere. Hipotese de inducao: suponha que vale pra n=k, ou seja, Sk = 2^(k+1) - 1.',
+    scaffold: `// hipotese: Sk = 2^(k+1) - 1
+// objetivo do passo indutivo: mostrar que S(k+1) = 2^(k+2) - 1`,
+    visual: visual('array', 'Mesma tecnica, outra formula', 'S(k+1) = Sk + 2^(k+1) — o termo novo que entra na soma quando n vai de k pra k+1.', ['Sk (hipotese)', '+ 2^(k+1)', '= 2^(k+2) - 1']),
+    step: rubricStep({
+      id: 'code-prova1-inducao-soma-geometrica-step',
+      prompt: 'No passo indutivo, qual sequencia de igualdades usa CORRETAMENTE a hipotese de inducao pra chegar em S(k+1) = 2^(k+2) - 1?',
+      acceptableOptionIds: ['certo'],
+      options: [
+        {
+          id: 'certo',
+          label: 'S(k+1) = Sk + 2^(k+1) = (2^(k+1) - 1) + 2^(k+1) = 2 * 2^(k+1) - 1 = 2^(k+2) - 1',
+        },
+        {
+          id: 'dobra-tudo',
+          label: 'S(k+1) = 2 * Sk = 2 * (2^(k+1) - 1)',
+          mistakeTag: 'algorithm-confusion',
+        },
+        {
+          id: 'termo-errado',
+          label: 'S(k+1) = Sk + 2^k = (2^(k+1) - 1) + 2^k',
+          mistakeTag: 'wrong-summation-bound',
+        },
+      ],
+      explanation:
+        'Quando n vai de k pra k+1, o termo NOVO que entra na soma e 2^(k+1) (o ultimo indice do somatorio), nao 2^k. Somar esse termo a hipotese Sk = 2^(k+1) - 1 da exatamente 2 * 2^(k+1) - 1 = 2^(k+2) - 1.',
     }),
   },
 

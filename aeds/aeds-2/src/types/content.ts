@@ -13,7 +13,13 @@ export type ContentModuleId =
   | 'patricia'
   | 'ordenacao-bolha'
   | 'ordenacao-insercao'
-  | 'ordenacao-selecao';
+  | 'ordenacao-selecao'
+  | 'ordenacao-shell'
+  | 'ordenacao-counting'
+  | 'ordenacao-bucket'
+  | 'ordenacao-radix'
+  | 'busca-sequencial'
+  | 'busca-binaria';
 
 export type QuestionFormat =
   | 'summation-from-code'
