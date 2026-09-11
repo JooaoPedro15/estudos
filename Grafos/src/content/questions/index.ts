@@ -1,4 +1,4 @@
-import type { Question, Duration } from '@/content/types';
+import type { Question, Duration, QuestionAttempt } from '@/content/types';
 import { exams } from '@/content/exams';
 import { fundamentosQuestions } from './01-fundamentos';
 import { representacoesQuestions } from './02-representacoes';
@@ -50,16 +50,20 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Monta uma revisão rápida: mistura questões conceituais `quick` com questões
- * no estilo real de prova (ver `isExamStyleQuestion`), pra treinar o formato
- * que vai cair na P1 mesmo numa sessão curta — não só teoria solta.
+ * Monta uma revisão rápida: 1 questão no estilo real de prova (ver
+ * `isExamStyleQuestion`), 2 definições "defina o conceito" (1 se a revisão
+ * for de 3) e o resto de questões conceituais `quick` — tudo de tópicos
+ * variados. Assim até uma sessão curta treina formato de prova E decoreba
+ * das definições do professor.
  */
 export function pickQuickReview(count = 5): Question[] {
-  const examSlots = Math.min(count, count <= 3 ? 1 : 2);
-  const examPool = shuffle(questions.filter(isExamStyleQuestion)).sort((a, b) => examWeight(b) - examWeight(a));
-  const conceptPool = shuffle(questions.filter((q) => q.duration === 'quick' && !isExamStyleQuestion(q))).sort(
-    (a, b) => examWeight(b) - examWeight(a),
-  );
+  const examSlots = 1;
+  const defSlots = count <= 3 ? 1 : 2;
+  const examPool = shuffle(questions.filter((q) => isExamStyleQuestion(q) && !isDefinitionQuestion(q))).sort((a, b) => examWeight(b) - examWeight(a));
+  const defPool = shuffle(questions.filter(isDefinitionQuestion));
+  const conceptPool = shuffle(
+    questions.filter((q) => q.duration === 'quick' && !isExamStyleQuestion(q) && !isDefinitionQuestion(q)),
+  ).sort((a, b) => examWeight(b) - examWeight(a));
 
   const picked: Question[] = [];
   const byTopic = new Set<string>();
@@ -74,13 +78,16 @@ export function pickQuickReview(count = 5): Question[] {
   }
 
   fillDiverse(examPool, examSlots);
+  fillDiverse(defPool, examSlots + defSlots);
   fillDiverse(conceptPool, count);
 
-  for (const pool of [examPool, conceptPool]) {
+  // Completa (sem exigir tópico diverso) se algum pool ficou curto.
+  for (const pool of [defPool, examPool, conceptPool]) {
     if (picked.length >= count) break;
     for (const q of pool) {
       if (picked.length >= count) break;
       if (picked.some((p) => p.id === q.id)) continue;
+      if (pool === defPool && picked.filter(isDefinitionQuestion).length >= defSlots) break;
       picked.push(q);
     }
   }
@@ -103,15 +110,26 @@ export function pickStudySession(minutes: number, topicWeights?: Record<string, 
   });
   const picked: Question[] = [];
   let used = 0;
+  let defCount = 0;
   for (const q of weighted) {
     const cost = avgMsByDuration[q.duration];
     if (used + cost > budgetMs && picked.length > 0) continue;
+    // Definições entram no sorteio, mas no máximo ~40% da sessão — o resto é resolução de problema.
+    if (isDefinitionQuestion(q)) {
+      if (defCount + 1 > Math.ceil(DEFINITION_SHARE_SESSION * (picked.length + 1))) continue;
+      defCount++;
+    }
     picked.push(q);
     used += cost;
     if (used >= budgetMs) break;
   }
   return picked;
 }
+
+/** Fração máxima de definições numa sessão de estudo. */
+const DEFINITION_SHARE_SESSION = 0.4;
+/** Probabilidade de a próxima questão da prática livre ser uma definição. */
+const DEFINITION_CHANCE_PRACTICE = 0.35;
 
 /** Prioriza tópicos com pior desempenho (para o modo "Meus pontos fracos"). */
 export function pickWeakTopicSession(weakTopicIds: string[], count = 8): Question[] {
@@ -124,15 +142,54 @@ export function pickWeakTopicSession(weakTopicIds: string[], count = 8): Questio
 /**
  * Escolhe UMA próxima questão para o modo "Prática livre" (sem fim
  * pré-definido — a sessão pede uma questão de cada vez até o aluno parar).
- * Evita repetir qualquer id em `excludeIds` (últimas N mostradas), pondera
- * por `topicWeights` (ver store/progress topicWeight) e por examLikelihood.
- * Retorna undefined só se TODAS as questões estiverem em excludeIds.
+ * Em ~35% das vezes puxa uma definição ("defina o conceito"), no resto uma
+ * questão de resolução. Evita repetir qualquer id em `excludeIds` (últimas N
+ * mostradas), pondera por `topicWeights` (ver store/progress topicWeight) e
+ * por examLikelihood. Retorna undefined só se TODAS as questões estiverem em
+ * excludeIds.
  */
 export function pickNextPracticeQuestion(excludeIds: string[], topicWeights?: Record<string, number>): Question | undefined {
   const excluded = new Set(excludeIds);
-  let pool = questions.filter((q) => !excluded.has(q.id));
+  const available = questions.filter((q) => !excluded.has(q.id));
+  const wantDefinition = Math.random() < DEFINITION_CHANCE_PRACTICE;
+  let pool = available.filter((q) => isDefinitionQuestion(q) === wantDefinition);
+  if (pool.length === 0) pool = available;
   if (pool.length === 0) pool = questions; // esgotou tudo — permite repetir
-  const weights = pool.map((q) => (topicWeights?.[q.topic] ?? 1) * examWeight(q));
+  return weightedPick(pool, (q) => (topicWeights?.[q.topic] ?? 1) * examWeight(q));
+}
+
+/**
+ * Próxima definição para o modo "Decorar conceitos". Prioridade por
+ * QUESTÃO (não por tópico), a partir do histórico de tentativas: nunca vista
+ * (3) < errou na última (4); acertou há mais de um dia (2); acertou hoje
+ * (0.5). `topicIds` restringe a um módulo. Nunca repete `excludeIds` a menos
+ * que não sobre nada.
+ */
+export function pickNextDefinition(excludeIds: string[], attempts: QuestionAttempt[], topicIds?: string[]): Question | undefined {
+  const excluded = new Set(excludeIds);
+  const topicSet = topicIds && topicIds.length > 0 ? new Set(topicIds) : null;
+  const all = questions.filter((q) => isDefinitionQuestion(q) && (!topicSet || topicSet.has(q.topic)));
+  let pool = all.filter((q) => !excluded.has(q.id));
+  if (pool.length === 0) pool = all;
+  if (pool.length === 0) return undefined;
+
+  const last = new Map<string, QuestionAttempt>();
+  for (const a of attempts) {
+    const prev = last.get(a.questionId);
+    if (!prev || a.timestamp > prev.timestamp) last.set(a.questionId, a);
+  }
+  const now = Date.now();
+  return weightedPick(pool, (q) => {
+    const a = last.get(q.id);
+    if (!a) return 3;
+    if (!a.correct) return 4;
+    return now - a.timestamp > 86_400_000 ? 2 : 0.5;
+  });
+}
+
+function weightedPick<T>(pool: T[], weightOf: (item: T) => number): T | undefined {
+  if (pool.length === 0) return undefined;
+  const weights = pool.map(weightOf);
   const total = weights.reduce((a, b) => a + b, 0);
   let roll = Math.random() * total;
   for (let i = 0; i < pool.length; i++) {
