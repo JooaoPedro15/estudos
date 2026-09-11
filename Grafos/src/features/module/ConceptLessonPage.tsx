@@ -6,7 +6,7 @@ import { getModule } from '@/content/modules';
 import { getTopic } from '@/content/topics';
 import { lessons } from '@/content/lessons';
 import { GraphLesson } from './GraphLesson';
-import { questionsForTopic } from '@/content/questions';
+import { isDefinitionQuestion, questionsForTopic } from '@/content/questions';
 import { setLastPosition, recordAttempt } from '@/store/progress';
 import { makeGraph } from '@/lib/graph';
 import type { GraphData, Question } from '@/content/types';
@@ -347,8 +347,10 @@ export function ConceptLessonPage() {
     );
   }
 
-  const quickQuestions = questionsForTopic(topic.id).filter((q) => q.duration === 'quick').slice(0, 3);
-  const examStyleQuestions = questionsForTopic(topic.id).filter((q) => q.duration !== 'quick');
+  const topicQuestions = questionsForTopic(topic.id);
+  const definitionQuestions = topicQuestions.filter(isDefinitionQuestion);
+  const quickQuestions = topicQuestions.filter((q) => q.duration === 'quick' && !isDefinitionQuestion(q)).slice(0, 3);
+  const examStyleQuestions = topicQuestions.filter((q) => q.duration !== 'quick');
 
   const showExamHotBadge = topic.examLikelihood === 'high' && Boolean(topic.examEvidence);
 
@@ -467,6 +469,28 @@ export function ConceptLessonPage() {
               <span className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Na P1</span>
               <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{topic.conceptConflict.examGuidance}</p>
             </div>
+          </Card>
+        </motion.section>
+      )}
+
+      {definitionQuestions.length > 0 && (
+        <motion.section variants={itemVariants} aria-labelledby="lesson-definitions">
+          <Card padding="lg" className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 id="lesson-definitions" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
+                Decorar definições deste tópico
+              </h2>
+              <Badge tone="cyan">
+                {definitionQuestions.length} conceito{definitionQuestions.length !== 1 ? 's' : ''}
+              </Badge>
+              <Link to="/estudar/conceitos" className="ml-auto text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
+                modo Decorar conceitos →
+              </Link>
+            </div>
+            <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
+              Escreva de memória, veja a definição literal do professor (com o slide de origem) e marque o que sua resposta cobriu.
+            </p>
+            <LessonQuizSection questions={definitionQuestions} topicId={topic.id} />
           </Card>
         </motion.section>
       )}
