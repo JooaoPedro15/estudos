@@ -1,12 +1,15 @@
 import { avlToViz, balance, insertPlain, rebalance, type AvlNode } from './avlModel';
 import {
+  buildBinarySearchScene,
   buildBubbleSortScene,
   buildBucketSortScene,
   buildCountingSortScene,
   buildInsertionSortScene,
   buildRadixSortScene,
   buildSelectionSortScene,
+  buildSequentialSearchScene,
   buildShellSortScene,
+  parseArrayAndTargetInput,
   parseArrayInput,
 } from './algorithmScenes';
 import {
@@ -2320,6 +2323,30 @@ export const structureCatalog: StructureEntry[] = [
         const parsed = parseArrayInput(raw);
         const values = parsed.ok ? parsed.values : (state as number[]);
         return { scene: build(values), next: values };
+      },
+    })),
+  },
+  {
+    id: 'busca',
+    name: 'Busca passo a passo',
+    blurb: 'Escolha um algoritmo: sequencial ou binária, elemento por elemento.',
+    initial: () => [8, 4, 2, 9, 1],
+    empty: () => [8, 4, 2, 9, 1],
+    preview: (state) => buildSequentialSearchScene(state as number[], (state as number[])[0]),
+    ops: (
+      [
+        ['busca-sequencial', 'Busca Sequencial', buildSequentialSearchScene],
+        ['busca-binaria', 'Busca Binária', buildBinarySearchScene],
+      ] as const
+    ).map(([id, label, build]) => ({
+      id,
+      label,
+      input: textInput('Vetor | valor buscado', '8, 4, 2, 9, 1 | 4'),
+      run: (state: unknown, raw: string) => {
+        const parsed = parseArrayAndTargetInput(raw);
+        const values = parsed.ok ? parsed.values : (state as number[]);
+        const target = parsed.ok ? parsed.target : (state as number[])[0];
+        return { scene: build(values, target), next: values };
       },
     })),
   },

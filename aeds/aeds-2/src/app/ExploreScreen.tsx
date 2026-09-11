@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Eraser, Play, Settings2, Shapes, Trash2 } from 'lucide-react';
 
 import { doidonaKinds, doidonaSubKinds, withDoidonaKind, type DoidonaState, type DoidonaSubKind } from '../viz/doidona';
-import { parseArrayInput } from '../viz/algorithmScenes';
+import { parseArrayAndTargetInput, parseArrayInput } from '../viz/algorithmScenes';
 import { structureCatalog } from '../viz/structureOps';
 import { StructureViz } from '../viz/StructureViz';
 import type { VizScene } from '../viz/vizTypes';
@@ -39,6 +39,7 @@ export function ExploreScreen() {
 
   const scene = lastRun?.scene ?? previewScene;
   const isSorting = entry.id === 'ordenacao';
+  const isSearching = entry.id === 'busca';
   const sortPresets = [
     ['Padrão', '8, 4, 2, 9, 1'],
     ['Pequeno', '3, 1, 2'],
@@ -46,6 +47,12 @@ export function ExploreScreen() {
     ['Já ordenado', '1, 2, 3, 4, 5'],
     ['Quase ordenado', '1, 2, 4, 3, 5'],
     ['Valores iguais', '5, 5, 5, 5, 5'],
+  ] as const;
+  const searchPresets = [
+    ['Encontrado', '8, 4, 2, 9, 1 | 2'],
+    ['Não encontrado', '8, 4, 2, 9, 1 | 7'],
+    ['Primeiro elemento', '8, 4, 2, 9, 1 | 8'],
+    ['Último elemento', '8, 4, 2, 9, 1 | 1'],
   ] as const;
 
   function pickStructure(id: string) {
@@ -68,6 +75,14 @@ export function ExploreScreen() {
   function execute() {
     if (isSorting) {
       const parsed = parseArrayInput(inputValue);
+      if (!parsed.ok) {
+        setInputError(parsed.error);
+        return;
+      }
+      setInputError(null);
+    }
+    if (isSearching) {
+      const parsed = parseArrayAndTargetInput(inputValue);
       if (!parsed.ok) {
         setInputError(parsed.error);
         return;
@@ -174,7 +189,7 @@ export function ExploreScreen() {
                 <input
                   aria-invalid={inputError ? true : undefined}
                   inputMode={op.input.kind === 'number' ? 'numeric' : 'text'}
-                  maxLength={isSorting ? 59 : op.input.kind === 'number' ? 3 : 7}
+                  maxLength={isSorting || isSearching ? 64 : op.input.kind === 'number' ? 3 : 7}
                   onChange={(event) => setInputValue(event.target.value)}
                   type="text"
                   value={inputValue}
@@ -196,6 +211,32 @@ export function ExploreScreen() {
             </div>
             <div className="array-presets">
               {sortPresets.map(([label, value]) => (
+                <button
+                  className={inputValue === value ? 'is-active' : ''}
+                  key={label}
+                  onClick={() => {
+                    setInputValue(value);
+                    setInputError(null);
+                    setLastRun(null);
+                  }}
+                  type="button"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {inputError && <p className="array-input-error" role="alert">{inputError}</p>}
+          </div>
+        )}
+
+        {isSearching && (
+          <div className="array-input-panel" aria-label="Entrada do visualizador de busca">
+            <div>
+              <strong>Presets de entrada</strong>
+              <span>Formato: vetor separado por vírgula, seguido de "| valor buscado".</span>
+            </div>
+            <div className="array-presets">
+              {searchPresets.map(([label, value]) => (
                 <button
                   className={inputValue === value ? 'is-active' : ''}
                   key={label}
