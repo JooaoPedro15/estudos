@@ -7,6 +7,8 @@ import { getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { recordAttempt } from '@/store/progress';
 import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
+import { ModuleFilter } from './ModuleFilter';
+import { topicIdsForModule, useModuleParam } from './moduleScope';
 
 const REVIEW_COUNT = 5;
 
@@ -24,7 +26,8 @@ function formatElapsed(ms: number): string {
 
 /** Revisão rápida de 5 questões `quick`, amostrando tópicos variados. Rota: /estudar/rapido */
 export function QuickStudySession() {
-  const [batch, setBatch] = useState<Question[]>(() => pickQuickReview(REVIEW_COUNT));
+  const [moduleId, setModuleId] = useModuleParam();
+  const [batch, setBatch] = useState<Question[]>(() => pickQuickReview(REVIEW_COUNT, topicIdsForModule(moduleId)));
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState<Answered[]>([]);
   const startedAt = useRef(Date.now());
@@ -46,12 +49,18 @@ export function QuickStudySession() {
     }
   }
 
-  function restart() {
-    setBatch(pickQuickReview(REVIEW_COUNT));
+  function restart(nextModuleId = moduleId) {
+    setBatch(pickQuickReview(REVIEW_COUNT, topicIdsForModule(nextModuleId)));
     setIndex(0);
     setAnswered([]);
     startedAt.current = Date.now();
     setElapsedMs(0);
+  }
+
+  // Trocar de módulo remonta o lote: antes da 1ª resposta não custa nada; na tela final serve para a próxima rodada.
+  function changeModule(id: string) {
+    setModuleId(id);
+    restart(id);
   }
 
   const done = index >= batch.length && batch.length > 0;
@@ -84,8 +93,13 @@ export function QuickStudySession() {
             </div>
           )}
 
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Próxima rodada</p>
+            <ModuleFilter value={moduleId} onChange={changeModule} tone="amber" />
+          </div>
+
           <div className="flex flex-wrap gap-3">
-            <Button onClick={restart}>Outra revisão rápida</Button>
+            <Button onClick={() => restart()}>Outra revisão rápida</Button>
             <Link to="/">
               <Button variant="secondary">Voltar ao início</Button>
             </Link>
@@ -108,6 +122,7 @@ export function QuickStudySession() {
         </span>
       </div>
       <ProgressBar value={(index / batch.length) * 100} />
+      {answered.length === 0 && <ModuleFilter value={moduleId} onChange={changeModule} tone="amber" />}
       <Card padding="lg">
         <ExerciseRenderer key={question.id} question={question} onComplete={(r) => handleComplete(question, r)} />
       </Card>

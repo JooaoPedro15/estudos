@@ -483,8 +483,8 @@ export function ConceptLessonPage() {
               <Badge tone="cyan">
                 {definitionQuestions.length} conceito{definitionQuestions.length !== 1 ? 's' : ''}
               </Badge>
-              <Link to="/estudar/conceitos" className="ml-auto text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
-                modo Decorar conceitos →
+              <Link to={`/estudar/conceitos?modulo=${module.id}`} className="ml-auto text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
+                decorar {module.shortTitle} (abertas + fechadas) →
               </Link>
             </div>
             <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">

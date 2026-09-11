@@ -7,6 +7,8 @@ import { topics } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt, topicWeight } from '@/store/progress';
 import { Button, Card, IconChip, StatTile } from '@/components/ui';
+import { ModuleFilter } from './ModuleFilter';
+import { topicIdsForModule, useModuleParam } from './moduleScope';
 
 const RECENT_LIMIT = 10;
 
@@ -27,6 +29,7 @@ export function PracticeSession() {
   const [answered, setAnswered] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [weights, setWeights] = useState<Record<string, number>>({});
+  const [moduleId, setModuleId] = useModuleParam();
   const startedAtRef = useRef(Date.now());
   const lastSavedSecondsRef = useRef(0);
 
@@ -40,12 +43,18 @@ export function PracticeSession() {
         w[topic.id] = topicWeight(state, topic.id, examBoost);
       }
       setWeights(w);
-      setQuestion(pickNextPracticeQuestion([], w) ?? null);
+      setQuestion(pickNextPracticeQuestion([], w, topicIdsForModule(moduleId)) ?? null);
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function changeModule(id: string) {
+    setModuleId(id);
+    setQuestion(pickNextPracticeQuestion(recentIds, weights, topicIdsForModule(id)) ?? null);
+  }
 
   useEffect(() => {
     return () => {
@@ -71,7 +80,7 @@ export function PracticeSession() {
 
     const nextRecent = [...recentIds, question.id].slice(-RECENT_LIMIT);
     setRecentIds(nextRecent);
-    setQuestion(pickNextPracticeQuestion(nextRecent, weights) ?? null);
+    setQuestion(pickNextPracticeQuestion(nextRecent, weights, topicIdsForModule(moduleId)) ?? null);
 
     const elapsed = Math.round((Date.now() - startedAtRef.current) / 1000);
     if (elapsed - lastSavedSecondsRef.current >= 60) {
@@ -95,9 +104,11 @@ export function PracticeSession() {
         </Link>
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
-        Sem simulado, sem tempo fixo — questões de toda a matéria (ponderadas pelos seus pontos fracos e pela chance de cair na P1), uma atrás
-        da outra. Saia quando quiser.
+        Sem simulado, sem tempo fixo — questões da matéria inteira ou de um módulo (ponderadas pelos seus pontos fracos e pela chance de
+        cair na P1), uma atrás da outra. Saia quando quiser.
       </p>
+
+      <ModuleFilter value={moduleId} onChange={changeModule} tone="success" />
 
       <div className="grid grid-cols-3 gap-3">
         <StatTile label="Respondidas" value={answered} />

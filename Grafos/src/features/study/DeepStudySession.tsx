@@ -7,6 +7,8 @@ import { topics, getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt, topicWeight } from '@/store/progress';
 import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
+import { ModuleFilter } from './ModuleFilter';
+import { topicIdsForModule, useModuleParam } from './moduleScope';
 
 type Phase = 'picker' | 'loading' | 'running' | 'done';
 
@@ -39,6 +41,7 @@ export function DeepStudySession() {
   const [answered, setAnswered] = useState<Answered[]>([]);
   const [budgetSeconds, setBudgetSeconds] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [moduleId, setModuleId] = useModuleParam();
   const startedAtRef = useRef(Date.now());
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export function DeepStudySession() {
       const examBoost = topic.examLikelihood === 'high' ? 1.5 : 1;
       weights[topic.id] = topicWeight(state, topic.id, examBoost);
     }
-    const picked = pickStudySession(livre ? LIVRE_MINUTES : minutes, weights);
+    const picked = pickStudySession(livre ? LIVRE_MINUTES : minutes, weights, topicIdsForModule(moduleId));
     setBatch(picked);
     setIndex(0);
     setAnswered([]);
@@ -97,9 +100,14 @@ export function DeepStudySession() {
       <div className="mx-auto flex max-w-xl flex-col gap-6">
         <div className="flex flex-col gap-1.5">
           <h1 className="flex items-center justify-center gap-2 text-2xl font-semibold text-[var(--color-text-primary)]"><IconChip icon={BookOpen} tone="accent" /> Sessão de estudo</h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">Escolha quanto tempo você tem — as questões são priorizadas pelos seus pontos fracos e pela chance de cair na P1.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Escolha a matéria e quanto tempo você tem — as questões são priorizadas pelos seus pontos fracos e pela chance de cair na P1.</p>
         </div>
         <Card padding="lg" className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">O que estudar</p>
+            <ModuleFilter value={moduleId} onChange={setModuleId} disabled={phase === 'loading'} />
+          </div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Quanto tempo</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {DURATION_OPTIONS.map((minutes) => (
               <Button key={minutes} variant="secondary" size="lg" disabled={phase === 'loading'} onClick={() => start(minutes, false)}>

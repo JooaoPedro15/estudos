@@ -23,7 +23,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { icon: FileText, tone: 'cyan', title: 'Simulado P1', description: 'Prova completa, no estilo real do professor.', href: '/simulado' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
   { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
-  { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: '"Defina o conceito de…" com a definição literal dos slides. Escreva de memória, compare, marque o que acertou.', href: '/estudar/conceitos' },
+  { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: 'Definições literais dos slides: abertas (escreve de memória e compara) e fechadas (múltipla escolha e V/F). Por módulo ou matéria inteira.', href: '/estudar/conceitos' },
 ];
 
 const EXAM_LIKELIHOOD_RANK: Record<ExamLikelihood, number> = { low: 0, medium: 1, high: 2 };

@@ -1,16 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Brain } from 'lucide-react';
-import clsx from 'clsx';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
-import { isDefinitionQuestion, pickNextDefinition, questions } from '@/content/questions';
-import { modules } from '@/content/modules';
+import { isDefinitionFamily, isDefinitionQuestion, pickNextDefinition, questions, type DefinitionKind } from '@/content/questions';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
 import { Button, Card, IconChip, StatTile } from '@/components/ui';
+import { ChipGroup, ModuleFilter } from './ModuleFilter';
+import { topicIdsForModule, useModuleParam } from './moduleScope';
 
 const RECENT_LIMIT = 15;
-const ALL_MODULES = 'todos';
+const TOTAL_CONCEPTS = questions.filter(isDefinitionQuestion).length;
+/** id de questão (aberta ou fechada) → id do conceito (definição aberta) que ela treina. */
+const CONCEPT_BY_QUESTION_ID = new Map(
+  questions.filter(isDefinitionFamily).map((q) => [q.id, q.type === 'DEFINITION' ? q.id : q.definitionId!] as const),
+);
+const KIND_OPTIONS: { id: DefinitionKind; label: string }[] = [
+  { id: 'mixed', label: 'Misto' },
+  { id: 'open', label: 'Abertas (escrevo)' },
+  { id: 'closed', label: 'Fechadas (marco)' },
+];
 
 function formatSeconds(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -19,38 +28,40 @@ function formatSeconds(totalSeconds: number): string {
 }
 
 /**
- * "Decorar conceitos" — só questões "defina o conceito de X", uma atrás da
- * outra, sem fim pré-definido. Prioriza o que você errou ou nunca viu (ver
- * `pickNextDefinition`), com filtro por módulo. Serve para os "10 minutinhos"
- * de decoreba das definições do professor. Rota: /estudar/conceitos
+ * "Decorar conceitos" — só definições, uma atrás da outra, sem fim
+ * pré-definido: abertas ("defina o conceito de X") e/ou fechadas geradas
+ * delas. Prioriza o que você errou ou nunca viu (ver `pickNextDefinition`),
+ * com filtro por módulo e por tipo. Serve para os "10 minutinhos" de decoreba
+ * das definições do professor. Rota: /estudar/conceitos
  */
 export function ConceptDrillSession() {
   const [question, setQuestion] = useState<Question | null>(null);
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [attempts, setAttempts] = useState<QuestionAttempt[]>([]);
-  const [moduleId, setModuleId] = useState<string>(ALL_MODULES);
+  const [moduleId, setModuleId] = useModuleParam();
+  const [kind, setKind] = useState<DefinitionKind>('mixed');
   const [answered, setAnswered] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const startedAtRef = useRef(Date.now());
   const lastSavedSecondsRef = useRef(0);
 
-  const totalDefinitions = questions.filter(isDefinitionQuestion).length;
-  const seenDefinitions = new Set(attempts.filter((a) => a.questionId.startsWith('def-')).map((a) => a.questionId)).size;
-
-  const topicIdsFor = (id: string) => (id === ALL_MODULES ? undefined : modules.find((m) => m.id === id)?.topicIds);
+  // "Vistas" conta conceitos, não questões: responder a fechada de um conceito também conta como visto.
+  const seenConcepts = new Set(attempts.map((a) => CONCEPT_BY_QUESTION_ID.get(a.questionId)).filter(Boolean)).size;
+  const topicIdsFor = topicIdsForModule;
 
   useEffect(() => {
     let cancelled = false;
     loadProgress().then((state) => {
       if (cancelled) return;
       setAttempts(state.attempts);
-      setQuestion(pickNextDefinition([], state.attempts, topicIdsFor(ALL_MODULES)) ?? null);
+      setQuestion(pickNextDefinition([], state.attempts, topicIdsFor(moduleId), kind) ?? null);
       setLoaded(true);
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -64,7 +75,12 @@ export function ConceptDrillSession() {
 
   function changeModule(id: string) {
     setModuleId(id);
-    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(id)) ?? null);
+    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(id), kind) ?? null);
+  }
+
+  function changeKind(next: DefinitionKind) {
+    setKind(next);
+    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(moduleId), next) ?? null);
   }
 
   function handleComplete(result: ExerciseResult) {
@@ -85,7 +101,7 @@ export function ConceptDrillSession() {
 
     const nextRecent = [...recentIds, question.id].slice(-RECENT_LIMIT);
     setRecentIds(nextRecent);
-    setQuestion(pickNextDefinition(nextRecent, nextAttempts, topicIdsFor(moduleId)) ?? null);
+    setQuestion(pickNextDefinition(nextRecent, nextAttempts, topicIdsFor(moduleId), kind) ?? null);
 
     const elapsed = Math.round((Date.now() - startedAtRef.current) / 1000);
     if (elapsed - lastSavedSecondsRef.current >= 60) {
@@ -109,33 +125,17 @@ export function ConceptDrillSession() {
         </Link>
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
-        Só "defina o conceito de…", uma atrás da outra. Escreva de memória, compare com a definição literal do professor e marque o que
-        cobriu. Prioriza o que você errou ou ainda não viu.
+        Só definições do professor, uma atrás da outra. Abertas: escreve de memória e compara com a definição literal. Fechadas: múltipla
+        escolha e V/F sobre a mesma definição. Prioriza o que você errou ou ainda não viu.
       </p>
 
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por módulo">
-        {[{ id: ALL_MODULES, shortTitle: 'Todos' }, ...modules].map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => changeModule(m.id)}
-            aria-pressed={moduleId === m.id}
-            className={clsx(
-              'rounded-full border px-3 py-1 text-xs font-medium transition',
-              moduleId === m.id
-                ? 'border-[var(--color-cyan)]/45 bg-[var(--color-cyan-soft)] text-[var(--color-cyan)]'
-                : 'border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)]',
-            )}
-          >
-            {m.shortTitle}
-          </button>
-        ))}
-      </div>
+      <ModuleFilter value={moduleId} onChange={changeModule} tone="cyan" />
+      <ChipGroup label="Tipo de questão" tone="cyan" value={kind} onChange={(id) => changeKind(id as DefinitionKind)} options={KIND_OPTIONS} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Respondidas" value={answered} />
         <StatTile label="Acerto" value={`${accuracy}%`} />
-        <StatTile label="Vistas" value={`${seenDefinitions}/${totalDefinitions}`} />
+        <StatTile label="Vistas" value={`${seenConcepts}/${TOTAL_CONCEPTS}`} />
         <StatTile label="Tempo" value={formatSeconds(Math.round((Date.now() - startedAtRef.current) / 1000))} />
       </div>
 
