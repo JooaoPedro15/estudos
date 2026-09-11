@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { GraduationCap, Lightbulb, PenLine, TriangleAlert } from 'lucide-react';
 import type { Question } from '@/content/types';
 import { getTopic } from '@/content/topics';
+import { getQuestion } from '@/content/questions';
 import { IconChip } from '@/components/ui';
 import { formatSource } from './formatSource';
 
@@ -14,6 +15,9 @@ import { formatSource } from './formatSource';
 export function TeachMePanel({ question }: { question: Question }) {
   const [open, setOpen] = useState(false);
   const topic = getTopic(question.topic);
+  // Fechada gerada de uma definição: ensina com a explicação da definição de origem.
+  const sourceDefinition = question.definitionId ? getQuestion(question.definitionId) : undefined;
+  const definition = question.type === 'DEFINITION' ? question : sourceDefinition?.type === 'DEFINITION' ? sourceDefinition : undefined;
 
   return (
     <div className="flex flex-col gap-3">
@@ -26,9 +30,9 @@ export function TeachMePanel({ question }: { question: Question }) {
         {open ? 'Ocultar explicação' : 'Me ensine'}
       </button>
 
-      {open && question.type === 'DEFINITION' && <DefinitionLesson question={question} />}
+      {open && definition && <DefinitionLesson question={definition} />}
 
-      {open && question.type !== 'DEFINITION' && (
+      {open && !definition && (
         <div className="flex flex-col gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
           {topic ? (
             <>

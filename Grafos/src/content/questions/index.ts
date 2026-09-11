@@ -6,7 +6,7 @@ import { isomorfismoQuestions } from './03-isomorfismo';
 import { buscaQuestions } from './04-busca';
 import { conectividadeQuestions } from './05-conectividade';
 import { logicaConjuntosQuestions } from './06-logica-conjuntos';
-import { definitionQuestions, isDefinitionQuestion } from '@/content/definitions';
+import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 
 export const questions: Question[] = [
   ...fundamentosQuestions,
@@ -16,9 +16,10 @@ export const questions: Question[] = [
   ...conectividadeQuestions,
   ...logicaConjuntosQuestions,
   ...definitionQuestions,
+  ...closedDefinitionQuestions,
 ];
 
-export { isDefinitionQuestion };
+export { isDefinitionQuestion, isDefinitionFamily };
 
 /** IDs das questões que compõem algum dos simulados de prova (ver content/exams.ts). */
 const examQuestionIds = new Set(exams.flatMap((exam) => exam.questions.map((q) => q.questionId)));
@@ -49,21 +50,38 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+/** Restringe a lista aos tópicos dados (undefined/vazio = matéria inteira). */
+function inTopics(list: Question[], topicIds?: string[]): Question[] {
+  if (!topicIds || topicIds.length === 0) return list;
+  const set = new Set(topicIds);
+  return list.filter((q) => set.has(q.topic));
+}
+
+/** Fechada gerada de uma definição (múltipla escolha / V-F sobre a definição do professor). */
+function isClosedDefinition(q: Question): boolean {
+  return isDefinitionFamily(q) && !isDefinitionQuestion(q);
+}
+
 /**
  * Monta uma revisão rápida: 1 questão no estilo real de prova (ver
- * `isExamStyleQuestion`), 2 definições "defina o conceito" (1 se a revisão
- * for de 3) e o resto de questões conceituais `quick` — tudo de tópicos
- * variados. Assim até uma sessão curta treina formato de prova E decoreba
- * das definições do professor.
+ * `isExamStyleQuestion`), 2 definições — 1 aberta "defina o conceito" e 1
+ * fechada gerada dela (só 1, sorteada, se a revisão for de 3) — e o resto de
+ * questões conceituais `quick`, tudo de tópicos variados. `topicIds`
+ * restringe a um módulo. Assim até uma sessão curta treina formato de prova
+ * E decoreba das definições do professor.
  */
-export function pickQuickReview(count = 5): Question[] {
+export function pickQuickReview(count = 5, topicIds?: string[]): Question[] {
+  const bank = inTopics(questions, topicIds);
   const examSlots = 1;
   const defSlots = count <= 3 ? 1 : 2;
-  const examPool = shuffle(questions.filter((q) => isExamStyleQuestion(q) && !isDefinitionQuestion(q))).sort((a, b) => examWeight(b) - examWeight(a));
-  const defPool = shuffle(questions.filter(isDefinitionQuestion));
-  const conceptPool = shuffle(
-    questions.filter((q) => q.duration === 'quick' && !isExamStyleQuestion(q) && !isDefinitionQuestion(q)),
-  ).sort((a, b) => examWeight(b) - examWeight(a));
+  const examPool = shuffle(bank.filter((q) => isExamStyleQuestion(q) && !isDefinitionFamily(q))).sort((a, b) => examWeight(b) - examWeight(a));
+  const openPool = shuffle(bank.filter(isDefinitionQuestion));
+  const closedPool = shuffle(bank.filter(isClosedDefinition));
+  // Com 2 vagas: uma aberta e uma fechada. Com 1: sorteia qual.
+  const defPools = defSlots === 1 ? (Math.random() < 0.5 ? [openPool, closedPool] : [closedPool, openPool]) : [openPool, closedPool];
+  const conceptPool = shuffle(bank.filter((q) => q.duration === 'quick' && !isExamStyleQuestion(q) && !isDefinitionFamily(q))).sort(
+    (a, b) => examWeight(b) - examWeight(a),
+  );
 
   const picked: Question[] = [];
   const byTopic = new Set<string>();
@@ -78,16 +96,20 @@ export function pickQuickReview(count = 5): Question[] {
   }
 
   fillDiverse(examPool, examSlots);
-  fillDiverse(defPool, examSlots + defSlots);
+  let defTarget = examSlots;
+  for (const pool of defPools.slice(0, defSlots)) {
+    defTarget += 1;
+    fillDiverse(pool, defTarget);
+  }
   fillDiverse(conceptPool, count);
 
   // Completa (sem exigir tópico diverso) se algum pool ficou curto.
-  for (const pool of [defPool, examPool, conceptPool]) {
+  for (const pool of [...defPools, examPool, conceptPool]) {
     if (picked.length >= count) break;
     for (const q of pool) {
       if (picked.length >= count) break;
       if (picked.some((p) => p.id === q.id)) continue;
-      if (pool === defPool && picked.filter(isDefinitionQuestion).length >= defSlots) break;
+      if (isDefinitionFamily(q) && picked.filter(isDefinitionFamily).length >= defSlots) break;
       picked.push(q);
     }
   }
@@ -99,11 +121,15 @@ function examWeight(q: Question): number {
   return q.examLikelihood === 'high' ? 3 : q.examLikelihood === 'medium' ? 2 : 1;
 }
 
-/** Sessão de estudo: mistura durações conforme o tempo disponível (minutos), priorizando tópicos de peso ponderado (ver store/progress). */
-export function pickStudySession(minutes: number, topicWeights?: Record<string, number>): Question[] {
+/**
+ * Sessão de estudo: mistura durações conforme o tempo disponível (minutos),
+ * priorizando tópicos de peso ponderado (ver store/progress). `topicIds`
+ * restringe a um módulo.
+ */
+export function pickStudySession(minutes: number, topicWeights?: Record<string, number>, topicIds?: string[]): Question[] {
   const budgetMs = minutes * 60_000;
   const avgMsByDuration: Record<Duration, number> = { quick: 60_000, normal: 5 * 60_000, deep: 18 * 60_000 };
-  const weighted = [...questions].sort((a, b) => {
+  const weighted = shuffle(inTopics(questions, topicIds)).sort((a, b) => {
     const wa = (topicWeights?.[a.topic] ?? 1) * examWeight(a);
     const wb = (topicWeights?.[b.topic] ?? 1) * examWeight(b);
     return wb - wa + (Math.random() - 0.5);
@@ -114,8 +140,8 @@ export function pickStudySession(minutes: number, topicWeights?: Record<string, 
   for (const q of weighted) {
     const cost = avgMsByDuration[q.duration];
     if (used + cost > budgetMs && picked.length > 0) continue;
-    // Definições entram no sorteio, mas no máximo ~40% da sessão — o resto é resolução de problema.
-    if (isDefinitionQuestion(q)) {
+    // Definições (abertas e fechadas) entram no sorteio, mas no máximo ~40% da sessão — o resto é resolução de problema.
+    if (isDefinitionFamily(q)) {
       if (defCount + 1 > Math.ceil(DEFINITION_SHARE_SESSION * (picked.length + 1))) continue;
       defCount++;
     }
@@ -142,33 +168,40 @@ export function pickWeakTopicSession(weakTopicIds: string[], count = 8): Questio
 /**
  * Escolhe UMA próxima questão para o modo "Prática livre" (sem fim
  * pré-definido — a sessão pede uma questão de cada vez até o aluno parar).
- * Em ~35% das vezes puxa uma definição ("defina o conceito"), no resto uma
- * questão de resolução. Evita repetir qualquer id em `excludeIds` (últimas N
- * mostradas), pondera por `topicWeights` (ver store/progress topicWeight) e
- * por examLikelihood. Retorna undefined só se TODAS as questões estiverem em
- * excludeIds.
+ * Em ~35% das vezes puxa uma definição (metade aberta, metade fechada), no
+ * resto uma questão de resolução. Evita repetir qualquer id em `excludeIds`
+ * (últimas N mostradas), pondera por `topicWeights` (ver store/progress
+ * topicWeight) e por examLikelihood; `topicIds` restringe a um módulo.
+ * Retorna undefined só se não houver questão nenhuma nos tópicos pedidos.
  */
-export function pickNextPracticeQuestion(excludeIds: string[], topicWeights?: Record<string, number>): Question | undefined {
+export function pickNextPracticeQuestion(excludeIds: string[], topicWeights?: Record<string, number>, topicIds?: string[]): Question | undefined {
   const excluded = new Set(excludeIds);
-  const available = questions.filter((q) => !excluded.has(q.id));
+  const bank = inTopics(questions, topicIds);
+  const available = bank.filter((q) => !excluded.has(q.id));
   const wantDefinition = Math.random() < DEFINITION_CHANCE_PRACTICE;
-  let pool = available.filter((q) => isDefinitionQuestion(q) === wantDefinition);
+  const wantOpen = Math.random() < 0.5;
+  let pool = available.filter((q) => (wantDefinition ? isDefinitionFamily(q) && isDefinitionQuestion(q) === wantOpen : !isDefinitionFamily(q)));
+  if (pool.length === 0) pool = available.filter((q) => isDefinitionFamily(q) === wantDefinition);
   if (pool.length === 0) pool = available;
-  if (pool.length === 0) pool = questions; // esgotou tudo — permite repetir
+  if (pool.length === 0) pool = bank; // esgotou tudo — permite repetir
   return weightedPick(pool, (q) => (topicWeights?.[q.topic] ?? 1) * examWeight(q));
 }
+
+export type DefinitionKind = 'open' | 'closed' | 'mixed';
 
 /**
  * Próxima definição para o modo "Decorar conceitos". Prioridade por
  * QUESTÃO (não por tópico), a partir do histórico de tentativas: nunca vista
  * (3) < errou na última (4); acertou há mais de um dia (2); acertou hoje
- * (0.5). `topicIds` restringe a um módulo. Nunca repete `excludeIds` a menos
- * que não sobre nada.
+ * (0.5). `topicIds` restringe a um módulo; `kind` escolhe abertas, fechadas
+ * ou misto (50/50). Nunca repete `excludeIds` a menos que não sobre nada.
  */
-export function pickNextDefinition(excludeIds: string[], attempts: QuestionAttempt[], topicIds?: string[]): Question | undefined {
+export function pickNextDefinition(excludeIds: string[], attempts: QuestionAttempt[], topicIds?: string[], kind: DefinitionKind = 'mixed'): Question | undefined {
   const excluded = new Set(excludeIds);
-  const topicSet = topicIds && topicIds.length > 0 ? new Set(topicIds) : null;
-  const all = questions.filter((q) => isDefinitionQuestion(q) && (!topicSet || topicSet.has(q.topic)));
+  const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : Math.random() < 0.5;
+  const family = inTopics(questions, topicIds).filter(isDefinitionFamily);
+  let all = family.filter((q) => isDefinitionQuestion(q) === wantOpen);
+  if (all.length === 0) all = family;
   let pool = all.filter((q) => !excluded.has(q.id));
   if (pool.length === 0) pool = all;
   if (pool.length === 0) return undefined;

@@ -128,6 +128,8 @@ export interface QuestionMeta {
   professorStyleSimilarity?: 'high' | 'medium' | 'low';
   /** Grafo(s) mostrados como contexto acima da pergunta, para tipos que não têm campo `graph` próprio (ex.: TRUE_FALSE, MULTIPLE_CHOICE). */
   displayGraphs?: { a: GraphData; b?: GraphData };
+  /** Questão fechada gerada a partir de uma DEFINITION: id da definição de origem — o "Me ensine" mostra a explicação dela. */
+  definitionId?: string;
 }
 
 export interface Option {
