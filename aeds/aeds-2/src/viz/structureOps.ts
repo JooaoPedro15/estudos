@@ -1,5 +1,14 @@
 import { avlToViz, balance, insertPlain, rebalance, type AvlNode } from './avlModel';
-import { buildBubbleSortScene, parseArrayInput } from './algorithmScenes';
+import {
+  buildBubbleSortScene,
+  buildBucketSortScene,
+  buildCountingSortScene,
+  buildInsertionSortScene,
+  buildRadixSortScene,
+  buildSelectionSortScene,
+  buildShellSortScene,
+  parseArrayInput,
+} from './algorithmScenes';
 import {
   defaultDoidonaConfig,
   doidonaOpScene,
@@ -1909,22 +1918,30 @@ export const structureCatalog: StructureEntry[] = [
   {
     id: 'ordenacao',
     name: 'Ordenação passo a passo',
-    blurb: 'Bubble Sort: comparação, decisão e troca visíveis.',
+    blurb: 'Escolha um algoritmo: comparação, decisão e troca visíveis.',
     initial: () => [8, 4, 2, 9, 1],
     empty: () => [8, 4, 2, 9, 1],
     preview: (state) => buildBubbleSortScene(state as number[]),
-    ops: [
-      {
-        id: 'bubble-sort',
-        label: 'Executar Bubble Sort',
-        input: textInput('Vetor', '8, 4, 2, 9, 1'),
-        run: (state, raw) => {
-          const parsed = parseArrayInput(raw);
-          const values = parsed.ok ? parsed.values : (state as number[]);
-          return { scene: buildBubbleSortScene(values), next: values };
-        },
+    ops: (
+      [
+        ['bubble-sort', 'Bubble Sort', buildBubbleSortScene],
+        ['insertion-sort', 'Insertion Sort', buildInsertionSortScene],
+        ['selection-sort', 'Selection Sort', buildSelectionSortScene],
+        ['shell-sort', 'Shell Sort', buildShellSortScene],
+        ['counting-sort', 'Counting Sort', buildCountingSortScene],
+        ['bucket-sort', 'Bucket Sort', buildBucketSortScene],
+        ['radix-sort', 'Radix Sort', buildRadixSortScene],
+      ] as const
+    ).map(([id, label, build]) => ({
+      id,
+      label,
+      input: textInput('Vetor', '8, 4, 2, 9, 1'),
+      run: (state: unknown, raw: string) => {
+        const parsed = parseArrayInput(raw);
+        const values = parsed.ok ? parsed.values : (state as number[]);
+        return { scene: build(values), next: values };
       },
-    ],
+    })),
   },
   {
     id: 'pilha',

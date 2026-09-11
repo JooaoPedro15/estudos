@@ -82,6 +82,43 @@ function VizDefs() {
   );
 }
 
+/**
+ * Quebra um texto longo em no maximo 2 linhas que cabem em maxCharsPerLine,
+ * cortando com "…" se ainda sobrar. Usado so pra rotulos de nos em caixa
+ * (box/pill/slot) — nos circulares continuam com rotulo curto de sempre.
+ */
+function wrapLabel(label: string, maxCharsPerLine: number): string[] {
+  if (label.length <= maxCharsPerLine) {
+    return [label];
+  }
+  const words = label.split(' ');
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxCharsPerLine && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+    if (lines.length === 1 && current.length > maxCharsPerLine) {
+      break;
+    }
+  }
+  if (current) {
+    lines.push(current);
+  }
+  if (lines.length > 2) {
+    const second = lines[1].length > maxCharsPerLine - 1 ? `${lines[1].slice(0, maxCharsPerLine - 1)}…` : lines[1];
+    return [lines[0], second];
+  }
+  if (lines.length === 2 && lines[1].length > maxCharsPerLine) {
+    return [lines[0], `${lines[1].slice(0, maxCharsPerLine - 1)}…`];
+  }
+  return lines.length ? lines : [label];
+}
+
 function nodeHalf(node: VizNode): { hw: number; hh: number } {
   if (node.shape === 'circle' || !node.shape) {
     return { hw: 24, hh: 24 };
@@ -143,6 +180,19 @@ const NodeShape = memo(function NodeShape({ node }: { node: DisplayNode }) {
   const badge = state !== 'default' && state !== 'muted' ? stateLegend[state as keyof typeof stateLegend]?.badge : undefined;
   const { hw, hh } = nodeHalf(node);
   const isSlot = node.shape === 'slot';
+  const isBox = node.shape === 'box' || node.shape === 'pill' || isSlot;
+
+  let fontSize = node.label && node.label.length > 6 ? 10.5 : node.label && node.label.length > 4 ? 12 : 15;
+  let labelLines = node.label ? [node.label] : [];
+  if (isBox && node.label) {
+    const maxCharsPerLine = Math.max(4, Math.floor((hw * 2 - 10) / (fontSize * 0.62)));
+    if (node.label.length > maxCharsPerLine) {
+      labelLines = wrapLabel(node.label, maxCharsPerLine);
+      if (labelLines.length > 1) {
+        fontSize = Math.max(8, fontSize - 1.5);
+      }
+    }
+  }
 
   return (
     <g
@@ -162,13 +212,13 @@ const NodeShape = memo(function NodeShape({ node }: { node: DisplayNode }) {
           y={-hh}
         />
       )}
-      {node.label && (
-        <text
-          className="viz-node-label"
-          dy="0.34em"
-          style={{ fontSize: node.label.length > 6 ? 10.5 : node.label.length > 4 ? 12 : 15 }}
-        >
-          {node.label}
+      {labelLines.length > 0 && (
+        <text className="viz-node-label" style={{ fontSize }}>
+          {labelLines.map((line, index) => (
+            <tspan dy={index === 0 ? (labelLines.length > 1 ? '-0.1em' : '0.34em') : '1.15em'} key={index} x={0}>
+              {line}
+            </tspan>
+          ))}
         </text>
       )}
       {node.sub &&

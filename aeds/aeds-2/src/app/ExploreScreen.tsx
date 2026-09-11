@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Eraser, Play, Settings2, Shapes, Trash2 } from 'lucide-react';
 
 import { doidonaKinds, doidonaSubKinds, withDoidonaKind, type DoidonaState, type DoidonaSubKind } from '../viz/doidona';
-import { buildBubbleSortScene, parseArrayInput } from '../viz/algorithmScenes';
+import { parseArrayInput } from '../viz/algorithmScenes';
 import { structureCatalog } from '../viz/structureOps';
 import { StructureViz } from '../viz/StructureViz';
 import type { VizScene } from '../viz/vizTypes';
@@ -73,10 +73,6 @@ export function ExploreScreen() {
         return;
       }
       setInputError(null);
-      setStructureState(entry.id, parsed.values);
-      setVersion((value) => value + 1);
-      setLastRun({ scene: buildBubbleSortScene(parsed.values), runId: (lastRun?.runId ?? 0) + 1 });
-      return;
     }
     const result = op.run(state, inputValue);
     setInputError(null);

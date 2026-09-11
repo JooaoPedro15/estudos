@@ -277,8 +277,11 @@ export function arraySweepScene(labels: string[]): VizScene {
 
   const itens = labels.filter((label) => label.trim());
   const count = Math.max(itens.length, 1);
-  const width = 460;
-  const cellW = Math.min(78, (width - 60) / count);
+  const maxLabelLen = Math.max(...itens.map((item) => item.length), 1);
+  // Celulas crescem com o texto (rotulos curtos tipo "i=0" continuam compactos;
+  // frases mais longas ganham espaço em vez de estourar a caixa).
+  const cellW = Math.max(56, Math.min(170, maxLabelLen * 7.5 + 20));
+  const width = Math.max(460, cellW * count + 60);
   const startX = width / 2 - (cellW * (count - 1)) / 2;
 
   const nodes: VizNode[] = itens.map((label, index) =>
@@ -385,8 +388,9 @@ export function insertionSortScene(values: number[]): VizScene {
 function linearStructureScene(labels: string[], kind: 'list' | 'queue' | 'stack'): VizScene {
   const items = labels.filter((label) => label.trim() !== '');
   const shown = items.length ? items : ['vazio'];
-  const width = 460;
-  const cellW = Math.min(78, (width - 70) / Math.max(shown.length, 1));
+  const maxLabelLen = Math.max(...shown.map((item) => item.length), 1);
+  const cellW = Math.max(56, Math.min(170, maxLabelLen * 7.5 + 20));
+  const width = Math.max(460, kind !== 'stack' ? cellW * shown.length + 70 : 460);
   const startX = width / 2 - (cellW * (shown.length - 1)) / 2;
   const y = kind === 'stack' ? 220 : 150;
   const nodes: VizNode[] = shown.map((label, index) =>
