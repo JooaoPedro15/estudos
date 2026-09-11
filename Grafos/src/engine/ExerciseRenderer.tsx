@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
 import { CheckCircle2, XCircle, X } from 'lucide-react';
 import type { Question } from '@/content/types';
-import { validateAnswer } from './validate';
+import { validateAnswer, type DefinitionAnswer } from './validate';
 import { HintPanel } from './HintPanel';
 import { TeachMePanel } from './TeachMePanel';
+import { formatSource } from './formatSource';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { adjacencyMatrix, incidenceMatrix, validateIsomorphismMapping } from '@/lib/graph';
 
@@ -59,9 +60,9 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
 
       <QuestionBody question={question} answer={answer} setAnswer={setAnswer} disabled={submitted} />
 
-      {!submitted && (
+      {!submitted && (question.type !== 'DEFINITION' || (answer as DefinitionAnswer).revealed) && (
         <button type="button" onClick={submit} className="self-start rounded-lg bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white transition hover:bg-[var(--color-accent-strong)]">
-          Verificar resposta
+          {question.type === 'DEFINITION' ? 'Confirmar autoavaliação' : 'Verificar resposta'}
         </button>
       )}
 
@@ -79,7 +80,7 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
             {result.message}
           </div>
 
-          {!result.correct && <HintPanel hints={question.hints} onReveal={(n) => (hintsUsed.current = n)} />}
+          {!result.correct && question.type !== 'DEFINITION' && <HintPanel hints={question.hints} onReveal={(n) => (hintsUsed.current = n)} />}
 
           <TeachMePanel question={question} />
 
@@ -124,6 +125,8 @@ function initialAnswer(q: Question): any {
       return {};
     case 'PROOF_OR_JUSTIFICATION':
       return [];
+    case 'DEFINITION':
+      return { text: '', revealed: false, checked: [] } satisfies DefinitionAnswer;
     default:
       return undefined;
   }
@@ -299,9 +302,82 @@ function QuestionBody({
         </div>
       );
 
+    case 'DEFINITION':
+      return <DefinitionInput question={q} answer={answer} setAnswer={setAnswer} disabled={disabled} />;
+
     default:
       return null;
   }
+}
+
+/**
+ * "Defina o conceito de X": o aluno escreve de memória, revela a definição
+ * literal do professor (com fonte) e marca quais pontos-chave a resposta dele
+ * cobriu. Só depois de revelar é que o botão de confirmar aparece — a ordem
+ * importa para treinar recordação, não reconhecimento.
+ */
+function DefinitionInput({
+  question: q,
+  answer,
+  setAnswer,
+  disabled,
+}: {
+  question: Extract<Question, { type: 'DEFINITION' }>;
+  answer: DefinitionAnswer;
+  setAnswer: (a: DefinitionAnswer) => void;
+  disabled: boolean;
+}) {
+  const toggle = (kp: string, on: boolean) =>
+    setAnswer({ ...answer, checked: on ? [...answer.checked, kp] : answer.checked.filter((x) => x !== kp) });
+
+  return (
+    <div className="flex flex-col gap-4">
+      <textarea
+        rows={4}
+        disabled={disabled || answer.revealed}
+        value={answer.text}
+        onChange={(e) => setAnswer({ ...answer, text: e.target.value })}
+        placeholder="Escreva a definição de memória, do jeito que escreveria na prova."
+        className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] disabled:opacity-80"
+      />
+
+      {!answer.revealed ? (
+        <button
+          type="button"
+          onClick={() => setAnswer({ ...answer, revealed: true })}
+          className="self-start rounded-lg bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white transition hover:bg-[var(--color-accent-strong)]"
+        >
+          Ver definição do professor
+        </button>
+      ) : (
+        <>
+          <div className={answer.text.trim() ? 'grid grid-cols-1 gap-3 md:grid-cols-2' : ''}>
+            <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--color-accent)]/45 bg-[var(--color-accent-soft)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-strong)]">Definição do professor</p>
+              <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{q.solution}</p>
+              <p className="mono pt-1 text-[11px] text-[var(--color-text-tertiary)]">Fonte: {formatSource(q.source)}</p>
+            </div>
+            {answer.text.trim() && (
+              <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Sua resposta</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-secondary)]">{answer.text}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-[var(--color-text-tertiary)]">Compare e marque o que a SUA resposta cobriu:</p>
+            {q.keyPoints.map((kp) => (
+              <label key={kp} className="flex items-start gap-2 text-sm text-[var(--color-text-secondary)]">
+                <input type="checkbox" className="mt-0.5" disabled={disabled} checked={answer.checked.includes(kp)} onChange={(e) => toggle(kp, e.target.checked)} />
+                {kp}
+              </label>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 function MatrixFillInput({

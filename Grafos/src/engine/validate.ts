@@ -6,6 +6,13 @@ export interface ValidationResult {
   message: string;
 }
 
+/** Estado de resposta de uma questão DEFINITION: texto escrito de memória, se a definição já foi revelada, e quais pontos-chave o aluno marcou como cobertos. */
+export interface DefinitionAnswer {
+  text: string;
+  revealed: boolean;
+  checked: string[];
+}
+
 function normalize(s: string): string {
   return s
     .normalize('NFD')
@@ -100,6 +107,20 @@ export function validateAnswer(q: Question, answer: any): ValidationResult {
       const ratio = q.rubric.length ? checked.length / q.rubric.length : 0;
       const correct = ratio >= 0.7;
       return { correct, message: correct ? 'Sua autoavaliação cobre a maior parte dos pontos esperados.' : 'Compare com a solução — faltam pontos importantes na sua resposta.' };
+    }
+    case 'DEFINITION': {
+      const checked: string[] = (answer as DefinitionAnswer | undefined)?.checked ?? [];
+      const missing = q.keyPoints.filter((kp) => !checked.includes(kp));
+      const ratio = q.keyPoints.length ? checked.length / q.keyPoints.length : 0;
+      const correct = ratio >= 0.7;
+      return {
+        correct,
+        message: correct
+          ? missing.length === 0
+            ? 'Sua definição cobre todos os pontos do professor.'
+            : `Quase completa — faltou: ${missing.join('; ')}.`
+          : `Faltaram pontos essenciais da definição: ${missing.join('; ')}.`,
+      };
     }
     default:
       return { correct: false, message: 'Tipo de questão não reconhecido.' };
