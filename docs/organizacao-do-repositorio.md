@@ -34,6 +34,11 @@ novos modulos educacionais devem ser adicionados.
     docs/
     materiais/
     work/
+  Grafos/                    excecao ao padrao de nomes (ver abaixo)
+    README.md
+    src/
+    Materiais/
+    docs/
 ```
 
 ## Padrao de nomes
@@ -46,6 +51,11 @@ novos modulos educacionais devem ser adicionados.
 | Materiais versionados | dentro da materia | `aeds/materiais/` |
 | Materiais privados | pasta ignorada localmente | `aeds/materiais-privados/` |
 | Versoes preservadas | dentro da materia correspondente | `arquitetura-computadores/datapath-quest/` |
+
+**Excecao conhecida:** `Grafos/` foge do padrao (nome capitalizado e o
+codigo do modulo fica direto na raiz da materia, sem uma subpasta separada
+tipo `grafos/grafos-p1/`). Mantido assim por ja estar em uso; novos modulos
+devem seguir o padrao da tabela acima.
 
 ## Como adicionar um modulo educacional
 

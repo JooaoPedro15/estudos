@@ -1,6 +1,6 @@
 # Inventario dos Modulos
 
-Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-07-03.
+Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-09-11.
 
 ---
 
@@ -54,7 +54,48 @@ Dentro de `aeds/aeds-2/`:
 
 ---
 
-## Modulo 2: Modulo Interativo de Arquitetura de Computadores
+## Modulo 2: Grafos
+
+| Campo | Valor |
+| --- | --- |
+| Nome | Grafos |
+| Pasta | `Grafos/` (materia na propria raiz do repositorio, sem subpasta de modulo separada) |
+| Materia | Teoria dos Grafos |
+| Tecnologia | React, TypeScript, Vite, Vitest |
+| Estado | Modulo interativo atual |
+
+### Objetivo
+
+Modulo interativo para estudo de Teoria dos Grafos: 22 topicos com licoes
+(explicacao intuitiva + exemplos animados passo a passo, com player que
+avanca/volta/reinicia sem mutacoes inversas), exercicios e exploradores
+livres (matrizes, listas de adjacencia, isomorfismo, conjuntos e logica).
+
+### Comandos
+
+Dentro de `Grafos/`:
+
+| Acao | Comando |
+| --- | --- |
+| Instalar | `npm install` |
+| Desenvolvimento | `npm run dev` |
+| Testes | `npm test` |
+| Type-check/lint | `npm run lint` |
+| Build | `npm run build` |
+
+### Documentacao
+
+- `Grafos/README.md`
+- `Grafos/docs/`
+- `Grafos/src/content/lessons/README.md` (como adicionar uma nova licao)
+
+### Materiais relacionados
+
+- `Grafos/Materiais/` (Cronograma, FotosDoQuadro, Livros, Outros, Provas, Slides)
+
+---
+
+## Modulo 3: Modulo Interativo de Arquitetura de Computadores
 
 | Campo | Valor |
 | --- | --- |
@@ -88,3 +129,4 @@ Abrir `mips-datapath-quest.html` no navegador.
 | Materiais de AEDS | `aeds/materiais/` | Slides, listas e referencias versionadas usadas pelo modulo de AEDS |
 | Materiais privados de AEDS | `aeds/materiais-privados/` | Provas oficiais e materiais locais ignorados pelo Git |
 | Materiais de Arquitetura | `arquitetura-computadores/materiais/` | Materiais publicos e instrucoes para materiais privados |
+| Materiais de Grafos | `Grafos/Materiais/` | Cronograma, fotos de quadro, livros, provas e slides versionados usados pelo modulo de Grafos |
