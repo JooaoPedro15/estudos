@@ -705,6 +705,374 @@ function listRemove(previous: ListState, raw: string): OpResult {
 }
 
 /* =====================================================================
+   PILHA FLEXÍVEL — encadeada, topo + prox (unidade04)
+   ===================================================================== */
+
+type StackFlexState = { cells: Cell[]; seq: number };
+
+const STACKF_X = 230;
+const STACKF_GAP = 56;
+const stackFlexSlotY = (index: number) => 60 + index * STACKF_GAP;
+
+const stackFlexInsertCode = [
+  'public void inserir(int x) {',
+  '   Celula novo = new Celula(x);',
+  '   novo.prox = topo;',
+  '   topo = novo;',
+  '}',
+];
+
+const stackFlexRemoveCode = [
+  'public int remover() {',
+  '   if (topo == null) {',
+  '      // erro: pilha vazia!',
+  '   }',
+  '   int resp = topo.elemento;',
+  '   topo = topo.prox;',
+  '   return resp;',
+  '}',
+];
+
+function stackFlexCodeFor(opId: string): string[] {
+  return opId === 'remover' ? stackFlexRemoveCode : stackFlexInsertCode;
+}
+
+function stackFlexRender(state: StackFlexState, marks: Record<string, VizNodeState> = {}, extra: VizNode[] = []): { nodes: VizNode[]; edges: VizEdge[]; pointers: VizPointer[] } {
+  const count = state.cells.length;
+  const nodes: VizNode[] = state.cells.map((cell, index) =>
+    n(cell.id, STACKF_X, stackFlexSlotY(index), `${cell.value}`, { shape: 'box', w: 72, h: 40, state: marks[cell.id] ?? 'default' }),
+  );
+  nodes.push(n('sfnull', STACKF_X, stackFlexSlotY(count), '∅', { shape: 'pill', w: 48, h: 32 }));
+  nodes.push(...extra);
+
+  const edges: VizEdge[] = state.cells.map((cell, index) =>
+    e(cell.id, index + 1 < count ? state.cells[index + 1].id : 'sfnull', { arrow: true }),
+  );
+
+  const pointers = state.cells.length ? [p(state.cells[0].id, 'TOPO', 'left', 'primary')] : [p('sfnull', 'TOPO', 'left', 'primary')];
+  return { nodes, edges, pointers };
+}
+
+function stackFlexScene(frames: VizFrame[], code: string[], operation: string): VizScene {
+  return { operation, complexity: 'O(1)', code, frames, width: 300, height: 340 };
+}
+
+function stackFlexInsert(previous: StackFlexState, raw: string): OpResult {
+  const state: StackFlexState = structuredClone(previous);
+  const value = parseNumber(raw, 7);
+  const frames: VizFrame[] = [];
+  const push = (caption: string, codeLine?: number, vars?: VizVar[], extra: VizNode[] = [], marks: Record<string, VizNodeState> = {}) => {
+    const { nodes, edges, pointers } = stackFlexRender(state, marks, extra);
+    frames.push(snap(nodes, edges, pointers, caption, codeLine, vars));
+  };
+
+  const novo = n('staging', 390, 88, `${value}`, { shape: 'box', w: 72, h: 40, state: 'inserted' });
+  push(`inserir(${value}): sem limite de capacidade, só cresce se houver memória.`, 1, [{ name: 'x', value: `${value}` }], [novo]);
+  push('novo.prox = topo: o novo nó aponta para o antigo topo antes de assumir o lugar.', 2, [], [novo]);
+
+  const cell: Cell = { id: `sf${(state.seq += 1)}`, value };
+  state.cells.unshift(cell);
+  push('topo = novo: pronto, sem deslocar nenhum outro nó. Custo O(1).', 3, [{ name: 'topo', value: `${value}` }], [], { [cell.id]: 'found' });
+
+  return { scene: stackFlexScene(frames, stackFlexInsertCode, `inserir(${value})`), next: state };
+}
+
+function stackFlexRemove(previous: StackFlexState): OpResult {
+  const state: StackFlexState = structuredClone(previous);
+  const frames: VizFrame[] = [];
+  const push = (caption: string, codeLine?: number, vars?: VizVar[], marks: Record<string, VizNodeState> = {}, extra: VizNode[] = []) => {
+    const { nodes, edges, pointers } = stackFlexRender(state, marks, extra);
+    frames.push(snap(nodes, edges, pointers, caption, codeLine, vars));
+  };
+
+  if (!state.cells.length) {
+    push('remover(): topo == null → pilha vazia.', 1, [{ name: 'topo', value: 'null' }]);
+    push('Erro ao remover! Não há elemento para retirar.', 2, [{ name: 'resultado', value: 'erro' }]);
+    return { scene: stackFlexScene(frames, stackFlexRemoveCode, 'remover()'), next: state };
+  }
+
+  const topo = state.cells[0];
+  push(`resp = topo.elemento = ${topo.value}.`, 4, [{ name: 'resp', value: `${topo.value}` }], { [topo.id]: 'active' });
+
+  state.cells.shift();
+  const saindo = n(topo.id, 390, 88, `${topo.value}`, { shape: 'box', w: 72, h: 40, state: 'removed' });
+  push(`topo = topo.prox: o nó antigo é descartado, sem deslocar mais ninguém. Custo O(1).`, 5, [{ name: 'resp', value: `${topo.value}` }], {}, [saindo]);
+
+  return { scene: stackFlexScene(frames, stackFlexRemoveCode, 'remover()'), next: state };
+}
+
+/* =====================================================================
+   FILA FLEXÍVEL — encadeada, primeiro/ultimo + prox (unidade04)
+   ===================================================================== */
+
+type QueueFlexState = { cells: Cell[]; seq: number };
+
+const QUEUEF_Y = 150;
+
+const queueFlexInsertCode = [
+  'public void inserir(int x) {',
+  '   Celula novo = new Celula(x);',
+  '   if (ultimo == null) {',
+  '      primeiro = novo;',
+  '   } else {',
+  '      ultimo.prox = novo;',
+  '   }',
+  '   ultimo = novo;',
+  '}',
+];
+
+const queueFlexRemoveCode = [
+  'public int remover() {',
+  '   if (primeiro == null) {',
+  '      // erro: fila vazia!',
+  '   }',
+  '   int resp = primeiro.elemento;',
+  '   primeiro = primeiro.prox;',
+  '   if (primeiro == null) ultimo = null;',
+  '   return resp;',
+  '}',
+];
+
+function queueFlexCodeFor(opId: string): string[] {
+  return opId === 'desenfileirar' ? queueFlexRemoveCode : queueFlexInsertCode;
+}
+
+function queueFlexRender(state: QueueFlexState, marks: Record<string, VizNodeState> = {}, extra: VizNode[] = []): { nodes: VizNode[]; edges: VizEdge[]; pointers: VizPointer[] } {
+  const count = state.cells.length;
+  const gap = Math.min(100, 356 / Math.max(count + 1, 1));
+  const nodes: VizNode[] = state.cells.map((cell, index) =>
+    n(cell.id, 60 + index * gap, QUEUEF_Y, `${cell.value}`, { shape: 'box', w: Math.min(62, gap - 8), h: 44, state: marks[cell.id] ?? 'default' }),
+  );
+  nodes.push(n('qfnull', 60 + count * gap, QUEUEF_Y, '∅', { shape: 'pill', w: 48, h: 36 }));
+  nodes.push(...extra);
+
+  const edges: VizEdge[] = state.cells.map((cell, index) =>
+    e(cell.id, index + 1 < count ? state.cells[index + 1].id : 'qfnull', { arrow: true }),
+  );
+
+  const pointers = state.cells.length
+    ? [p(state.cells[0].id, 'PRIMEIRO', 'top', 'accent'), p(state.cells[count - 1].id, 'ULTIMO', 'bottom', 'warning')]
+    : [p('qfnull', 'PRIMEIRO', 'top', 'accent')];
+  return { nodes, edges, pointers };
+}
+
+function queueFlexScene(frames: VizFrame[], code: string[], operation: string): VizScene {
+  return { operation, complexity: 'O(1)', code, frames, width: 460, height: 260 };
+}
+
+function queueFlexInsert(previous: QueueFlexState, raw: string): OpResult {
+  const state: QueueFlexState = structuredClone(previous);
+  const value = parseNumber(raw, 7);
+  const frames: VizFrame[] = [];
+  const push = (caption: string, codeLine?: number, vars?: VizVar[], extra: VizNode[] = [], marks: Record<string, VizNodeState> = {}) => {
+    const { nodes, edges, pointers } = queueFlexRender(state, marks, extra);
+    frames.push(snap(nodes, edges, pointers, caption, codeLine, vars));
+  };
+
+  const novo = n('staging', 400, 88, `${value}`, { shape: 'box', w: 62, h: 44, state: 'inserted' });
+  push(`inserir(${value}): sem limite de capacidade, só cresce se houver memória.`, 1, [{ name: 'x', value: `${value}` }], [novo]);
+  push(
+    state.cells.length ? 'ultimo.prox = novo: encadeia no fim da fila.' : 'Fila vazia: o novo nó vira primeiro e último ao mesmo tempo.',
+    state.cells.length ? 6 : 4,
+    [],
+    [novo],
+  );
+
+  const cell: Cell = { id: `qf${(state.seq += 1)}`, value };
+  state.cells.push(cell);
+  push('ultimo = novo: pronto, sem percorrer a fila. Custo O(1).', 8, [{ name: 'ultimo', value: `${value}` }], [], { [cell.id]: 'found' });
+
+  return { scene: queueFlexScene(frames, queueFlexInsertCode, `inserir(${value})`), next: state };
+}
+
+function queueFlexRemove(previous: QueueFlexState): OpResult {
+  const state: QueueFlexState = structuredClone(previous);
+  const frames: VizFrame[] = [];
+  const push = (caption: string, codeLine?: number, vars?: VizVar[], marks: Record<string, VizNodeState> = {}, extra: VizNode[] = []) => {
+    const { nodes, edges, pointers } = queueFlexRender(state, marks, extra);
+    frames.push(snap(nodes, edges, pointers, caption, codeLine, vars));
+  };
+
+  if (!state.cells.length) {
+    push('remover(): primeiro == null → fila vazia.', 1, [{ name: 'primeiro', value: 'null' }]);
+    push('Erro ao remover! Não há elemento para retirar.', 2, [{ name: 'resultado', value: 'erro' }]);
+    return { scene: queueFlexScene(frames, queueFlexRemoveCode, 'remover()'), next: state };
+  }
+
+  const primeiro = state.cells[0];
+  push(`resp = primeiro.elemento = ${primeiro.value}.`, 4, [{ name: 'resp', value: `${primeiro.value}` }], { [primeiro.id]: 'active' });
+
+  state.cells.shift();
+  const saindo = n(primeiro.id, 400, 88, `${primeiro.value}`, { shape: 'box', w: 62, h: 44, state: 'removed' });
+  push(
+    state.cells.length ? 'primeiro = primeiro.prox: a frente avança. Custo O(1).' : 'primeiro = null; ultimo = null: a fila ficou vazia.',
+    6,
+    [{ name: 'resp', value: `${primeiro.value}` }],
+    {},
+    [saindo],
+  );
+
+  return { scene: queueFlexScene(frames, queueFlexRemoveCode, 'remover()'), next: state };
+}
+
+/* =====================================================================
+   LISTA LINEAR — sequencial, array + n (unidade02a, ListaOrdenada.java)
+   ===================================================================== */
+
+type ListLinState = { values: number[]; seq: number };
+
+const LISTLIN_CAP = 7;
+const LISTLIN_Y = 150;
+const listLinSlotX = (index: number) => 55 + index * 58;
+
+const listLinInsertCode = [
+  'public void inserir(int x) {',
+  '   if (n >= array.length) {',
+  '      // erro: lista cheia!',
+  '   }',
+  '   int pos;',
+  '   for (pos = n-1; pos >= 0 && array[pos] > x; pos--) {',
+  '      array[pos+1] = array[pos];',
+  '   }',
+  '   array[pos+1] = x;',
+  '   n++;',
+  '}',
+];
+
+const listLinSearchCode = [
+  'public boolean pesquisar(int x) {',
+  '   for (int i = 0; i < n; i++) {',
+  '      if (array[i] == x) return true;',
+  '      if (array[i] > x) return false;   // ordenado: para cedo',
+  '   }',
+  '   return false;',
+  '}',
+];
+
+const listLinRemoveCode = [
+  'public int remover(int pos) {',
+  '   int resp = array[pos];',
+  '   n--;',
+  '   for (int i = pos; i < n; i++) {',
+  '      array[i] = array[i+1];',
+  '   }',
+  '   return resp;',
+  '}',
+];
+
+function listLinCodeFor(opId: string): string[] {
+  return opId === 'inserir' ? listLinInsertCode : opId === 'buscar' ? listLinSearchCode : listLinRemoveCode;
+}
+
+function listLinRender(state: ListLinState, marks: Record<string, VizNodeState> = {}): { nodes: VizNode[]; pointers: VizPointer[] } {
+  const nodes: VizNode[] = [];
+  for (let index = 0; index < LISTLIN_CAP; index += 1) {
+    nodes.push(n(`lslot${index}`, listLinSlotX(index), LISTLIN_Y, '', { shape: 'slot', w: 48, h: 40, sub: `${index}` }));
+  }
+  state.values.forEach((value, index) => {
+    nodes.push(n(`lv${index}`, listLinSlotX(index), LISTLIN_Y, `${value}`, { shape: 'box', w: 42, h: 34, state: marks[`lv${index}`] ?? 'default' }));
+  });
+  return { nodes, pointers: [] };
+}
+
+function listLinScene(frames: VizFrame[], code: string[], operation: string): VizScene {
+  return { operation, complexity: 'O(n)', code, frames, width: 460, height: 250 };
+}
+
+function listLinInsert(previous: ListLinState, raw: string): OpResult {
+  const state: ListLinState = structuredClone(previous);
+  const value = parseNumber(raw, 25);
+  const frames: VizFrame[] = [];
+  const push = (caption: string, codeLine?: number, vars?: VizVar[], marks: Record<string, VizNodeState> = {}) => {
+    const { nodes, pointers } = listLinRender(state, marks);
+    frames.push(snap(nodes, [], pointers, caption, codeLine, vars));
+  };
+
+  if (state.values.length >= LISTLIN_CAP) {
+    push(`inserir(${value}): n = array.length → lista cheia.`, 1, [{ name: 'x', value: `${value}` }]);
+    return { scene: listLinScene(frames, listLinInsertCode, `inserir(${value})`), next: state };
+  }
+
+  push(`inserir(${value}): mantém o array ordenado, abrindo espaço com deslocamentos.`, 4, [{ name: 'x', value: `${value}` }]);
+
+  let pos = state.values.length - 1;
+  while (pos >= 0 && state.values[pos] > value) {
+    push(`array[${pos}] = ${state.values[pos]} > ${value}: desloca para a direita.`, 6, [{ name: 'pos', value: `${pos}` }]);
+    pos -= 1;
+  }
+
+  state.values.splice(pos + 1, 0, value);
+  const marks: Record<string, VizNodeState> = { [`lv${pos + 1}`]: 'inserted' };
+  push(`array[${pos + 1}] = ${value}: encontrou a posição certa. Custo O(n) por causa dos deslocamentos.`, 8, [{ name: 'pos', value: `${pos + 1}` }], marks);
+
+  return { scene: listLinScene(frames, listLinInsertCode, `inserir(${value})`), next: state };
+}
+
+function listLinSearch(previous: ListLinState, raw: string): OpResult {
+  const state: ListLinState = structuredClone(previous);
+  const value = parseNumber(raw, 20);
+  const frames: VizFrame[] = [];
+  const marks: Record<string, VizNodeState> = {};
+  const push = (caption: string, codeLine?: number, vars?: VizVar[]) => {
+    const { nodes, pointers } = listLinRender(state, marks);
+    frames.push(snap(nodes, [], pointers, caption, codeLine, vars));
+  };
+
+  push(`pesquisar(${value}): percorre a partir de array[0].`, 1, [{ name: 'x', value: `${value}` }]);
+
+  for (let i = 0; i < state.values.length; i += 1) {
+    const atual = state.values[i];
+    marks[`lv${i}`] = 'compare';
+
+    if (atual === value) {
+      push(`array[${i}] == ${value} → encontrado!`, 2, [{ name: 'retorno', value: 'true' }]);
+      marks[`lv${i}`] = 'found';
+      push('Achado por acesso direto ao índice, sem religar nada.', 2);
+      return { scene: listLinScene(frames, listLinSearchCode, `pesquisar(${value})`), next: state };
+    }
+    if (atual > value) {
+      push(`array[${i}] = ${atual} > ${value}: como está ordenado, ${value} não está aqui.`, 3, [{ name: 'retorno', value: 'false' }]);
+      marks[`lv${i}`] = 'error';
+      push('Parada antecipada: vantagem de manter o array ordenado.', 3);
+      return { scene: listLinScene(frames, listLinSearchCode, `pesquisar(${value})`), next: state };
+    }
+
+    push(`array[${i}] = ${atual} < ${value}: continua.`, 2, [{ name: 'i', value: `${i}` }]);
+    marks[`lv${i}`] = 'visited';
+  }
+
+  push(`i == n: chegou ao fim sem achar ${value}.`, 5, [{ name: 'retorno', value: 'false' }]);
+  return { scene: listLinScene(frames, listLinSearchCode, `pesquisar(${value})`), next: state };
+}
+
+function listLinRemove(previous: ListLinState, raw: string): OpResult {
+  const state: ListLinState = structuredClone(previous);
+  const value = parseNumber(raw, 20);
+  const frames: VizFrame[] = [];
+  const marks: Record<string, VizNodeState> = {};
+  const push = (caption: string, codeLine?: number, vars?: VizVar[]) => {
+    const { nodes, pointers } = listLinRender(state, marks);
+    frames.push(snap(nodes, [], pointers, caption, codeLine, vars));
+  };
+
+  push(`remover(${value}): primeiro precisa achar a posição.`, 1, [{ name: 'x', value: `${value}` }]);
+
+  const pos = state.values.findIndex((item) => item === value);
+  if (pos < 0) {
+    push(`${value} não está na lista.`, 1, [{ name: 'resultado', value: 'erro' }]);
+    return { scene: listLinScene(frames, listLinRemoveCode, `remover(${value})`), next: state };
+  }
+
+  marks[`lv${pos}`] = 'removed';
+  push(`Achou em array[${pos}] = ${value}. Agora desloca os seguintes para a esquerda.`, 1, [{ name: 'pos', value: `${pos}` }]);
+
+  state.values.splice(pos, 1);
+  push(`${value} saiu; cada posição depois de ${pos} recuou uma casa. Custo O(n) por causa do deslocamento.`, 4, [{ name: 'resultado', value: 'ok' }]);
+
+  return { scene: listLinScene(frames, listLinRemoveCode, `remover(${value})`), next: state };
+}
+
+/* =====================================================================
    TABELA HASH COM ÁREA DE RESERVA — hashDiretoReserva/Hash.java (Max)
    ===================================================================== */
 
@@ -1883,6 +2251,18 @@ function initialList(): ListState {
   return { cells: [{ id: 'l1', value: 10 }, { id: 'l2', value: 20 }, { id: 'l3', value: 30 }], seq: 3 };
 }
 
+function initialStackFlex(): StackFlexState {
+  return { cells: [{ id: 'sf1', value: 8 }, { id: 'sf2', value: 5 }], seq: 2 };
+}
+
+function initialQueueFlex(): QueueFlexState {
+  return { cells: [{ id: 'qf1', value: 4 }, { id: 'qf2', value: 9 }], seq: 2 };
+}
+
+function initialListLin(): ListLinState {
+  return { values: [10, 20, 30], seq: 3 };
+}
+
 function initialHash(): HashState {
   return {
     main: [{ id: 'h1', value: 42 }, null, { id: 'h2', value: 23 }, null, null, null, null],
@@ -1961,6 +2341,22 @@ export const structureCatalog: StructureEntry[] = [
     ],
   },
   {
+    id: 'pilha-flexivel',
+    name: 'Pilha flexível',
+    blurb: 'Encadeada: topo + prox, sem limite de capacidade.',
+    initial: initialStackFlex,
+    empty: () => ({ cells: [], seq: 0 }) satisfies StackFlexState,
+    preview: (state, opId) => {
+      const s = state as StackFlexState;
+      const { nodes, edges, pointers } = stackFlexRender(s);
+      return makePreview({ nodes, edges, pointers }, stateCaption(!s.cells.length, 'pilha flexível'), stackFlexCodeFor(opId), 300, 340);
+    },
+    ops: [
+      { id: 'inserir', label: 'Inserir (push)', input: numberInput('Valor', '7'), run: (state, raw) => stackFlexInsert(state as StackFlexState, raw) },
+      { id: 'remover', label: 'Remover (pop)', run: (state) => stackFlexRemove(state as StackFlexState) },
+    ],
+  },
+  {
     id: 'fila',
     name: 'Fila',
     blurb: 'Em fileira: frente e trás só avançam.',
@@ -1994,6 +2390,22 @@ export const structureCatalog: StructureEntry[] = [
     ],
   },
   {
+    id: 'fila-flexivel',
+    name: 'Fila flexível',
+    blurb: 'Encadeada: primeiro + ultimo, sem limite de capacidade.',
+    initial: initialQueueFlex,
+    empty: () => ({ cells: [], seq: 0 }) satisfies QueueFlexState,
+    preview: (state, opId) => {
+      const s = state as QueueFlexState;
+      const { nodes, edges, pointers } = queueFlexRender(s);
+      return makePreview({ nodes, edges, pointers }, stateCaption(!s.cells.length, 'fila flexível'), queueFlexCodeFor(opId), 460, 260);
+    },
+    ops: [
+      { id: 'enfileirar', label: 'Enfileirar', input: numberInput('Valor', '2'), run: (state, raw) => queueFlexInsert(state as QueueFlexState, raw) },
+      { id: 'desenfileirar', label: 'Desenfileirar', run: (state) => queueFlexRemove(state as QueueFlexState) },
+    ],
+  },
+  {
     id: 'lista',
     name: 'Lista encadeada',
     blurb: 'Células ordenadas; religação de ponteiros.',
@@ -2008,6 +2420,23 @@ export const structureCatalog: StructureEntry[] = [
       { id: 'inserir', label: 'Inserir', input: numberInput('Valor', '25'), run: (state, raw) => listInsert(state as ListState, raw) },
       { id: 'buscar', label: 'Buscar', input: numberInput('Valor', '20'), run: (state, raw) => listSearch(state as ListState, raw) },
       { id: 'remover', label: 'Remover', input: numberInput('Valor', '20'), run: (state, raw) => listRemove(state as ListState, raw) },
+    ],
+  },
+  {
+    id: 'lista-linear',
+    name: 'Lista linear',
+    blurb: 'Sequencial: array + n. ListaOrdenada.java (Max).',
+    initial: initialListLin,
+    empty: () => ({ values: [], seq: 0 }) satisfies ListLinState,
+    preview: (state, opId) => {
+      const s = state as ListLinState;
+      const { nodes, pointers } = listLinRender(s);
+      return makePreview({ nodes, pointers }, stateCaption(!s.values.length, 'lista linear'), listLinCodeFor(opId), 460, 250);
+    },
+    ops: [
+      { id: 'inserir', label: 'Inserir', input: numberInput('Valor', '25'), run: (state, raw) => listLinInsert(state as ListLinState, raw) },
+      { id: 'buscar', label: 'Buscar', input: numberInput('Valor', '20'), run: (state, raw) => listLinSearch(state as ListLinState, raw) },
+      { id: 'remover', label: 'Remover', input: numberInput('Valor', '20'), run: (state, raw) => listLinRemove(state as ListLinState, raw) },
     ],
   },
   {
