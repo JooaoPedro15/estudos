@@ -111,8 +111,8 @@ export function validateAnswer(q: Question, answer: any): ValidationResult {
     case 'DEFINITION': {
       const checked: string[] = (answer as DefinitionAnswer | undefined)?.checked ?? [];
       const missing = q.keyPoints.filter((kp) => !checked.includes(kp));
-      const ratio = q.keyPoints.length ? checked.length / q.keyPoints.length : 0;
-      const correct = ratio >= 0.7;
+      // Com 3+ pontos, pode faltar 1 (quase sempre um apelido/notação); com 1–2, precisa de todos.
+      const correct = missing.length <= (q.keyPoints.length >= 3 ? 1 : 0);
       return {
         correct,
         message: correct
