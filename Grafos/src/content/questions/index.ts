@@ -6,6 +6,7 @@ import { isomorfismoQuestions } from './03-isomorfismo';
 import { buscaQuestions } from './04-busca';
 import { conectividadeQuestions } from './05-conectividade';
 import { logicaConjuntosQuestions } from './06-logica-conjuntos';
+import { definitionQuestions, isDefinitionQuestion } from '@/content/definitions';
 
 export const questions: Question[] = [
   ...fundamentosQuestions,
@@ -14,7 +15,10 @@ export const questions: Question[] = [
   ...buscaQuestions,
   ...conectividadeQuestions,
   ...logicaConjuntosQuestions,
+  ...definitionQuestions,
 ];
+
+export { isDefinitionQuestion };
 
 /** IDs das questões que compõem algum dos simulados de prova (ver content/exams.ts). */
 const examQuestionIds = new Set(exams.flatMap((exam) => exam.questions.map((q) => q.questionId)));

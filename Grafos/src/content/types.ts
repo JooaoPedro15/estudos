@@ -111,7 +111,8 @@ export type ExerciseType =
   | 'ISOMORPHISM_MAPPING'
   | 'ORDERING'
   | 'DRAG_AND_DROP'
-  | 'PROOF_OR_JUSTIFICATION';
+  | 'PROOF_OR_JUSTIFICATION'
+  | 'DEFINITION';
 
 export interface QuestionMeta {
   id: string;
@@ -213,6 +214,29 @@ export type Question =
       prompt: string;
       graph?: GraphData;
       rubric: string[];
+    })
+  | (QuestionMeta & {
+      /**
+       * "Defina o conceito de X" — treino de recordação ativa. O aluno escreve
+       * de memória, revela a definição LITERAL do professor (`solution`, com
+       * `source` apontando arquivo/slide) e marca em `keyPoints` o que a
+       * resposta dele cobriu. `intuition`/`breakdown`/`example` alimentam o
+       * "Me ensine": servem para ENTENDER; `solution` é o que se escreve na prova.
+       */
+      type: 'DEFINITION';
+      prompt: string;
+      /** Nome curto do conceito, ex.: "Laço (loop)". */
+      concept: string;
+      /** Pontos que a resposta precisa conter para bater com a definição do professor. */
+      keyPoints: string[];
+      /** Explicação intuitiva / metáfora para entender (não é a redação de prova). */
+      intuition: string;
+      /** Por que cada pedaço da definição está ali, um item por pedaço. */
+      breakdown?: string[];
+      /** Exemplo curto (frase ou ASCII). */
+      example?: string;
+      /** Ressalva: conflito entre slides, definição só em material de apoio, etc. */
+      note?: string;
     });
 
 // ---------------------------------------------------------------------------
