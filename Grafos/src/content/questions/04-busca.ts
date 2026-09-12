@@ -67,7 +67,7 @@ export const buscaQuestions: Question[] = [
     prompt: 'Em um grafo NÃO-DIRIGIDO, uma DFS pode produzir arestas de avanço e de cruzamento.',
     correctValue: false,
     source: { type: 'professor_slide' },
-    hints: ['Pense em como, num grafo não-dirigido, toda aresta "não-árvore" conecta um vértice a um ancestral seu.'],
+    hints: ['Pense em como, num grafo não-dirigido, toda aresta que não é de árvore conecta um vértice a um ancestral seu na árvore da busca.'],
     solution: 'Falso — em grafo não-dirigido só existem arestas de árvore e de retorno. Isso ocorre porque, ao explorar uma aresta {u,v} onde v já foi visitado, v é necessariamente ancestral de u na árvore de busca (não pode ser um "primo" ou descendente, dada a simetria da aresta).',
   },
   {
@@ -161,7 +161,7 @@ export const buscaQuestions: Question[] = [
     hints: [
       'Calcule os componentes fortemente conexos primeiro (contraia ciclos em hipervértices).',
       `Componentes deste grafo: ${JSON.stringify(scc.components)}.`,
-      'Dentre os componentes, quais têm grau de entrada 0 na condensação (não são alcançados por nenhum outro componente)?',
+      'Contraia cada componente fortemente conexo em um hipervértice: quais hipervértices ficam com grau de entrada 0 (não são alcançados por nenhum outro)?',
     ],
     solution: `Componentes fortemente conexos: ${scc.components.map((c) => `{${c.join(',')}}`).join(', ')}. Os componentes {A} e {D,E} não são alcançados por nenhum outro — formam a base: {${scc.base.join(', ')}} (um representante de cada componente-fonte).`,
   },
@@ -180,8 +180,8 @@ export const buscaQuestions: Question[] = [
     correctVertexIds: scc.antiBase,
     source: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' },
     professorStyleSimilarity: 'high',
-    hints: ['Anti-base = base do grafo TRANSPOSTO — procure os componentes-sumidouro (grau de saída 0 na condensação).'],
-    solution: `Componentes-sumidouro (grau de saída 0 na condensação): a anti-base é {${scc.antiBase.join(', ')}}.`,
+    hints: ['Anti-base = base do grafo TRANSPOSTO — procure os vértices (ou ciclos contraídos em hipervértice) dos quais não sai aresta para fora.'],
+    solution: `Transponha o grafo e aplique o algoritmo de base (grau de entrada 0, contraindo ciclos em hipervértices): a anti-base é {${scc.antiBase.join(', ')}}.`,
   },
   {
     id: 'base-03',
@@ -197,8 +197,8 @@ export const buscaQuestions: Question[] = [
       'Calcula o grau de entrada de todos os vértices',
       'Identifica vértices de grau de entrada 0 como candidatos naturais',
       'Trata o caso de ciclos: contrai cada ciclo (ou SCC) em um hipervértice antes de olhar grau de entrada',
-      'Explica que um representante de cada SCC-fonte (grau de entrada 0 na condensação) compõe a base',
-      'Discute a generalidade: funciona para qualquer grafo dirigido (com ou sem ciclo), pois a condensação em SCCs é sempre um DAG',
+      'Explica que um representante de cada componente fortemente conexo com grau de entrada 0 (depois de contrair) compõe a base',
+      'Discute a generalidade: funciona para qualquer grafo dirigido (com ou sem ciclo), pois depois de contrair cada componente fortemente conexo em um hipervértice o grafo não tem mais ciclos',
     ],
     source: { type: 'old_exam', file: '2022-1-exam.pdf' },
     professorStyleSimilarity: 'high',
@@ -208,7 +208,7 @@ export const buscaQuestions: Question[] = [
       'Pense em "encolher" o ciclo inteiro em um único vértice (isso é, essencialmente, calcular os SCCs).',
     ],
     solution:
-      'Calcule o grau de entrada de todos os vértices. Vértices com grau de entrada 0 não são alcançados por ninguém e são candidatos à base. Se o grafo tem ciclos, isso sozinho não basta (todo vértice de um ciclo tem grau de entrada ≥1) — contraia cada componente fortemente conexo (SCC) em um hipervértice (equivalente à condensação do grafo). Como a condensação é sempre um DAG, agora sim: hipervértices com grau de entrada 0 correspondem às SCCs-fonte, e um representante de cada uma forma a base. Funciona para QUALQUER grafo dirigido, cíclico ou não — grafos sem ciclo são só o caso particular onde cada SCC é um único vértice.',
+      'Calcule o grau de entrada de todos os vértices. Vértices com grau de entrada 0 não são alcançados por ninguém e são candidatos à base. Se o grafo tem ciclos, isso sozinho não basta (todo vértice de um ciclo tem grau de entrada ≥1) — contraia cada componente fortemente conexo (SCC) em um hipervértice. O grafo com os ciclos contraídos não tem mais ciclos, então agora sim: hipervértices com grau de entrada 0 não são alcançados por ninguém, e um representante de cada um forma a base. Funciona para QUALQUER grafo dirigido, cíclico ou não — grafos sem ciclo são só o caso particular onde cada SCC é um único vértice.',
   },
   {
     id: 'ciclo-01',
@@ -237,7 +237,7 @@ export const buscaQuestions: Question[] = [
     prompt: 'Apresente pelo menos DUAS estratégias diferentes para determinar se um grafo dirigido G possui algum ciclo.',
     rubric: [
       'Estratégia 1: DFS com estados 0/1/2, detectando aresta de retorno (destino em estado 1)',
-      'Estratégia 2: tentativa de ordenação topológica por remoção incremental de grau de entrada 0 — se sobrar vértice, há ciclo',
+      'Estratégia 2: remoção repetida de vértices com grau de entrada 0 (e das arestas que saem deles) — se sobrar vértice, há ciclo',
       'Explica corretamente o critério de parada/detecção de cada estratégia',
       'Compara as duas abordagens (ambas O(V+E), mas mecanismos diferentes)',
     ],
@@ -245,7 +245,7 @@ export const buscaQuestions: Question[] = [
     professorStyleSimilarity: 'high',
     hints: [
       'Estratégia 1 usa DFS diretamente — qual estado indica "ciclo encontrado"?',
-      'Estratégia 2 usa ordenação topológica — o que acontece se o algoritmo não conseguir processar todos os vértices?',
+      'Estratégia 2 remove vértices de grau de entrada 0 repetidamente — o que acontece se sobrar vértice?',
     ],
     solution:
       'Estratégia 1 (DFS com estados): marque vértices com 0 (não visitado)/1 (em progresso)/2 (terminado); ao processar as arestas de um vértice em progresso, se alguma aponta para um vértice em estado 1, há ciclo. Estratégia 2 (ordenação topológica incremental): repita remover vértices de grau de entrada 0 (e suas arestas de saída); se ao final sobrar algum vértice sem nunca atingir grau de entrada 0, o grafo tem ciclo (não existe ordenação topológica válida). As duas rodam em O(V+E) e chegam à mesma conclusão por caminhos diferentes — a prova de 2026/1 pede exatamente essas duas abordagens.',

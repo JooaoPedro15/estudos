@@ -59,7 +59,7 @@ function tripartiteGraph(r: number, s: number, t: number): { graph: GraphData; s
   return { graph: { directed: false, vertices, edges }, sides, between };
 }
 
-/** n vértices em k pedaços com o MÍNIMO de arestas: k caminhos (árvores), tamanhos o mais iguais possível. */
+/** n vértices em k pedaços com o MÍNIMO de arestas: k caminhos, tamanhos o mais iguais possível. */
 function minEdgesGraph(n: number, k: number): { graph: GraphData; componentEdgeIds: string[][] } {
   const sizes = Array.from({ length: k }, (_, i) => Math.floor(n / k) + (i < n % k ? 1 : 0));
   const cols = Math.ceil(Math.sqrt(k));
@@ -154,18 +154,18 @@ function regularVerdict(n: number, k: number): { possible: boolean; reason: stri
   if (n % 2 === 0 && n >= 2 * k) {
     return {
       possible: true,
-      reason: `Sim — por exemplo, 1-regular: ${k} componentes, cada um com pelo menos 2 vértices e número PAR de vértices (soma de graus do componente = 1·|Vi| tem que ser par), totalizando ${n}. Ex.: ${k - 1} arestas K2 isoladas e um emparelhamento perfeito nos ${n - 2 * (k - 1)} vértices restantes.`,
+      reason: `Sim — por exemplo, todos com grau 1: ${k} componentes, cada um com número PAR de vértices (a soma dos graus de um componente com grau 1 é o nº de vértices dele, e tem que ser par), totalizando ${n}. Ex.: ${k - 1} componentes com 2 vértices ligados e os ${n - 2 * (k - 1)} vértices restantes ligados dois a dois.`,
     };
   }
   if (n >= 3 * k) {
     return {
       possible: true,
-      reason: `Sim — por exemplo, 2-regular: ${k} ciclos disjuntos, cada um com pelo menos 3 vértices, totalizando ${n} (ex.: ${k - 1} triângulos e um ciclo com ${n - 3 * (k - 1)} vértices).`,
+      reason: `Sim — por exemplo, todos com grau 2: ${k} ciclos disjuntos, cada um com pelo menos 3 vértices, totalizando ${n} (ex.: ${k - 1} triângulos e um ciclo com ${n - 3 * (k - 1)} vértices).`,
     };
   }
   return {
     possible: false,
-    reason: `Não. Se todos os vértices têm grau d ≥ 1, cada componente precisa de pelo menos d + 1 vértices, logo n ≥ k(d + 1). Com d = 2 seria n ≥ ${3 * k} > ${n}; d maior exige ainda mais. Sobra d = 1: cada componente é um K2 com 2 vértices, o que exige n par e n ≥ ${2 * k}${n % 2 !== 0 ? ` — mas n = ${n} é ímpar` : ` — mas n = ${n} < ${2 * k}`}. Com d = 0 o grafo seria nulo, com ${n} componentes, não ${k}. Logo, impossível.`,
+    reason: `Não. Se todos os vértices têm grau d ≥ 1, cada componente precisa de pelo menos d + 1 vértices, logo n ≥ k(d + 1). Com d = 2 seria n ≥ ${3 * k} > ${n}; d maior exige ainda mais. Sobra d = 1: cada componente é um par de vértices ligados, o que exige n par e n ≥ ${2 * k}${n % 2 !== 0 ? ` — mas n = ${n} é ímpar` : ` — mas n = ${n} < ${2 * k}`}. Com d = 0 o grafo seria nulo, com ${n} componentes, não ${k}. Logo, impossível.`,
   };
 }
 
@@ -174,7 +174,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
   const src: Source = from ? exam(from.file, `${from.q} — mesmos números da prova`) : { type: 'old_exam', file: '2023-1-exam.pdf', note: `variante com números novos da família 2022/1-Q1, 2022/2-Q1, 2023/1-Q2, 2025/1-Q1` };
   const head = `Considerando um grafo não-direcionado simples G = (V, E) com ${n} vértices e ${k} componentes conexos,`;
   const legend = `n = ${n} vértices, k = ${k} componentes (pedaços soltos)`;
-  const minWhy = `MÍNIMO de arestas = n − k = ${n} − ${k} = ${min}. Por quê: um pedaço com x vértices precisa de pelo menos x − 1 arestas para ficar ligado (uma "árvore"); somando os ${k} pedaços dá ${n} − ${k}`;
+  const minWhy = `MÍNIMO de arestas = n − k = ${n} − ${k} = ${min}. Por quê: um pedaço com x vértices precisa de pelo menos x − 1 arestas para ficar ligado (com menos, ele se parte); somando os ${k} pedaços dá ${n} − ${k}`;
   const maxWhy = `MÁXIMO de arestas = (n − k)(n − k + 1)/2 = ${n - k}·${n - k + 1}/2 = ${max}. Por quê: deixe ${k - 1} pedaços com 1 vértice só (0 arestas) e ponha os outros ${n - k + 1} vértices num pedaço completo K${n - k + 1}, que tem ${n - k + 1}·${n - k}/2 arestas`;
   const base = {
     topic: 'aperto-de-maos-familias',
@@ -191,7 +191,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
 
   const minG = minEdgesGraph(n, k);
   const minSteps: WalkthroughStep[] = [
-    { text: `Temos n = ${n} vértices e k = ${k} pedaços soltos (componentes). Para gastar o MENOS possível de arestas, cada pedaço vira uma "corrente" (árvore): um pedaço com x vértices precisa de x − 1 arestas para ficar ligado.`, graph: minG.graph, caption: `${n} vértices divididos em ${k} pedaços, cada pedaço ligado só pelo mínimo.` },
+    { text: `Temos n = ${n} vértices e k = ${k} pedaços soltos (componentes). Para gastar o MENOS possível de arestas, cada pedaço fica ligado com o mínimo: um pedaço com x vértices precisa de x − 1 arestas para ficar ligado (com menos, ele se parte em dois).`, graph: minG.graph, caption: `${n} vértices divididos em ${k} pedaços, cada pedaço ligado só pelo mínimo.` },
     { text: `Contando pedaço por pedaço: ${minG.componentEdgeIds.map((e, i) => `pedaço ${i + 1} tem ${e.length + 1} vértices → ${e.length} aresta${e.length === 1 ? '' : 's'}`).join('; ')}. Soma: ${minG.componentEdgeIds.map((e) => e.length).join(' + ')} = ${min}.`, graph: minG.graph, highlightEdgeIds: minG.componentEdgeIds.flat(), caption: `As ${min} arestas destacadas são o mínimo.` },
     { text: `Atalho: em cada pedaço "some 1 vértice a menos", e são k pedaços — então n − k = ${n} − ${k} = ${min}.` },
   ];
@@ -242,7 +242,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
         `tp-${tag}-arestas-possivel`,
         alt
           ? yesNo(true, `é exatamente o máximo (n − k)(n − k + 1)/2 = ${max}: ${k - 1} vértices isolados e um K${n - k + 1} com todas as arestas.`)
-          : yesNo(true, `é exatamente o mínimo n − k = ${min}: cada um dos ${k} pedaços é uma árvore (x vértices, x − 1 arestas).`),
+          : yesNo(true, `é exatamente o mínimo n − k = ${min}: cada um dos ${k} pedaços fica com o mínimo para ser conexo (x vértices, x − 1 arestas).`),
         alt
           ? [yesNo(false, `o máximo com ${k} componentes é n − k = ${min}.`), yesNo(false, `${max} arestas exigem que o grafo seja conexo (k = 1).`), yesNo(true, `porque ${max} é menor que n(n − 1)/2 = ${kn}, e qualquer valor abaixo disso serve.`)]
           : [yesNo(false, `com só ${min} arestas o grafo teria mais de ${k} componentes.`), yesNo(true, `porque ${min} é menor que n(n − 1)/2 = ${kn}, e qualquer valor abaixo disso serve.`), yesNo(false, `o mínimo com ${k} componentes é (n − k)(n − k + 1)/2 = ${max}.`)],
@@ -251,7 +251,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       walkthrough: [...(alt ? maxSteps : minSteps), { text: alt ? `${max} é exatamente o máximo ⇒ possível.` : `${min} é exatamente o mínimo ⇒ possível.` }],
       generalRule: nkRule,
       hints: ['Compare com o mínimo n − k e o máximo (n − k)(n − k + 1)/2.'],
-      solution: alt ? `Sim. ${legend}. É exatamente o máximo: ${maxWhy}.` : `Sim. ${legend}. É exatamente o mínimo: ${minWhy}. Exemplo: ${k} árvores, uma por pedaço.`,
+      solution: alt ? `Sim. ${legend}. É exatamente o máximo: ${maxWhy}.` : `Sim. ${legend}. É exatamente o mínimo: ${minWhy}. Exemplo: ${k} pedaços, cada um com seus vértices ligados em sequência.`,
     },
     {
       ...base,
@@ -261,7 +261,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       options: options(
         `tp-${tag}-soma-graus`,
         alt
-          ? yesNo(true, `soma dos graus = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2}, que é exatamente o mínimo n − k = ${min} (k árvores).`)
+          ? yesNo(true, `soma dos graus = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2}, que é exatamente o mínimo n − k = ${min} (cada pedaço com o mínimo para ser conexo).`)
           : yesNo(false, `soma dos graus = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} < n − k = ${min}, o mínimo para ${k} componentes.`),
         alt
           ? [yesNo(false, `a soma dos graus tem que ser exatamente 2n = ${2 * n}.`), yesNo(true, `porque ${degreeAsk} é par, e toda soma par é possível.`), yesNo(false, `${degreeAsk} é menor que n(n − 1) = ${n * (n - 1)}, a soma máxima.`)]
@@ -276,7 +276,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       generalRule: nkRule,
       hints: ['Σ d(v) = 2|E|. Converta a soma em número de arestas e compare com o mínimo n − k.'],
       solution: alt
-        ? `Sim. ${legend}. Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas). Soma ${degreeAsk} ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} arestas, que é exatamente o mínimo n − k = ${min}. Exemplo: ${k} árvores.`
+        ? `Sim. ${legend}. Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas). Soma ${degreeAsk} ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} arestas, que é exatamente o mínimo n − k = ${min}. Exemplo: ${k} pedaços com os vértices ligados em sequência.`
         : `Não. ${legend}. Soma dos graus = 2 × nº de arestas. Soma ${degreeAsk} ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} arestas, menos que o mínimo n − k = ${min} para ${k} pedaços. Com tão poucas arestas, sobrariam mais de ${k} pedaços.`,
     },
     {
@@ -353,15 +353,15 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       id: `tp-${tag}-min`,
       type: 'MULTIPLE_CHOICE',
       prompt: `${head} qual o número MÍNIMO de arestas que ele pode ter? Justifique.`,
-      options: options(`tp-${tag}-min`, `${min} — n − k: cada pedaço com x vértices precisa de x − 1 arestas (árvore); somando os ${k} pedaços, ${n} − ${k}.`, [
+      options: options(`tp-${tag}-min`, `${min} — n − k: cada pedaço com x vértices precisa de x − 1 arestas para ser conexo; somando os ${k} pedaços, ${n} − ${k}.`, [
         `${k - 1} — uma aresta por componente.`,
-        `${n - 1} — n − 1, como numa árvore com todos os vértices.`,
+        `${n - 1} — n − 1, como se o grafo inteiro fosse conexo (k = 1).`,
         `${max} — (n − k)(n − k + 1)/2.`,
       ]),
       correctOptionId: 'correct',
       walkthrough: minSteps,
       generalRule: nkRule,
-      hints: ['Cada componente com ni vértices precisa de ni − 1 arestas (árvore). Some.'],
+      hints: ['Cada componente com ni vértices precisa de ni − 1 arestas para ser conexo. Some.'],
       solution: `${legend}. ${minWhy}.`,
     },
     {
@@ -430,7 +430,7 @@ const pombosQuestions: Question[] = [
     correctOptionId: 'correct',
     source: exam('2024-2-exam.pdf', 'Q1 — passo central da prova'),
     hints: ['O que significa ter grau n − 1 num grafo simples?'],
-    solution: 'Falso. Grau n − 1 significa ser adjacente a TODOS os outros n − 1 vértices (sem laços nem paralelas, cada aresta vai a um vértice distinto). Então todo outro vértice tem pelo menos essa aresta — grau ≥ 1. Isso é o que reduz os valores possíveis de n para n − 1 e faz a casa dos pombos funcionar.',
+    solution: 'Falso. Grau n − 1 significa ser adjacente a TODOS os outros n − 1 vértices (sem laços nem paralelas, cada aresta vai a um vértice distinto). Então todo outro vértice tem pelo menos essa aresta — grau ≥ 1. Isso é o que reduz os valores possíveis de n para n − 1: com n vértices e n − 1 valores, dois vértices repetem o grau.',
   },
   {
     id: 'tp-pombos-por-que-simples',
@@ -443,7 +443,7 @@ const pombosQuestions: Question[] = [
     type: 'MULTIPLE_CHOICE',
     prompt: 'Por que a prova dos "dois vértices de mesmo grau" exige que o grafo seja SIMPLES?',
     options: [
-      { id: 'a', label: 'Porque só em grafo simples o grau fica limitado a n − 1 — com laços ou arestas paralelas o grau pode crescer sem limite e a casa dos pombos não se aplica.' },
+      { id: 'a', label: 'Porque só em grafo simples o grau fica limitado a n − 1 — com laços ou arestas paralelas o grau pode crescer sem limite e não dá para garantir repetição.' },
       { id: 'b', label: 'Porque grafos não simples não têm vértices de grau 0.' },
       { id: 'c', label: 'Porque a soma dos graus só é par em grafo simples.' },
       { id: 'd', label: 'Não exige — a prova vale para qualquer grafo.' },
@@ -464,7 +464,7 @@ const pombosQuestions: Question[] = [
     type: 'MULTIPLE_CHOICE',
     prompt: 'A prova 2025/1-Q4 pede a prova para G simples e CONEXO com pelo menos dois vértices. O que muda em relação à versão "simples" (2024/2, 2026/1)?',
     options: [
-      { id: 'a', label: 'Fica mais fácil: conexo com n ≥ 2 já garante que nenhum vértice tem grau 0, então os graus estão em {1, …, n − 1} — n − 1 valores para n vértices, pombos direto.' },
+      { id: 'a', label: 'Fica mais fácil: conexo com n ≥ 2 já garante que nenhum vértice tem grau 0, então os graus estão em {1, …, n − 1} — n − 1 valores para n vértices: dois repetem o grau.' },
       { id: 'b', label: 'Fica mais difícil: precisa usar componentes conexos.' },
       { id: 'c', label: 'Nada muda; a prova é idêntica palavra por palavra.' },
       { id: 'd', label: 'A afirmação passa a ser falsa.' },
@@ -472,7 +472,7 @@ const pombosQuestions: Question[] = [
     correctOptionId: 'a',
     source: exam('2025-1-exam.pdf', 'Q4'),
     hints: ['Num grafo conexo com ≥ 2 vértices, qual o menor grau possível?'],
-    solution: 'Conexo com n ≥ 2 ⇒ todo vértice tem pelo menos uma aresta ⇒ grau ≥ 1. Então os graus ficam em {1, …, n − 1}: n − 1 valores para n vértices, casa dos pombos direto — não precisa nem do argumento "0 e n − 1 não coexistem". Vale mencionar os dois caminhos na prova.',
+    solution: 'Conexo com n ≥ 2 ⇒ todo vértice tem pelo menos uma aresta ⇒ grau ≥ 1. Então os graus ficam em {1, …, n − 1}: n − 1 valores para n vértices: dois repetem o grau direto — não precisa nem do argumento "0 e n − 1 não coexistem". Vale mencionar os dois caminhos na prova.',
   },
 ];
 
@@ -649,7 +649,7 @@ const autoComplementarQuestions: Question[] = [
     type: 'MULTIPLE_CHOICE',
     prompt: 'Dê dois exemplos de grafos auto-complementares com mais de 4 vértices (2023/1-Q3a). Qual par abaixo serve?',
     options: [
-      { id: 'a', label: 'C5 (ciclo com 5 vértices) e o grafo "casinha com cauda" de 5 vértices (P5 com a aresta {2,4}): ambos com 5 arestas = 5·4/4.' },
+      { id: 'a', label: 'C5 (ciclo com 5 vértices) e o grafo de 5 vértices formado pelo caminho 1-2-3-4-5 mais a aresta {2,4}: ambos com 5 arestas = 5·4/4.' },
       { id: 'b', label: 'C6 e K6.' },
       { id: 'c', label: 'K5 e N5.' },
       { id: 'd', label: 'P5 e C5.' },
@@ -657,7 +657,7 @@ const autoComplementarQuestions: Question[] = [
     correctOptionId: 'a',
     source: exam('2023-1-exam.pdf', 'Q3a (6%)'),
     hints: ['Auto-complementar precisa de n = 4k ou 4k+1 e exatamente n(n−1)/4 arestas.', 'C5 é o exemplo clássico. P5 tem 4 arestas — não é 5.'],
-    solution: 'n = 5 exige 5 arestas. C5: complemento de C5 é outro ciclo de 5 (o "pentagrama"), isomorfo. Segundo exemplo com 5 vértices: caminho 1-2-3-4-5 mais a aresta {2,4} ("A" ou casinha com cauda). K5/N5 são complementos um do outro, mas não isomorfos; C6 tem 6 vértices (6·5/4 não é inteiro); P5 tem 4 arestas.',
+    solution: 'n = 5 exige 5 arestas. C5: o complemento de C5 é outro ciclo de 5 vértices, isomorfo a ele. Segundo exemplo com 5 vértices: caminho 1-2-3-4-5 mais a aresta {2,4}. K5/N5 são complementos um do outro, mas não isomorfos; C6 tem 6 vértices (6·5/4 não é inteiro); P5 tem 4 arestas.',
   },
   ...[5, 8, 9].map<Question>((n) => ({
     id: `tp-autocomp-arestas-${n}`,
@@ -671,7 +671,7 @@ const autoComplementarQuestions: Question[] = [
     prompt: `Quantas arestas tem um grafo auto-complementar com ${n} vértices? Justifique.`,
     options: options(`tp-autocomp-arestas-${n}`, `${(n * (n - 1)) / 4} — n(n−1)/4: G e Ḡ têm o mesmo nº de arestas e juntos formam K${n}, que tem ${(n * (n - 1)) / 2}; metade para cada.`, [
       `${(n * (n - 1)) / 2} — n(n−1)/2: as arestas de K${n}.`,
-      `${n - 1} — n − 1: uma árvore geradora.`,
+      `${n - 1} — n − 1: o mínimo para o grafo ser conexo.`,
       `${n} — n: um ciclo com ${n} vértices.`,
     ]),
     correctOptionId: 'correct',
@@ -965,7 +965,7 @@ const bipartidoQuestions: Question[] = [
     options: options('tp-regular-15-3', 'Não — soma dos graus = 15·3 = 45 = 2|E| daria |E| = 22,5, não inteiro (equivalente: 15 vértices de grau ímpar, quantidade ímpar).', [
       'Sim — 3 ≤ n − 1 = 14, então cabe.',
       'Não — grafo regular precisa de n par.',
-      'Sim — basta desenhar um ciclo de 15 vértices com uma corda por vértice.',
+      'Sim — basta desenhar um ciclo de 15 vértices e acrescentar uma aresta em cada vértice.',
     ]),
     correctOptionId: 'correct',
     source: exam('2023-1-exam.pdf', 'Q1c (4%)'),
@@ -993,13 +993,13 @@ const bipartidoQuestions: Question[] = [
         : `Não — soma dos graus = ${n}·${d} = ${n * d} é ímpar, mas a soma dos graus é sempre 2|E| (par).`,
       ok
         ? [`Não — ${n} não é divisível por ${d}.`, `Não — grafo regular precisa de grau par.`, `Sim — porque ${d} < ${n}.`]
-        : [`Sim — ${d} ≤ n − 1 = ${n - 1}, então cabe.`, `Não — ${n} não é divisível por ${d}.`, `Sim — basta um ciclo com ${n} vértices e cordas.`],
+        : [`Sim — ${d} ≤ n − 1 = ${n - 1}, então cabe.`, `Não — ${n} não é divisível por ${d}.`, `Sim — basta um ciclo com ${n} vértices e mais uma aresta em cada vértice.`],
     ),
     correctOptionId: 'correct',
     source: exam('2023-1-exam.pdf', 'variante de Q1c com números novos'),
     hints: ['n·d = 2|E| tem que ser par, e d ≤ n − 1.'],
     solution: ok
-      ? `Sim. n = ${n} vértices, cada um com grau d = ${d}. Soma dos graus = n·d = ${n}·${d} = ${n * d}; como a soma é 2 × nº de arestas, |E| = ${n * d}/2 = ${(n * d) / 2} — inteiro, ok. E d = ${d} ≤ n − 1 = ${n - 1}, cabe. Existe (ex.: um ciclo de ${n} vértices com mais uma ligação por vértice).`
+      ? `Sim. n = ${n} vértices, cada um com grau d = ${d}. Soma dos graus = n·d = ${n}·${d} = ${n * d}; como a soma é 2 × nº de arestas, |E| = ${n * d}/2 = ${(n * d) / 2} — inteiro, ok. E d = ${d} ≤ n − 1 = ${n - 1}, cabe. Existe (ex.: um ciclo de ${n} vértices com mais uma aresta em cada vértice).`
       : `Não. n = ${n} vértices, cada um com grau d = ${d}. Soma dos graus = n·d = ${n}·${d} = ${n * d}, ÍMPAR — mas a soma dos graus é sempre 2 × nº de arestas, par. Dito de outro jeito: seriam ${n} vértices de grau ímpar, e a quantidade de vértices de grau ímpar tem que ser par.`,
   })),
   {
@@ -1131,7 +1131,7 @@ const buscaQuestions: Question[] = [
     correctOptionId: 'a',
     source: exam('2022-1-exam.pdf', 'Q2c (13%): "sua solução funciona para quais tipos de grafos?"'),
     hints: ['Num ciclo a → b → c → a isolado, qual é o grau de entrada de cada vértice?'],
-    solution: 'Em um ciclo isolado todo vértice tem d⁻ ≥ 1, mas ninguém de fora alcança o ciclo — algum vértice dele precisa estar na base. O algoritmo por grau de entrada só está completo depois de contrair ciclos (na prática, os componentes fortemente conexos) em hipervértices; o grafo condensado é acíclico e aí d⁻ = 0 funciona. Escreva isso na prova: é exatamente a qualificação que o professor cobra (correção "e funciona para quais grafos?").',
+    solution: 'Em um ciclo isolado todo vértice tem d⁻ ≥ 1, mas ninguém de fora alcança o ciclo — algum vértice dele precisa estar na base. O algoritmo por grau de entrada só está completo depois de contrair cada ciclo (componente fortemente conexo) em um hipervértice; o grafo que sobra não tem ciclos e aí d⁻ = 0 funciona. Escreva isso na prova: é exatamente a qualificação que o professor cobra (correção "e funciona para quais grafos?").',
   },
   {
     id: 'tp-ciclo-estado',
@@ -1168,12 +1168,12 @@ const buscaQuestions: Question[] = [
       { id: 'a', label: 'DFS em G, gravando os tempos de início e fim de cada vértice.' },
       { id: 'b', label: 'Construir o grafo transposto Gᵀ (mesmas arestas, sentido invertido).' },
       { id: 'c', label: 'DFS em Gᵀ visitando os vértices em ordem DECRESCENTE de tempo de término.' },
-      { id: 'd', label: 'Cada árvore da segunda DFS é um componente fortemente conexo.' },
+      { id: 'd', label: 'Cada conjunto de vértices visitados numa mesma chamada da segunda DFS é um componente fortemente conexo.' },
     ],
     correctOrder: ['a', 'b', 'c', 'd'],
     source: exam('2022-1-exam.pdf', 'Q5 (20%): "determine os componentes fortemente conexos, justificando"'),
-    hints: ['A ordem "DFS em G primeiro, depois no transposto" é a do professor (Cormen), não a de Sedgewick.'],
-    solution: 'DFS em G (tempos) → transpõe → DFS no transposto do maior para o menor tempo de término → cada árvore = um SCC. Na prova, mostre os tempos de término, a ordem de desempilhamento e o conjunto de cada chamada da 2ª DFS.',
+    hints: ['A ordem do professor: DFS em G primeiro, depois no transposto.'],
+    solution: 'DFS em G (tempos) → transpõe → DFS no transposto do maior para o menor tempo de término → cada conjunto visitado numa chamada = um SCC. Na prova, mostre os tempos de término, a ordem de desempilhamento e o conjunto de cada chamada da 2ª DFS.',
   },
   {
     id: 'tp-scc-ciclo',

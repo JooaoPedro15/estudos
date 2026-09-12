@@ -68,7 +68,7 @@ export function generateClosedQuestions(defs: DefinitionQuestion[]): Question[] 
       options: whoOptions,
       correctOptionId: 'correct',
       hints: [`Repare em: ${d.keyPoints[0]}.`],
-      solution: `É a definição de ${d.concept}. ${d.intuition}`,
+      solution: `É a definição de ${d.concept}: ${d.solution}`,
     });
 
     // 3) Verdadeiro/falso — metade verdadeira, metade com a definição de um vizinho.

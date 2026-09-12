@@ -1,5 +1,5 @@
 import type { Question } from '@/content/types';
-import { degree, isDegreeSequencePossible, edgeBoundsForComponents } from '@/lib/graph';
+import { degree, edgeBoundsForComponents } from '@/lib/graph';
 import { UG_SIX, UG_SIX_LAID_OUT } from './graphs';
 
 export const fundamentosQuestions: Question[] = [
@@ -35,7 +35,7 @@ export const fundamentosQuestions: Question[] = [
     correctOptionId: 'b',
     source: { type: 'professor_slide', file: '01-graphs-concepts.pdf' },
     hints: ['Vértice isolado tem grau 0.', 'O termo lembra algo "pendurado" por uma única conexão.'],
-    solution: 'Vértice pendente (ou "folha", em árvores) é aquele com grau exatamente 1. Vértice isolado tem grau 0.',
+    solution: 'Vértice pendente é aquele com grau exatamente 1. Vértice isolado tem grau 0.',
   },
   {
     id: 'fund-def-03',
@@ -99,8 +99,8 @@ export const fundamentosQuestions: Question[] = [
     prompt: 'O número mínimo de arestas para um grafo com n vértices ser conexo é n − 1.',
     correctValue: true,
     source: { type: 'professor_support_material', file: 'Resumo Prova 1 Grafos.pdf' },
-    hints: ['Pense em uma árvore — a estrutura conexa com o menor número possível de arestas.'],
-    solution: 'Correto — essa é a definição de árvore geradora: n vértices conectados com exatamente n−1 arestas, sem nenhuma aresta "sobrando".',
+    hints: ['Cada aresta nova une no máximo dois pedaços do grafo. Quantas uniões faltam para juntar n vértices soltos em um pedaço só?'],
+    solution: 'Correto — n vértices isolados formam n componentes; cada aresta reduz o número de componentes em no máximo 1, então chegar a 1 componente exige pelo menos n − 1 arestas. E n − 1 bastam: ligue os vértices em sequência.',
   },
   {
     id: 'fund-walk-03',
@@ -147,16 +147,17 @@ export const fundamentosQuestions: Question[] = [
       { id: 'a', label: 'Sim, a sequência é graficável' },
       { id: 'b', label: 'Não — a soma dos graus é ímpar' },
       { id: 'c', label: 'Não — grau 0 e grau 9 coexistem' },
-      { id: 'd', label: 'Não — mesmo com soma par e valores no intervalo [0,9], viola o critério de Erdős–Gallai' },
+      { id: 'd', label: 'Não — o vértice de grau 9 é vizinho de todos; os dois vértices de grau 1 gastam sua única aresta nele; sobram ao vértice de grau 8 só 7 vizinhos possíveis' },
     ],
     correctOptionId: 'd',
-    source: { type: 'old_exam', file: '2023-1-exam.pdf' },
+    source: { type: 'old_exam', file: '2023-1-exam.pdf', note: 'Q1d (4%)' },
     hints: [
-      `A soma é ${[1, 1, 3, 3, 3, 3, 5, 6, 8, 9].reduce((a, b) => a + b, 0)} (par) e todos os valores estão entre 0 e 9 — essas checagens rápidas não bastam aqui.`,
-      'Ordene decrescente e compare a soma dos k maiores graus com k(k−1) + soma dos min(dᵢ,k) dos demais, para k=1,2,3...',
-      isDegreeSequencePossible([1, 1, 3, 3, 3, 3, 5, 6, 8, 9], 10).reason,
+      `A soma é ${[1, 1, 3, 3, 3, 3, 5, 6, 8, 9].reduce((a, b) => a + b, 0)} (par) e todos os valores estão entre 0 e 9 — essas checagens rápidas não bastam aqui. Tente construir o grafo começando pelo vértice de grau 9.`,
+      'Num grafo simples com 10 vértices, grau 9 = adjacente a todos os outros. A quem os dois vértices de grau 1 estão ligados?',
+      'O vértice de grau 8 não pode usar os dois vértices de grau 1 (já esgotados). Quantos vizinhos sobram para ele?',
     ],
-    solution: `${isDegreeSequencePossible([1, 1, 3, 3, 3, 3, 5, 6, 8, 9], 10).reason} Isso mostra que soma par + intervalo válido NÃO bastam para garantir que uma sequência é graficável — é preciso o critério completo de Erdős–Gallai (ou tentar construir o grafo diretamente e travar).`,
+    solution:
+      'Não. Soma = 42 (par) e todos os graus ≤ 9 = n − 1, então essas checagens passam — mas ao construir o grafo trava: o vértice de grau 9 é adjacente a todos os outros 9. Assim cada um dos dois vértices de grau 1 tem sua única aresta ligada a ele e não aceita mais nenhuma. O vértice de grau 8 precisa de 8 vizinhos entre os outros 9 vértices, mas os dois de grau 1 estão esgotados: sobram no máximo 7 < 8. Logo a sequência não representa grafo simples. (Na prova: soma par + graus ≤ n − 1 são só condições necessárias; feche o argumento tentando construir.)',
   },
   {
     id: 'fund-fam-03',
@@ -170,7 +171,7 @@ export const fundamentosQuestions: Question[] = [
     prompt: 'Um grafo simples tem 11 vértices e 6 componentes conexos. Qual o número MÍNIMO de arestas possível? (responda só o número)',
     acceptedAnswers: [String(edgeBoundsForComponents(11, 6).min)],
     source: { type: 'old_exam', file: '2022-2-exam.pdf' },
-    hints: ['Cada componente, no mínimo, é uma árvore (n_i − 1 arestas).', 'Some (n_i − 1) sobre os 6 componentes — o total dá n − k.'],
+    hints: ['Cada componente com n_i vértices precisa de pelo menos n_i − 1 arestas para ser conexo.', 'Some (n_i − 1) sobre os 6 componentes — o total dá n − k.'],
     solution: `m_min = n − k = 11 − 6 = ${edgeBoundsForComponents(11, 6).min}.`,
   },
   {
@@ -202,16 +203,16 @@ export const fundamentosQuestions: Question[] = [
       'Observa que o grau de um vértice varia no intervalo [0, n−1]',
       'Observa que grau 0 e grau n−1 não podem coexistir no mesmo grafo simples',
       'Conclui que há no máximo n−1 valores de grau possíveis para n vértices',
-      'Conclui: n vértices para no máximo n−1 valores de grau ⇒ dois vértices compartilham o mesmo grau (o "princípio da casa dos pombos" — escreva o argumento, o nome não está no material do professor)',
+      'Conclui: n vértices para no máximo n−1 valores de grau ⇒ não tem como todos terem graus diferentes; dois vértices compartilham o mesmo grau',
     ],
     source: { type: 'old_exam', file: '2024-2-exam.pdf' },
     professorStyleSimilarity: 'high',
     hints: [
       'Quantos valores de grau são POSSÍVEIS em um grafo simples de n vértices?',
       'Grau 0 (isolado) e grau n−1 (ligado a todos) não podem existir ao mesmo tempo — por quê?',
-      'Se há n vértices mas no máximo n−1 valores de grau possíveis, o que o princípio da casa dos pombos garante?',
+      'Se há n vértices mas no máximo n−1 valores de grau possíveis, é possível todos terem graus diferentes?',
     ],
     solution:
-      'Em um grafo simples de n vértices, o grau de qualquer vértice está entre 0 e n−1. Se algum vértice tem grau n−1, ele está ligado a todos os outros — logo nenhum vértice pode ter grau 0 (todos têm pelo menos essa aresta). Isso significa que 0 e n−1 nunca ocorrem juntos, restando no máximo n−1 valores possíveis de grau para distribuir entre n vértices. Como são n vértices para no máximo n−1 valores, não tem como todos terem graus diferentes: pelo menos dois vértices compartilham o mesmo grau. (Esse é o "princípio da casa dos pombos", nome que não aparece no material do professor — escreva o argumento. Questão praticamente fixa nas provas de 2024/1, 2024/2 e 2026/1 — decore esta prova.)',
+      'Em um grafo simples de n vértices, o grau de qualquer vértice está entre 0 e n−1. Se algum vértice tem grau n−1, ele está ligado a todos os outros — logo nenhum vértice pode ter grau 0 (todos têm pelo menos essa aresta). Isso significa que 0 e n−1 nunca ocorrem juntos, restando no máximo n−1 valores possíveis de grau para distribuir entre n vértices. Como são n vértices para no máximo n−1 valores, não tem como todos terem graus diferentes: pelo menos dois vértices compartilham o mesmo grau. (Questão praticamente fixa nas provas de 2024/1, 2024/2 e 2026/1 — decore esta prova.)',
   },
 ];

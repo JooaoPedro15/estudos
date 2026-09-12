@@ -150,14 +150,14 @@ export const treinoProvaProofQuestions: Question[] = [
     [
       'Calcule o grau de entrada d⁻(v) de todos os vértices.',
       'Vértices com d⁻(v) = 0 entram na base: ninguém os alcança, então só eles podem se representar.',
-      'Se o grafo tem ciclos, contraia cada ciclo (componente fortemente conexo) em um hipervértice; o grafo condensado é acíclico.',
-      'Hipervértices com d⁻ = 0 no grafo condensado contribuem com UM vértice qualquer do ciclo para a base.',
+      'Se o grafo tem ciclos, contraia cada ciclo (componente fortemente conexo) em um hipervértice; o grafo que sobra não tem ciclos.',
+      'Hipervértices com d⁻ = 0 no grafo contraído contribuem com UM vértice qualquer do ciclo para a base.',
       'Justifique: todo vértice com d⁻ > 0 é alcançado, direta ou indiretamente, a partir dos escolhidos; a base é mínima porque nenhum escolhido alcança outro.',
       'Anti-base: transponha G e aplique o mesmo algoritmo.',
     ],
     exam('2023-2-exam.pdf', 'Q2 (30%); 2022/1-Q2c, 2022/2-Q2c-d, 2024/1-Q1'),
     'd⁻ = 0 entra → ciclos viram hipervértice → hipervértice com d⁻ = 0 dá um representante → justifica alcance e minimalidade → anti-base no transposto.',
-    'Regra geral: base = fontes do grafo condensado (SCCs); anti-base = sumidouros = base do transposto.',
+    'Regra geral: base = vértices (ou ciclos contraídos) sem aresta chegando; anti-base = sem aresta saindo = base do transposto.',
   ),
   proofOrder(
     'tp-ordem-kosaraju-scc',
@@ -169,11 +169,11 @@ export const treinoProvaProofQuestions: Question[] = [
       'DFS em G anotando tempo de início e de término de cada vértice.',
       'Liste os vértices em ordem decrescente de tempo de término (pilha).',
       'Construa o transposto Gᵀ (inverta todas as arestas).',
-      'DFS em Gᵀ seguindo a ordem da pilha; cada árvore obtida é um componente fortemente conexo.',
+      'DFS em Gᵀ seguindo a ordem da pilha; cada conjunto de vértices visitados numa mesma chamada é um componente fortemente conexo.',
       'Justifique: dois vértices no mesmo SCC se alcançam mutuamente; a ordem por término impede que a 2ª DFS "vaze" para outro componente.',
     ],
     exam('2022-1-exam.pdf', 'Q5 (20%)'),
-    'Desenha → DFS com tempos → ordem decrescente de término → transposto → DFS na ordem → cada árvore = SCC → justifica.',
+    'Desenha → DFS com tempos → ordem decrescente de término → transposto → DFS na ordem → cada conjunto visitado numa chamada = SCC → justifica.',
   ),
   {
     id: 'tp-mc-duas-estrategias-ciclo',
@@ -196,7 +196,7 @@ export const treinoProvaProofQuestions: Question[] = [
     hints: ['Uma via percorre (DFS); a outra olha a estrutura (componentes fortemente conexos).'],
     solution:
       'Estratégia 1: DFS marcando 0 (não começou), 1 (em andamento), 2 (terminou); encontrar vizinho em estado 1 = aresta de retorno = ciclo. Estratégia 2: rodar Kosaraju; um SCC com ≥ 2 vértices contém ida e volta entre dois vértices, logo um ciclo (laço também é ciclo). Um terceiro caminho aceito: remover repetidamente vértices com grau de entrada 0 (base); se sobrar vértice, há ciclo.',
-    generalRule: 'Regra geral: "duas soluções distintas" = uma por busca (DFS 0/1/2) e uma por estrutura (SCC/Kosaraju ou remoção de fontes).',
+    generalRule: 'Regra geral: "duas soluções distintas" = uma por busca (DFS 0/1/2) e uma por estrutura (SCC/Kosaraju ou remoção repetida de vértices com grau de entrada 0).',
   },
   {
     id: 'tp-mc-isomorfismo-dirigido',
@@ -240,6 +240,6 @@ export const treinoProvaProofQuestions: Question[] = [
     professorStyleSimilarity: 'high',
     hints: ['A resposta "n valores para n vértices" não fecha — falta o passo que tira um valor.'],
     solution:
-      'A prova precisa dos três movimentos: (1) intervalo [0, n−1]; (2) 0 e n−1 não coexistem (quem tem grau n−1 é vizinho de todos); (3) sobram n−1 "casas" para n "pombos". A alternativa "n valores para n vértices" é o erro clássico: com n casas para n pombos NÃO há garantia de repetição. O nome "princípio da casa dos pombos" não aparece no material do professor (slides, lista, aulão, resoluções): escreva o argumento em palavras, como na resolução de 2024/1 — "não tem como todos os vértices terem graus diferentes, logo sempre sobra um grau repetido".',
+      'A prova precisa dos três movimentos: (1) intervalo [0, n−1]; (2) 0 e n−1 não coexistem (quem tem grau n−1 é vizinho de todos); (3) sobram n−1 valores para n vértices: não tem como todos terem graus diferentes, logo dois repetem. A alternativa "n valores para n vértices" é o erro clássico: com n valores para n vértices todos PODEM ser diferentes — não há garantia de repetição. Escreva como na resolução de 2024/1: "não tem como todos os vértices terem graus diferentes, logo sempre sobra um grau repetido".',
   },
 ];

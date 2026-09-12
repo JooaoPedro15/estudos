@@ -252,7 +252,7 @@ export const logicaConjuntosQuestions: Question[] = [
     sourceStyle: 'generated',
     type: 'PROOF_OR_JUSTIFICATION',
     prompt:
-      'Traduza para lógica de predicados a afirmação "Todo grafo simples com pelo menos 2 vértices possui dois vértices de mesmo grau" (a prova clássica por casa dos pombos vista no módulo de Fundamentos). Explique por que a tradução usa → e não ∧ ao restringir o quantificador ∀ ao caso "|V(G)|≥2".',
+      'Traduza para lógica de predicados a afirmação "Todo grafo simples com pelo menos 2 vértices possui dois vértices de mesmo grau". Explique por que a tradução usa → e não ∧ ao restringir o quantificador ∀ ao caso "|V(G)|≥2".',
     rubric: [
       'Introduz um predicado para "G é um grafo simples com |V(G)|≥2" (a hipótese)',
       'Introduz um predicado para "G tem dois vértices de mesmo grau" (a conclusão)',

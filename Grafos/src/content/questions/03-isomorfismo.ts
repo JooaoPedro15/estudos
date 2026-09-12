@@ -70,7 +70,7 @@ export const isomorfismoQuestions: Question[] = [
       'Conte quantos triângulos (3 vértices mutuamente ligados) existem em cada grafo.',
     ],
     solution:
-      'Não são isomorfos, apesar de |V|, |E| e sequência de graus baterem (condições necessárias satisfeitas, mas não suficientes). O grafo A tem 2 triângulos (duas triangulações conectadas por uma ponte); o grafo B não tem NENHUM triângulo (é um hexágono com uma corda, formando dois quadrados). Número de triângulos é um invariante de isomorfismo — se difere, os grafos não podem ser isomorfos.',
+      'Não são isomorfos, apesar de |V|, |E| e sequência de graus baterem (condições necessárias satisfeitas, mas não suficientes). O grafo A tem 2 triângulos (dois triângulos ligados por uma aresta); o grafo B não tem NENHUM triângulo (é um ciclo de 6 vértices com uma aresta a mais ligando dois vértices opostos, formando dois ciclos de 4). Número de triângulos é um invariante de isomorfismo — se difere, os grafos não podem ser isomorfos.',
   },
   {
     id: 'iso-04',
@@ -187,7 +187,7 @@ export const isomorfismoQuestions: Question[] = [
     prompt: 'Complete: para um grafo simples com n vértices e k componentes conexos, o número mínimo de arestas é n menos ___.',
     acceptedAnswers: ['k', 'o numero de componentes'],
     source: { type: 'professor_support_material', file: 'Resumo Prova 1 Grafos.pdf' },
-    hints: ['Cada componente conexo, na configuração de menos arestas possível, é uma árvore.'],
-    solution: 'm_min = n − k (cada um dos k componentes é uma árvore, contribuindo n_i − 1 arestas cada; somado sobre todos os componentes dá n − k).',
+    hints: ['Um componente conexo com n_i vértices precisa de pelo menos n_i − 1 arestas.'],
+    solution: 'm_min = n − k: cada um dos k componentes, com n_i vértices, precisa de pelo menos n_i − 1 arestas para ser conexo; somando sobre os componentes, Σ(n_i − 1) = n − k.',
   },
 ];
