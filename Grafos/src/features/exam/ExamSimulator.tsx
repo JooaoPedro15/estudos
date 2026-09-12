@@ -6,6 +6,7 @@ import { getExam } from '@/content/exams';
 import { getQuestion } from '@/content/questions';
 import type { ExerciseType, Question, QuestionAttempt } from '@/content/types';
 import { validateAnswer } from '@/engine/validate';
+import { scrambledOrder } from '@/engine/ExerciseRenderer';
 import { TeachMePanel } from '@/engine/TeachMePanel';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { recordAttempt } from '@/store/progress';
@@ -492,7 +493,7 @@ function ExamAnswerInput({ question, value, onChange }: { question: Question; va
       );
 
     case 'ORDERING': {
-      const order = (value as string[] | undefined) ?? question.items.map((i) => i.id);
+      const order = (value as string[] | undefined) ?? scrambledOrder(question);
       return <ExamOrderingInput question={question} value={order} onChange={onChange} />;
     }
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
-import { pickNextExamDrill, questions } from '@/content/questions';
+import { isExamDrillQuestion, pickNextExamDrill, questions } from '@/content/questions';
 import { TOTAL_EXAMS, examFamilies, examFamilyWeight } from '@/content/examFamilies';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
@@ -12,7 +12,7 @@ import { ExamRelevance } from './ExamRelevance';
 const RECENT_LIMIT = 12;
 const FAMILIES_BY_WEIGHT = [...examFamilies].sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
 const TOTAL_WEIGHT = examFamilies.reduce((acc, f) => acc + examFamilyWeight(f), 0);
-const QUESTIONS_PER_FAMILY = new Map(examFamilies.map((f) => [f.id, questions.filter((q) => q.examFamily === f.id).length]));
+const QUESTIONS_PER_FAMILY = new Map(examFamilies.map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isExamDrillQuestion(q)).length]));
 
 function formatSeconds(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -98,8 +98,8 @@ export function ExamDrillSession() {
         </Link>
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
-        Só o que caiu nas {TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados. O que caiu em mais
-        provas aparece mais vezes. Sem fim: saia quando quiser.
+        Só o que caiu nas {TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados, todas fechadas
+        (marcar, ordenar passos, clicar no grafo). O que caiu em mais provas aparece mais vezes. Sem fim: saia quando quiser.
       </p>
 
       <button

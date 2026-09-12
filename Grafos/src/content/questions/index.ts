@@ -7,6 +7,7 @@ import { buscaQuestions } from './04-busca';
 import { conectividadeQuestions } from './05-conectividade';
 import { logicaConjuntosQuestions } from './06-logica-conjuntos';
 import { treinoProvaQuestions } from './07-treino-prova';
+import { treinoProvaProofQuestions } from './08-treino-prova-provas';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 import { conceptExamWeights, examFamilies, examFamilyWeight } from '@/content/examFamilies';
 
@@ -18,6 +19,7 @@ export const questions: Question[] = [
   ...conectividadeQuestions,
   ...logicaConjuntosQuestions,
   ...treinoProvaQuestions,
+  ...treinoProvaProofQuestions,
   ...definitionQuestions,
   ...closedDefinitionQuestions,
 ];
@@ -264,11 +266,23 @@ function lastAttemptByQuestion(attempts: QuestionAttempt[]): Map<string, Questio
  * mais que "matriz de adjacência" (1 prova), independentemente de quantas
  * variantes cada família tem.
  */
+/** Tipos "fechados": responde marcando/clicando/ordenando, sem digitar texto ou número. É o que o Treino de prova usa. */
+const CLOSED_TYPES = new Set<Question['type']>(['MULTIPLE_CHOICE', 'TRUE_FALSE', 'ORDERING', 'GRAPH_SELECT_VERTEX', 'GRAPH_SELECT_EDGE', 'DRAG_AND_DROP']);
+
+export function isClosedQuestion(q: Question): boolean {
+  return CLOSED_TYPES.has(q.type);
+}
+
+/** Questões que entram no Treino de prova: têm família de prova E são fechadas. */
+export function isExamDrillQuestion(q: Question): boolean {
+  return Boolean(q.examFamily) && isClosedQuestion(q);
+}
+
 export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[]): Question | undefined {
   const excluded = new Set(excludeIds);
   const byFamily = new Map<string, Question[]>();
   for (const q of questions) {
-    if (!q.examFamily) continue;
+    if (!q.examFamily || !isClosedQuestion(q)) continue;
     const list = byFamily.get(q.examFamily) ?? [];
     list.push(q);
     byFamily.set(q.examFamily, list);
