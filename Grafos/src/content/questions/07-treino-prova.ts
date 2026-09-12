@@ -1,5 +1,5 @@
-import type { GraphData, Question, Source } from '@/content/types';
-import { edgeBoundsForComponents, numberOfSubgraphsOfCompleteGraph, radiusDiameterCenter } from '@/lib/graph';
+import type { GraphData, Question, Source, WalkthroughStep } from '@/content/types';
+import { distancesFrom, edgeBoundsForComponents, numberOfSubgraphsOfCompleteGraph, radiusDiameterCenter } from '@/lib/graph';
 
 // Questões do "Treino de prova": só o que caiu nas 8 provas antigas do Prof.
 // Silvio (docs/exam-pattern.md), em duas formas — a pergunta como está na
@@ -8,6 +8,98 @@ import { edgeBoundsForComponents, numberOfSubgraphsOfCompleteGraph, radiusDiamet
 // ("respostas sem justificativa serão desconsideradas").
 
 const exam = (file: string, note: string): Source => ({ type: 'old_exam', file, note });
+
+// ---------------------------------------------------------------------------
+// Desenhos para o passo a passo ("de onde saiu esse número?")
+// ---------------------------------------------------------------------------
+
+const COLOR = { side1: '#ffb454', side2: '#35e0d0', side3: '#6e7bff', dim: '#4a4f66', hot: '#ff5c7a' };
+
+function spread(count: number, from: number, to: number): number[] {
+  if (count === 1) return [(from + to) / 2];
+  return Array.from({ length: count }, (_, i) => from + ((to - from) * i) / (count - 1));
+}
+
+/** Kr,s,t: lado 1 à esquerda, lado 2 em cima à direita, lado 3 embaixo à direita. */
+function tripartiteGraph(r: number, s: number, t: number): { graph: GraphData; sides: string[][]; between: (a: number, b: number) => string[] } {
+  const sides = [
+    Array.from({ length: r }, (_, i) => `a${i + 1}`),
+    Array.from({ length: s }, (_, i) => `b${i + 1}`),
+    Array.from({ length: t }, (_, i) => `c${i + 1}`),
+  ];
+  const ys1 = spread(r, 90, 230);
+  const xs2 = spread(s, 300, 500);
+  const xs3 = spread(t, 300, 500);
+  const vertices = [
+    ...sides[0].map((id, i) => ({ id, label: id, x: 80, y: ys1[i] })),
+    ...sides[1].map((id, i) => ({ id, label: id, x: xs2[i], y: 50 })),
+    ...sides[2].map((id, i) => ({ id, label: id, x: xs3[i], y: 280 })),
+  ];
+  const edges: GraphData['edges'] = [];
+  const pair = (A: string[], B: string[]) => A.flatMap((u) => B.map((v) => ({ id: `${u}-${v}`, source: u, target: v })));
+  edges.push(...pair(sides[0], sides[1]), ...pair(sides[0], sides[2]), ...pair(sides[1], sides[2]));
+  const between = (a: number, b: number) => sides[a].flatMap((u) => sides[b].map((v) => `${u}-${v}`));
+  return { graph: { directed: false, vertices, edges }, sides, between };
+}
+
+/** n vértices em k pedaços com o MÍNIMO de arestas: k caminhos (árvores), tamanhos o mais iguais possível. */
+function minEdgesGraph(n: number, k: number): { graph: GraphData; componentEdgeIds: string[][] } {
+  const sizes = Array.from({ length: k }, (_, i) => Math.floor(n / k) + (i < n % k ? 1 : 0));
+  const cols = Math.ceil(Math.sqrt(k));
+  const rows = Math.ceil(k / cols);
+  const cellW = 560 / cols;
+  const cellH = 320 / rows;
+  const vertices: GraphData['vertices'] = [];
+  const edges: GraphData['edges'] = [];
+  const componentEdgeIds: string[][] = [];
+  let v = 1;
+  sizes.forEach((size, c) => {
+    const cx = (c % cols) * cellW;
+    const cy = Math.floor(c / cols) * cellH;
+    const xs = spread(size, cx + 30, cx + cellW - 30);
+    const ids: string[] = [];
+    for (let i = 0; i < size; i++) {
+      const id = `v${v++}`;
+      ids.push(id);
+      vertices.push({ id, label: String(v - 1), x: xs[i], y: cy + cellH / 2 + (i % 2 === 0 ? -18 : 18) });
+    }
+    const eids: string[] = [];
+    for (let i = 1; i < size; i++) {
+      const id = `${ids[i - 1]}-${ids[i]}`;
+      edges.push({ id, source: ids[i - 1], target: ids[i] });
+      eids.push(id);
+    }
+    componentEdgeIds.push(eids);
+  });
+  return { graph: { directed: false, vertices, edges }, componentEdgeIds };
+}
+
+/** n vértices em k pedaços com o MÁXIMO de arestas: K(n−k+1) em círculo + (k−1) vértices isolados. */
+function maxEdgesGraph(n: number, k: number): { graph: GraphData; bigIds: string[]; isolatedIds: string[] } {
+  const big = n - k + 1;
+  const bigIds = Array.from({ length: big }, (_, i) => `v${i + 1}`);
+  const isolatedIds = Array.from({ length: k - 1 }, (_, i) => `i${i + 1}`);
+  const vertices: GraphData['vertices'] = bigIds.map((id, i) => {
+    const ang = (2 * Math.PI * i) / big - Math.PI / 2;
+    return { id, label: String(i + 1), x: 170 + 120 * Math.cos(ang), y: 160 + 120 * Math.sin(ang) };
+  });
+  const ys = spread(isolatedIds.length, 60, 260);
+  isolatedIds.forEach((id, i) => vertices.push({ id, label: String(big + i + 1), x: 380 + (i % 2) * 110, y: ys[i] }));
+  const edges: GraphData['edges'] = [];
+  for (let i = 0; i < big; i++) for (let j = i + 1; j < big; j++) edges.push({ id: `${bigIds[i]}-${bigIds[j]}`, source: bigIds[i], target: bigIds[j] });
+  return { graph: { directed: false, vertices, edges }, bigIds, isolatedIds };
+}
+
+function completeGraph(n: number): GraphData {
+  const ids = Array.from({ length: n }, (_, i) => String.fromCharCode(97 + i));
+  const vertices = ids.map((id, i) => {
+    const ang = (2 * Math.PI * i) / n - Math.PI / 2;
+    return { id, label: id, x: 280 + 120 * Math.cos(ang), y: 160 + 120 * Math.sin(ang) };
+  });
+  const edges: GraphData['edges'] = [];
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) edges.push({ id: `${ids[i]}${ids[j]}`, source: ids[i], target: ids[j] });
+  return { directed: false, vertices, edges };
+}
 
 // ---------------------------------------------------------------------------
 // Família 1 — n vértices, k componentes (caiu em 5 de 8 provas, sempre Q1)
@@ -64,8 +156,9 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
   const { min, max } = edgeBoundsForComponents(n, k);
   const src: Source = from ? exam(from.file, `${from.q} — mesmos números da prova`) : { type: 'old_exam', file: '2023-1-exam.pdf', note: `variante com números novos da família 2022/1-Q1, 2022/2-Q1, 2023/1-Q2, 2025/1-Q1` };
   const head = `Considerando um grafo não-direcionado simples G = (V, E) com ${n} vértices e ${k} componentes conexos,`;
-  const minWhy = `mínimo de arestas = n − k = ${n} − ${k} = ${min} (cada componente com ni vértices precisa de pelo menos ni − 1 arestas para ser conexo; somando, Σ(ni − 1) = n − k)`;
-  const maxWhy = `máximo de arestas = (n − k)(n − k + 1)/2 = ${n - k}·${n - k + 1}/2 = ${max} (${k - 1} componentes viram vértices isolados e os ${n - k + 1} restantes formam um K${n - k + 1})`;
+  const legend = `n = ${n} vértices, k = ${k} componentes (pedaços soltos)`;
+  const minWhy = `MÍNIMO de arestas = n − k = ${n} − ${k} = ${min}. Por quê: um pedaço com x vértices precisa de pelo menos x − 1 arestas para ficar ligado (uma "árvore"); somando os ${k} pedaços dá ${n} − ${k}`;
+  const maxWhy = `MÁXIMO de arestas = (n − k)(n − k + 1)/2 = ${n - k}·${n - k + 1}/2 = ${max}. Por quê: deixe ${k - 1} pedaços com 1 vértice só (0 arestas) e ponha os outros ${n - k + 1} vértices num pedaço completo K${n - k + 1}, que tem ${n - k + 1}·${n - k}/2 arestas`;
   const base = {
     topic: 'aperto-de-maos-familias',
     difficulty: 'medium' as const,
@@ -78,6 +171,20 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
   };
   const tag = `nk${n}-${k}`;
   const reg = regularVerdict(n, k);
+
+  const minG = minEdgesGraph(n, k);
+  const minSteps: WalkthroughStep[] = [
+    { text: `Temos n = ${n} vértices e k = ${k} pedaços soltos (componentes). Para gastar o MENOS possível de arestas, cada pedaço vira uma "corrente" (árvore): um pedaço com x vértices precisa de x − 1 arestas para ficar ligado.`, graph: minG.graph, caption: `${n} vértices divididos em ${k} pedaços, cada pedaço ligado só pelo mínimo.` },
+    { text: `Contando pedaço por pedaço: ${minG.componentEdgeIds.map((e, i) => `pedaço ${i + 1} tem ${e.length + 1} vértices → ${e.length} aresta${e.length === 1 ? '' : 's'}`).join('; ')}. Soma: ${minG.componentEdgeIds.map((e) => e.length).join(' + ')} = ${min}.`, graph: minG.graph, highlightEdgeIds: minG.componentEdgeIds.flat(), caption: `As ${min} arestas destacadas são o mínimo.` },
+    { text: `Atalho: em cada pedaço "some 1 vértice a menos", e são k pedaços — então n − k = ${n} − ${k} = ${min}.` },
+  ];
+  const maxG = n - k + 1 <= 8 ? maxEdgesGraph(n, k) : undefined;
+  const maxSteps: WalkthroughStep[] = [
+    { text: `Para ter o MÁXIMO de arestas com k = ${k} pedaços: aresta só existe DENTRO de um pedaço. Então deixe ${k - 1} pedaços com 1 vértice cada (0 arestas) e junte todos os outros ${n - k + 1} vértices num pedaço só, ligando todo mundo com todo mundo (grafo completo K${n - k + 1}).`, graph: maxG?.graph, vertexColorMap: maxG ? Object.fromEntries([...maxG.bigIds.map((id) => [id, COLOR.side1]), ...maxG.isolatedIds.map((id) => [id, COLOR.dim])]) : undefined, caption: maxG ? `Pedaço grande (amarelo) com ${n - k + 1} vértices + ${k - 1} isolados (cinza).` : `Com ${n - k + 1} vértices no pedaço grande o desenho fica ilegível — veja a ideia com n = 6, k = 2 na seção de fórmulas.` },
+    { text: `Arestas do pedaço grande: cada um dos ${n - k + 1} vértices liga com os outros ${n - k}; isso conta cada aresta 2 vezes (uma de cada ponta), então divide por 2: ${n - k + 1}·${n - k}/2 = ${max}.`, graph: maxG?.graph, highlightEdgeIds: maxG?.graph.edges.map((e) => e.id), caption: maxG ? `As ${max} arestas do K${n - k + 1}.` : undefined },
+    { text: `Fórmula: (n − k)(n − k + 1)/2 = (${n} − ${k})(${n} − ${k} + 1)/2 = ${n - k}·${n - k + 1}/2 = ${max}.` },
+  ];
+  const nkRule = 'Regra geral: com n vértices e k componentes, mínimo = n − k e máximo = (n − k)(n − k + 1)/2. Qualquer número de arestas entre esses dois é possível; fora, impossível. Soma dos graus = 2 × arestas (sempre par).';
   const alt = idx % 2 === 0;
   const edgesAsk = alt ? min - 1 : max + 1;
   const degreeAsk = alt ? 2 * min : 2 * min - 2;
@@ -88,32 +195,42 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       ...base,
       id: `tp-${tag}-arestas-impossivel`,
       type: 'TRUE_FALSE',
+      walkthrough: [...(alt ? minSteps : maxSteps), { text: alt ? `${edgesAsk} é menor que o mínimo ${min} ⇒ impossível: sobraria pedaço solto (mais de ${k} componentes).` : `${edgesAsk} é maior que o máximo ${max} ⇒ impossível: a aresta extra ligaria dois pedaços (menos de ${k} componentes).` }],
+      generalRule: nkRule,
       prompt: `${head} é possível que esse grafo possua ${edgesAsk} arestas?`,
       correctValue: false,
       hints: ['Compare com o mínimo n − k e o máximo (n − k)(n − k + 1)/2.'],
       solution: alt
-        ? `Não. O ${minWhy}. ${edgesAsk} < ${min}, então com ${edgesAsk} arestas haveria mais de ${k} componentes.`
-        : `Não. O ${maxWhy}. ${edgesAsk} > ${max}, então seria preciso ligar vértices de componentes diferentes, reduzindo o número de componentes.`,
+        ? `Não. ${legend}. ${minWhy}. Como ${edgesAsk} < ${min}, com ${edgesAsk} arestas sobraria pedaço solto: seriam mais de ${k} componentes.`
+        : `Não. ${legend}. ${maxWhy}. Como ${edgesAsk} > ${max}, a aresta extra teria que ligar dois pedaços diferentes — e aí ficariam menos de ${k} componentes.`,
     },
     {
       ...base,
       id: `tp-${tag}-arestas-possivel`,
       type: 'TRUE_FALSE',
+      walkthrough: [...(alt ? maxSteps : minSteps), { text: alt ? `${max} é exatamente o máximo ⇒ possível.` : `${min} é exatamente o mínimo ⇒ possível.` }],
+      generalRule: nkRule,
       prompt: `${head} é possível que esse grafo possua ${alt ? max : min} arestas?`,
       correctValue: true,
       hints: ['Compare com o mínimo n − k e o máximo (n − k)(n − k + 1)/2.'],
-      solution: alt ? `Sim — é exatamente o máximo: ${maxWhy}.` : `Sim — é exatamente o mínimo: ${minWhy}. Ex.: ${k} árvores (uma por componente).`,
+      solution: alt ? `Sim. ${legend}. É exatamente o máximo: ${maxWhy}.` : `Sim. ${legend}. É exatamente o mínimo: ${minWhy}. Exemplo: ${k} árvores, uma por pedaço.`,
     },
     {
       ...base,
       id: `tp-${tag}-soma-graus`,
       type: 'TRUE_FALSE',
+      walkthrough: [
+        { text: `Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas; cada ponta soma 1 ao grau de um vértice). Então soma ${degreeAsk} ⇒ ${degreeAsk}/2 = ${degreeAsk / 2} arestas.` },
+        ...minSteps,
+        { text: alt ? `${degreeAsk / 2} = mínimo ${min} ⇒ possível.` : `${degreeAsk / 2} < mínimo ${min} ⇒ impossível.` },
+      ],
+      generalRule: nkRule,
       prompt: `${head} é possível que a soma dos graus de todos os vértices seja igual a ${degreeAsk}?`,
       correctValue: alt,
       hints: ['Σ d(v) = 2|E|. Converta a soma em número de arestas e compare com o mínimo n − k.'],
       solution: alt
-        ? `Sim. Σ d(v) = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2}, que é exatamente o mínimo n − k = ${min}. Ex.: ${k} árvores.`
-        : `Não. Σ d(v) = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} < ${min} = n − k, o mínimo de arestas para ${k} componentes. Com menos arestas, o grafo teria mais de ${k} componentes.`,
+        ? `Sim. ${legend}. Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas). Soma ${degreeAsk} ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} arestas, que é exatamente o mínimo n − k = ${min}. Exemplo: ${k} árvores.`
+        : `Não. ${legend}. Soma dos graus = 2 × nº de arestas. Soma ${degreeAsk} ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} arestas, menos que o mínimo n − k = ${min} para ${k} pedaços. Com tão poucas arestas, sobrariam mais de ${k} pedaços.`,
     },
     {
       ...base,
@@ -122,7 +239,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       prompt: `${head} é possível que a soma dos graus de todos os vértices seja igual a ${2 * min + 1}?`,
       correctValue: false,
       hints: ['Antes de comparar com mínimos e máximos, olhe a paridade.'],
-      solution: `Não. Pela propriedade de grau, Σ d(v) = 2|E| é sempre PAR (cada aresta contribui com 2). ${2 * min + 1} é ímpar — impossível em qualquer grafo, independentemente de n e k.`,
+      solution: `Não. Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas, cada ponta soma 1 ao grau de um vértice). Logo a soma é sempre PAR. ${2 * min + 1} é ímpar — impossível em qualquer grafo, não importa n nem k.`,
     },
     {
       ...base,
@@ -131,7 +248,7 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       prompt: `${head} é possível que a soma dos graus de todos os vértices seja maior que ${2 * max}?`,
       correctValue: false,
       hints: ['Soma > X significa |E| > X/2. Compare com o máximo de arestas.'],
-      solution: `Não. Σ d(v) > ${2 * max} ⇒ |E| > ${max}. Mas o ${maxWhy}. Logo Σ d(v) ≤ 2·${max} = ${2 * max}.`,
+      solution: `Não. ${legend}. Soma dos graus = 2 × nº de arestas, então soma > ${2 * max} significaria mais de ${max} arestas. Mas o ${maxWhy}. Logo a soma é no máximo 2 × ${max} = ${2 * max}.`,
     },
     {
       ...base,
@@ -157,23 +274,27 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
       ...base,
       id: `tp-${tag}-min`,
       type: 'NUMBER_INPUT',
+      walkthrough: minSteps,
+      generalRule: nkRule,
       duration: 'quick',
       prompt: `${head} qual o número MÍNIMO de arestas que ele pode ter?`,
       correctNumber: min,
       unit: 'arestas',
       hints: ['Cada componente com ni vértices precisa de ni − 1 arestas (árvore). Some.'],
-      solution: `O ${minWhy}.`,
+      solution: `${legend}. ${minWhy}.`,
     },
     {
       ...base,
       id: `tp-${tag}-max`,
       type: 'NUMBER_INPUT',
+      walkthrough: maxSteps,
+      generalRule: nkRule,
       duration: 'quick',
       prompt: `${head} qual o número MÁXIMO de arestas que ele pode ter?`,
       correctNumber: max,
       unit: 'arestas',
       hints: ['Concentre tudo em um componente completo e deixe os outros k − 1 como vértices isolados.'],
-      solution: `O ${maxWhy}.`,
+      solution: `${legend}. ${maxWhy}.`,
     },
   ];
 }
@@ -295,9 +416,38 @@ const subgrafosQuestions: Question[] = [
     prompt: `Quantos subgrafos (com pelo menos um vértice) possui o grafo completo K${n}? Use a fórmula do professor e mostre os termos.`,
     correctNumber: numberOfSubgraphsOfCompleteGraph(n),
     unit: 'subgrafos',
+    walkthrough: (() => {
+      const g = completeGraph(n);
+      const choose = (a: number, b: number) => {
+        let r = 1;
+        for (let k = 0; k < b; k++) r = (r * (a - k)) / (k + 1);
+        return Math.round(r);
+      };
+      const steps: WalkthroughStep[] = [
+        { text: `K${n}: ${n} vértices, todos ligados entre si (${(n * (n - 1)) / 2} arestas). Um subgrafo = escolher ALGUNS vértices e, entre eles, QUAIS arestas ficam.`, graph: g, caption: `K${n}` },
+      ];
+      const parts: number[] = [];
+      for (let i = 1; i <= n; i++) {
+        const c = choose(n, i);
+        const m = (i * (i - 1)) / 2;
+        const ids = g.vertices.slice(0, i).map((v) => v.id);
+        const eids = g.edges.filter((e) => ids.includes(e.source) && ids.includes(e.target)).map((e) => e.id);
+        parts.push(c * 2 ** m);
+        steps.push({
+          text: `Subgrafos com ${i} vértice${i > 1 ? 's' : ''}: escolher quais ${i} — C(${n}, ${i}) = ${c} jeito${c > 1 ? 's' : ''}. Entre ${i} vértices há ${m} aresta${m === 1 ? '' : 's'} possíve${m === 1 ? 'l' : 'is'}; cada uma fica ou sai: 2^${m} = ${2 ** m} combinaç${2 ** m === 1 ? 'ão' : 'ões'}. Total desta parcela: ${c} × ${2 ** m} = ${c * 2 ** m}.`,
+          graph: g,
+          highlightVertexIds: ids,
+          highlightEdgeIds: eids,
+          caption: `Uma das ${c} escolhas de ${i} vértice${i > 1 ? 's' : ''}; entre eles, ${m} aresta${m === 1 ? '' : 's'} que podem ficar ou sair.`,
+        });
+      }
+      steps.push({ text: `Somando as parcelas: ${parts.join(' + ')} = ${numberOfSubgraphsOfCompleteGraph(n)} subgrafos.` });
+      return steps;
+    })(),
+    generalRule: 'Regra geral: para cada tamanho i de 1 até n, multiplique "jeitos de escolher i vértices" C(n, i) por "jeitos de escolher as arestas entre eles" 2^(i(i−1)/2), e some tudo.',
     source: exam('2022-2-exam.pdf', n === 3 ? 'Q5a: "mostre todos os subgrafos de um grafo completo de 3 vértices"' : 'variante de Q5b com n = 5'),
     hints: ['Escolha i vértices (C(n, i) jeitos); entre eles há i(i−1)/2 arestas possíveis, cada uma dentro ou fora: 2^(i(i−1)/2).', 'Some para i de 1 até n.'],
-    solution: `Σ_{i=1}^{${n}} C(${n}, i)·2^{i(i−1)/2} = ${subgraphsTerms(n)} = ${numberOfSubgraphsOfCompleteGraph(n)}.`,
+    solution: `Um subgrafo = escolher alguns vértices e, entre eles, quais arestas ficam. Para cada tamanho i (quantos vértices): C(${n}, i) = de quantos jeitos escolho i vértices entre ${n}; i(i−1)/2 = quantas arestas existem entre esses i vértices; 2^(i(i−1)/2) = cada uma entra ou não. Somando i = 1 até ${n}: ${subgraphsTerms(n)} ⇒ total ${numberOfSubgraphsOfCompleteGraph(n)}.`,
   })),
   {
     id: 'tp-subgrafos-formula',
@@ -425,7 +575,7 @@ const autoComplementarQuestions: Question[] = [
     unit: 'arestas',
     source: exam('2023-2-exam.pdf', 'Q1(iii): "três exemplos de grafos com mais de 4 vértices em que |E(G)| = |E(Ḡ)|"'),
     hints: ['|E(G)| = |E(Ḡ)| e |E(G)| + |E(Ḡ)| = n(n−1)/2.'],
-    solution: `|E| = n(n−1)/4 = ${n}·${n - 1}/4 = ${(n * (n - 1)) / 4}.`,
+    solution: `n = ${n} vértices. G e seu complemento Ḡ têm o mesmo nº de arestas e, juntos, formam o completo Kn, que tem n(n−1)/2 = ${n}·${n - 1}/2 = ${(n * (n - 1)) / 2} arestas. Metade para cada: |E| = n(n−1)/4 = ${(n * (n - 1)) / 4}.`,
   })),
   ...[6, 7].map<Question>((n) => ({
     id: `tp-autocomp-existe-${n}`,
@@ -504,6 +654,15 @@ const excentricidadeQuestions: Question[] = [
     prompt: `No grafo da prova (V = {a, …, i}, E = {ab, bc, bd, cg, de, dg, dh, cf, hi, ai}), qual a excentricidade do vértice "${v}"?`,
     displayGraphs: { a: EXAM_GRAPH_AI },
     correctNumber: AI.eccentricities[v],
+    walkthrough: (() => {
+      const dist = distancesFrom(EXAM_GRAPH_AI, v);
+      const far = Object.entries(dist).filter(([, d]) => d === AI.eccentricities[v]).map(([u]) => u);
+      return [
+        { text: `Excentricidade de ${v} = distância até o vértice MAIS LONGE de ${v}. Distância = menor nº de arestas no caminho. Faça uma busca em largura a partir de ${v}: vizinhos diretos ficam a 1, vizinhos dos vizinhos a 2, e assim por diante.`, graph: EXAM_GRAPH_AI, highlightVertexIds: [v], vertexNotes: Object.fromEntries(Object.entries(dist).map(([u, d]) => [u, `d=${d}`])), caption: `Distâncias a partir de ${v}.` },
+        { text: `O maior valor é ${AI.eccentricities[v]} (em ${far.join(', ')}). Logo ε(${v}) = ${AI.eccentricities[v]}.`, graph: EXAM_GRAPH_AI, highlightVertexIds: [v, ...far], vertexNotes: Object.fromEntries(Object.entries(dist).map(([u, d]) => [u, `d=${d}`])), caption: `Vértice(s) mais longe de ${v}: ${far.join(', ')}.` },
+      ];
+    })(),
+    generalRule: 'Regra geral: para qualquer vértice, rode BFS a partir dele e pegue a maior distância. Raio = a menor excentricidade entre todos os vértices; diâmetro = a maior; centro = quem tem excentricidade igual ao raio.',
     source: exam('2023-2-exam.pdf', 'Q3(i) (10%): "encontre a excentricidade de cada vértice" — mesmo grafo em 2024/1-Q4'),
     hints: [`BFS a partir de ${v}: anote a distância a cada vértice; a maior é ε(${v}).`],
     solution: `ε(${v}) = ${AI.eccentricities[v]} (maior distância mínima de ${v} a outro vértice). Todas: ${eccList}.`,
@@ -606,9 +765,24 @@ const bipartidoQuestions: Question[] = [
     prompt: `Quantas arestas possui o grafo tripartido completo K${r},${s},${t}? (três conjuntos de tamanhos ${r}, ${s} e ${t}; aresta entre dois vértices sse estão em conjuntos distintos)`,
     correctNumber: krst(r, s, t).e,
     unit: 'arestas',
+    walkthrough: (() => {
+      const g = tripartiteGraph(r, s, t);
+      const colors = Object.fromEntries([...g.sides[0].map((id) => [id, COLOR.side1]), ...g.sides[1].map((id) => [id, COLOR.side2]), ...g.sides[2].map((id) => [id, COLOR.side3])]);
+      const e12 = g.between(0, 1);
+      const e13 = g.between(0, 2);
+      const e23 = g.between(1, 2);
+      return [
+        { text: `Três lados: lado 1 (amarelo) com r = ${r} vértices, lado 2 (ciano) com s = ${s}, lado 3 (roxo) com t = ${t}. Total de vértices: ${r} + ${s} + ${t} = ${r + s + t}. Dentro de um mesmo lado NÃO há aresta.`, graph: g.graph, vertexColorMap: colors, caption: `K${r},${s},${t}: ${r + s + t} vértices em três lados.` },
+        { text: `Lado 1 × lado 2: cada um dos ${r} vértices amarelos liga com cada um dos ${s} cianos: ${r} × ${s} = ${r * s} arestas (as destacadas).`, graph: g.graph, vertexColorMap: colors, highlightEdgeIds: e12, caption: `r·s = ${r * s}` },
+        { text: `Lado 1 × lado 3: ${r} amarelos × ${t} roxos = ${r * t} arestas.`, graph: g.graph, vertexColorMap: colors, highlightEdgeIds: e13, caption: `r·t = ${r * t}` },
+        { text: `Lado 2 × lado 3: ${s} cianos × ${t} roxos = ${s * t} arestas.`, graph: g.graph, vertexColorMap: colors, highlightEdgeIds: e23, caption: `s·t = ${s * t}` },
+        { text: `Somando os três grupos: ${r * s} + ${r * t} + ${s * t} = ${krst(r, s, t).e} arestas. É isso que a fórmula rs + rt + st escreve.`, graph: g.graph, vertexColorMap: colors, highlightEdgeIds: [...e12, ...e13, ...e23], caption: `Todas as ${krst(r, s, t).e} arestas.` },
+      ];
+    })(),
+    generalRule: 'Regra geral: em Kr,s,t, multiplique os tamanhos de cada PAR de lados e some: r·s + r·t + s·t. Vértices: r + s + t. (Bipartido Km,n é o mesmo com dois lados: m·n.)',
     source: exam('2025-1-exam.pdf', 'Q3 (15%): desenhe K2,2,2 e K2,3,3; quantos vértices e arestas tem Kr,s,t?'),
     hints: ['Cada par de conjuntos forma um bipartido completo: r·s + r·t + s·t.'],
-    solution: `|V| = ${r} + ${s} + ${t} = ${krst(r, s, t).v}; |E| = rs + rt + st = ${r * s} + ${r * t} + ${s * t} = ${krst(r, s, t).e}.`,
+    solution: `Lados: r = ${r}, s = ${s}, t = ${t} vértices. Vértices: |V| = r + s + t = ${r} + ${s} + ${t} = ${krst(r, s, t).v}. Arestas: cada vértice de um lado liga com TODOS do outro lado, então lado 1 × lado 2 = r·s = ${r}·${s} = ${r * s}; lado 1 × lado 3 = r·t = ${r}·${t} = ${r * t}; lado 2 × lado 3 = s·t = ${s}·${t} = ${s * t}. Total |E| = rs + rt + st = ${r * s} + ${r * t} + ${s * t} = ${krst(r, s, t).e}. (Dentro do mesmo lado não há aresta.)`,
   })),
   {
     id: 'tp-bipartido-n2-4',
@@ -685,8 +859,8 @@ const bipartidoQuestions: Question[] = [
     source: exam('2023-1-exam.pdf', 'variante de Q1c com números novos'),
     hints: ['n·d = 2|E| tem que ser par, e d ≤ n − 1.'],
     solution: ok
-      ? `Sim. Σ d(v) = ${n}·${d} = ${n * d} = 2|E| ⇒ |E| = ${(n * d) / 2}, inteiro; e ${d} ≤ n − 1 = ${n - 1}. Ex.: prisma/ciclo com cordas — existe grafo ${d}-regular com ${n} vértices.`
-      : `Não. Σ d(v) = ${n}·${d} = ${n * d} é ímpar, mas a soma dos graus é sempre 2|E| (par). Equivalente: haveria ${n} vértices de grau ímpar — quantidade ímpar, impossível.`,
+      ? `Sim. n = ${n} vértices, cada um com grau d = ${d}. Soma dos graus = n·d = ${n}·${d} = ${n * d}; como a soma é 2 × nº de arestas, |E| = ${n * d}/2 = ${(n * d) / 2} — inteiro, ok. E d = ${d} ≤ n − 1 = ${n - 1}, cabe. Existe (ex.: um ciclo de ${n} vértices com mais uma ligação por vértice).`
+      : `Não. n = ${n} vértices, cada um com grau d = ${d}. Soma dos graus = n·d = ${n}·${d} = ${n * d}, ÍMPAR — mas a soma dos graus é sempre 2 × nº de arestas, par. Dito de outro jeito: seriam ${n} vértices de grau ímpar, e a quantidade de vértices de grau ímpar tem que ser par.`,
   })),
   {
     id: 'tp-m-max',

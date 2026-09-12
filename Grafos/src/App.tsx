@@ -10,6 +10,7 @@ import { WeakTopicsSession } from '@/features/study/WeakTopicsSession';
 import { PracticeSession } from '@/features/study/PracticeSession';
 import { ConceptDrillSession } from '@/features/study/ConceptDrillSession';
 import { ExamDrillSession } from '@/features/study/ExamDrillSession';
+import { QuestionPage } from '@/features/study/QuestionPage';
 import { ExamListPage } from '@/features/exam/ExamListPage';
 import { ExamSimulator } from '@/features/exam/ExamSimulator';
 import { ProgressPage } from '@/features/progress/ProgressPage';
@@ -30,6 +31,7 @@ function App() {
         <Route path="/estudar/pratica-livre" element={<PracticeSession />} />
         <Route path="/estudar/conceitos" element={<ConceptDrillSession />} />
         <Route path="/estudar/prova" element={<ExamDrillSession />} />
+        <Route path="/questao/:id" element={<QuestionPage />} />
         <Route path="/simulado" element={<ExamListPage />} />
         <Route path="/simulado/:examId" element={<ExamSimulator />} />
         <Route path="/progresso" element={<ProgressPage />} />

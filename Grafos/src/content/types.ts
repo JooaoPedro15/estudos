@@ -99,6 +99,22 @@ export interface Topic {
 // Exercícios
 // ---------------------------------------------------------------------------
 
+/**
+ * Um passo da resolução mostrada no "Me ensine": texto curto ("lado 1 × lado 2 =
+ * 2·3 = 6 arestas") e, opcionalmente, o grafo com as arestas/vértices daquele
+ * passo destacados — para o aluno VER de onde saiu cada número.
+ */
+export interface WalkthroughStep {
+  text: string;
+  graph?: GraphData;
+  highlightEdgeIds?: string[];
+  highlightVertexIds?: string[];
+  vertexColorMap?: Record<string, string>;
+  edgeColorMap?: Record<string, string>;
+  vertexNotes?: Record<string, string>;
+  caption?: string;
+}
+
 export type ExerciseType =
   | 'MULTIPLE_CHOICE'
   | 'TRUE_FALSE'
@@ -132,6 +148,10 @@ export interface QuestionMeta {
   definitionId?: string;
   /** Família de questão de prova a que pertence (ver content/examFamilies.ts) — usada pelo "Treino de prova" para sortear por frequência nas provas antigas. */
   examFamily?: string;
+  /** Resolução passo a passo com desenho (substitui `solution` na exibição do "Me ensine" quando presente). */
+  walkthrough?: WalkthroughStep[];
+  /** "Em outros casos, faça assim": a regra que generaliza a resolução. */
+  generalRule?: string;
 }
 
 export interface Option {
