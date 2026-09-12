@@ -26,7 +26,7 @@ export const flashFacts: FlashFact[] = [
   },
   {
     id: 'ff-03',
-    text: 'Todo grafo simples com n≥2 vértices tem 2 vértices de mesmo grau (casa dos pombos: grau 0 e n−1 não coexistem, sobram no máx. n−1 valores para n vértices).',
+    text: 'Todo grafo simples com n≥2 vértices tem 2 vértices de mesmo grau (grau 0 e n−1 não coexistem, sobram no máx. n−1 valores para n vértices).',
     tier: 'core',
     source: { type: 'old_exam', note: 'Recorrente em 2024/1, 2024/2, 2026/1' },
   },

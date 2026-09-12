@@ -404,7 +404,7 @@ const pombosQuestions: Question[] = [
       { id: 'a', label: 'Em um grafo simples com n vértices, o grau de qualquer vértice está entre 0 e n − 1.' },
       { id: 'b', label: 'Se algum vértice tem grau n − 1, ele é adjacente a todos os outros — logo nenhum vértice pode ter grau 0.' },
       { id: 'c', label: 'Portanto 0 e n − 1 nunca ocorrem juntos: há no máximo n − 1 valores de grau possíveis.' },
-      { id: 'd', label: 'São n vértices para no máximo n − 1 valores: pelo princípio da casa dos pombos, dois vértices têm o mesmo grau.' },
+      { id: 'd', label: 'São n vértices para no máximo n − 1 valores de grau: não tem como todos serem diferentes, logo dois vértices têm o mesmo grau.' },
     ],
     correctOrder: ['a', 'b', 'c', 'd'],
     source: exam('2024-2-exam.pdf', 'Q1; também 2024/1-Q3, 2025/1-Q4, 2026/1-Q1'),

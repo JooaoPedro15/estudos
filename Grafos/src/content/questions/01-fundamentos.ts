@@ -202,7 +202,7 @@ export const fundamentosQuestions: Question[] = [
       'Observa que o grau de um vértice varia no intervalo [0, n−1]',
       'Observa que grau 0 e grau n−1 não podem coexistir no mesmo grafo simples',
       'Conclui que há no máximo n−1 valores de grau possíveis para n vértices',
-      'Aplica o princípio da casa dos pombos para concluir que dois vértices compartilham o mesmo grau',
+      'Conclui: n vértices para no máximo n−1 valores de grau ⇒ dois vértices compartilham o mesmo grau (o "princípio da casa dos pombos" — escreva o argumento, o nome não está no material do professor)',
     ],
     source: { type: 'old_exam', file: '2024-2-exam.pdf' },
     professorStyleSimilarity: 'high',
@@ -212,6 +212,6 @@ export const fundamentosQuestions: Question[] = [
       'Se há n vértices mas no máximo n−1 valores de grau possíveis, o que o princípio da casa dos pombos garante?',
     ],
     solution:
-      'Em um grafo simples de n vértices, o grau de qualquer vértice está entre 0 e n−1. Se algum vértice tem grau n−1, ele está ligado a todos os outros — logo nenhum vértice pode ter grau 0 (todos têm pelo menos essa aresta). Isso significa que 0 e n−1 nunca ocorrem juntos, restando no máximo n−1 valores possíveis de grau para distribuir entre n vértices. Pelo princípio da casa dos pombos, pelo menos dois vértices devem compartilhar o mesmo grau. (Questão praticamente fixa nas provas de 2024/1, 2024/2 e 2026/1 — decore esta prova.)',
+      'Em um grafo simples de n vértices, o grau de qualquer vértice está entre 0 e n−1. Se algum vértice tem grau n−1, ele está ligado a todos os outros — logo nenhum vértice pode ter grau 0 (todos têm pelo menos essa aresta). Isso significa que 0 e n−1 nunca ocorrem juntos, restando no máximo n−1 valores possíveis de grau para distribuir entre n vértices. Como são n vértices para no máximo n−1 valores, não tem como todos terem graus diferentes: pelo menos dois vértices compartilham o mesmo grau. (Esse é o "princípio da casa dos pombos", nome que não aparece no material do professor — escreva o argumento. Questão praticamente fixa nas provas de 2024/1, 2024/2 e 2026/1 — decore esta prova.)',
   },
 ];

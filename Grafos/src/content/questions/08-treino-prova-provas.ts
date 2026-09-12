@@ -230,9 +230,9 @@ export const treinoProvaProofQuestions: Question[] = [
     sourceStyle: 'old_exam',
     type: 'MULTIPLE_CHOICE',
     prompt: '"Prove que todo grafo simples com n ≥ 2 vértices tem dois vértices de mesmo grau." Qual resposta o professor aceita como prova completa?',
-    options: options('tp-mc-pombos-prova-completa', 'Grau varia em {0, …, n−1}; grau n−1 (ligado a todos) impede grau 0, então há no máximo n−1 valores para n vértices; pela casa dos pombos, dois vértices têm o mesmo grau.', [
+    options: options('tp-mc-pombos-prova-completa', 'Grau varia em {0, …, n−1}; grau n−1 (ligado a todos) impede grau 0, então há no máximo n−1 valores para n vértices; não tem como todos terem graus diferentes, logo dois vértices têm o mesmo grau.', [
       'Como a soma dos graus é par, dois vértices precisam ter o mesmo grau.',
-      'Há n vértices e n valores possíveis de grau (0 a n−1), logo pela casa dos pombos dois coincidem.',
+      'Há n vértices e n valores possíveis de grau (0 a n−1), logo dois vértices coincidem.',
       'Todo grafo simples tem pelo menos um vértice pendente e um isolado, que têm graus 1 e 0.',
     ]),
     correctOptionId: 'correct',
@@ -240,6 +240,6 @@ export const treinoProvaProofQuestions: Question[] = [
     professorStyleSimilarity: 'high',
     hints: ['A resposta "n valores para n vértices" não fecha — falta o passo que tira um valor.'],
     solution:
-      'A prova precisa dos três movimentos: (1) intervalo [0, n−1]; (2) 0 e n−1 não coexistem (quem tem grau n−1 é vizinho de todos); (3) sobram n−1 "casas" para n "pombos". A alternativa "n valores para n vértices" é o erro clássico: com n casas para n pombos NÃO há garantia de repetição.',
+      'A prova precisa dos três movimentos: (1) intervalo [0, n−1]; (2) 0 e n−1 não coexistem (quem tem grau n−1 é vizinho de todos); (3) sobram n−1 "casas" para n "pombos". A alternativa "n valores para n vértices" é o erro clássico: com n casas para n pombos NÃO há garantia de repetição. O nome "princípio da casa dos pombos" não aparece no material do professor (slides, lista, aulão, resoluções): escreva o argumento em palavras, como na resolução de 2024/1 — "não tem como todos os vértices terem graus diferentes, logo sempre sobra um grau repetido".',
   },
 ];

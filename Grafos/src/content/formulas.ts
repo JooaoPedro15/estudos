@@ -183,7 +183,7 @@ export const formulas: FormulaExplanation[] = [
   },
   {
     id: 'pombos',
-    title: 'Princípio da casa dos pombos (dois vértices de mesmo grau)',
+    title: 'Dois vértices de mesmo grau ("casa dos pombos" — nome que não está no material; escreva o argumento)',
     formula: 'graus possíveis ∈ {0, 1, …, n − 1}, mas 0 e n − 1 não coexistem ⇒ n vértices para ≤ n − 1 valores',
     plain:
       '"Casa dos pombos": se você tem mais pombos que casas, alguma casa recebe dois pombos. Aqui os pombos são os n vértices e as casas são os valores de grau possíveis. Num grafo simples o grau vai de 0 a n − 1 (n casas). Mas se alguém tem grau n − 1 está ligado a todos, e aí ninguém pode ter grau 0 — as casas 0 e n − 1 nunca são usadas juntas. Sobram n − 1 casas para n pombos: dois vértices caem na mesma casa = mesmo grau.',
