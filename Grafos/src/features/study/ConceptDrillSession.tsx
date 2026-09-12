@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Brain } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
-import { isDefinitionFamily, isDefinitionQuestion, pickNextDefinition, questions, type DefinitionKind } from '@/content/questions';
+import { isDefinitionFamily, isDefinitionQuestion, pickNextDefinition, questions, type DefinitionKind, type DefinitionScope } from '@/content/questions';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
 import { Button, Card, IconChip, StatTile } from '@/components/ui';
 import { ChipGroup, ModuleFilter } from './ModuleFilter';
 import { topicIdsForModule, useModuleParam } from './moduleScope';
+import { ExamRelevance } from './ExamRelevance';
 
 const RECENT_LIMIT = 15;
 const TOTAL_CONCEPTS = questions.filter(isDefinitionQuestion).length;
@@ -15,6 +16,10 @@ const TOTAL_CONCEPTS = questions.filter(isDefinitionQuestion).length;
 const CONCEPT_BY_QUESTION_ID = new Map(
   questions.filter(isDefinitionFamily).map((q) => [q.id, q.type === 'DEFINITION' ? q.id : q.definitionId!] as const),
 );
+const SCOPE_OPTIONS: { id: DefinitionScope; label: string }[] = [
+  { id: 'all', label: 'Todos os conceitos' },
+  { id: 'exam', label: 'Que mais caem na prova' },
+];
 const KIND_OPTIONS: { id: DefinitionKind; label: string }[] = [
   { id: 'mixed', label: 'Misto' },
   { id: 'open', label: 'Abertas (escrevo)' },
@@ -40,6 +45,7 @@ export function ConceptDrillSession() {
   const [attempts, setAttempts] = useState<QuestionAttempt[]>([]);
   const [moduleId, setModuleId] = useModuleParam();
   const [kind, setKind] = useState<DefinitionKind>('mixed');
+  const [scope, setScope] = useState<DefinitionScope>('all');
   const [answered, setAnswered] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -55,7 +61,7 @@ export function ConceptDrillSession() {
     loadProgress().then((state) => {
       if (cancelled) return;
       setAttempts(state.attempts);
-      setQuestion(pickNextDefinition([], state.attempts, topicIdsFor(moduleId), kind) ?? null);
+      setQuestion(pickNextDefinition([], state.attempts, topicIdsFor(moduleId), kind, scope) ?? null);
       setLoaded(true);
     });
     return () => {
@@ -75,12 +81,17 @@ export function ConceptDrillSession() {
 
   function changeModule(id: string) {
     setModuleId(id);
-    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(id), kind) ?? null);
+    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(id), kind, scope) ?? null);
   }
 
   function changeKind(next: DefinitionKind) {
     setKind(next);
-    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(moduleId), next) ?? null);
+    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(moduleId), next, scope) ?? null);
+  }
+
+  function changeScope(next: DefinitionScope) {
+    setScope(next);
+    setQuestion(pickNextDefinition(recentIds, attempts, topicIdsFor(moduleId), kind, next) ?? null);
   }
 
   function handleComplete(result: ExerciseResult) {
@@ -101,7 +112,7 @@ export function ConceptDrillSession() {
 
     const nextRecent = [...recentIds, question.id].slice(-RECENT_LIMIT);
     setRecentIds(nextRecent);
-    setQuestion(pickNextDefinition(nextRecent, nextAttempts, topicIdsFor(moduleId), kind) ?? null);
+    setQuestion(pickNextDefinition(nextRecent, nextAttempts, topicIdsFor(moduleId), kind, scope) ?? null);
 
     const elapsed = Math.round((Date.now() - startedAtRef.current) / 1000);
     if (elapsed - lastSavedSecondsRef.current >= 60) {
@@ -129,6 +140,7 @@ export function ConceptDrillSession() {
         escolha e V/F sobre a mesma definição. Prioriza o que você errou ou ainda não viu.
       </p>
 
+      <ChipGroup label="Escopo" tone="danger" value={scope} onChange={(id) => changeScope(id as DefinitionScope)} options={SCOPE_OPTIONS} />
       <ModuleFilter value={moduleId} onChange={changeModule} tone="cyan" />
       <ChipGroup label="Tipo de questão" tone="cyan" value={kind} onChange={(id) => changeKind(id as DefinitionKind)} options={KIND_OPTIONS} />
 
@@ -138,6 +150,8 @@ export function ConceptDrillSession() {
         <StatTile label="Vistas" value={`${seenConcepts}/${TOTAL_CONCEPTS}`} />
         <StatTile label="Tempo" value={formatSeconds(Math.round((Date.now() - startedAtRef.current) / 1000))} />
       </div>
+
+      {question && <ExamRelevance question={question} />}
 
       <Card>
         {question ? (

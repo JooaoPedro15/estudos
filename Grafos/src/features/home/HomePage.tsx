@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import clsx from 'clsx';
-import { Zap, BookOpen, FileText, Target, Dumbbell, Brain, type LucideIcon } from 'lucide-react';
+import { Zap, BookOpen, FileText, Target, Dumbbell, Brain, Flame, type LucideIcon } from 'lucide-react';
 import type { ExamLikelihood, ProgressState } from '@/content/types';
 import { Button, Card, ExamLikelihoodBadge, IconChip, type IconChipTone, ProgressBar } from '@/components/ui';
 import { modules } from '@/content/modules';
@@ -21,6 +21,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { icon: Zap, tone: 'amber', title: 'Revisão de 5 min', description: 'Sessão curta com 3-7 atividades rápidas.', href: '/estudar/rapido' },
   { icon: BookOpen, tone: 'accent', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
   { icon: FileText, tone: 'cyan', title: 'Simulado P1', description: 'Prova completa, no estilo real do professor.', href: '/simulado' },
+  { icon: Flame, tone: 'danger', title: 'Treino de prova', description: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', href: '/estudar/prova' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
   { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
   { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: 'Definições literais dos slides: abertas (escreve de memória e compara) e fechadas (múltipla escolha e V/F). Por módulo ou matéria inteira.', href: '/estudar/conceitos' },
@@ -135,7 +136,7 @@ export function HomePage() {
         </Card>
       </motion.div>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Ações rápidas">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ações rápidas">
         {QUICK_ACTIONS.map((action, i) => (
           <QuickActionCard key={action.title} action={action} index={i} />
         ))}

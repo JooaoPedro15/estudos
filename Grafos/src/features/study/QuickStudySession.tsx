@@ -9,6 +9,7 @@ import { recordAttempt } from '@/store/progress';
 import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 import { ModuleFilter } from './ModuleFilter';
 import { topicIdsForModule, useModuleParam } from './moduleScope';
+import { ExamRelevance } from './ExamRelevance';
 
 const REVIEW_COUNT = 5;
 
@@ -123,6 +124,7 @@ export function QuickStudySession() {
       </div>
       <ProgressBar value={(index / batch.length) * 100} />
       {answered.length === 0 && <ModuleFilter value={moduleId} onChange={changeModule} tone="amber" />}
+      <ExamRelevance question={question} />
       <Card padding="lg">
         <ExerciseRenderer key={question.id} question={question} onComplete={(r) => handleComplete(question, r)} />
       </Card>

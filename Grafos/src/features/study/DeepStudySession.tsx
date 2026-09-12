@@ -9,6 +9,7 @@ import { addStudySeconds, loadProgress, recordAttempt, topicWeight } from '@/sto
 import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 import { ModuleFilter } from './ModuleFilter';
 import { topicIdsForModule, useModuleParam } from './moduleScope';
+import { ExamRelevance } from './ExamRelevance';
 
 type Phase = 'picker' | 'loading' | 'running' | 'done';
 
@@ -194,6 +195,7 @@ export function DeepStudySession() {
         </div>
       </div>
       <ProgressBar value={index} max={batch.length} tone="cyan" showValue label="Progresso da sessão" />
+      <ExamRelevance question={question} />
       <Card padding="lg">
         <ExerciseRenderer key={question.id} question={question} onComplete={(r) => handleComplete(question, r)} />
       </Card>

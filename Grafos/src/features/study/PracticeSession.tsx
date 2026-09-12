@@ -9,6 +9,7 @@ import { addStudySeconds, loadProgress, recordAttempt, topicWeight } from '@/sto
 import { Button, Card, IconChip, StatTile } from '@/components/ui';
 import { ModuleFilter } from './ModuleFilter';
 import { topicIdsForModule, useModuleParam } from './moduleScope';
+import { ExamRelevance } from './ExamRelevance';
 
 const RECENT_LIMIT = 10;
 
@@ -115,6 +116,8 @@ export function PracticeSession() {
         <StatTile label="Acerto" value={`${accuracy}%`} />
         <StatTile label="Tempo" value={formatSeconds(Math.round((Date.now() - startedAtRef.current) / 1000))} />
       </div>
+
+      {question && <ExamRelevance question={question} />}
 
       <Card>
         {question ? (

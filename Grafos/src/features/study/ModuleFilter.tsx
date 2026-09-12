@@ -2,13 +2,14 @@ import clsx from 'clsx';
 import { modules } from '@/content/modules';
 import { ALL_MODULES } from './moduleScope';
 
-export type ChipTone = 'accent' | 'cyan' | 'amber' | 'success';
+export type ChipTone = 'accent' | 'cyan' | 'amber' | 'success' | 'danger';
 
 const ACTIVE_CLASSES: Record<ChipTone, string> = {
   accent: 'border-[var(--color-accent)]/45 bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)]',
   cyan: 'border-[var(--color-cyan)]/45 bg-[var(--color-cyan-soft)] text-[var(--color-cyan)]',
   amber: 'border-[var(--color-amber)]/45 bg-[var(--color-amber-soft)] text-[var(--color-amber)]',
   success: 'border-[var(--color-success)]/45 bg-[var(--color-success-soft)] text-[var(--color-success)]',
+  danger: 'border-[var(--color-danger)]/45 bg-[var(--color-danger-soft)] text-[var(--color-danger)]',
 };
 
 export interface ChipOption {
