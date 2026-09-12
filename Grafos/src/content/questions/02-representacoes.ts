@@ -47,6 +47,7 @@ export const representacoesQuestions: Question[] = [
   },
   {
     id: 'rep-adj-03',
+    examFamily: 'matriz-adjacencia',
     topic: 'matriz-adjacencia',
     difficulty: 'easy',
     duration: 'quick',

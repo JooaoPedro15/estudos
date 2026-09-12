@@ -104,6 +104,7 @@ export const fundamentosQuestions: Question[] = [
   },
   {
     id: 'fund-walk-03',
+    examFamily: 'bipartido-tripartido',
     topic: 'passeios-caminhos-ciclos',
     difficulty: 'medium',
     duration: 'normal',
@@ -134,6 +135,7 @@ export const fundamentosQuestions: Question[] = [
   },
   {
     id: 'fund-fam-02',
+    examFamily: 'limites-grau-arestas',
     topic: 'aperto-de-maos-familias',
     difficulty: 'hard',
     duration: 'normal',
@@ -158,6 +160,7 @@ export const fundamentosQuestions: Question[] = [
   },
   {
     id: 'fund-fam-03',
+    examFamily: 'possibilidade-n-k',
     topic: 'aperto-de-maos-familias',
     difficulty: 'medium',
     duration: 'quick',
@@ -172,6 +175,7 @@ export const fundamentosQuestions: Question[] = [
   },
   {
     id: 'fund-fam-04',
+    examFamily: 'possibilidade-n-k',
     topic: 'aperto-de-maos-familias',
     difficulty: 'hard',
     duration: 'normal',
@@ -186,6 +190,7 @@ export const fundamentosQuestions: Question[] = [
   },
   {
     id: 'fund-fam-05',
+    examFamily: 'pombos',
     topic: 'aperto-de-maos-familias',
     difficulty: 'medium',
     duration: 'deep',

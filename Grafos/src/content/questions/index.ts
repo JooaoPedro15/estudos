@@ -6,7 +6,9 @@ import { isomorfismoQuestions } from './03-isomorfismo';
 import { buscaQuestions } from './04-busca';
 import { conectividadeQuestions } from './05-conectividade';
 import { logicaConjuntosQuestions } from './06-logica-conjuntos';
+import { treinoProvaQuestions } from './07-treino-prova';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
+import { conceptExamWeights, examFamilies, examFamilyWeight } from '@/content/examFamilies';
 
 export const questions: Question[] = [
   ...fundamentosQuestions,
@@ -15,6 +17,7 @@ export const questions: Question[] = [
   ...buscaQuestions,
   ...conectividadeQuestions,
   ...logicaConjuntosQuestions,
+  ...treinoProvaQuestions,
   ...definitionQuestions,
   ...closedDefinitionQuestions,
 ];
@@ -121,6 +124,22 @@ function examWeight(q: Question): number {
   return q.examLikelihood === 'high' ? 3 : q.examLikelihood === 'medium' ? 2 : 1;
 }
 
+/** Peso "quanto cai na prova" de cada definição (ver content/examFamilies.ts). */
+const CONCEPT_EXAM_WEIGHT = conceptExamWeights();
+
+/** Id do conceito (definição aberta) que uma questão da família definição treina. */
+function conceptIdOf(q: Question): string | undefined {
+  if (q.type === 'DEFINITION') return q.id;
+  return q.definitionId;
+}
+
+/** Multiplicador para questões de definição: conceitos usados em mais provas aparecem mais (1× para os que nunca caíram, até ~4× para os mais cobrados). */
+function conceptBoost(q: Question): number {
+  const id = conceptIdOf(q);
+  if (!id) return 1;
+  return 1 + (CONCEPT_EXAM_WEIGHT.get(id) ?? 0) / 6;
+}
+
 /**
  * Sessão de estudo: mistura durações conforme o tempo disponível (minutos),
  * priorizando tópicos de peso ponderado (ver store/progress). `topicIds`
@@ -130,8 +149,8 @@ export function pickStudySession(minutes: number, topicWeights?: Record<string, 
   const budgetMs = minutes * 60_000;
   const avgMsByDuration: Record<Duration, number> = { quick: 60_000, normal: 5 * 60_000, deep: 18 * 60_000 };
   const weighted = shuffle(inTopics(questions, topicIds)).sort((a, b) => {
-    const wa = (topicWeights?.[a.topic] ?? 1) * examWeight(a);
-    const wb = (topicWeights?.[b.topic] ?? 1) * examWeight(b);
+    const wa = (topicWeights?.[a.topic] ?? 1) * examWeight(a) * conceptBoost(a);
+    const wb = (topicWeights?.[b.topic] ?? 1) * examWeight(b) * conceptBoost(b);
     return wb - wa + (Math.random() - 0.5);
   });
   const picked: Question[] = [];
@@ -184,10 +203,12 @@ export function pickNextPracticeQuestion(excludeIds: string[], topicWeights?: Re
   if (pool.length === 0) pool = available.filter((q) => isDefinitionFamily(q) === wantDefinition);
   if (pool.length === 0) pool = available;
   if (pool.length === 0) pool = bank; // esgotou tudo — permite repetir
-  return weightedPick(pool, (q) => (topicWeights?.[q.topic] ?? 1) * examWeight(q));
+  return weightedPick(pool, (q) => (topicWeights?.[q.topic] ?? 1) * examWeight(q) * conceptBoost(q));
 }
 
 export type DefinitionKind = 'open' | 'closed' | 'mixed';
+/** 'all' = todos os conceitos; 'exam' = só os usados em alguma prova antiga, ponderados por quantas. */
+export type DefinitionScope = 'all' | 'exam';
 
 /**
  * Próxima definição para o modo "Decorar conceitos". Prioridade por
@@ -196,28 +217,71 @@ export type DefinitionKind = 'open' | 'closed' | 'mixed';
  * (0.5). `topicIds` restringe a um módulo; `kind` escolhe abertas, fechadas
  * ou misto (50/50). Nunca repete `excludeIds` a menos que não sobre nada.
  */
-export function pickNextDefinition(excludeIds: string[], attempts: QuestionAttempt[], topicIds?: string[], kind: DefinitionKind = 'mixed'): Question | undefined {
+export function pickNextDefinition(
+  excludeIds: string[],
+  attempts: QuestionAttempt[],
+  topicIds?: string[],
+  kind: DefinitionKind = 'mixed',
+  scope: DefinitionScope = 'all',
+): Question | undefined {
   const excluded = new Set(excludeIds);
   const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : Math.random() < 0.5;
-  const family = inTopics(questions, topicIds).filter(isDefinitionFamily);
+  let family = inTopics(questions, topicIds).filter(isDefinitionFamily);
+  if (scope === 'exam') family = family.filter((q) => CONCEPT_EXAM_WEIGHT.has(conceptIdOf(q)!));
   let all = family.filter((q) => isDefinitionQuestion(q) === wantOpen);
   if (all.length === 0) all = family;
   let pool = all.filter((q) => !excluded.has(q.id));
   if (pool.length === 0) pool = all;
   if (pool.length === 0) return undefined;
 
+  const last = lastAttemptByQuestion(attempts);
+  const now = Date.now();
+  return weightedPick(pool, (q) => historyWeight(last.get(q.id), now) * (scope === 'exam' ? conceptBoost(q) : 1));
+}
+
+/** Prioridade por questão a partir do histórico: errou na última (4) > nunca vista (3) > acertou há mais de um dia (2) > acertou hoje (0.5). */
+function historyWeight(a: QuestionAttempt | undefined, now: number): number {
+  if (!a) return 3;
+  if (!a.correct) return 4;
+  return now - a.timestamp > 86_400_000 ? 2 : 0.5;
+}
+
+function lastAttemptByQuestion(attempts: QuestionAttempt[]): Map<string, QuestionAttempt> {
   const last = new Map<string, QuestionAttempt>();
   for (const a of attempts) {
     const prev = last.get(a.questionId);
     if (!prev || a.timestamp > prev.timestamp) last.set(a.questionId, a);
   }
+  return last;
+}
+
+/**
+ * Próxima questão do "Treino de prova": só questões com `examFamily`.
+ * Sorteia primeiro a FAMÍLIA, com peso = nº de provas em que caiu (metade
+ * se o cronograma põe o assunto depois da P1), depois uma questão dentro
+ * dela pelo histórico (erradas e nunca vistas primeiro), evitando
+ * `excludeIds`. Assim "n vértices, k componentes" (5 provas) aparece ~5×
+ * mais que "matriz de adjacência" (1 prova), independentemente de quantas
+ * variantes cada família tem.
+ */
+export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[]): Question | undefined {
+  const excluded = new Set(excludeIds);
+  const byFamily = new Map<string, Question[]>();
+  for (const q of questions) {
+    if (!q.examFamily) continue;
+    const list = byFamily.get(q.examFamily) ?? [];
+    list.push(q);
+    byFamily.set(q.examFamily, list);
+  }
+  const families = examFamilies.filter((f) => (byFamily.get(f.id)?.length ?? 0) > 0);
+  const family = weightedPick(families, examFamilyWeight);
+  if (!family) return undefined;
+  const all = byFamily.get(family.id)!;
+  let pool = all.filter((q) => !excluded.has(q.id));
+  if (pool.length === 0) pool = all;
+  const last = lastAttemptByQuestion(attempts);
   const now = Date.now();
-  return weightedPick(pool, (q) => {
-    const a = last.get(q.id);
-    if (!a) return 3;
-    if (!a.correct) return 4;
-    return now - a.timestamp > 86_400_000 ? 2 : 0.5;
-  });
+  return weightedPick(pool, (q) => historyWeight(last.get(q.id), now));
 }
 
 function weightedPick<T>(pool: T[], weightOf: (item: T) => number): T | undefined {

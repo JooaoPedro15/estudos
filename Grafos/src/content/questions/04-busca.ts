@@ -24,6 +24,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'bfs-02',
+    examFamily: 'bfs-distancias',
     topic: 'bfs',
     difficulty: 'medium',
     duration: 'normal',
@@ -41,6 +42,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'bfs-03',
+    examFamily: 'bfs-distancias',
     topic: 'bfs',
     difficulty: 'easy',
     duration: 'quick',
@@ -70,6 +72,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'dfs-02',
+    examFamily: 'ciclo-dfs-scc',
     topic: 'dfs-classificacao',
     difficulty: 'hard',
     duration: 'normal',
@@ -89,6 +92,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'dfs-03',
+    examFamily: 'ciclo-dfs-scc',
     topic: 'dfs-classificacao',
     difficulty: 'medium',
     duration: 'normal',
@@ -105,6 +109,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'fecho-01',
+    examFamily: 'fecho-base-antibase',
     topic: 'fecho-transitivo',
     difficulty: 'medium',
     duration: 'normal',
@@ -122,6 +127,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'fecho-02',
+    examFamily: 'fecho-base-antibase',
     topic: 'fecho-transitivo',
     difficulty: 'hard',
     duration: 'normal',
@@ -139,6 +145,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'base-01',
+    examFamily: 'fecho-base-antibase',
     topic: 'base-antibase',
     difficulty: 'hard',
     duration: 'deep',
@@ -160,6 +167,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'base-02',
+    examFamily: 'fecho-base-antibase',
     topic: 'base-antibase',
     difficulty: 'hard',
     duration: 'deep',
@@ -177,6 +185,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'base-03',
+    examFamily: 'fecho-base-antibase',
     topic: 'base-antibase',
     difficulty: 'hard',
     duration: 'deep',
@@ -203,6 +212,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'ciclo-01',
+    examFamily: 'ciclo-dfs-scc',
     topic: 'deteccao-ciclo',
     difficulty: 'medium',
     duration: 'quick',
@@ -217,6 +227,7 @@ export const buscaQuestions: Question[] = [
   },
   {
     id: 'ciclo-02',
+    examFamily: 'ciclo-dfs-scc',
     topic: 'deteccao-ciclo',
     difficulty: 'hard',
     duration: 'deep',

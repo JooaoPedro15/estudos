@@ -130,6 +130,8 @@ export interface QuestionMeta {
   displayGraphs?: { a: GraphData; b?: GraphData };
   /** Questão fechada gerada a partir de uma DEFINITION: id da definição de origem — o "Me ensine" mostra a explicação dela. */
   definitionId?: string;
+  /** Família de questão de prova a que pertence (ver content/examFamilies.ts) — usada pelo "Treino de prova" para sortear por frequência nas provas antigas. */
+  examFamily?: string;
 }
 
 export interface Option {

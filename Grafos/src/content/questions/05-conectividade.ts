@@ -11,6 +11,7 @@ const longest = longestPathDAG(DAG_SEVEN)!;
 export const conectividadeQuestions: Question[] = [
   {
     id: 'exc-01',
+    examFamily: 'excentricidade',
     topic: 'excentricidade-raio-diametro',
     difficulty: 'medium',
     duration: 'quick',
@@ -26,6 +27,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'exc-02',
+    examFamily: 'excentricidade',
     topic: 'excentricidade-raio-diametro',
     difficulty: 'hard',
     duration: 'normal',
@@ -43,6 +45,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'exc-03',
+    examFamily: 'excentricidade',
     topic: 'excentricidade-raio-diametro',
     difficulty: 'medium',
     duration: 'deep',
@@ -65,6 +68,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'scc-01',
+    examFamily: 'ciclo-dfs-scc',
     topic: 'scc-kosaraju',
     difficulty: 'hard',
     duration: 'deep',
@@ -86,6 +90,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'scc-02',
+    examFamily: 'ciclo-dfs-scc',
     topic: 'scc-kosaraju',
     difficulty: 'medium',
     duration: 'quick',
@@ -100,6 +105,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'euler-01',
+    examFamily: 'euleriano',
     topic: 'euleriano',
     difficulty: 'medium',
     duration: 'quick',
@@ -120,6 +126,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'euler-02',
+    examFamily: 'euleriano',
     topic: 'euleriano',
     difficulty: 'medium',
     duration: 'quick',
@@ -136,6 +143,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'euler-02b',
+    examFamily: 'euleriano',
     topic: 'euleriano',
     difficulty: 'easy',
     duration: 'quick',
@@ -156,6 +164,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'euler-03',
+    examFamily: 'euleriano',
     topic: 'euleriano',
     difficulty: 'hard',
     duration: 'deep',
@@ -208,6 +217,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'topo-01',
+    examFamily: 'topologica-dag',
     topic: 'topologica-maior-caminho',
     difficulty: 'medium',
     duration: 'normal',
@@ -224,6 +234,7 @@ export const conectividadeQuestions: Question[] = [
   },
   {
     id: 'topo-02',
+    examFamily: 'topologica-dag',
     topic: 'topologica-maior-caminho',
     difficulty: 'hard',
     duration: 'deep',

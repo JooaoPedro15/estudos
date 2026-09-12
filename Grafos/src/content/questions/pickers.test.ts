@@ -128,3 +128,63 @@ describe('pickNextDefinition', () => {
     for (let i = 0; i < 50; i++) expect(pickNextDefinition([], [], ['teoria-de-conjuntos'])!.topic).toBe('teoria-de-conjuntos');
   });
 });
+
+describe('treino de prova', () => {
+  it('toda questão de treino aponta para uma família registrada e toda família tem questão', async () => {
+    const { examFamilies } = await import('@/content/examFamilies');
+    const ids = new Set(examFamilies.map((f) => f.id));
+    const withFamily = questions.filter((q) => q.examFamily);
+    expect(withFamily.length).toBeGreaterThan(100);
+    for (const q of withFamily) expect(ids.has(q.examFamily!), `${q.id}: ${q.examFamily}`).toBe(true);
+    for (const f of examFamilies) expect(withFamily.some((q) => q.examFamily === f.id), f.id).toBe(true);
+    expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
+  });
+
+  it('pickNextExamDrill sorteia famílias proporcionalmente ao nº de provas', async () => {
+    const { pickNextExamDrill } = await import('./index');
+    const { examFamilies, examFamilyWeight } = await import('@/content/examFamilies');
+    const counts: Record<string, number> = {};
+    const N = 4000;
+    for (let i = 0; i < N; i++) {
+      const q = pickNextExamDrill([], [])!;
+      expect(q.examFamily).toBeTruthy();
+      counts[q.examFamily!] = (counts[q.examFamily!] ?? 0) + 1;
+    }
+    const total = examFamilies.reduce((a, f) => a + examFamilyWeight(f), 0);
+    for (const f of examFamilies) {
+      const expected = examFamilyWeight(f) / total;
+      const got = (counts[f.id] ?? 0) / N;
+      expect(Math.abs(got - expected), `${f.id}: esperado ${expected.toFixed(3)}, obtido ${got.toFixed(3)}`).toBeLessThan(0.035);
+    }
+  });
+
+  it('pickNextExamDrill evita os ids recentes', async () => {
+    const { pickNextExamDrill } = await import('./index');
+    const recent = questions.filter((q) => q.examFamily === 'pombos').map((q) => q.id).slice(1);
+    for (let i = 0; i < 200; i++) {
+      const q = pickNextExamDrill(recent, [])!;
+      if (q.examFamily === 'pombos') expect(recent).not.toContain(q.id);
+    }
+  });
+});
+
+describe('conceitos que mais caem', () => {
+  it('conceptExamWeights só tem ids existentes e grafo completo está entre os mais pesados', async () => {
+    const { conceptExamWeights } = await import('@/content/examFamilies');
+    const w = conceptExamWeights();
+    const ids = new Set(openDefs.map((d) => d.id));
+    for (const id of w.keys()) expect(ids.has(id), id).toBe(true);
+    const top = [...w.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id]) => id);
+    expect(top).toContain('def-grafo-completo');
+  });
+
+  it("pickNextDefinition com escopo 'exam' só devolve conceitos usados em prova", async () => {
+    const { conceptExamWeights } = await import('@/content/examFamilies');
+    const w = conceptExamWeights();
+    for (let i = 0; i < 200; i++) {
+      const q = pickNextDefinition([], [], undefined, 'mixed', 'exam')!;
+      const concept = q.type === 'DEFINITION' ? q.id : q.definitionId!;
+      expect(w.has(concept), concept).toBe(true);
+    }
+  });
+});
