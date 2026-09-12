@@ -3,8 +3,13 @@ import { GraduationCap, Lightbulb, PenLine, TriangleAlert } from 'lucide-react';
 import type { Question } from '@/content/types';
 import { getTopic } from '@/content/topics';
 import { getQuestion } from '@/content/questions';
+import { lessons } from '@/content/lessons';
+import { formulasFor } from '@/content/formulas';
 import { IconChip } from '@/components/ui';
 import { formatSource } from './formatSource';
+import { FormulaGlossary } from './FormulaGlossary';
+import { SimpleExplanation } from './SimpleExplanation';
+import { PrerequisitesPanel } from './PrerequisitesPanel';
 
 /**
  * Botão "Me ensine" — abre um passo a passo pedagógico da questão: o
@@ -39,10 +44,14 @@ export function TeachMePanel({ question }: { question: Question }) {
               <div className="flex items-start gap-3">
                 <IconChip icon={GraduationCap} tone="accent" size="sm" />
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Conceito por trás</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Conceito por trás (como o professor define)</p>
                   <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{topic.whatYouNeedToKnow}</p>
                 </div>
               </div>
+
+              <SimpleExplanation concepts={lessons[topic.id] ?? []} />
+
+              <FormulaGlossary formulas={formulasFor(question.topic, question.examFamily)} />
 
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Método, passo a passo</p>
@@ -84,8 +93,11 @@ export function TeachMePanel({ question }: { question: Question }) {
  * Não usa `topic.understand`: aquilo é método de resolver problema, não serve aqui.
  */
 function DefinitionLesson({ question }: { question: Extract<Question, { type: 'DEFINITION' }> }) {
+  const formulas = formulasFor(question.topic);
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4">
+      <PrerequisitesPanel definitionId={question.id} />
+
       <div className="flex items-start gap-3">
         <IconChip icon={Lightbulb} tone="amber" size="sm" />
         <div className="flex flex-col gap-1">
@@ -130,6 +142,8 @@ function DefinitionLesson({ question }: { question: Extract<Question, { type: 'D
           <p className="text-xs leading-relaxed text-[var(--color-text-primary)]">{question.note}</p>
         </div>
       )}
+
+      {formulas.length > 0 && <FormulaGlossary formulas={formulas} />}
     </div>
   );
 }

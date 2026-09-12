@@ -241,6 +241,8 @@ export type Question =
       example?: string;
       /** Ressalva: conflito entre slides, definição só em material de apoio, etc. */
       note?: string;
+      /** Ids (`def-*`) das definições que é preciso entender antes desta. Vazio = dá para aprender do zero. */
+      prerequisites?: string[];
     });
 
 // ---------------------------------------------------------------------------

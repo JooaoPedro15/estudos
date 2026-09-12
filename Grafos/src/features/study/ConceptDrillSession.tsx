@@ -9,6 +9,7 @@ import { Button, Card, IconChip, StatTile } from '@/components/ui';
 import { ChipGroup, ModuleFilter } from './ModuleFilter';
 import { topicIdsForModule, useModuleParam } from './moduleScope';
 import { ExamRelevance } from './ExamRelevance';
+import { PrerequisitesPanel } from '@/engine/PrerequisitesPanel';
 
 const RECENT_LIMIT = 15;
 const TOTAL_CONCEPTS = questions.filter(isDefinitionQuestion).length;
@@ -152,6 +153,7 @@ export function ConceptDrillSession() {
       </div>
 
       {question && <ExamRelevance question={question} />}
+      {question && <PrerequisitesPanel definitionId={question.type === 'DEFINITION' ? question.id : question.definitionId!} />}
 
       <Card>
         {question ? (

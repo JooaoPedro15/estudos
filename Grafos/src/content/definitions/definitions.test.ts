@@ -45,3 +45,25 @@ describe('banco de definições', () => {
     ]) expect(byTopic.get(t) ?? 0, t).toBeGreaterThan(0);
   });
 });
+
+describe('pré-requisitos', () => {
+  it('toda definição tem entrada, todo pré-requisito existe e não há ciclo', async () => {
+    const { PREREQUISITES } = await import('./prerequisites');
+    const ids = new Set(definitionQuestions.map((d) => d.id));
+    for (const d of definitionQuestions) {
+      expect(d.id.slice(4) in PREREQUISITES, `${d.id} sem entrada em PREREQUISITES`).toBe(true);
+      for (const p of d.prerequisites ?? []) expect(ids.has(p), `${d.id} → ${p}`).toBe(true);
+    }
+    // DAG: busca em profundidade com estados 0/1/2, igual ao professor.
+    const state = new Map<string, number>();
+    const byId = new Map(definitionQuestions.map((d) => [d.id, d]));
+    const visit = (id: string, trail: string[]) => {
+      if (state.get(id) === 1) throw new Error(`ciclo: ${[...trail, id].join(' → ')}`);
+      if (state.get(id) === 2) return;
+      state.set(id, 1);
+      for (const p of byId.get(id)!.prerequisites ?? []) visit(p, [...trail, id]);
+      state.set(id, 2);
+    };
+    for (const d of definitionQuestions) visit(d.id, []);
+  });
+});
