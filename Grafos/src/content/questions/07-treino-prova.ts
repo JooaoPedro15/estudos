@@ -1,4 +1,4 @@
-import type { GraphData, Question, Source, WalkthroughStep } from '@/content/types';
+import type { GraphData, Option, Question, Source, WalkthroughStep } from '@/content/types';
 import { distancesFrom, edgeBoundsForComponents, numberOfSubgraphsOfCompleteGraph, radiusDiameterCenter } from '@/lib/graph';
 
 // Questões do "Treino de prova": só o que caiu nas 8 provas antigas do Prof.
@@ -8,6 +8,23 @@ import { distancesFrom, edgeBoundsForComponents, numberOfSubgraphsOfCompleteGrap
 // ("respostas sem justificativa serão desconsideradas").
 
 const exam = (file: string, note: string): Source => ({ type: 'old_exam', file, note });
+
+/**
+ * Alternativas "resposta — porquê": na prova o professor não aceita só o
+ * número; aceita número + justificativa. Então cada alternativa traz os dois,
+ * e os distratores misturam valor errado com razão plausível e valor certo
+ * com razão errada. Ordem estável (hash do id) para o gabarito não ser sempre
+ * a primeira.
+ */
+function options(id: string, correct: string, wrong: string[]): Option[] {
+  const hash = (str: string) => {
+    let h = 5381;
+    for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
+    return h;
+  };
+  const all = [{ id: 'correct', label: correct }, ...wrong.map((w, i) => ({ id: `w${i}`, label: w }))];
+  return all.sort((a, b) => hash(`${id}|${a.id}`) - hash(`${id}|${b.id}`));
+}
 
 // ---------------------------------------------------------------------------
 // Desenhos para o passo a passo ("de onde saiu esse número?")
@@ -190,15 +207,27 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
   const degreeAsk = alt ? 2 * min : 2 * min - 2;
   const connectAsk = alt ? k - 1 : k - 2;
 
+  const kn = (n * (n - 1)) / 2;
+  const yesNo = (verdict: boolean, why: string) => `${verdict ? 'Sim' : 'Não'} — ${why}`;
+
   return [
     {
       ...base,
       id: `tp-${tag}-arestas-impossivel`,
-      type: 'TRUE_FALSE',
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível que esse grafo possua ${edgesAsk} arestas? Justifique.`,
+      options: options(
+        `tp-${tag}-arestas-impossivel`,
+        alt
+          ? yesNo(false, `o mínimo com ${k} componentes é n − k = ${min}; com ${edgesAsk} arestas sobraria pedaço solto (mais de ${k} componentes).`)
+          : yesNo(false, `o máximo com ${k} componentes é (n − k)(n − k + 1)/2 = ${max}; a aresta extra ligaria dois pedaços (menos de ${k} componentes).`),
+        alt
+          ? [yesNo(true, `qualquer quantidade entre 0 e n(n − 1)/2 = ${kn} arestas é possível num grafo simples.`), yesNo(false, `a soma dos graus ficaria ímpar.`), yesNo(true, `${edgesAsk} ≥ k − 1 = ${k - 1}, o suficiente para ligar os pedaços.`)]
+          : [yesNo(true, `${edgesAsk} ≤ n(n − 1)/2 = ${kn}, cabe num grafo simples.`), yesNo(false, `o máximo com ${k} componentes é n − k = ${min}.`), yesNo(true, `com ${edgesAsk} arestas o grafo fica conexo, o que é permitido.`)],
+      ),
+      correctOptionId: 'correct',
       walkthrough: [...(alt ? minSteps : maxSteps), { text: alt ? `${edgesAsk} é menor que o mínimo ${min} ⇒ impossível: sobraria pedaço solto (mais de ${k} componentes).` : `${edgesAsk} é maior que o máximo ${max} ⇒ impossível: a aresta extra ligaria dois pedaços (menos de ${k} componentes).` }],
       generalRule: nkRule,
-      prompt: `${head} é possível que esse grafo possua ${edgesAsk} arestas?`,
-      correctValue: false,
       hints: ['Compare com o mínimo n − k e o máximo (n − k)(n − k + 1)/2.'],
       solution: alt
         ? `Não. ${legend}. ${minWhy}. Como ${edgesAsk} < ${min}, com ${edgesAsk} arestas sobraria pedaço solto: seriam mais de ${k} componentes.`
@@ -207,26 +236,44 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
     {
       ...base,
       id: `tp-${tag}-arestas-possivel`,
-      type: 'TRUE_FALSE',
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível que esse grafo possua ${alt ? max : min} arestas? Justifique.`,
+      options: options(
+        `tp-${tag}-arestas-possivel`,
+        alt
+          ? yesNo(true, `é exatamente o máximo (n − k)(n − k + 1)/2 = ${max}: ${k - 1} vértices isolados e um K${n - k + 1} com todas as arestas.`)
+          : yesNo(true, `é exatamente o mínimo n − k = ${min}: cada um dos ${k} pedaços é uma árvore (x vértices, x − 1 arestas).`),
+        alt
+          ? [yesNo(false, `o máximo com ${k} componentes é n − k = ${min}.`), yesNo(false, `${max} arestas exigem que o grafo seja conexo (k = 1).`), yesNo(true, `porque ${max} é menor que n(n − 1)/2 = ${kn}, e qualquer valor abaixo disso serve.`)]
+          : [yesNo(false, `com só ${min} arestas o grafo teria mais de ${k} componentes.`), yesNo(true, `porque ${min} é menor que n(n − 1)/2 = ${kn}, e qualquer valor abaixo disso serve.`), yesNo(false, `o mínimo com ${k} componentes é (n − k)(n − k + 1)/2 = ${max}.`)],
+      ),
+      correctOptionId: 'correct',
       walkthrough: [...(alt ? maxSteps : minSteps), { text: alt ? `${max} é exatamente o máximo ⇒ possível.` : `${min} é exatamente o mínimo ⇒ possível.` }],
       generalRule: nkRule,
-      prompt: `${head} é possível que esse grafo possua ${alt ? max : min} arestas?`,
-      correctValue: true,
       hints: ['Compare com o mínimo n − k e o máximo (n − k)(n − k + 1)/2.'],
       solution: alt ? `Sim. ${legend}. É exatamente o máximo: ${maxWhy}.` : `Sim. ${legend}. É exatamente o mínimo: ${minWhy}. Exemplo: ${k} árvores, uma por pedaço.`,
     },
     {
       ...base,
       id: `tp-${tag}-soma-graus`,
-      type: 'TRUE_FALSE',
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível que a soma dos graus de todos os vértices seja igual a ${degreeAsk}? Justifique.`,
+      options: options(
+        `tp-${tag}-soma-graus`,
+        alt
+          ? yesNo(true, `soma dos graus = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2}, que é exatamente o mínimo n − k = ${min} (k árvores).`)
+          : yesNo(false, `soma dos graus = 2|E| ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} < n − k = ${min}, o mínimo para ${k} componentes.`),
+        alt
+          ? [yesNo(false, `a soma dos graus tem que ser exatamente 2n = ${2 * n}.`), yesNo(true, `porque ${degreeAsk} é par, e toda soma par é possível.`), yesNo(false, `${degreeAsk} é menor que n(n − 1) = ${n * (n - 1)}, a soma máxima.`)]
+          : [yesNo(true, `${degreeAsk} é par, então existe grafo com essa soma.`), yesNo(false, `${degreeAsk} é ímpar.`), yesNo(true, `soma ${degreeAsk} dá ${degreeAsk / 2} arestas, e ${degreeAsk / 2} ≥ k − 1 = ${k - 1}.`)],
+      ),
+      correctOptionId: 'correct',
       walkthrough: [
         { text: `Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas; cada ponta soma 1 ao grau de um vértice). Então soma ${degreeAsk} ⇒ ${degreeAsk}/2 = ${degreeAsk / 2} arestas.` },
         ...minSteps,
         { text: alt ? `${degreeAsk / 2} = mínimo ${min} ⇒ possível.` : `${degreeAsk / 2} < mínimo ${min} ⇒ impossível.` },
       ],
       generalRule: nkRule,
-      prompt: `${head} é possível que a soma dos graus de todos os vértices seja igual a ${degreeAsk}?`,
-      correctValue: alt,
       hints: ['Σ d(v) = 2|E|. Converta a soma em número de arestas e compare com o mínimo n − k.'],
       solution: alt
         ? `Sim. ${legend}. Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas). Soma ${degreeAsk} ⇒ |E| = ${degreeAsk}/2 = ${degreeAsk / 2} arestas, que é exatamente o mínimo n − k = ${min}. Exemplo: ${k} árvores.`
@@ -235,64 +282,101 @@ function nkVariants({ n, k, from }: NkCase, idx: number): Question[] {
     {
       ...base,
       id: `tp-${tag}-soma-impar`,
-      type: 'TRUE_FALSE',
-      prompt: `${head} é possível que a soma dos graus de todos os vértices seja igual a ${2 * min + 1}?`,
-      correctValue: false,
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível que a soma dos graus de todos os vértices seja igual a ${2 * min + 1}? Justifique.`,
+      options: options(`tp-${tag}-soma-impar`, yesNo(false, `a soma dos graus é sempre 2|E| (cada aresta tem duas pontas), logo sempre PAR; ${2 * min + 1} é ímpar.`), [
+        yesNo(true, `basta um vértice ter grau ímpar.`),
+        yesNo(false, `${2 * min + 1} é menor que o mínimo 2(n − k) = ${2 * min}.`),
+        yesNo(true, `${2 * min + 1}/2 = ${(2 * min + 1) / 2} arestas está entre o mínimo e o máximo.`),
+      ]),
+      correctOptionId: 'correct',
       hints: ['Antes de comparar com mínimos e máximos, olhe a paridade.'],
       solution: `Não. Soma dos graus = 2 × nº de arestas (cada aresta tem 2 pontas, cada ponta soma 1 ao grau de um vértice). Logo a soma é sempre PAR. ${2 * min + 1} é ímpar — impossível em qualquer grafo, não importa n nem k.`,
+      generalRule: nkRule,
     },
     {
       ...base,
       id: `tp-${tag}-soma-maior`,
-      type: 'TRUE_FALSE',
-      prompt: `${head} é possível que a soma dos graus de todos os vértices seja maior que ${2 * max}?`,
-      correctValue: false,
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível que a soma dos graus de todos os vértices seja maior que ${2 * max}? Justifique.`,
+      options: options(`tp-${tag}-soma-maior`, yesNo(false, `soma > ${2 * max} ⇒ |E| > ${max}, mas o máximo com ${k} componentes é (n − k)(n − k + 1)/2 = ${max}.`), [
+        yesNo(true, `a soma dos graus não tem limite superior.`),
+        yesNo(false, `a soma dos graus é sempre exatamente 2(n − k) = ${2 * min}.`),
+        yesNo(true, `basta ter mais de ${max} arestas, e um grafo simples aceita até n(n − 1)/2 = ${kn}.`),
+      ]),
+      correctOptionId: 'correct',
+      walkthrough: [{ text: `Soma dos graus = 2 × nº de arestas. Soma > ${2 * max} significaria mais de ${max} arestas.` }, ...maxSteps, { text: `Mais de ${max} arestas com ${k} componentes é impossível ⇒ a soma é no máximo ${2 * max}.` }],
+      generalRule: nkRule,
       hints: ['Soma > X significa |E| > X/2. Compare com o máximo de arestas.'],
       solution: `Não. ${legend}. Soma dos graus = 2 × nº de arestas, então soma > ${2 * max} significaria mais de ${max} arestas. Mas o ${maxWhy}. Logo a soma é no máximo 2 × ${max} = ${2 * max}.`,
     },
     {
       ...base,
       id: `tp-${tag}-conexo`,
-      type: 'TRUE_FALSE',
-      prompt: `${head} é possível transformá-lo em um grafo conexo com a inclusão de ${connectAsk} arestas?`,
-      correctValue: alt,
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível transformá-lo em um grafo conexo com a inclusão de ${connectAsk} arestas? Justifique.`,
+      options: options(
+        `tp-${tag}-conexo`,
+        alt
+          ? yesNo(true, `cada aresta entre dois pedaços diferentes reduz o número de componentes em exatamente 1; de ${k} para 1 são necessárias e suficientes k − 1 = ${k - 1}.`)
+          : yesNo(false, `cada aresta nova reduz o número de componentes em NO MÁXIMO 1; de ${k} para 1 precisa de pelo menos k − 1 = ${k - 1}, e ${connectAsk} não basta.`),
+        alt
+          ? [yesNo(false, `para conectar é preciso n − 1 = ${n - 1} arestas novas.`), yesNo(true, `qualquer aresta nova reduz o número de componentes em 1, logo bastaria 1 aresta.`), yesNo(false, `são necessárias k = ${k} arestas, uma por componente.`)]
+          : [yesNo(true, `${connectAsk} arestas bem escolhidas ligam os ${k} pedaços em cadeia.`), yesNo(false, `seriam necessárias n − k = ${min} arestas novas.`), yesNo(true, `uma aresta pode ligar três componentes de uma vez.`)],
+      ),
+      correctOptionId: 'correct',
       hints: ['Cada aresta nova une no máximo dois componentes em um.'],
       solution: alt
         ? `Sim. Cada aresta entre dois componentes distintos reduz o número de componentes em exatamente 1; de ${k} para 1 são necessárias e suficientes ${k - 1} arestas.`
         : `Não. Cada aresta nova reduz o número de componentes em NO MÁXIMO 1 (une dois componentes). De ${k} componentes para 1 são necessárias pelo menos ${k - 1} arestas; com ${connectAsk} sobram pelo menos 2 componentes.`,
+      generalRule: nkRule,
     },
     {
       ...base,
       id: `tp-${tag}-regular`,
-      type: 'TRUE_FALSE',
-      prompt: `${head} é possível que esse grafo seja regular?`,
-      correctValue: reg.possible,
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} é possível que esse grafo seja regular? Justifique.`,
+      options: options(
+        `tp-${tag}-regular`,
+        reg.reason,
+        reg.possible
+          ? [`Não — regular exige que todos os vértices estejam no mesmo componente.`, `Não — ${n} vértices em ${k} componentes nunca dá o mesmo grau para todos.`, `Sim — porque a soma dos graus é sempre par.`]
+          : [`Sim — basta que todos tenham grau 0 (grafo nulo).`, `Sim — com grau 2 dá para fazer ${k} ciclos disjuntos.`, `Não — grafos com mais de um componente nunca são regulares.`],
+      ),
+      correctOptionId: 'correct',
       hints: ['Se todos têm grau d, cada componente tem pelo menos d + 1 vértices. E lembre: soma de graus é par.'],
       solution: reg.reason,
+      generalRule: 'Regra geral: se todos têm grau d ≥ 1, cada componente precisa de pelo menos d + 1 vértices (então n ≥ k(d + 1)); se d é ímpar, cada componente precisa de nº PAR de vértices. Grau 0 só no grafo nulo (k = n).',
     },
     {
       ...base,
       id: `tp-${tag}-min`,
-      type: 'NUMBER_INPUT',
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} qual o número MÍNIMO de arestas que ele pode ter? Justifique.`,
+      options: options(`tp-${tag}-min`, `${min} — n − k: cada pedaço com x vértices precisa de x − 1 arestas (árvore); somando os ${k} pedaços, ${n} − ${k}.`, [
+        `${k - 1} — uma aresta por componente.`,
+        `${n - 1} — n − 1, como numa árvore com todos os vértices.`,
+        `${max} — (n − k)(n − k + 1)/2.`,
+      ]),
+      correctOptionId: 'correct',
       walkthrough: minSteps,
       generalRule: nkRule,
-      duration: 'quick',
-      prompt: `${head} qual o número MÍNIMO de arestas que ele pode ter?`,
-      correctNumber: min,
-      unit: 'arestas',
       hints: ['Cada componente com ni vértices precisa de ni − 1 arestas (árvore). Some.'],
       solution: `${legend}. ${minWhy}.`,
     },
     {
       ...base,
       id: `tp-${tag}-max`,
-      type: 'NUMBER_INPUT',
+      type: 'MULTIPLE_CHOICE',
+      prompt: `${head} qual o número MÁXIMO de arestas que ele pode ter? Justifique.`,
+      options: options(`tp-${tag}-max`, `${max} — (n − k)(n − k + 1)/2: ${k - 1} vértices isolados e os outros ${n - k + 1} num grafo completo K${n - k + 1}.`, [
+        `${kn} — n(n − 1)/2, todas as arestas possíveis entre ${n} vértices.`,
+        `${min} — n − k.`,
+        `${((n - k) * (n - k - 1)) / 2} — (n − k)(n − k − 1)/2: um K${n - k} mais ${k} vértices isolados.`,
+      ]),
+      correctOptionId: 'correct',
       walkthrough: maxSteps,
       generalRule: nkRule,
-      duration: 'quick',
-      prompt: `${head} qual o número MÁXIMO de arestas que ele pode ter?`,
-      correctNumber: max,
-      unit: 'arestas',
       hints: ['Concentre tudo em um componente completo e deixe os outros k − 1 como vértices isolados.'],
       solution: `${legend}. ${maxWhy}.`,
     },
@@ -336,9 +420,14 @@ const pombosQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'pombos',
-    type: 'TRUE_FALSE',
-    prompt: 'Em um grafo simples com n vértices, pode existir ao mesmo tempo um vértice de grau 0 e um vértice de grau n − 1.',
-    correctValue: false,
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'Em um grafo simples com n vértices, pode existir ao mesmo tempo um vértice de grau 0 e um vértice de grau n − 1? Justifique.',
+    options: options('tp-pombos-coexistem', 'Não — grau n − 1 significa ser adjacente a TODOS os outros; então nenhum vértice pode ficar com grau 0.', [
+      'Sim — grau 0 e grau n − 1 são só os extremos do intervalo [0, n − 1], ambos permitidos.',
+      'Não — porque a soma dos graus ficaria ímpar.',
+      'Sim — desde que o grafo tenha mais de um componente.',
+    ]),
+    correctOptionId: 'correct',
     source: exam('2024-2-exam.pdf', 'Q1 — passo central da prova'),
     hints: ['O que significa ter grau n − 1 num grafo simples?'],
     solution: 'Falso. Grau n − 1 significa ser adjacente a TODOS os outros n − 1 vértices (sem laços nem paralelas, cada aresta vai a um vértice distinto). Então todo outro vértice tem pelo menos essa aresta — grau ≥ 1. Isso é o que reduz os valores possíveis de n para n − 1 e faz a casa dos pombos funcionar.',
@@ -412,10 +501,14 @@ const subgrafosQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'subgrafos-kn',
-    type: 'NUMBER_INPUT',
-    prompt: `Quantos subgrafos (com pelo menos um vértice) possui o grafo completo K${n}? Use a fórmula do professor e mostre os termos.`,
-    correctNumber: numberOfSubgraphsOfCompleteGraph(n),
-    unit: 'subgrafos',
+    type: 'MULTIPLE_CHOICE',
+    prompt: `Quantos subgrafos (com pelo menos um vértice) possui o grafo completo K${n}? Justifique com a fórmula do professor.`,
+    options: options(`tp-subgrafos-k${n}`, `${numberOfSubgraphsOfCompleteGraph(n)} — Σ_{i=1}^{${n}} C(${n}, i)·2^(i(i−1)/2): escolhe i vértices e, entre eles, qualquer subconjunto das i(i−1)/2 arestas.`, [
+      `${2 ** ((n * (n - 1)) / 2)} — 2^(n(n−1)/2): cada aresta de K${n} entra ou não.`,
+      `${2 ** n - 1} — 2^${n} − 1: subconjuntos não vazios de vértices.`,
+      `${2 ** n * 2 ** ((n * (n - 1)) / 2)} — 2^${n} · 2^(n(n−1)/2): qualquer subconjunto de vértices vezes qualquer subconjunto de arestas.`,
+    ]),
+    correctOptionId: 'correct',
     walkthrough: (() => {
       const g = completeGraph(n);
       const choose = (a: number, b: number) => {
@@ -508,9 +601,14 @@ const autoComplementarQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'auto-complementar',
-    type: 'TRUE_FALSE',
-    prompt: 'Seja G = (V, E) um grafo simples não-direcionado. É correto afirmar que o número de arestas de um grafo auto-complementar é divisível por 4? (Justifique na sua cabeça antes de marcar.)',
-    correctValue: false,
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'Seja G = (V, E) um grafo simples não-direcionado. É correto afirmar que o número de arestas de um grafo auto-complementar é divisível por 4? Justifique.',
+    options: options('tp-autocomp-divisivel-4', 'Não — |E| = n(n−1)/4; o que é divisível por 4 é n(n−1), não |E|. Contra-exemplo: C5 é auto-complementar com 5 arestas.', [
+      'Sim — |E(G)| = |E(Ḡ)| e |E(G)| + |E(Ḡ)| = n(n−1)/2, logo |E(G)| = n(n−1)/4 é múltiplo de 4.',
+      'Sim — porque n = 4k ou 4k + 1 força |E| a ser múltiplo de 4.',
+      'Não — porque grafos auto-complementares têm sempre número ímpar de arestas.',
+    ]),
+    correctOptionId: 'correct',
     source: exam('2025-1-exam.pdf', 'Q2 (20%) — pergunta textual da prova'),
     professorStyleSimilarity: 'high',
     hints: ['Calcule |E| de um auto-complementar com 5 vértices.', '|E(G)| + |E(Ḡ)| = n(n−1)/2 e |E(G)| = |E(Ḡ)|.'],
@@ -569,10 +667,14 @@ const autoComplementarQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'auto-complementar',
-    type: 'NUMBER_INPUT',
-    prompt: `Quantas arestas tem um grafo auto-complementar com ${n} vértices?`,
-    correctNumber: (n * (n - 1)) / 4,
-    unit: 'arestas',
+    type: 'MULTIPLE_CHOICE',
+    prompt: `Quantas arestas tem um grafo auto-complementar com ${n} vértices? Justifique.`,
+    options: options(`tp-autocomp-arestas-${n}`, `${(n * (n - 1)) / 4} — n(n−1)/4: G e Ḡ têm o mesmo nº de arestas e juntos formam K${n}, que tem ${(n * (n - 1)) / 2}; metade para cada.`, [
+      `${(n * (n - 1)) / 2} — n(n−1)/2: as arestas de K${n}.`,
+      `${n - 1} — n − 1: uma árvore geradora.`,
+      `${n} — n: um ciclo com ${n} vértices.`,
+    ]),
+    correctOptionId: 'correct',
     source: exam('2023-2-exam.pdf', 'Q1(iii): "três exemplos de grafos com mais de 4 vértices em que |E(G)| = |E(Ḡ)|"'),
     hints: ['|E(G)| = |E(Ḡ)| e |E(G)| + |E(Ḡ)| = n(n−1)/2.'],
     solution: `n = ${n} vértices. G e seu complemento Ḡ têm o mesmo nº de arestas e, juntos, formam o completo Kn, que tem n(n−1)/2 = ${n}·${n - 1}/2 = ${(n * (n - 1)) / 2} arestas. Metade para cada: |E| = n(n−1)/4 = ${(n * (n - 1)) / 4}.`,
@@ -585,9 +687,14 @@ const autoComplementarQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'auto-complementar',
-    type: 'TRUE_FALSE',
-    prompt: `Existe grafo com ${n} vértices cujo número de arestas é igual ao do seu complemento?`,
-    correctValue: false,
+    type: 'MULTIPLE_CHOICE',
+    prompt: `Existe grafo com ${n} vértices cujo número de arestas é igual ao do seu complemento? Justifique.`,
+    options: options(`tp-autocomp-existe-${n}`, `Não — |E(G)| = |E(Ḡ)| exige |E| = n(n−1)/4 = ${n}·${n - 1}/4 = ${(n * (n - 1)) / 4}, que não é inteiro.`, [
+      `Sim — basta G ter n(n−1)/2 = ${(n * (n - 1)) / 2} arestas.`,
+      `Não — só existe quando n é múltiplo de 4.`,
+      `Sim — todo grafo com ${n} vértices tem tantas arestas quanto o complemento.`,
+    ]),
+    correctOptionId: 'correct',
     source: exam('2023-2-exam.pdf', 'Q1(iv): "para quais valores de |V| é possível que G tenha o mesmo número de arestas do seu complemento?"'),
     hints: ['|E(G)| = |E(Ḡ)| ⇒ |E| = n(n−1)/4. É inteiro?'],
     solution: `Não. |E(G)| = |E(Ḡ)| exige |E| = n(n−1)/4 = ${n}·${n - 1}/4 = ${(n * (n - 1)) / 4}, que não é inteiro. Só é possível quando 4 | n(n−1), ou seja, n = 4k ou 4k + 1 (4, 5, 8, 9, 12, 13, …).`,
@@ -650,10 +757,15 @@ const excentricidadeQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'excentricidade',
-    type: 'NUMBER_INPUT',
-    prompt: `No grafo da prova (V = {a, …, i}, E = {ab, bc, bd, cg, de, dg, dh, cf, hi, ai}), qual a excentricidade do vértice "${v}"?`,
+    type: 'MULTIPLE_CHOICE',
+    prompt: `No grafo da prova (V = {a, …, i}, E = {ab, bc, bd, cg, de, dg, dh, cf, hi, ai}), qual a excentricidade do vértice "${v}"? Justifique.`,
     displayGraphs: { a: EXAM_GRAPH_AI },
-    correctNumber: AI.eccentricities[v],
+    options: options(`tp-exc-${v}`, `${AI.eccentricities[v]} — maior distância mínima a partir de ${v} (BFS): o vértice mais longe está a ${AI.eccentricities[v]} arestas.`, [
+      `${EXAM_GRAPH_AI.edges.filter((e) => e.source === v || e.target === v).length} — o grau de ${v} (número de vizinhos).`,
+      `${AI.diameter} — o diâmetro do grafo (maior distância entre dois vértices quaisquer).`,
+      `${AI.eccentricities[v] === AI.radius ? AI.eccentricities[v] + 1 : AI.radius} — ${AI.eccentricities[v] === AI.radius ? 'distância até o vértice mais longe contando o próprio ' + v : 'o raio do grafo (menor excentricidade)'}.`,
+    ]),
+    correctOptionId: 'correct',
     walkthrough: (() => {
       const dist = distancesFrom(EXAM_GRAPH_AI, v);
       const far = Object.entries(dist).filter(([, d]) => d === AI.eccentricities[v]).map(([u]) => u);
@@ -675,10 +787,15 @@ const excentricidadeQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'excentricidade',
-    type: 'NUMBER_INPUT',
-    prompt: 'No grafo da prova (V = {a, …, i}), qual é o RAIO de G?',
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'No grafo da prova (V = {a, …, i}), qual é o RAIO de G? Justifique.',
     displayGraphs: { a: EXAM_GRAPH_AI },
-    correctNumber: AI.radius,
+    options: options('tp-exc-raio', `${AI.radius} — a MENOR excentricidade entre todos os vértices (é a de ${AI.center.join(', ')}).`, [
+      `${AI.diameter} — a maior excentricidade.`,
+      `${Math.round(AI.diameter / 2)} — metade do diâmetro.`,
+      `${AI.radius} — o menor grau do grafo.`,
+    ]),
+    correctOptionId: 'correct',
     source: exam('2023-2-exam.pdf', 'Q3(ii) (8%): "qual o raio e o diâmetro de G?"'),
     hints: ['Raio = menor excentricidade.'],
     solution: `Excentricidades: ${eccList}. Raio = menor = ${AI.radius}.`,
@@ -691,10 +808,15 @@ const excentricidadeQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'excentricidade',
-    type: 'NUMBER_INPUT',
-    prompt: 'No grafo da prova (V = {a, …, i}), qual é o DIÂMETRO de G?',
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'No grafo da prova (V = {a, …, i}), qual é o DIÂMETRO de G? Justifique.',
     displayGraphs: { a: EXAM_GRAPH_AI },
-    correctNumber: AI.diameter,
+    options: options('tp-exc-diametro', `${AI.diameter} — a MAIOR excentricidade: a maior distância mínima entre dois vértices do grafo.`, [
+      `${AI.radius} — a menor excentricidade.`,
+      `${2 * AI.radius} — o dobro do raio, sempre.`,
+      `${EXAM_GRAPH_AI.edges.length} — o número de arestas.`,
+    ]),
+    correctOptionId: 'correct',
     source: exam('2023-2-exam.pdf', 'Q3(ii)'),
     hints: ['Diâmetro = maior excentricidade.'],
     solution: `Excentricidades: ${eccList}. Diâmetro = maior = ${AI.diameter}.`,
@@ -761,10 +883,14 @@ const bipartidoQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'bipartido-tripartido',
-    type: 'NUMBER_INPUT',
-    prompt: `Quantas arestas possui o grafo tripartido completo K${r},${s},${t}? (três conjuntos de tamanhos ${r}, ${s} e ${t}; aresta entre dois vértices sse estão em conjuntos distintos)`,
-    correctNumber: krst(r, s, t).e,
-    unit: 'arestas',
+    type: 'MULTIPLE_CHOICE',
+    prompt: `Quantas arestas possui o grafo tripartido completo K${r},${s},${t}? (três conjuntos de tamanhos ${r}, ${s} e ${t}; aresta entre dois vértices sse estão em conjuntos distintos) Justifique.`,
+    options: options(`tp-krst-${r}${s}${t}`, `${krst(r, s, t).e} — rs + rt + st = ${r}·${s} + ${r}·${t} + ${s}·${t} = ${r * s} + ${r * t} + ${s * t}: cada par de lados forma um bipartido completo.`, [
+      `${r * s * t} — r·s·t = ${r}·${s}·${t}: produto dos três lados.`,
+      `${(krst(r, s, t).v * (krst(r, s, t).v - 1)) / 2} — n(n − 1)/2 com n = ${krst(r, s, t).v}: todos os pares de vértices.`,
+      `${r + s + t} — r + s + t: uma aresta por vértice.`,
+    ]),
+    correctOptionId: 'correct',
     walkthrough: (() => {
       const g = tripartiteGraph(r, s, t);
       const colors = Object.fromEntries([...g.sides[0].map((id) => [id, COLOR.side1]), ...g.sides[1].map((id) => [id, COLOR.side2]), ...g.sides[2].map((id) => [id, COLOR.side3])]);
@@ -834,9 +960,14 @@ const bipartidoQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'limites-grau-arestas',
-    type: 'TRUE_FALSE',
-    prompt: 'G pode ser regular se n = 15 e o grau de cada vértice for 3?',
-    correctValue: false,
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'G pode ser regular se n = 15 e o grau de cada vértice for 3? Justifique.',
+    options: options('tp-regular-15-3', 'Não — soma dos graus = 15·3 = 45 = 2|E| daria |E| = 22,5, não inteiro (equivalente: 15 vértices de grau ímpar, quantidade ímpar).', [
+      'Sim — 3 ≤ n − 1 = 14, então cabe.',
+      'Não — grafo regular precisa de n par.',
+      'Sim — basta desenhar um ciclo de 15 vértices com uma corda por vértice.',
+    ]),
+    correctOptionId: 'correct',
     source: exam('2023-1-exam.pdf', 'Q1c (4%)'),
     hints: ['Σ d(v) = 2|E|. Faça a conta.'],
     solution: 'Não. Σ d(v) = 15 · 3 = 45 = 2|E| ⇒ |E| = 22,5 — não é inteiro. Equivalente: o número de vértices de grau ímpar (15) teria que ser par. Regra geral: n·d precisa ser par.',
@@ -853,9 +984,18 @@ const bipartidoQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'limites-grau-arestas',
-    type: 'TRUE_FALSE',
-    prompt: `Existe grafo simples regular com n = ${n} vértices em que cada vértice tem grau ${d}?`,
-    correctValue: ok,
+    type: 'MULTIPLE_CHOICE',
+    prompt: `Existe grafo simples regular com n = ${n} vértices em que cada vértice tem grau ${d}? Justifique.`,
+    options: options(
+      `tp-regular-${n}-${d}`,
+      ok
+        ? `Sim — soma dos graus = ${n}·${d} = ${n * d} = 2|E| ⇒ |E| = ${(n * d) / 2}, inteiro; e ${d} ≤ n − 1 = ${n - 1}.`
+        : `Não — soma dos graus = ${n}·${d} = ${n * d} é ímpar, mas a soma dos graus é sempre 2|E| (par).`,
+      ok
+        ? [`Não — ${n} não é divisível por ${d}.`, `Não — grafo regular precisa de grau par.`, `Sim — porque ${d} < ${n}.`]
+        : [`Sim — ${d} ≤ n − 1 = ${n - 1}, então cabe.`, `Não — ${n} não é divisível por ${d}.`, `Sim — basta um ciclo com ${n} vértices e cordas.`],
+    ),
+    correctOptionId: 'correct',
     source: exam('2023-1-exam.pdf', 'variante de Q1c com números novos'),
     hints: ['n·d = 2|E| tem que ser par, e d ≤ n − 1.'],
     solution: ok
@@ -891,9 +1031,14 @@ const bipartidoQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'matriz-adjacencia',
-    type: 'TRUE_FALSE',
-    prompt: 'Seja uma matriz quadrada simétrica formada apenas por 0s e 1s, com apenas 0s na diagonal principal. Essa matriz pode representar a matriz de adjacência de um grafo simples?',
-    correctValue: true,
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'Seja uma matriz quadrada simétrica formada apenas por 0s e 1s, com apenas 0s na diagonal principal. Essa matriz pode representar a matriz de adjacência de um grafo simples? Justifique.',
+    options: options('tp-matriz-simetrica', 'Sim — simétrica ⇒ não-direcionado; diagonal 0 ⇒ sem laços; só 0/1 ⇒ sem arestas paralelas. Sem laços e sem paralelas = simples.', [
+      'Não — matriz de adjacência de grafo simples precisa ter 1s na diagonal.',
+      'Não — só matrizes de incidência representam grafos simples.',
+      'Sim — qualquer matriz quadrada de 0s e 1s representa um grafo simples.',
+    ]),
+    correctOptionId: 'correct',
     source: exam('2023-1-exam.pdf', 'Q4a (7%)'),
     hints: ['Simétrica ⇒ ? Diagonal 0 ⇒ ? Só 0/1 ⇒ ?'],
     solution: 'Sim. Simétrica ⇒ aij = aji, arestas sem direção (grafo não-direcionado). Diagonal 0 ⇒ nenhum vértice ligado a si mesmo (sem laços). Entradas só 0/1 ⇒ no máximo uma aresta por par (sem paralelas). Sem laços e sem paralelas = grafo simples. Basta ler cada 1 acima da diagonal como uma aresta {i, j}.',
@@ -955,9 +1100,14 @@ const buscaQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'fecho-base-antibase',
-    type: 'TRUE_FALSE',
-    prompt: 'A anti-base de um grafo dirigido G é exatamente a base do grafo transposto Gᵀ.',
-    correctValue: true,
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'A anti-base de um grafo dirigido G é exatamente a base do grafo transposto Gᵀ? Justifique.',
+    options: options('tp-antibase-transposto', 'Sim — "u alcança a em G" ⟺ "a alcança u em Gᵀ"; então "todo vértice alcança A" em G vira "A alcança todo vértice" em Gᵀ, a definição de base.', [
+      'Não — a anti-base de G é o complemento da base de G.',
+      'Não — transpor o grafo não muda quem alcança quem.',
+      'Sim — porque base e anti-base são sempre o mesmo conjunto.',
+    ]),
+    correctOptionId: 'correct',
     source: exam('2022-2-exam.pdf', 'Q2d (10%): algoritmo para anti-base'),
     hints: ['Anti-base: todo vértice fora dela ALCANÇA alguém dela. Inverta as setas.'],
     solution: 'Verdadeiro. "u alcança a em G" ⟺ "a alcança u em Gᵀ". Então "todo vértice fora de A alcança A" em G vira "A alcança todo vértice" em Gᵀ — a definição de base. Por isso o algoritmo do professor para anti-base é: transponha G e aplique o algoritmo de base.',
@@ -1033,9 +1183,14 @@ const buscaQuestions: Question[] = [
     examLikelihood: 'high',
     sourceStyle: 'old_exam',
     examFamily: 'ciclo-dfs-scc',
-    type: 'TRUE_FALSE',
-    prompt: 'Um grafo dirigido possui ciclo se, e somente se, algum componente fortemente conexo tem dois ou mais vértices (ou existe laço).',
-    correctValue: true,
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'Um grafo dirigido possui ciclo se, e somente se, algum componente fortemente conexo tem dois ou mais vértices (ou existe laço)? Justifique.',
+    options: options('tp-scc-ciclo', 'Sim — dois vértices no mesmo SCC se alcançam nos dois sentidos, e ida + volta formam um ciclo; e todo ciclo põe seus vértices num mesmo SCC.', [
+      'Não — um grafo pode ter ciclo e todos os SCCs unitários.',
+      'Não — SCC com dois vértices só exige caminho num sentido.',
+      'Sim — porque todo grafo dirigido tem exatamente um SCC.',
+    ]),
+    correctOptionId: 'correct',
     source: exam('P1-TGC.pdf', '2026/1-Q4 (25%): "projete DUAS soluções distintas para definir se o grafo é acíclico" — esta é a segunda'),
     hints: ['Dois vértices no mesmo SCC se alcançam mutuamente. O que isso forma?'],
     solution: 'Verdadeiro. Se u ≠ v estão no mesmo SCC, há caminho u → v e v → u: juntos formam um ciclo. Reciprocamente, todo ciclo tem seus vértices mutuamente alcançáveis, logo num mesmo SCC de tamanho ≥ 2. Assim, "rodar Kosaraju e verificar se todo SCC é unitário (e não há laço)" é uma segunda estratégia de detecção de ciclo, além da DFS 0/1/2 — é o par que 2026/1-Q4 pede.',
