@@ -6,7 +6,7 @@ import { getExam } from '@/content/exams';
 import { getQuestion } from '@/content/questions';
 import type { ExerciseType, Question, QuestionAttempt } from '@/content/types';
 import { validateAnswer } from '@/engine/validate';
-import { scrambledOrder } from '@/engine/ExerciseRenderer';
+import { scrambledOrder } from '@/engine/ordering';
 import { TeachMePanel } from '@/engine/TeachMePanel';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { recordAttempt } from '@/store/progress';
