@@ -86,6 +86,14 @@ ANTIBASE(G)
   return BASE(TRANSPOSTO(G))
 \`\`\``,
 
+  /** Subrotinas que BASE chama — na prova, escrever junto: citar só o nome ("é só usar Kosaraju") o professor cobra detalhe. */
+  get SUBROTINAS_BASE(): string {
+    return `Subrotinas usadas por BASE (material do professor: busca em profundidade do quadro e Kosaraju do aulão):
+${this.TRANSPOSTO}
+${this.KOSARAJU}
+${this.VISIT}`;
+  },
+
   DISTANCIAS: `\`\`\`
 DISTANCIAS(G, v)                     // busca em largura
   for u ∈ V, dist[u] = -1

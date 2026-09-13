@@ -79,13 +79,13 @@ Verificação: n = 3 → 3·1 + 3·2 + 1·8 = 17.`;
 
 const BASE_ALG = `Base de G = (V, E) dirigido: subconjunto B ⊆ V tal que não há caminho entre vértices de B e todo vértice fora de B é atingido por algum vértice de B.
 ${PC.BASE}
+${PC.SUBROTINAS_BASE}
 Justificativa: um vértice com d⁻(v) = 0 não é alcançado por ninguém, então só ele pode se representar — entra em B. Num grafo sem ciclos, todo vértice com d⁻ > 0 é alcançado, direta ou indiretamente, a partir de algum vértice com d⁻ = 0, e nenhum vértice de B alcança outro (nenhum tem aresta chegando): B é base e é mínima, pois nenhum de seus vértices pode ser retirado. Com ciclos, os vértices de um ciclo têm todos d⁻ ≥ 1 e podem não ser alcançados de fora; por isso BASE contrai cada ciclo (componente fortemente conexo, obtido por KOSARAJU) em um hipervértice — o grafo contraído não tem ciclos — e, para cada hipervértice sem aresta chegando de fora, escolhe UM vértice do ciclo (qualquer um alcança os demais do ciclo).
 Funciona: BASE_SEM_CICLO apenas para grafos direcionados sem ciclo; BASE para qualquer grafo direcionado.`;
 
 const ANTIBASE_ALG = `Anti-base: subconjunto A ⊆ V tal que não há caminho entre vértices de A e todo vértice fora de A atinge A por um caminho.
-${PC.TRANSPOSTO}
 ${PC.ANTIBASE}
-Justificativa: "u atinge a em G" ⟺ "a atinge u em Gᵀ" (mesmas arestas, sentidos invertidos). Então "todo vértice fora de A atinge A em G" é o mesmo que "A atinge todo vértice em Gᵀ", que é a definição de base. Logo a anti-base de G é a base do transposto, e vale a mesma ressalva dos ciclos (contraídos por KOSARAJU dentro de BASE). Funciona para qualquer grafo direcionado.`;
+Justificativa (TRANSPOSTO e BASE são os do item anterior): "u atinge a em G" ⟺ "a atinge u em Gᵀ" (mesmas arestas, sentidos invertidos). Então "todo vértice fora de A atinge A em G" é o mesmo que "A atinge todo vértice em Gᵀ", que é a definição de base. Logo a anti-base de G é a base do transposto, e vale a mesma ressalva dos ciclos (contraídos por KOSARAJU dentro de BASE). Funciona para qualquer grafo direcionado.`;
 
 const DIAMETRO_ALG = `Definições: distância entre v e u = menor número de arestas de um caminho de v a u; excentricidade ε(v) = maior das menores distâncias de v aos demais; diâmetro = maior excentricidade; raio = menor excentricidade; centro = vértices com excentricidade igual ao raio.
 ${PC.DISTANCIAS}

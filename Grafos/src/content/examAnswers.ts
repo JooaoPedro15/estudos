@@ -43,6 +43,7 @@ Verificação: (a,b)→(1,3) ✓; (b,c)→(3,5) ✓; (c,d)→(5,2) ✓; (d,e)→
 
   'base-03': `Definição: base de um grafo dirigido G = (V, E) é um subconjunto B ⊆ V tal que não há caminho entre vértices de B, e todo vértice não pertencente a B pode ser atingido por algum vértice de B.
 ${PC.BASE}
+${PC.SUBROTINAS_BASE}
 Justificativa: um vértice com d⁻(v) = 0 não é alcançado por ninguém — só ele pode se representar, então entra em B. Num grafo sem ciclos, todo vértice com d⁻ > 0 é alcançado, direta ou indiretamente, a partir de algum vértice com d⁻ = 0, e nenhum vértice de B alcança outro (nenhum tem aresta chegando): B é base, e é mínima porque nenhum de seus vértices pode ser retirado. Com ciclos, os vértices de um ciclo têm todos d⁻ ≥ 1 e podem não ser alcançados de fora; por isso BASE contrai cada ciclo (componente fortemente conexo, via KOSARAJU) em um hipervértice — o grafo contraído não tem ciclos — e, para cada hipervértice sem aresta chegando de fora, escolhe UM vértice do ciclo (qualquer um alcança os demais do ciclo).
 Para quais grafos funciona: BASE_SEM_CICLO apenas para grafos direcionados sem ciclo; BASE para qualquer grafo direcionado. Em grafo não-direcionado a noção não se aplica. Anti-base: obtenha o grafo transposto de G e aplique o mesmo algoritmo.`,
 
