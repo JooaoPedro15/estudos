@@ -2,17 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
-import { isExamDrillQuestion, pickNextExamDrill, questions } from '@/content/questions';
+import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, questions, type ExamDrillKind } from '@/content/questions';
 import { TOTAL_EXAMS, examFamilies, examFamilyWeight } from '@/content/examFamilies';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
 import { Button, Card, IconChip, StatTile } from '@/components/ui';
 import { ExamRelevance } from './ExamRelevance';
+import { ChipGroup } from './ModuleFilter';
 
 const RECENT_LIMIT = 12;
 const FAMILIES_BY_WEIGHT = [...examFamilies].sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
 const TOTAL_WEIGHT = examFamilies.reduce((acc, f) => acc + examFamilyWeight(f), 0);
 const QUESTIONS_PER_FAMILY = new Map(examFamilies.map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isExamDrillQuestion(q)).length]));
+const OPEN_PER_FAMILY = new Map(examFamilies.map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isOpenExamQuestion(q)).length]));
+const KIND_OPTIONS: { id: ExamDrillKind; label: string }[] = [
+  { id: 'closed', label: 'Fechadas (marco)' },
+  { id: 'open', label: 'Abertas (escrevo)' },
+  { id: 'mixed', label: 'Misto' },
+];
 
 function formatSeconds(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -32,6 +39,7 @@ export function ExamDrillSession() {
   const [answered, setAnswered] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [showTable, setShowTable] = useState(false);
+  const [kind, setKind] = useState<ExamDrillKind>('closed');
   const startedAtRef = useRef(Date.now());
   const lastSavedSecondsRef = useRef(0);
 
@@ -40,12 +48,18 @@ export function ExamDrillSession() {
     loadProgress().then((state) => {
       if (cancelled) return;
       setAttempts(state.attempts);
-      setQuestion(pickNextExamDrill([], state.attempts) ?? null);
+      setQuestion(pickNextExamDrill([], state.attempts, kind) ?? null);
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function changeKind(next: ExamDrillKind) {
+    setKind(next);
+    setQuestion(pickNextExamDrill(recentIds, attempts, next) ?? null);
+  }
 
   useEffect(() => {
     return () => {
@@ -74,7 +88,7 @@ export function ExamDrillSession() {
 
     const nextRecent = [...recentIds, question.id].slice(-RECENT_LIMIT);
     setRecentIds(nextRecent);
-    setQuestion(pickNextExamDrill(nextRecent, nextAttempts) ?? null);
+    setQuestion(pickNextExamDrill(nextRecent, nextAttempts, kind) ?? null);
 
     const elapsed = Math.round((Date.now() - startedAtRef.current) / 1000);
     if (elapsed - lastSavedSecondsRef.current >= 60) {
@@ -98,9 +112,12 @@ export function ExamDrillSession() {
         </Link>
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
-        Só o que caiu nas {TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados, todas fechadas
-        (marcar, ordenar passos, clicar no grafo). O que caiu em mais provas aparece mais vezes. Sem fim: saia quando quiser.
+        Só o que caiu nas {TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados. Fechadas: marcar,
+        ordenar passos, clicar no grafo. Abertas: as dissertativas como na prova — você escreve e depois compara com a resposta-modelo. O que
+        caiu em mais provas aparece mais vezes. Sem fim: saia quando quiser.
       </p>
+
+      <ChipGroup label="Tipo de questão" tone="danger" value={kind} onChange={(id) => changeKind(id as ExamDrillKind)} options={KIND_OPTIONS} />
 
       <button
         type="button"
@@ -120,7 +137,10 @@ export function ExamDrillSession() {
               </span>
               <span className="mono w-10 shrink-0 text-[var(--color-text-tertiary)]">{Math.round((examFamilyWeight(f) / TOTAL_WEIGHT) * 100)}%</span>
               <span className="flex-1 leading-relaxed text-[var(--color-text-secondary)]">
-                {f.title} <span className="text-[var(--color-text-tertiary)]">({QUESTIONS_PER_FAMILY.get(f.id) ?? 0} questões)</span>
+                {f.title}{' '}
+                <span className="text-[var(--color-text-tertiary)]">
+                  ({QUESTIONS_PER_FAMILY.get(f.id) ?? 0} fechadas · {OPEN_PER_FAMILY.get(f.id) ?? 0} abertas)
+                </span>
               </span>
             </div>
           ))}

@@ -279,11 +279,20 @@ export function isExamDrillQuestion(q: Question): boolean {
   return Boolean(q.examFamily) && isClosedQuestion(q);
 }
 
-export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[]): Question | undefined {
+export type ExamDrillKind = 'closed' | 'open' | 'mixed';
+
+/** Questão aberta de prova: dissertativa ou resposta digitada (o que se escreve na folha). */
+export function isOpenExamQuestion(q: Question): boolean {
+  return q.type === 'PROOF_OR_JUSTIFICATION' || q.type === 'SHORT_ANSWER' || q.type === 'NUMBER_INPUT';
+}
+
+export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[], kind: ExamDrillKind = 'closed'): Question | undefined {
   const excluded = new Set(excludeIds);
+  const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : Math.random() < 0.5;
+  const accept = (q: Question) => (wantOpen ? isOpenExamQuestion(q) : isClosedQuestion(q));
   const byFamily = new Map<string, Question[]>();
   for (const q of questions) {
-    if (!q.examFamily || !isClosedQuestion(q)) continue;
+    if (!q.examFamily || !accept(q)) continue;
     const list = byFamily.get(q.examFamily) ?? [];
     list.push(q);
     byFamily.set(q.examFamily, list);

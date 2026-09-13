@@ -165,6 +165,15 @@ describe('treino de prova', () => {
     for (const f of examFamilies) expect(questions.some((q) => q.examFamily === f.id && isExamDrillQuestion(q)), f.id).toBe(true);
   });
 
+  it("pickNextExamDrill 'open' só devolve dissertativas/digitadas, com resposta-modelo nas dissertativas", async () => {
+    const { pickNextExamDrill, isOpenExamQuestion } = await import('./index');
+    for (let i = 0; i < 300; i++) {
+      const q = pickNextExamDrill([], [], 'open')!;
+      expect(isOpenExamQuestion(q), q.id).toBe(true);
+      if (q.type === 'PROOF_OR_JUSTIFICATION') expect(q.examAnswer, q.id).toBeTruthy();
+    }
+  });
+
   it('pickNextExamDrill evita os ids recentes', async () => {
     const { pickNextExamDrill } = await import('./index');
     const { isExamDrillQuestion } = await import('./index');
