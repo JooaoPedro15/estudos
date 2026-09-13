@@ -45,9 +45,11 @@ export function TeachMePanel({ question }: { question: Question }) {
           <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-accent)]/45 bg-[var(--color-accent-soft)] p-4">
             <div className="flex items-center gap-3">
               <IconChip icon={PenLine} tone="accent" size="sm" />
-              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-strong)]">Como resolver este caso</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-strong)]">{question.examAnswer ? 'Resposta esperada — como escrever na prova' : 'Como resolver este caso'}</p>
             </div>
-            {question.walkthrough && question.walkthrough.length > 0 ? (
+            {question.examAnswer ? (
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">{question.examAnswer}</p>
+            ) : question.walkthrough && question.walkthrough.length > 0 ? (
               <Walkthrough steps={question.walkthrough} />
             ) : (
               <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{question.solution}</p>

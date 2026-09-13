@@ -5,6 +5,7 @@ import { validateAnswer, type DefinitionAnswer } from './validate';
 import { HintPanel } from './HintPanel';
 import { TeachMePanel } from './TeachMePanel';
 import { formatSource } from './formatSource';
+import { ExamAnswerPanel } from './ExamAnswerPanel';
 import { scrambledOrder } from './ordering';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { adjacencyMatrix, incidenceMatrix, validateIsomorphismMapping } from '@/lib/graph';
@@ -82,6 +83,8 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
           </div>
 
           {!result.correct && question.type !== 'DEFINITION' && <HintPanel hints={question.hints} onReveal={(n) => (hintsUsed.current = n)} />}
+
+          {question.type === 'PROOF_OR_JUSTIFICATION' && <ExamAnswerPanel question={question} defaultOpen />}
 
           <TeachMePanel question={question} />
 

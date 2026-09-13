@@ -10,6 +10,7 @@ import { treinoProvaQuestions } from './07-treino-prova';
 import { treinoProvaProofQuestions } from './08-treino-prova-provas';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 import { conceptExamWeights, examFamilies, examFamilyWeight } from '@/content/examFamilies';
+import { EXAM_ANSWERS } from '@/content/examAnswers';
 
 export const questions: Question[] = [
   ...fundamentosQuestions,
@@ -22,7 +23,7 @@ export const questions: Question[] = [
   ...treinoProvaProofQuestions,
   ...definitionQuestions,
   ...closedDefinitionQuestions,
-];
+].map((q) => (EXAM_ANSWERS[q.id] ? { ...q, examAnswer: EXAM_ANSWERS[q.id] } : q));
 
 export { isDefinitionQuestion, isDefinitionFamily };
 

@@ -7,6 +7,7 @@ import { getQuestion } from '@/content/questions';
 import type { ExerciseType, Question, QuestionAttempt } from '@/content/types';
 import { validateAnswer } from '@/engine/validate';
 import { scrambledOrder } from '@/engine/ordering';
+import { ExamAnswerPanel } from '@/engine/ExamAnswerPanel';
 import { TeachMePanel } from '@/engine/TeachMePanel';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { recordAttempt } from '@/store/progress';
@@ -410,6 +411,8 @@ function RunningScreen({
           value={answers[current.question.id]}
           onChange={(v) => onAnswer(current.question.id, v)}
         />
+
+        <ExamAnswerPanel key={current.question.id} question={current.question} />
       </Card>
 
       <div className="flex items-center justify-between">
@@ -658,6 +661,8 @@ function ResultsScreen({ examTitle, results }: { examTitle: string; results: Gra
               <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Sua resposta</p>
               <AnswerDisplay question={r.question} answer={r.answer} />
             </div>
+
+            <ExamAnswerPanel question={r.question} defaultOpen={!r.autoGraded} />
 
             <TeachMePanel question={r.question} />
           </Card>

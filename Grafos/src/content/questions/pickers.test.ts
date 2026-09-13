@@ -196,3 +196,20 @@ describe('conceitos que mais caem', () => {
     }
   });
 });
+
+describe('respostas-modelo', () => {
+  it('todo id em EXAM_ANSWERS existe e toda questão aberta dos simulados tem resposta-modelo', async () => {
+    const { EXAM_ANSWERS } = await import('@/content/examAnswers');
+    const { exams } = await import('@/content/exams');
+    const byId = new Map(questions.map((q) => [q.id, q]));
+    for (const id of Object.keys(EXAM_ANSWERS)) expect(byId.has(id), id).toBe(true);
+    for (const exam of exams) {
+      for (const { questionId } of exam.questions) {
+        const q = byId.get(questionId)!;
+        expect(q, questionId).toBeTruthy();
+        if (q.type === 'PROOF_OR_JUSTIFICATION') expect(q.examAnswer, `${questionId} sem resposta-modelo`).toBeTruthy();
+      }
+    }
+    for (const q of questions) if (q.type === 'PROOF_OR_JUSTIFICATION') expect(q.examAnswer, `${q.id} sem resposta-modelo`).toBeTruthy();
+  });
+});

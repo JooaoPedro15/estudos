@@ -152,6 +152,8 @@ export interface QuestionMeta {
   walkthrough?: WalkthroughStep[];
   /** "Em outros casos, faça assim": a regra que generaliza a resolução. */
   generalRule?: string;
+  /** Resposta-modelo: o texto a escrever na folha da prova, no registro das resoluções corrigidas (ver content/examAnswers.ts). */
+  examAnswer?: string;
 }
 
 export interface Option {
