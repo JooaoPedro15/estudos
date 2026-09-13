@@ -8,6 +8,7 @@ import { conectividadeQuestions } from './05-conectividade';
 import { logicaConjuntosQuestions } from './06-logica-conjuntos';
 import { treinoProvaQuestions } from './07-treino-prova';
 import { treinoProvaProofQuestions } from './08-treino-prova-provas';
+import { provasReaisQuestions } from './09-provas-reais';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 import { conceptExamWeights, examFamilies, examFamilyWeight } from '@/content/examFamilies';
 import { EXAM_ANSWERS } from '@/content/examAnswers';
@@ -21,6 +22,7 @@ export const questions: Question[] = [
   ...logicaConjuntosQuestions,
   ...treinoProvaQuestions,
   ...treinoProvaProofQuestions,
+  ...provasReaisQuestions,
   ...definitionQuestions,
   ...closedDefinitionQuestions,
 ].map((q) => (EXAM_ANSWERS[q.id] ? { ...q, examAnswer: EXAM_ANSWERS[q.id] } : q));

@@ -282,6 +282,8 @@ export interface Exam {
   basedOn: string; // ex.: "estilo 2024/2 + 2026/1"
   questions: ExamQuestionRef[];
   suggestedDurationMinutes: number;
+  /** 'real' = prova antiga transcrita literalmente; 'montado' (default) = simulado composto com questões do banco. */
+  kind?: 'real' | 'montado';
 }
 
 // ---------------------------------------------------------------------------

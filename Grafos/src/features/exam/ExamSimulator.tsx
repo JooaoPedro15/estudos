@@ -397,7 +397,7 @@ function RunningScreen({
           </button>
         </div>
 
-        <p className="text-base leading-relaxed text-[var(--color-text-primary)]">{current.question.prompt}</p>
+        <p className="whitespace-pre-wrap text-base leading-relaxed text-[var(--color-text-primary)]">{current.question.prompt}</p>
 
         {current.question.displayGraphs && (
           <div className={current.question.displayGraphs.b ? 'grid grid-cols-1 gap-4 md:grid-cols-2' : ''}>
@@ -648,7 +648,7 @@ function ResultsScreen({ examTitle, results }: { examTitle: string; results: Gra
               )}
             </div>
 
-            <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{r.question.prompt}</p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">{r.question.prompt}</p>
 
             {r.question.displayGraphs && (
               <div className={r.question.displayGraphs.b ? 'grid grid-cols-1 gap-4 md:grid-cols-2' : ''}>

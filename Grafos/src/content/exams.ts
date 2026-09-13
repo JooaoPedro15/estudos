@@ -1,4 +1,5 @@
 import type { Exam } from './types';
+import { provasReais } from './questions/09-provas-reais';
 
 // Estrutura, contagem de questões e distribuição de peso baseadas no padrão
 // real das 8 provas do Prof. Silvio Jamil analisadas (ver docs/exam-pattern.md):
@@ -48,6 +49,14 @@ export const exams: Exam[] = [
   },
 ];
 
+/** As 8 provas reais (2022/1 … 2026/1), literais, todas abertas — ver questions/09-provas-reais.ts. */
+export const realExams: Exam[] = provasReais.map((p) => ({
+  ...p.exam,
+  kind: 'real' as const,
+  questions: p.questions.map((x) => ({ questionId: x.question.id, weightPercent: x.weightPercent })),
+}));
+
 export function getExam(id: string): Exam | undefined {
-  return exams.find((e) => e.id === id);
+  return [...exams, ...realExams].find((e) => e.id === id);
 }
+

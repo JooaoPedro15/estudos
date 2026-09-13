@@ -50,7 +50,7 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-base leading-relaxed text-[var(--color-text-primary)]">{question.prompt}</p>
+        <p className="whitespace-pre-wrap text-base leading-relaxed text-[var(--color-text-primary)]">{question.prompt}</p>
       </div>
 
       {question.displayGraphs && (

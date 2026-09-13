@@ -20,7 +20,7 @@ interface QuickAction {
 const QUICK_ACTIONS: QuickAction[] = [
   { icon: Zap, tone: 'amber', title: 'Revisão de 5 min', description: 'Sessão curta com 3-7 atividades rápidas.', href: '/estudar/rapido' },
   { icon: BookOpen, tone: 'accent', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
-  { icon: FileText, tone: 'cyan', title: 'Simulado P1', description: 'Prova completa, no estilo real do professor.', href: '/simulado' },
+  { icon: FileText, tone: 'cyan', title: 'Provas reais e simulados', description: 'As 8 provas antigas literais (2022/1–2026/1) + simulados montados. Abertas, com resposta-modelo.', href: '/simulado' },
   { icon: Flame, tone: 'danger', title: 'Treino de prova', description: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', href: '/estudar/prova' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
   { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
