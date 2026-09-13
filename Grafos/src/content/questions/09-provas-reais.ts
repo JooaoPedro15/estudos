@@ -1,6 +1,7 @@
 import type { GraphData, Question, Source } from '@/content/types';
 import { makeGraph } from '@/lib/graph';
 import { EXAM_GRAPH_AI } from './07-treino-prova';
+import { PC } from '@/content/pseudocode';
 
 // As 8 provas reais do Prof. Silvio Jamil (2022/1 … 2026/1), questão por
 // questão, com o ENUNCIADO LITERAL (transcrito dos PDFs/fotos em
@@ -77,34 +78,31 @@ const SUBGRAFOS_KN = `Seja G = Kn.
 Verificação: n = 3 → 3·1 + 3·2 + 1·8 = 17.`;
 
 const BASE_ALG = `Base de G = (V, E) dirigido: subconjunto B ⊆ V tal que não há caminho entre vértices de B e todo vértice fora de B é atingido por algum vértice de B.
-Algoritmo (cardinalidade mínima):
-1. Calcule o grau de entrada d⁻(v) de todos os vértices.
-2. Todo vértice com d⁻(v) = 0 entra em B — ninguém o alcança, só ele pode se representar.
-3. Se G não tem ciclos, pare: todo vértice com d⁻ > 0 é alcançado, direta ou indiretamente, a partir de algum vértice com d⁻ = 0, e nenhum vértice de B alcança outro (nenhum tem aresta chegando). B é mínima porque nenhum de seus vértices pode ser retirado.
-4. Se G tem ciclos: os vértices de um ciclo têm d⁻ ≥ 1 e podem não ser alcançados de fora. Contraia cada ciclo (componente fortemente conexo) em um hipervértice; o grafo resultante não tem ciclos. Aplique os passos 1–3; para cada hipervértice com d⁻ = 0, escolha UM vértice do ciclo original (qualquer um alcança os demais).
-Funciona: com os passos 1–3, apenas para grafos direcionados sem ciclo; com o passo 4, para qualquer grafo direcionado.`;
+${PC.BASE}
+Justificativa: um vértice com d⁻(v) = 0 não é alcançado por ninguém, então só ele pode se representar — entra em B. Num grafo sem ciclos, todo vértice com d⁻ > 0 é alcançado, direta ou indiretamente, a partir de algum vértice com d⁻ = 0, e nenhum vértice de B alcança outro (nenhum tem aresta chegando): B é base e é mínima, pois nenhum de seus vértices pode ser retirado. Com ciclos, os vértices de um ciclo têm todos d⁻ ≥ 1 e podem não ser alcançados de fora; por isso BASE contrai cada ciclo (componente fortemente conexo, obtido por KOSARAJU) em um hipervértice — o grafo contraído não tem ciclos — e, para cada hipervértice sem aresta chegando de fora, escolhe UM vértice do ciclo (qualquer um alcança os demais do ciclo).
+Funciona: BASE_SEM_CICLO apenas para grafos direcionados sem ciclo; BASE para qualquer grafo direcionado.`;
 
 const ANTIBASE_ALG = `Anti-base: subconjunto A ⊆ V tal que não há caminho entre vértices de A e todo vértice fora de A atinge A por um caminho.
-"u atinge a em G" ⟺ "a atinge u no grafo transposto Gᵀ" (mesmas arestas, sentidos invertidos). Logo "todo vértice atinge A em G" é o mesmo que "A atinge todo vértice em Gᵀ" — a definição de base.
-Algoritmo: obtenha Gᵀ invertendo o sentido de todas as arestas e aplique o algoritmo de base a Gᵀ (grau de entrada 0 em Gᵀ = grau de saída 0 em G; ciclos contraídos em hipervértices). Funciona para qualquer grafo direcionado, com a mesma ressalva dos ciclos.`;
+${PC.TRANSPOSTO}
+${PC.ANTIBASE}
+Justificativa: "u atinge a em G" ⟺ "a atinge u em Gᵀ" (mesmas arestas, sentidos invertidos). Então "todo vértice fora de A atinge A em G" é o mesmo que "A atinge todo vértice em Gᵀ", que é a definição de base. Logo a anti-base de G é a base do transposto, e vale a mesma ressalva dos ciclos (contraídos por KOSARAJU dentro de BASE). Funciona para qualquer grafo direcionado.`;
 
 const DIAMETRO_ALG = `Definições: distância entre v e u = menor número de arestas de um caminho de v a u; excentricidade ε(v) = maior das menores distâncias de v aos demais; diâmetro = maior excentricidade; raio = menor excentricidade; centro = vértices com excentricidade igual ao raio.
-Algoritmo — entrada G = (V, E) não-direcionado:
-1. diam ← 0.
-2. Para cada v ∈ V:
-   2a. Busca em largura a partir de v: dist[u] ← −1 para todo u; dist[v] ← 0; fila ← {v}; enquanto a fila não estiver vazia, remova w do início e, para cada vizinho u de w com dist[u] = −1, faça dist[u] ← dist[w] + 1 e insira u no fim da fila.
-   2b. Se algum dist[u] = −1, G é desconexo: pare.
-   2c. ε(v) ← maior valor em dist.
-   2d. diam ← máx(diam, ε(v)).
-3. Saída: diam. Custo: |V| buscas em largura, cada uma O(|V| + |E|).
-Exemplo: caminho a–b–c–d. Busca de a: (0, 1, 2, 3) ⇒ ε(a) = 3; de b: (1, 0, 1, 2) ⇒ ε(b) = 2; de c: 2; de d: 3. Diâmetro = 3.`;
+${PC.DISTANCIAS}
+${PC.DIAMETRO}
+Justificativa: DISTANCIAS é a busca em largura — a fila processa todos os vértices a distância d antes de qualquer um a distância d + 1, então o primeiro caminho que descobre u é o mais curto (dist[w] + 1). O maior dist[·] de uma busca é a excentricidade de v; o maior ε(v) entre todos os vértices é o diâmetro. Custo: |V| buscas em largura, cada uma O(|V| + |E|).
+Exemplo: caminho a–b–c–d. DISTANCIAS(G, a) = (a 0, b 1, c 2, d 3) ⇒ ε(a) = 3; de b: (1, 0, 1, 2) ⇒ ε(b) = 2; de c: 2; de d: 3. DIAMETRO = 3 (raio = 2; centro = {b, c}).`;
 
-const CICLO_DUAS = `Estratégia 1 — busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou).
-VISIT(G): para u ∈ V, visitado[u] = 0; para u ∈ V, se visitado[u] == 0, VISITAR_REC(G, u).
-VISITAR_REC(G, v): visitado[v] = 1; para cada u ∈ N(v): se visitado[u] == 1 → HÁ CICLO; se visitado[u] == 0 → VISITAR_REC(G, u); ao final, visitado[v] = 2.
-Justificativa: u com estado 1 está no caminho que a busca percorreu até v; a aresta v → u fecha esse caminho em um ciclo (aresta de retorno). Sem estado 1 encontrado, toda aresta vai a vértice novo (0) ou terminado (2): não há ciclo.
-Estratégia 2 — componentes fortemente conexos (Kosaraju): (1) busca em profundidade em G gravando tempos de início e término; (2) busca em profundidade no transposto na ordem decrescente de término; (3) cada conjunto visitado numa mesma chamada é um componente fortemente conexo. Se algum componente tem 2 ou mais vértices, há caminho de ida e de volta entre eles — um ciclo; se todos são unitários (e não há laço), G é acíclico.
-Estratégia 3 — remoção repetida: remova todo vértice com grau de entrada 0 (e as arestas que saem dele) até não haver mais; se sobrar vértice, os que sobram formam ciclo; se todos forem removidos, G é acíclico.`;
+const CICLO_DUAS = `Estratégia 1 — busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou):
+${PC.VISIT}
+Justificativa: um vizinho u com estado 1 está no caminho que a busca percorreu até v; a aresta (v, u) fecha esse caminho em um ciclo (aresta de retorno). Se a busca termina sem encontrar estado 1, toda aresta vai a vértice novo (0) ou já terminado (2) e não existe ciclo. Custo O(|V| + |E|).
+Estratégia 2 — componentes fortemente conexos:
+${PC.TRANSPOSTO}
+${PC.KOSARAJU}
+Se algum componente X tem 2 ou mais vértices, há caminho de ida e de volta entre eles, e ida + volta formam um ciclo; se todos os componentes são unitários (e não há laço), G é acíclico.
+Estratégia 3 (alternativa) — remoção repetida de vértices com grau de entrada 0:
+${PC.ORDEM_TOPOLOGICA}
+Se ao final algum vértice ficou fora de ordem, os que sobraram têm todos d⁻ ≥ 1 entre si e contêm um ciclo; se todos entraram na ordem, G é acíclico.`;
 
 const AUTOCOMP_DIV4 = `Seja G auto-complementar com n vértices.
 1. G ≅ Ḡ ⇒ |E(G)| = |E(Ḡ)| (grafos isomorfos têm o mesmo número de arestas).
@@ -114,12 +112,8 @@ const AUTOCOMP_DIV4 = `Seja G auto-complementar com n vértices.
 Observação necessária: o que fica divisível por 4 é n(n − 1), e |E(G)| = n(n − 1)/4. O próprio |E(G)| não é sempre múltiplo de 4: C5 é auto-complementar com 5·4/4 = 5 arestas. Escreva isso na prova — é o que a questão de 2025/1 cobra explicitamente.`;
 
 const EULER_ALG = `Condições (grafo não-direcionado e conexo): existe circuito euleriano se, e somente se, todo vértice tem grau par; existe caminho euleriano se, e somente se, exatamente dois vértices têm grau ímpar (início e fim do caminho).
-Solução para encontrar o circuito, caso exista:
-1. Verifique que G é conexo e calcule d(v) para todo v; se algum grau é ímpar, não há circuito euleriano (se forem exatamente dois ímpares, há caminho euleriano começando em um deles).
-2. Escolha um vértice inicial qualquer (todos têm grau par).
-3. Percorra o grafo por busca em profundidade usando cada aresta uma única vez; a cada passo, dê prioridade a uma aresta que NÃO desconecte a parte ainda não percorrida do grafo — só use uma aresta que desconecta quando não houver outra.
-4. Pare ao voltar ao vértice inicial sem arestas restantes; a sequência de arestas percorridas é o circuito euleriano.
-Justificativa das escolhas: graus pares garantem que sempre é possível sair de um vértice em que se entrou (as arestas incidentes se emparelham em "entrada/saída"); evitar arestas que desconectam garante que nenhuma aresta fica inacessível.`;
+${PC.EULER}
+Justificativa das escolhas: (1) o teste de graus pares e de conexidade é a condição de existência — sem ela não adianta procurar. (2) Como todo grau é par, sempre que a busca entra num vértice por uma aresta sobra outra aresta não usada para sair (as arestas incidentes se emparelham em entrada/saída), então o percurso só pode terminar no vértice inicial. (3) Dar prioridade a arestas que não desconectam as arestas ainda não usadas garante que nenhuma aresta fica inacessível; usar uma aresta que desconecta quando há outra opção deixaria parte do grafo sem como ser percorrida. Ao terminar, todas as arestas foram usadas exatamente uma vez e o percurso voltou ao início: circuito euleriano.`;
 
 const NK = (n: number, k: number) => {
   const min = n - k;
@@ -223,7 +217,8 @@ Bijeção f: a→1, b→3, c→5, d→2, e→4, f→6. Verificação aresta a ar
 ${LIST_TEXT}
 
 Determine os componentes fortemente conexos do grafo G, justificando suas respostas.`,
-          `Componente fortemente conexo: conjunto de vértices em que todo par tem caminho de ida e de volta.
+          `Componente fortemente conexo: conjunto de vértices em que todo par tem caminho de ida e de volta. Algoritmo usado:
+${PC.KOSARAJU}
 Passo 1 — busca em profundidade em G (ordem alfabética), gravando tempos de início/término:
 A(1) → B(2, 3) → F(4) → E(5) → C(6) → D(7, 8) ; C(9); E(10); F(11); A(12).
 G(13) → J(14) → K(15) → M(16, 17); K(18); L(19, 20); J(21); G(22).
@@ -295,8 +290,7 @@ A → B (B não tem sucessores; volta) → F → E → C → (A já visitado) �
 Os demais vértices não são alcançáveis a partir de A. Continuando a busca pelos não visitados em ordem alfabética: G → (A, E já visitados) → J → K → M → (J) ; J → L → (E), (M); depois H → (G) → I → (H), (J). Ordem completa: A, B, F, E, C, D, G, J, K, M, L, H, I.
 b) Não é acíclico. Exemplos de ciclo: A → F → E → C → A; C → D → C; J → K → M → J.
 Algoritmo para detectar ciclos — busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou):
-VISIT(G): para u ∈ V, visitado[u] = 0; para u ∈ V, se visitado[u] == 0, VISITAR_REC(G, u).
-VISITAR_REC(G, v): visitado[v] = 1; para cada u ∈ N(v): se visitado[u] == 1 → HÁ CICLO; se visitado[u] == 0 → VISITAR_REC(G, u); ao final, visitado[v] = 2.
+${PC.VISIT}
 Um vizinho u com estado 1 está no caminho percorrido até v, e a aresta v → u fecha um ciclo (aresta de retorno). Aplicando: em A(1) → F(1) → E(1) → C(1), a aresta C → A encontra A com estado 1 ⇒ há ciclo.`,
           { examFamily: 'ciclo-dfs-scc', displayGraphs: { a: LIST_A_TO_M } }),
       },
@@ -390,13 +384,9 @@ b) Não-direcionado: a soma da coluna j conta os vértices i com aij = 1, isto �
         question: q('pr-2023-1-q5', '2023-1-exam.pdf', '2023/1-Q5', 25, 'bfs',
           `Seja G = (V, E) um grafo não-direcionado e um vértice v ∈ V. Projete um algoritmo para encontrar o número de arestas entre v e todos os outros vértices do grafo G. Portanto, a saída do algoritmo deverá ser, para cada vértice u ∈ V a distância, em número de arestas, entre v e u. Deixe claro todos os elementos e etapas de seu algoritmo.`,
           `Distância em número de arestas é obtida por busca em largura, que explora todos os vértices de um mesmo nível de proximidade antes de passar ao próximo.
-Elementos: vetor dist com uma posição por vértice; fila Q.
-Algoritmo — entrada G = (V, E) e v ∈ V:
-1. Para todo u ∈ V: dist[u] ← −1. dist[v] ← 0. Q ← {v}.
-2. Enquanto Q não estiver vazia:
-   2a. w ← remove o vértice do início de Q.
-   2b. Para cada vizinho u de w com dist[u] = −1: dist[u] ← dist[w] + 1; insira u no fim de Q.
-3. Saída: dist[u] para todo u ∈ V (dist[u] = −1 significa que u não é alcançável a partir de v — está em outro componente).
+Elementos: vetor dist com uma posição por vértice; fila.
+${PC.DISTANCIAS}
+Saída: dist[u] para todo u ∈ V (dist[u] = −1 significa que u não é alcançável a partir de v — está em outro componente).
 Justificativa: a fila processa todos os vértices a distância d antes de qualquer vértice a distância d + 1; quando u é descoberto por w, o caminho v … w u tem dist[w] + 1 arestas e é o mais curto possível.
 Custo: cada vértice entra na fila uma vez e cada aresta é examinada uma vez em cada ponta: O(|V| + |E|) com lista de adjacência.`,
           { examFamily: 'bfs-distancias' }),
@@ -531,25 +521,21 @@ Responda e justifique suas respostas:
         weightPercent: 30,
         question: q('pr-2024-2-q3', '2024-2-exam.pdf', '2024/2-Q3', 30, 'deteccao-ciclo',
           `Seja G = (V, E) um grafo simples e direcionado. Projete, explicando todos os detalhes, (i) uma solução para determinar se o grafo possui algum ciclo; e (ii) caso haja algum ciclo, encontre os vértices que compõem este ciclo.`,
-          `(i) Busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou), guardando também o pai de cada vértice na busca.
-VISIT(G): para u ∈ V, visitado[u] = 0, pai[u] = nulo; para u ∈ V, se visitado[u] == 0, VISITAR_REC(G, u).
-VISITAR_REC(G, v): visitado[v] = 1; para cada u ∈ N(v): se visitado[u] == 1 → HÁ CICLO (guarde a aresta v → u); se visitado[u] == 0 → pai[u] = v e VISITAR_REC(G, u); ao final, visitado[v] = 2.
-Justificativa: um vizinho u em estado 1 começou e não terminou, ou seja, está no caminho que a busca percorreu de u até v (u é ancestral de v); a aresta v → u fecha esse caminho em um ciclo — é uma aresta de retorno. Vizinhos em estado 2 (terminados) ou 0 (novos) não fecham ciclo. Se a busca termina sem encontrar estado 1, G é acíclico. Custo O(|V| + |E|).
-(ii) Ao encontrar a aresta de retorno v → u, os vértices do ciclo são u e todos os vértices no caminho da busca de u até v: comece em v e siga pai[v], pai[pai[v]], … até chegar em u. O ciclo é u → … → pai[pai[v]] → pai[v] → v → u. Exemplo: busca a(1) → b(1) → c(1) com aresta c → a: a tem estado 1; pais: pai[c] = b, pai[b] = a ⇒ ciclo {a, b, c}: a → b → c → a.`,
+          `(i) Busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou), guardando também o pai de cada vértice na busca:
+${PC.VISIT_COM_PAI}
+Justificativa: um vizinho u em estado 1 começou e não terminou, ou seja, está no caminho que a busca percorreu de u até v (u é ancestral de v); a aresta (v, u) fecha esse caminho em um ciclo — aresta de retorno. Vizinhos em estado 2 (terminados) ou 0 (novos) não fecham ciclo. Se a busca termina sem encontrar estado 1, G é acíclico. Custo O(|V| + |E|).
+(ii) Ao encontrar a aresta de retorno (v, u), os vértices do ciclo são u e todos os vértices no caminho da busca de u até v: VERTICES_DO_CICLO(v, u) começa em v e segue pai[v], pai[pai[v]], … até chegar em u. Exemplo: busca a(1) → b(1) → c(1) com aresta (c, a): a tem estado 1; pai[c] = b, pai[b] = a ⇒ ciclo a → b → c → a.`,
           { examFamily: 'ciclo-dfs-scc' }),
       },
       {
         weightPercent: 30,
         question: q('pr-2024-2-q4', '2024-2-exam.pdf', '2024/2-Q4', 30, 'topologica-maior-caminho',
           `Seja G = (V, E) um grafo acíclico e direcionado. Projete uma solução, explicando todos os detalhes, como encontrar o número de arestas do maior caminho do grafo.`,
-          `Ideia: em um grafo direcionado sem ciclos, é possível ordenar os vértices de modo que toda aresta vá de um vértice anterior para um posterior (ordem topológica). Processando os vértices nessa ordem, quando chegamos a um vértice já conhecemos o maior caminho que termina em cada um de seus predecessores.
-Algoritmo:
-1. Obter uma ordem topológica: calcule o grau de entrada d⁻(v) de todos os vértices; coloque numa fila os vértices com d⁻ = 0; repetidamente remova um vértice v da fila, acrescente-o à ordem e, para cada sucessor u de v, faça d⁻(u) ← d⁻(u) − 1 e, se ficar 0, insira u na fila. (Como G é acíclico, todos os vértices acabam na ordem — se sobrasse algum, haveria ciclo.)
-2. Para todo v: dist[v] ← 0 (maior número de arestas de um caminho que termina em v).
-3. Percorra os vértices na ordem topológica; para cada v e cada sucessor u de v: dist[u] ← máx(dist[u], dist[v] + 1).
-4. Saída: o maior valor de dist[·] é o número de arestas do maior caminho do grafo (guarde de quem veio cada máximo para reconstruir o caminho, se pedido).
-Justificativa: quando v é processado, todos os seus predecessores já foram processados (vêm antes na ordem), então dist[v] já é o máximo correto; cada aresta é examinada uma vez. Custo O(|V| + |E|).
-Exemplo: a → b, a → c, b → d, c → d, d → e. Ordem: a, b, c, d, e. dist: a 0; b 1; c 1; d 2; e 3. Maior caminho: 3 arestas (a → b → d → e).`,
+          `Ideia: em um grafo direcionado sem ciclos é possível ordenar os vértices de modo que toda aresta vá de um vértice anterior para um posterior (ordem topológica). Processando os vértices nessa ordem, ao chegar em um vértice já conhecemos o maior caminho que termina em cada um de seus predecessores.
+${PC.ORDEM_TOPOLOGICA}
+${PC.MAIOR_CAMINHO}
+Justificativa: ORDEM_TOPOLOGICA retira sempre um vértice sem aresta chegando dos que restam; como G é acíclico, sempre existe um, e todos acabam na ordem. Em MAIOR_CAMINHO, quando v é processado todos os seus predecessores já foram (vêm antes na ordem), então dist[v] já é o maior número de arestas de um caminho que termina em v; cada aresta é examinada uma vez. Custo O(|V| + |E|).
+Exemplo: a → b, a → c, b → d, c → d, d → e. Ordem: a, b, c, d, e. dist: a 0, b 1, c 1, d 2, e 3 ⇒ maior caminho com 3 arestas (a → b → d → e).`,
           { examFamily: 'topologica-dag' }),
       },
     ],
@@ -607,9 +593,10 @@ Contra-exemplo: C5 (ciclo com 5 vértices) é auto-complementar — seu compleme
         weightPercent: 35,
         question: q('pr-2025-1-q5', '2025-1-exam.pdf', '2025/1-Q5', 35, 'topologica-maior-caminho',
           `No contexto de armazenamento e transmissão de dados, serialização é o processo de transformação de estruturas de dados ou objetos em um formato que possa ser armazenado (por exemplo, em um arquivo ou buffer de memória, ou transmitido por meio de uma conexão de rede) e reconstruído posteriormente no mesmo ou em outro ambiente computacional. Quando a série de bytes resultante é lida, ela pode ser usada para criar um clone semanticamente idêntico à estrutura de dados ou ao objeto original. Para estruturas/objetos complexos, como aqueles que fazem uso extensivo de referências, este processo não é direto, uma vez que estruturas/objetos referenciados também devem ser serializados. Dessa forma, para se implementar um mecanismo adequado de serialização de dados é importante ser capaz de usar tais relações de dependência entre as estruturas/objetos, de forma a garantir que ele seja serializado juntamente com as demais estruturas/objetos que ele faz referência. Descreva (i) – 15% – como esse problema pode ser modelado utilizando grafos e forneça uma descrição de um método que garanta que cada estrutura/objeto seja serializada uma única vez e apareça antes das estruturas/objetos referenciadas por ela; e (ii) – 20% – caso todas as estruturas/objetos tenham o mesmo tamanho e considerando que seu recurso seja extremamente limitado e caro, como identificar o tamanho mínimo (sem que haja desperdício de espaço) que um buffer deva ter para armazenar qualquer objeto estrutura/objeto juntamente com as/os demais estruturas/objetos que ele/ela faz referência.`,
-          `(i) Modelagem: grafo direcionado G = (V, E) em que cada estrutura/objeto é um vértice e há uma aresta (A, B) quando A referencia B. "Serializar cada objeto uma única vez e antes dos que ele referencia" é percorrer os vértices em uma ordem em que todo vértice vem antes de seus sucessores.
-Método: busca em profundidade com três estados (0/1/2) gravando o tempo de término de cada vértice; um vértice só termina depois que todos os seus sucessores (os objetos que ele referencia) terminaram. Serializar na ordem DECRESCENTE de tempo de término faz cada objeto aparecer antes dos que ele referencia. Cada vértice é visitado uma única vez (estado ≠ 0 não é revisitado), o que garante serialização única. Se a busca encontrar um vizinho em estado 1, há ciclo de referências (A referencia B que referencia A): nesse caso não existe ordem que respeite todas as dependências — deve-se contrair o ciclo (componente fortemente conexo) e serializar o grupo junto, marcando as referências internas.
-(ii) O buffer precisa conter o objeto e todos os objetos que ele referencia, direta ou indiretamente — isto é, o fecho transitivo direto do vértice: o conjunto de vértices alcançáveis a partir dele. Como todos têm o mesmo tamanho, o tamanho mínimo do buffer para um objeto v é (número de vértices em Γ⁺(v), incluindo v) × tamanho de um objeto; para "qualquer objeto", tome o maior fecho transitivo direto entre todos os vértices. Γ⁺(v) é obtido por busca em profundidade (ou largura) a partir de v, contando os visitados — sem desperdício, porque só entram no buffer objetos realmente referenciados.`,
+          `(i) Modelagem: grafo direcionado G = (V, E) em que cada estrutura/objeto é um vértice e há uma aresta (A, B) quando A referencia B. "Serializar cada objeto uma única vez e antes dos que ele referencia" é percorrer os vértices numa ordem em que todo vértice vem antes de seus sucessores.
+${PC.SERIALIZA}
+Justificativa: na busca em profundidade um vértice só termina depois que todos os seus sucessores (os objetos que ele referencia) terminaram; escrever em ordem DECRESCENTE de fim[u] põe cada objeto antes dos referenciados. Cada vértice é visitado uma única vez (estado ≠ 0 não é revisitado), o que garante serialização única. Se VISIT encontrar um vizinho em estado 1, há ciclo de referências (A referencia B que referencia A) e não existe ordem que respeite todas as dependências — contrai-se o ciclo (componente fortemente conexo) e serializa-se o grupo junto, marcando as referências internas.
+(ii) O buffer precisa conter o objeto e todos os objetos que ele referencia, direta ou indiretamente — o fecho transitivo direto do vértice (conjunto dos vértices alcançáveis a partir dele), obtido por VISITAR_REC a partir de v. Como todos têm o mesmo tamanho, TAMANHO_BUFFER(G, v) = |fecho transitivo direto de v| × tamanho de um objeto; para "qualquer objeto", tome o maior valor entre todos os vértices. Não há desperdício porque só entram no buffer objetos realmente referenciados.`,
           { examFamily: 'topologica-dag' }),
       },
     ],
@@ -642,8 +629,10 @@ Método: busca em profundidade com três estados (0/1/2) gravando o tempo de té
         question: q('pr-2026-1-q3', 'P1-TGC.pdf', '2026/1-Q3', 25, 'topologica-maior-caminho',
           `Seja o processo de construção de uma casa, que envolve inúmeras tarefas interdependentes. O engenheiro civil contratado e responsável pela obra identifica todas as subtarefas necessárias na construção e suas dependências. As subtarefas poderiam ser, por exemplo, as seguintes: fazer a fundação, levantar as paredes, fazer o telhado, realizar o trabalho interno, paisagismo. É óbvio que a construção do telhado depende da construção das paredes que dependem da fundação, mas a construção de banheiros podem ser feitos em paralelo. Considere que todas as tarefas serão executadas em uma semana. Caso você seja o engenheiro, (i) crie um grafo que represente o processo de construção de uma casa (lembre-se que há tarefas dependentes mas pode haver tarefas que podem ser executadas em paralelo). Além disso, (ii) projete uma solução baseada em grafos para encontrar o tempo mínimo, em semanas, que a casa ficará pronta.`,
           `(i) Grafo direcionado G = (V, E): cada tarefa é um vértice; há uma aresta (A, B) quando B só pode começar depois de A terminar. Exemplo: fundação → paredes → telhado → trabalho interno; paredes → banheiros (em paralelo com telhado); fundação → paisagismo (em paralelo com tudo depois da fundação); telhado → trabalho interno; banheiros → trabalho interno. O grafo não tem ciclos (uma tarefa não pode depender de si mesma, direta ou indiretamente). Tarefas sem aresta entre elas, e que não dependem uma da outra por caminho, podem ser executadas em paralelo.
-(ii) Como toda tarefa dura uma semana e as tarefas independentes rodam em paralelo, o tempo mínimo é o número de tarefas do caminho mais longo do grafo (contando vértices) — as tarefas desse caminho têm que ser feitas uma após a outra.
-Solução: 1. Ordene os vértices em ordem topológica (repetidamente retire um vértice com grau de entrada 0, acrescente-o à ordem e reduza o grau de entrada dos seus sucessores; acíclico garante que todos saem). 2. Para todo v, t[v] ← 1 (semana em que v termina, se não depende de ninguém). 3. Na ordem topológica, para cada v e cada sucessor u: t[u] ← máx(t[u], t[v] + 1). 4. Tempo mínimo = máx t[v]. Justificativa: quando v é processado todos os seus predecessores já têm t definitivo, então t[v] é a menor semana em que v pode terminar; o máximo sobre todos os vértices é quando a última tarefa termina. No exemplo: fundação 1, paredes 2, paisagismo 2, telhado 3, banheiros 3, trabalho interno 4 ⇒ 4 semanas.`,
+(ii) Como toda tarefa dura uma semana e as tarefas independentes rodam em paralelo, o tempo mínimo é o número de tarefas do caminho mais longo do grafo (contando vértices): as tarefas desse caminho têm que ser feitas uma após a outra.
+${PC.ORDEM_TOPOLOGICA}
+${PC.TEMPO_CASA}
+Justificativa: quando v é processado, todos os seus predecessores já têm t definitivo (vêm antes na ordem topológica), então t[v] é a menor semana em que v pode terminar; o máximo sobre todos os vértices é a semana em que a última tarefa termina. No exemplo: fundação 1, paredes 2, paisagismo 2, telhado 3, banheiros 3, trabalho interno 4 ⇒ 4 semanas.`,
           { examFamily: 'topologica-dag' }),
       },
       {

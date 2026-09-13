@@ -4,6 +4,8 @@
  * linha a linha → conclusão explícita), usando só vocabulário do material do
  * professor. Aplicadas às questões por id em content/questions/index.ts.
  */
+import { PC } from './pseudocode';
+
 export const EXAM_ANSWERS: Record<string, string> = {
   'fund-fam-05': `Seja G = (V, E) um grafo simples com n = |V| ≥ 2 vértices.
 
@@ -40,68 +42,55 @@ Bijeção f: a→1, b→3, c→5, d→2, e→4, f→6.
 Verificação: (a,b)→(1,3) ✓; (b,c)→(3,5) ✓; (c,d)→(5,2) ✓; (d,e)→(2,4) ✓; (e,f)→(4,6) ✓; (f,a)→(6,1) ✓. Cada aresta de G corresponde a exatamente uma aresta de H com o mesmo sentido, e vice-versa; ambos têm d⁻(v) = d⁺(v) = 1 em todo vértice. Logo G ≅ H.`,
 
   'base-03': `Definição: base de um grafo dirigido G = (V, E) é um subconjunto B ⊆ V tal que não há caminho entre vértices de B, e todo vértice não pertencente a B pode ser atingido por algum vértice de B.
+${PC.BASE}
+Justificativa: um vértice com d⁻(v) = 0 não é alcançado por ninguém — só ele pode se representar, então entra em B. Num grafo sem ciclos, todo vértice com d⁻ > 0 é alcançado, direta ou indiretamente, a partir de algum vértice com d⁻ = 0, e nenhum vértice de B alcança outro (nenhum tem aresta chegando): B é base, e é mínima porque nenhum de seus vértices pode ser retirado. Com ciclos, os vértices de um ciclo têm todos d⁻ ≥ 1 e podem não ser alcançados de fora; por isso BASE contrai cada ciclo (componente fortemente conexo, via KOSARAJU) em um hipervértice — o grafo contraído não tem ciclos — e, para cada hipervértice sem aresta chegando de fora, escolhe UM vértice do ciclo (qualquer um alcança os demais do ciclo).
+Para quais grafos funciona: BASE_SEM_CICLO apenas para grafos direcionados sem ciclo; BASE para qualquer grafo direcionado. Em grafo não-direcionado a noção não se aplica. Anti-base: obtenha o grafo transposto de G e aplique o mesmo algoritmo.`,
 
-Algoritmo:
-1. Calcule o grau de entrada d⁻(v) de todos os vértices.
-2. Todo vértice com d⁻(v) = 0 entra em B: ele não é alcançado por nenhum outro, logo só ele pode se representar.
-3. Se G não possui ciclos: pare. Todo vértice com d⁻(v) > 0 é alcançado, direta ou indiretamente, a partir de algum vértice com d⁻ = 0; e nenhum vértice de B alcança outro (nenhum deles tem aresta chegando). Logo B é base, e é mínima porque nenhum de seus vértices pode ser retirado.
-4. Se G possui ciclos: os vértices de um ciclo têm todos d⁻ ≥ 1 e podem não ser alcançados de fora do ciclo. Contraia cada ciclo (componente fortemente conexo) em um hipervértice; o grafo resultante não tem ciclos. Aplique os passos 1–3 a ele. Para cada hipervértice com d⁻ = 0, escolha um vértice qualquer do ciclo original para B — qualquer um alcança os demais do ciclo.
+  'ciclo-02': `Estratégia 1 — busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou):
+${PC.VISIT}
+Justificativa: um vizinho u com estado 1 começou e ainda não terminou, ou seja, está no caminho que a busca percorreu até v; a aresta (v, u) fecha esse caminho em um ciclo (aresta de retorno). Se a busca termina sem encontrar estado 1, toda aresta leva a um vértice novo (0) ou já terminado (2), e não existe ciclo. Custo O(|V| + |E|).
 
-Para quais grafos funciona: apenas com os passos 1–3, somente para grafos direcionados sem ciclo; com o passo 4, para qualquer grafo direcionado. Anti-base: obtenha o grafo transposto de G e aplique o mesmo algoritmo.`,
+Estratégia 2 — componentes fortemente conexos (algoritmo de Kosaraju):
+${PC.TRANSPOSTO}
+${PC.KOSARAJU}
+Justificativa: se algum componente X tem dois ou mais vértices, há caminho de ida e de volta entre eles, e ida + volta formam um ciclo. Se todos os componentes têm um único vértice (e não há laço), G é acíclico.
 
-  'ciclo-02': `Estratégia 1 — busca em profundidade com três estados (0 – não começou; 1 – começou mas não terminou; 2 – terminou).
-VISIT(G): para u ∈ V, visitado[u] = 0; para u ∈ V, se visitado[u] == 0, VISITAR_REC(G, u).
-VISITAR_REC(G, v): visitado[v] = 1; para cada u ∈ N(v): se visitado[u] == 1 → HÁ CICLO; se visitado[u] == 0 → VISITAR_REC(G, u); ao final, visitado[v] = 2.
-Justificativa: um vizinho u com estado 1 começou e ainda não terminou, ou seja, está no caminho que a busca percorreu até v; a aresta v → u fecha esse caminho em um ciclo (aresta de retorno). Se a busca termina sem encontrar estado 1, toda aresta leva a um vértice novo (0) ou já terminado (2), e não existe ciclo.
-
-Estratégia 2 — componentes fortemente conexos (algoritmo de Kosaraju).
-(1) Busca em profundidade em G gravando os tempos de início e término; (2) busca em profundidade no grafo transposto, na ordem decrescente de tempo de término; (3) cada conjunto de vértices visitados em uma mesma chamada é um componente fortemente conexo.
-Justificativa: se algum componente tem dois ou mais vértices, há caminho de ida e de volta entre eles, e ida + volta formam um ciclo. Se todos os componentes têm um único vértice (e não há laço), G é acíclico.
-
-Estratégia 3 (alternativa) — remoção repetida: remova todo vértice com grau de entrada 0, junto com as arestas que saem dele; repita enquanto houver vértice com d⁻ = 0. Se todos os vértices forem removidos, G é acíclico; se sobrar algum, os que sobram têm todos d⁻ ≥ 1 entre si e contêm um ciclo.`,
+Estratégia 3 (alternativa) — remoção repetida de vértices com grau de entrada 0:
+${PC.ORDEM_TOPOLOGICA}
+Se algum vértice ficar fora da ordem, os que sobraram têm todos d⁻ ≥ 1 entre si e contêm um ciclo; se todos entrarem, G é acíclico.`,
 
   'exc-03': `Definições: a distância entre v e u é o menor número de arestas de um caminho de v a u; a excentricidade ε(v) é a maior das menores distâncias entre v e os demais vértices; o diâmetro é a maior das excentricidades do grafo.
-
-Algoritmo — entrada: G = (V, E) não-direcionado.
-1. diam ← 0.
-2. Para cada vértice v ∈ V:
-   2a. Busca em largura a partir de v: dist[u] ← −1 para todo u; dist[v] ← 0; fila ← {v}. Enquanto a fila não estiver vazia: remova w do início; para cada vizinho u de w com dist[u] = −1, faça dist[u] ← dist[w] + 1 e insira u no fim da fila.
-   2b. Se algum dist[u] = −1, G é desconexo: pare (diâmetro não definido).
-   2c. ε(v) ← maior valor em dist.
-   2d. diam ← máx(diam, ε(v)).
-3. Saída: diam.
-Custo: |V| buscas em largura, cada uma O(|V| + |E|).
+${PC.DISTANCIAS}
+${PC.DIAMETRO}
+Justificativa: DISTANCIAS é a busca em largura — a fila processa todos os vértices a distância d antes de qualquer um a distância d + 1, então o primeiro caminho que descobre u é o mais curto. O maior dist[·] de uma busca é a excentricidade de v; o maior ε(v) entre todos os vértices é o diâmetro. Custo: |V| buscas em largura, cada uma O(|V| + |E|).
 
 Exemplo: caminho a–b–c–d.
-Busca de a: dist = (a 0, b 1, c 2, d 3) ⇒ ε(a) = 3.
-Busca de b: dist = (a 1, b 0, c 1, d 2) ⇒ ε(b) = 2.
-Busca de c: ε(c) = 2. Busca de d: ε(d) = 3.
+DISTANCIAS(G, a) = (a 0, b 1, c 2, d 3) ⇒ ε(a) = 3.
+DISTANCIAS(G, b) = (a 1, b 0, c 1, d 2) ⇒ ε(b) = 2.
+De c: ε(c) = 2. De d: ε(d) = 3.
 Diâmetro = máx(3, 2, 2, 3) = 3. (Raio = 2; centro = {b, c}.)`,
 
   'tp-exc-algoritmo-diametro': `Definições: a distância entre v e u é o menor número de arestas de um caminho de v a u; a excentricidade ε(v) é a maior das menores distâncias entre v e os demais vértices; o diâmetro é a maior das excentricidades do grafo.
+${PC.DISTANCIAS}
+${PC.DIAMETRO}
+Justificativa: DISTANCIAS é a busca em largura — a fila processa todos os vértices a distância d antes de qualquer um a distância d + 1, então o primeiro caminho que descobre u é o mais curto. O maior dist[·] de uma busca é a excentricidade de v; o maior ε(v) entre todos os vértices é o diâmetro. Custo: |V| buscas em largura, cada uma O(|V| + |E|).
 
-Algoritmo — entrada: G = (V, E) simples não-direcionado.
-1. diam ← 0.
-2. Para cada vértice v ∈ V:
-   2a. Busca em largura a partir de v: dist[u] ← −1 para todo u; dist[v] ← 0; fila ← {v}. Enquanto a fila não estiver vazia: remova w do início; para cada vizinho u de w com dist[u] = −1, faça dist[u] ← dist[w] + 1 e insira u no fim da fila.
-   2b. Se algum dist[u] = −1, G é desconexo: pare (diâmetro não definido).
-   2c. ε(v) ← maior valor em dist.
-   2d. diam ← máx(diam, ε(v)).
-3. Saída: diam.
-Custo: |V| buscas em largura, cada uma O(|V| + |E|).
+Exemplo: caminho a–b–c–d.
+DISTANCIAS(G, a) = (a 0, b 1, c 2, d 3) ⇒ ε(a) = 3.
+DISTANCIAS(G, b) = (a 1, b 0, c 1, d 2) ⇒ ε(b) = 2.
+De c: ε(c) = 2. De d: ε(d) = 3.
+Diâmetro = máx(3, 2, 2, 3) = 3. (Raio = 2; centro = {b, c}.)`,
 
-Exemplo: caminho a–b–c–d. Busca de a: (0, 1, 2, 3) ⇒ ε(a) = 3; de b: (1, 0, 1, 2) ⇒ ε(b) = 2; de c: ε(c) = 2; de d: ε(d) = 3. Diâmetro = 3.`,
-
-  'scc-01': `Grafo: A → B → C; D → E e E → D.
-
-Passo 1 — busca em profundidade em G anotando tempo de início/término (ordem alfabética):
+  'scc-01': `Grafo: A → B → C; D → E e E → D. Algoritmo:
+${PC.KOSARAJU}
+Passo 1 — VISIT(G) anotando início/término (ordem alfabética):
 A (início 1) → B (início 2) → C (início 3, término 4); B (término 5); A (término 6). D (início 7) → E (início 8, término 9); D (término 10).
 Ordem decrescente de término: D (10), E (9), A (6), B (5), C (4).
 
-Passo 2 — grafo transposto Gᵀ (sentido das arestas invertido): B → A, C → B, E → D, D → E.
+Passo 2 — Gᵀ = TRANSPOSTO(G): B → A, C → B, E → D, D → E.
 
-Passo 3 — busca em profundidade em Gᵀ seguindo a ordem do passo 1:
-• de D: alcança E (E → D volta a D, já visitado) ⇒ conjunto {D, E};
+Passo 3 — VISITAR_REC em Gᵀ seguindo a ordem:
+• de D: alcança E (E → D volta a D, já visitado) ⇒ X = {D, E};
 • E: já visitado;
 • de A: em Gᵀ nenhuma aresta sai de A ⇒ {A};
 • de B: B → A, já visitado ⇒ {B};
@@ -113,13 +102,10 @@ Justificativa: D e E se alcançam mutuamente (D → E e E → D). Entre A, B e C
   'euler-03': `Condições (grafo não-direcionado e conexo): existe circuito euleriano (fechado, usando cada aresta exatamente uma vez) se, e somente se, todo vértice tem grau par; existe caminho euleriano (aberto) se, e somente se, exatamente dois vértices têm grau ímpar — o caminho começa em um deles e termina no outro.
 
 No grafo: d(a) = 2, d(b) = 2, d(c) = 4, d(d) = 2, d(e) = 2. Todos os graus são pares e o grafo é conexo, logo existe circuito euleriano.
+${PC.EULER}
+Justificativa: graus pares garantem que sempre é possível sair de um vértice em que se entrou (as arestas incidentes se emparelham em entrada/saída), então o percurso só termina no vértice inicial; dar prioridade a arestas que não desconectam as arestas ainda não usadas garante que nenhuma aresta fica inacessível.
 
-Solução:
-1. Escolha o vértice inicial: se houver dois vértices de grau ímpar, comece por um deles; como todos são pares, qualquer vértice serve — comece por a.
-2. Percorra o grafo por busca em profundidade usando cada aresta uma única vez; a cada passo, dê prioridade a uma aresta que NÃO desconecte a parte ainda não percorrida do grafo — só use uma aresta que desconecta quando não houver outra.
-3. Pare ao voltar ao vértice inicial (circuito) ou quando não for mais possível avançar (caminho).
-
-Execução: a –ab– b –bc– c. Em c, a aresta ca deixaria d e e sem como serem alcançados, então escolho cd: c –cd– d –de– e –ec– c –ca– a.
+Execução a partir de a: a –ab– b –bc– c. Em c, a aresta ca deixaria cd, de, ec sem como serem alcançadas, então escolho cd: c –cd– d –de– e –ec– c –ca– a.
 Circuito euleriano: a, b, c, d, e, c, a — as 6 arestas usadas uma única vez, voltando a a.`,
 
   'tp-subgrafos-formula': `Seja G = Kn o grafo completo com n vértices.
@@ -175,18 +161,10 @@ Verificação com n = 3: C(3,1)·2⁰ + C(3,2)·2¹ + C(3,3)·2³ = 3 + 6 + 8 = 
 4. Logo m ≤ n(n − 1)/2, com igualdade no grafo completo Kn. ∎`,
 
   'tp-bfs-distancias': `Distância em número de arestas é obtida por busca em largura, que explora todos os vértices de um mesmo nível de proximidade antes de passar ao próximo.
-
-Elementos: vetor dist com uma posição por vértice; fila Q.
-
-Algoritmo — entrada: G = (V, E) não-direcionado e v ∈ V.
-1. Para todo u ∈ V: dist[u] ← −1. dist[v] ← 0. Q ← {v}.
-2. Enquanto Q não estiver vazia:
-   2a. w ← remove o vértice do início de Q.
-   2b. Para cada vizinho u de w com dist[u] = −1: dist[u] ← dist[w] + 1; insira u no fim de Q.
-3. Saída: dist[u] para todo u ∈ V (dist[u] = −1 significa que u não é alcançável a partir de v, isto é, está em outro componente).
-
+Elementos: vetor dist com uma posição por vértice; fila.
+${PC.DISTANCIAS}
+Saída: dist[u] para todo u ∈ V (dist[u] = −1 significa que u não é alcançável a partir de v, isto é, está em outro componente).
 Justificativa: a fila processa todos os vértices a distância d antes de qualquer vértice a distância d + 1; assim, quando u é descoberto pelo vizinho w, o caminho v … w u tem dist[w] + 1 arestas e é o mais curto possível.
-
 Custo: cada vértice entra na fila uma vez e cada aresta é examinada uma vez (duas, no não-direcionado): O(|V| + |E|) com lista de adjacência.`,
 
   'fund-fam-03': `n = 11 vértices, k = 6 componentes conexos.
@@ -195,16 +173,25 @@ Cada componente conexo com nᵢ vértices precisa de pelo menos nᵢ − 1 arest
 
 Logo o número mínimo de arestas é 5. Exemplo: cinco vértices isolados e um componente com os outros 6 vértices ligados em sequência (5 arestas).`,
 
-  'fecho-01': `Fecho transitivo direto de a = conjunto dos vértices alcançáveis a partir de a. Calcula-se por busca em profundidade a partir de a.
-
+  'fecho-01': `Fecho transitivo direto de a = conjunto dos vértices alcançáveis a partir de a. Calcula-se por busca em profundidade a partir de a:
+\`\`\`
+FECHO_DIRETO(G, a)
+  for u ∈ V, visitado[u] = 0
+  VISITAR_REC(G, a)
+  return {u ∈ V | visitado[u] ≠ 0}
+\`\`\`
 Arestas: a → b, b → c, c → a, c → d, d → e.
-Busca a partir de a: a → b → c; de c, a já foi visitado; c → d → e.
+VISITAR_REC(G, a): a → b → c; de c, a já foi visitado; c → d → e.
 Fecho transitivo direto de a = {a, b, c, d, e}.`,
 
-  'fecho-02': `Fecho transitivo inverso de a = conjunto dos vértices a partir dos quais a é alcançável. Calcula-se obtendo o grafo transposto e fazendo a busca em profundidade a partir de a nele.
-
+  'fecho-02': `Fecho transitivo inverso de a = conjunto dos vértices a partir dos quais a é alcançável. Calcula-se no grafo transposto:
+${PC.TRANSPOSTO}
+\`\`\`
+FECHO_INVERSO(G, a)
+  return FECHO_DIRETO(TRANSPOSTO(G), a)
+\`\`\`
 Grafo transposto (sentidos invertidos): b → a, c → b, a → c, d → c, e → d.
-Busca a partir de a no transposto: a → c → b (b → a: a já visitado).
+VISITAR_REC a partir de a no transposto: a → c → b (b → a: a já visitado).
 Fecho transitivo inverso de a = {a, b, c}. Confirmando no grafo original: b → c → a e c → a; d e e não alcançam a.`,
 
   'base-01': `Grafo: A → B → C; D → E; E → D.

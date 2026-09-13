@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, PenLine } from 'lucide-react';
 import type { Question } from '@/content/types';
+import { AnswerText } from './AnswerText';
 
 /**
  * "Mostrar resposta": a resposta-modelo (`examAnswer`) — o texto que se
@@ -27,7 +28,7 @@ export function ExamAnswerPanel({ question, defaultOpen = false }: { question: Q
           <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-success)]">
             <PenLine size={13} /> Resposta esperada — como escrever na prova
           </p>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">{text}</p>
+          <AnswerText text={text} />
           {!question.examAnswer && (
             <p className="text-[11px] text-[var(--color-text-tertiary)]">Esta questão ainda não tem resposta-modelo no registro de prova; acima está a solução comentada.</p>
           )}

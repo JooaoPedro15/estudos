@@ -12,6 +12,7 @@ import { FormulaGlossary } from './FormulaGlossary';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { SimpleExplanation } from './SimpleExplanation';
 import { PrerequisitesPanel } from './PrerequisitesPanel';
+import { AnswerText } from './AnswerText';
 
 /**
  * Botão "Me ensine". Ordem pensada para quem não sabe nada da matéria:
@@ -48,7 +49,7 @@ export function TeachMePanel({ question }: { question: Question }) {
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-strong)]">{question.examAnswer ? 'Resposta esperada — como escrever na prova' : 'Como resolver este caso'}</p>
             </div>
             {question.examAnswer ? (
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">{question.examAnswer}</p>
+              <AnswerText text={question.examAnswer} />
             ) : question.walkthrough && question.walkthrough.length > 0 ? (
               <Walkthrough steps={question.walkthrough} />
             ) : (
