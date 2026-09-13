@@ -1,5 +1,5 @@
 import type { Question } from '@/content/types';
-import { isSelfComplementary, numberOfSubgraphsOfCompleteGraph, isomorphismNecessaryConditions } from '@/lib/graph';
+import { numberOfSubgraphsOfCompleteGraph, isomorphismNecessaryConditions } from '@/lib/graph';
 import { UG_SIX_ISO_A, UG_SIX_ISO_B, NON_ISO_A, NON_ISO_B } from './graphs';
 import { makeGraph } from '@/lib/graph';
 
@@ -123,13 +123,19 @@ export const isomorfismoQuestions: Question[] = [
     duration: 'quick',
     examLikelihood: 'high',
     sourceStyle: 'generated',
-    type: 'TRUE_FALSE',
-    prompt: 'O grafo P4 (caminho simples com 4 vértices: 1-2-3-4) é auto-complementar.',
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'O caminho com 4 vértices 1–2–3–4 (arestas 12, 23, 34) é auto-complementar? Justifique.',
     displayGraphs: { a: P4 },
-    correctValue: isSelfComplementary(P4),
+    options: [
+      { id: 'a', label: 'Sim — o complemento tem as arestas 13, 14, 24, que formam o caminho 2–4–1–3, isomorfo ao original (bijeção 1→2, 2→4, 3→1, 4→3); 3 arestas = 4·3/4.' },
+      { id: 'b', label: 'Não — o complemento tem 3 arestas mas contém um triângulo, e o caminho não.' },
+      { id: 'c', label: 'Não — grafos auto-complementares precisam de número ímpar de vértices.' },
+      { id: 'd', label: 'Sim — todo grafo com n(n−1)/4 arestas é auto-complementar.' },
+    ],
+    correctOptionId: 'a',
     source: { type: 'professor_support_material', file: 'Lista-de-exercicios-1.pdf' },
-    hints: ['Desenhe o complemento de P4 e compare a forma — ele também deve ter 3 arestas (metade de C(4,2)=6).', 'Verifique se existe uma bijeção entre P4 e seu complemento.'],
-    solution: `P4 tem 3 arestas; C(4,2)/2 = 3 — a contagem bate. O complemento de 1-2-3-4 é o grafo com arestas {1-3, 2-4, 1-4}\\{já contadas}... na prática, Ḡ de P4 também é um P4 (com outra rotulação): 3-1-4-2. Logo P4 É auto-complementar — é o menor exemplo não-trivial (n=4, o menor n≡0 ou 1 mod 4 maior que 1).`,
+    hints: ['Desenhe o complemento: as 6 − 3 = 3 arestas que faltam para K4.', 'Verifique se existe uma bijeção entre o caminho e seu complemento.'],
+    solution: 'O caminho 1–2–3–4 tem 3 arestas, e K4 tem 6; o complemento tem as 3 restantes: 13, 14, 24. Elas formam o caminho 2–4–1–3 — mesma estrutura. A bijeção 1→2, 2→4, 3→1, 4→3 leva 12→24, 23→41, 34→13: exatamente as arestas do complemento. Logo o caminho de 4 vértices é auto-complementar (é o menor exemplo, n = 4). Ter n(n−1)/4 arestas é necessário, não suficiente: o grafo com 4 vértices e arestas 12, 13, 23 (triângulo + vértice isolado) tem 3 arestas e não é auto-complementar.',
   },
   {
     id: 'comp-03',

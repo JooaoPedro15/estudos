@@ -5,12 +5,13 @@ import { topics } from '@/content/topics';
 
 /**
  * Questões FECHADAS geradas a partir do banco de definições, para treinar
- * reconhecimento além da recordação livre. Três por conceito, ids estáveis
+ * reconhecimento além da recordação livre. Duas por conceito, ids estáveis
  * (o progresso é rastreado por id):
  *
  *   defmc-<x>  — "qual é a definição de X?" (4 definições, 1 correta)
  *   defwho-<x> — "esta definição é de qual conceito?" (4 nomes)
- *   deftf-<x>  — verdadeiro/falso sobre a definição
+ *
+ * (Verdadeiro/falso foi retirado: 50% no chute, não treina reconhecer.)
  *
  * Distratores vêm de conceitos do MESMO tópico (vizinhos que confundem:
  * walk/trail/path, injetora/sobrejetora…), depois do mesmo módulo, depois de
@@ -71,20 +72,6 @@ export function generateClosedQuestions(defs: DefinitionQuestion[]): Question[] 
       solution: `É a definição de ${d.concept}: ${d.solution}`,
     });
 
-    // 3) Verdadeiro/falso — metade verdadeira, metade com a definição de um vizinho.
-    const isTrue = hash(`${d.id}:tf`) % 2 === 0;
-    const wrong = distractors[0];
-    out.push({
-      ...base,
-      id: `deftf-${key}`,
-      type: 'TRUE_FALSE',
-      prompt: `Verdadeiro ou falso — a definição de ${d.concept}, conforme o professor, é: "${isTrue ? d.solution : wrong.solution}"`,
-      correctValue: isTrue,
-      hints: [`A definição de ${d.concept} precisa dizer: ${d.keyPoints[0]}.`],
-      solution: isTrue
-        ? `Verdadeiro — é exatamente a definição do professor para ${d.concept}.`
-        : `Falso — essa é a definição de ${wrong.concept}. A de ${d.concept} é: ${d.solution}`,
-    });
   }
 
   return out;

@@ -3,8 +3,8 @@ import { definitionQuestions } from './index';
 import { closedDefinitionQuestions, generateClosedQuestions } from './closed';
 
 describe('questões fechadas geradas das definições', () => {
-  it('gera 3 por definição, com ids estáveis e definitionId apontando para a origem', () => {
-    expect(closedDefinitionQuestions.length).toBe(definitionQuestions.length * 3);
+  it('gera 2 por definição, com ids estáveis e definitionId apontando para a origem', () => {
+    expect(closedDefinitionQuestions.length).toBe(definitionQuestions.length * 2);
     const ids = closedDefinitionQuestions.map((q) => q.id);
     expect(new Set(ids).size).toBe(ids.length);
     const defIds = new Set(definitionQuestions.map((d) => d.id));
@@ -40,25 +40,6 @@ describe('questões fechadas geradas das definições', () => {
       expect(q.options.find((o) => o.id === q.correctOptionId)?.label).toBe(d.concept);
       expect(q.prompt).toContain(d.solution);
     }
-  });
-
-  it('verdadeiro/falso: metade aproximada de cada, falsas usam definição de outro conceito', () => {
-    let t = 0;
-    let f = 0;
-    for (const d of definitionQuestions) {
-      const q = closedDefinitionQuestions.find((c) => c.id === `deftf-${d.id.slice(4)}`);
-      expect(q?.type).toBe('TRUE_FALSE');
-      if (q?.type !== 'TRUE_FALSE') continue;
-      if (q.correctValue) {
-        t++;
-        expect(q.prompt).toContain(d.solution);
-      } else {
-        f++;
-        expect(q.prompt).not.toContain(d.solution);
-      }
-    }
-    expect(t).toBeGreaterThan(definitionQuestions.length * 0.35);
-    expect(f).toBeGreaterThan(definitionQuestions.length * 0.35);
   });
 
   it('prefere distratores do mesmo tópico', () => {

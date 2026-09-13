@@ -270,7 +270,8 @@ function lastAttemptByQuestion(attempts: QuestionAttempt[]): Map<string, Questio
  * variantes cada família tem.
  */
 /** Tipos "fechados": responde marcando/clicando/ordenando, sem digitar texto ou número. É o que o Treino de prova usa. */
-const CLOSED_TYPES = new Set<Question['type']>(['MULTIPLE_CHOICE', 'TRUE_FALSE', 'ORDERING', 'GRAPH_SELECT_VERTEX', 'GRAPH_SELECT_EDGE', 'DRAG_AND_DROP']);
+// TRUE_FALSE fica fora: 50% de chance no chute, não treina a justificativa. Cada V/F de prova virou múltipla escolha "resposta — porquê".
+const CLOSED_TYPES = new Set<Question['type']>(['MULTIPLE_CHOICE', 'ORDERING', 'GRAPH_SELECT_VERTEX', 'GRAPH_SELECT_EDGE', 'DRAG_AND_DROP']);
 
 export function isClosedQuestion(q: Question): boolean {
   return CLOSED_TYPES.has(q.type);

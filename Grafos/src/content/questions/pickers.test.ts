@@ -161,7 +161,11 @@ describe('treino de prova', () => {
   it('pickNextExamDrill só devolve questões fechadas e toda família tem pelo menos uma', async () => {
     const { pickNextExamDrill, isClosedQuestion, isExamDrillQuestion } = await import('./index');
     const { examFamilies } = await import('@/content/examFamilies');
-    for (let i = 0; i < 500; i++) expect(isClosedQuestion(pickNextExamDrill([], [])!)).toBe(true);
+    for (let i = 0; i < 500; i++) {
+      const q = pickNextExamDrill([], [])!;
+      expect(isClosedQuestion(q)).toBe(true);
+      expect(q.type).not.toBe('TRUE_FALSE');
+    }
     for (const f of examFamilies) expect(questions.some((q) => q.examFamily === f.id && isExamDrillQuestion(q)), f.id).toBe(true);
   });
 
