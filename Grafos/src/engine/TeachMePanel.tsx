@@ -5,7 +5,6 @@ import { getTopic } from '@/content/topics';
 import { getQuestion } from '@/content/questions';
 import { lessons } from '@/content/lessons';
 import { formulasFor } from '@/content/formulas';
-import { symbolsIn } from '@/content/symbols';
 import { IconChip } from '@/components/ui';
 import { formatSource } from './formatSource';
 import { FormulaGlossary } from './FormulaGlossary';
@@ -13,6 +12,7 @@ import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { SimpleExplanation } from './SimpleExplanation';
 import { PrerequisitesPanel } from './PrerequisitesPanel';
 import { AnswerText } from './AnswerText';
+import { SymbolLegend } from './SymbolLegend';
 
 /**
  * Botão "Me ensine". Ordem pensada para quem não sabe nada da matéria:
@@ -64,7 +64,7 @@ export function TeachMePanel({ question }: { question: Question }) {
           </div>
 
           {/* 2. Só os símbolos que aparecem nesta questão, uma linha cada. */}
-          <SymbolLegend texts={[question.prompt, question.solution]} />
+          <SymbolLegend texts={[question.prompt, question.examAnswer, question.solution]} />
 
           {/* 3. O resto, fechado: abre o que precisar. */}
           {topic && (
@@ -143,25 +143,6 @@ function Walkthrough({ steps }: { steps: WalkthroughStep[] }) {
         </li>
       ))}
     </ol>
-  );
-}
-
-/** Legenda compacta: só os símbolos do dicionário (content/symbols.ts) que aparecem nos textos dados. */
-function SymbolLegend({ texts }: { texts: string[] }) {
-  const found = symbolsIn(...texts);
-  if (found.length === 0) return null;
-  return (
-    <div className="flex flex-col gap-1.5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Símbolos usados aqui</p>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-        {found.map((s) => (
-          <div key={s.symbol} className="contents">
-            <dt className="mono whitespace-nowrap rounded-md bg-[var(--color-bg-raised)] px-2 py-0.5 text-xs text-[var(--color-accent-strong)]">{s.symbol}</dt>
-            <dd className="text-xs leading-relaxed text-[var(--color-text-secondary)]">{s.meaning}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
   );
 }
 

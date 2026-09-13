@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, PenLine } from 'lucide-react';
 import type { Question } from '@/content/types';
 import { AnswerText } from './AnswerText';
+import { SymbolLegend } from './SymbolLegend';
 
 /**
  * "Mostrar resposta": a resposta-modelo (`examAnswer`) — o texto que se
@@ -32,6 +33,10 @@ export function ExamAnswerPanel({ question, defaultOpen = false }: { question: Q
           {!question.examAnswer && (
             <p className="text-[11px] text-[var(--color-text-tertiary)]">Esta questão ainda não tem resposta-modelo no registro de prova; acima está a solução comentada.</p>
           )}
+          {/* Legenda da notação da resposta (B, V, v, d⁻(v), visitado[u]…), para quem ainda não decorou. */}
+          <div className="mt-1 border-t border-[var(--color-success)]/30 pt-3">
+            <SymbolLegend texts={[question.prompt, text]} title="Símbolos usados na resposta" />
+          </div>
         </div>
       )}
     </div>
