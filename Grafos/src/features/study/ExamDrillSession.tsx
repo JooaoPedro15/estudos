@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Flame } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, questions, type ExamDrillKind } from '@/content/questions';
 import { TOTAL_EXAMS, examFamilies, examFamilyWeight } from '@/content/examFamilies';
@@ -40,6 +40,9 @@ export function ExamDrillSession() {
   const [correct, setCorrect] = useState(0);
   const [showTable, setShowTable] = useState(false);
   const [kind, setKind] = useState<ExamDrillKind>('closed');
+  // Famílias escolhidas na tabela "o que mais cai"; vazio = todas (sorteio pelo peso).
+  const [familyIds, setFamilyIds] = useState<string[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const startedAtRef = useRef(Date.now());
   const lastSavedSecondsRef = useRef(0);
 
@@ -48,7 +51,8 @@ export function ExamDrillSession() {
     loadProgress().then((state) => {
       if (cancelled) return;
       setAttempts(state.attempts);
-      setQuestion(pickNextExamDrill([], state.attempts, kind) ?? null);
+      setQuestion(pickNextExamDrill([], state.attempts, kind, familyIds) ?? null);
+      setLoaded(true);
     });
     return () => {
       cancelled = true;
@@ -58,7 +62,16 @@ export function ExamDrillSession() {
 
   function changeKind(next: ExamDrillKind) {
     setKind(next);
-    setQuestion(pickNextExamDrill(recentIds, attempts, next) ?? null);
+    setQuestion(pickNextExamDrill(recentIds, attempts, next, familyIds) ?? null);
+  }
+
+  function changeFamilies(next: string[]) {
+    setFamilyIds(next);
+    setQuestion(pickNextExamDrill(recentIds, attempts, kind, next) ?? null);
+  }
+
+  function toggleFamily(id: string) {
+    changeFamilies(familyIds.includes(id) ? familyIds.filter((f) => f !== id) : [...familyIds, id]);
   }
 
   useEffect(() => {
@@ -88,7 +101,7 @@ export function ExamDrillSession() {
 
     const nextRecent = [...recentIds, question.id].slice(-RECENT_LIMIT);
     setRecentIds(nextRecent);
-    setQuestion(pickNextExamDrill(nextRecent, nextAttempts, kind) ?? null);
+    setQuestion(pickNextExamDrill(nextRecent, nextAttempts, kind, familyIds) ?? null);
 
     const elapsed = Math.round((Date.now() - startedAtRef.current) / 1000);
     if (elapsed - lastSavedSecondsRef.current >= 60) {
@@ -119,31 +132,58 @@ export function ExamDrillSession() {
 
       <ChipGroup label="Tipo de questão" tone="danger" value={kind} onChange={(id) => changeKind(id as ExamDrillKind)} options={KIND_OPTIONS} />
 
-      <button
-        type="button"
-        onClick={() => setShowTable((v) => !v)}
-        className="flex w-fit items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-      >
-        {showTable ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        {showTable ? 'Ocultar' : 'Ver'} o que mais cai ({examFamilies.length} famílias)
-      </button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShowTable((v) => !v)}
+          className="flex w-fit items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+        >
+          {showTable ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {showTable ? 'Ocultar' : 'Ver'} o que mais cai e escolher o que treinar ({examFamilies.length} famílias)
+        </button>
+        {familyIds.length > 0 && (
+          <span className="flex items-center gap-2 text-xs text-[var(--color-danger)]">
+            Treinando {familyIds.length === 1 ? '1 família' : `${familyIds.length} famílias`}
+            <button type="button" onClick={() => changeFamilies([])} className="underline decoration-dotted underline-offset-2 hover:text-[var(--color-text-primary)]">
+              voltar para todas
+            </button>
+          </span>
+        )}
+      </div>
       {showTable && (
-        <Card padding="md" className="flex flex-col gap-1.5">
-          {FAMILIES_BY_WEIGHT.map((f) => (
-            <div key={f.id} className="flex items-start gap-3 text-xs">
-              <span className="mono w-14 shrink-0 text-[var(--color-danger)]">
-                {f.appearances.length}/{TOTAL_EXAMS}
-                {f.scopeUncertain ? '*' : ''}
-              </span>
-              <span className="mono w-10 shrink-0 text-[var(--color-text-tertiary)]">{Math.round((examFamilyWeight(f) / TOTAL_WEIGHT) * 100)}%</span>
-              <span className="flex-1 leading-relaxed text-[var(--color-text-secondary)]">
-                {f.title}{' '}
-                <span className="text-[var(--color-text-tertiary)]">
-                  ({QUESTIONS_PER_FAMILY.get(f.id) ?? 0} fechadas · {OPEN_PER_FAMILY.get(f.id) ?? 0} abertas)
+        <Card padding="md" className="flex flex-col gap-1">
+          <p className="pb-1 text-[11px] text-[var(--color-text-tertiary)]">
+            Clique numa família para treinar só ela (pode marcar várias). Sem nada marcado, todas entram no sorteio pelo peso.
+          </p>
+          {FAMILIES_BY_WEIGHT.map((f) => {
+            const selected = familyIds.includes(f.id);
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => toggleFamily(f.id)}
+                aria-pressed={selected}
+                className={`flex items-start gap-3 rounded-lg border px-2 py-1.5 text-left text-xs transition ${
+                  selected
+                    ? 'border-[var(--color-danger)]/50 bg-[var(--color-danger-soft)]'
+                    : 'border-transparent hover:bg-[var(--color-bg-raised)]'
+                }`}
+              >
+                <span className="flex w-4 shrink-0 items-center justify-center pt-0.5 text-[var(--color-danger)]">{selected ? <Check size={14} /> : null}</span>
+                <span className="mono w-11 shrink-0 text-[var(--color-danger)]">
+                  {f.appearances.length}/{TOTAL_EXAMS}
+                  {f.scopeUncertain ? '*' : ''}
                 </span>
-              </span>
-            </div>
-          ))}
+                <span className="mono w-10 shrink-0 text-[var(--color-text-tertiary)]">{Math.round((examFamilyWeight(f) / TOTAL_WEIGHT) * 100)}%</span>
+                <span className="flex-1 leading-relaxed text-[var(--color-text-secondary)]">
+                  {f.title}{' '}
+                  <span className="text-[var(--color-text-tertiary)]">
+                    ({QUESTIONS_PER_FAMILY.get(f.id) ?? 0} fechadas · {OPEN_PER_FAMILY.get(f.id) ?? 0} abertas)
+                  </span>
+                </span>
+              </button>
+            );
+          })}
           <p className="pt-1 text-[11px] text-[var(--color-text-tertiary)]">
             % = frequência no sorteio. * = cronograma 2026/2 põe depois da P1; peso pela metade.
           </p>
@@ -161,6 +201,10 @@ export function ExamDrillSession() {
       <Card>
         {question ? (
           <ExerciseRenderer key={`${question.id}-${answered}`} question={question} onComplete={handleComplete} />
+        ) : loaded ? (
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            As famílias escolhidas não têm questão {kind === 'open' ? 'aberta' : 'fechada'}. Troque o tipo de questão ou marque outra família.
+          </p>
         ) : (
           <p className="text-sm text-[var(--color-text-secondary)]">Carregando…</p>
         )}

@@ -289,16 +289,27 @@ export function isOpenExamQuestion(q: Question): boolean {
   return q.type === 'PROOF_OR_JUSTIFICATION' || q.type === 'SHORT_ANSWER' || q.type === 'NUMBER_INPUT';
 }
 
-export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[], kind: ExamDrillKind = 'closed'): Question | undefined {
+/**
+ * Próxima questão do Treino de prova. Sorteia a família pelo peso (nº de
+ * provas em que caiu) e depois uma questão dela. `familyIds` restringe o
+ * sorteio às famílias escolhidas (vazio/undefined = todas); dentro delas o
+ * peso continua valendo. Em 'mixed', a questão sai aberta ou fechada com 50%,
+ * mas se as famílias escolhidas só tiverem um dos tipos, sai desse tipo.
+ */
+export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[], kind: ExamDrillKind = 'closed', familyIds?: string[]): Question | undefined {
   const excluded = new Set(excludeIds);
-  const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : Math.random() < 0.5;
+  const allowed = familyIds && familyIds.length > 0 ? new Set(familyIds) : undefined;
+  const inScope = (q: Question) => Boolean(q.examFamily) && (!allowed || allowed.has(q.examFamily!));
+  const hasOpen = questions.some((q) => inScope(q) && isOpenExamQuestion(q));
+  const hasClosed = questions.some((q) => inScope(q) && isClosedQuestion(q));
+  const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : !hasClosed ? true : !hasOpen ? false : Math.random() < 0.5;
   const accept = (q: Question) => (wantOpen ? isOpenExamQuestion(q) : isClosedQuestion(q));
   const byFamily = new Map<string, Question[]>();
   for (const q of questions) {
-    if (!q.examFamily || !accept(q)) continue;
-    const list = byFamily.get(q.examFamily) ?? [];
+    if (!inScope(q) || !accept(q)) continue;
+    const list = byFamily.get(q.examFamily!) ?? [];
     list.push(q);
-    byFamily.set(q.examFamily, list);
+    byFamily.set(q.examFamily!, list);
   }
   const families = examFamilies.filter((f) => (byFamily.get(f.id)?.length ?? 0) > 0);
   const family = weightedPick(families, examFamilyWeight);

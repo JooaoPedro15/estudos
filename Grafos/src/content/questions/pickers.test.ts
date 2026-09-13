@@ -178,6 +178,29 @@ describe('treino de prova', () => {
     }
   });
 
+  it('pickNextExamDrill com familyIds só sorteia as famílias escolhidas, mantendo o peso entre elas', async () => {
+    const { pickNextExamDrill, isOpenExamQuestion } = await import('./index');
+    const chosen = ['topologica-dag', 'euleriano'];
+    const counts: Record<string, number> = {};
+    for (let i = 0; i < 400; i++) {
+      const q = pickNextExamDrill([], [], 'closed', chosen)!;
+      expect(chosen).toContain(q.examFamily);
+      counts[q.examFamily!] = (counts[q.examFamily!] ?? 0) + 1;
+    }
+    expect(Object.keys(counts).sort()).toEqual(chosen.sort());
+    for (let i = 0; i < 100; i++) expect(pickNextExamDrill([], [], 'open', ['pombos'])!.examFamily).toBe('pombos');
+    // Lista vazia = todas.
+    const seen = new Set<string>();
+    for (let i = 0; i < 400; i++) seen.add(pickNextExamDrill([], [], 'closed', [])!.examFamily!);
+    expect(seen.size).toBeGreaterThan(5);
+    // 'mixed' numa família que só tem um dos tipos não fica sem questão.
+    for (let i = 0; i < 50; i++) {
+      const q = pickNextExamDrill([], [], 'mixed', ['pombos'])!;
+      expect(q.examFamily).toBe('pombos');
+      expect(typeof isOpenExamQuestion(q)).toBe('boolean');
+    }
+  });
+
   it('pickNextExamDrill evita os ids recentes', async () => {
     const { pickNextExamDrill } = await import('./index');
     const { isExamDrillQuestion } = await import('./index');
