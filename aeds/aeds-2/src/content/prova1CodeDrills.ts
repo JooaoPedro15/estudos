@@ -1,4 +1,4 @@
-import type { CodeDrill, FunctionRequirement, FunctionStep, GapStep, RubricStep, StructureVisual } from '../types/content';
+import type { CodeDrill, CodeStep, FunctionRequirement, FunctionStep, GapStep, RubricStep, StructureVisual } from '../types/content';
 
 /**
  * Exercicios novos de treino de codigo pra Prova 1 (u00-u04): ordenacao,
@@ -8,6 +8,12 @@ import type { CodeDrill, FunctionRequirement, FunctionStep, GapStep, RubricStep,
  * docs/regras-professor.md). Progressao: cada bloco comeca com os metodos
  * basicos (inserir/remover) em fase 'repeat' e sobe pra variacoes em fase
  * 'modify', quase sempre pedindo implementar um metodo (nao so responder).
+ *
+ * No final do arquivo (secao "QUESTOES REAIS DA PROVA 1") ha uma segunda
+ * leva de exercicios que reproduz, quase literalmente, as 3 questoes da
+ * Prova I fotografada de verdade (materiais-privados/Provas1, ignorada pelo
+ * Git). Sao os mesmos enunciados/codigos da prova, fatiados em perguntas
+ * menores pra caber no formato de Treino de Codigo.
  */
 
 function req(id: string, label: string, code: string): FunctionRequirement {
@@ -35,6 +41,48 @@ type RubricExamStep = RubricStep & { skillId: 'justify' };
 function rubricStep(step: Omit<RubricExamStep, 'kind' | 'skillId'>): RubricExamStep {
   return { kind: 'rubric', skillId: 'justify', ...step };
 }
+
+type CodeExamStep = CodeStep & { skillId: 'justify' };
+
+function codeStep(step: Omit<CodeExamStep, 'kind' | 'skillId'>): CodeExamStep {
+  return { kind: 'code', skillId: 'justify', ...step };
+}
+
+/**
+ * Codigo exato da questao 1 da Prova I real (materiais-privados/Provas1,
+ * foto 1). Os 3 blocos ficam um atras do outro no mesmo metodo: bloco 1
+ * (if/else) e bloco 3 (if/else) usam a MESMA condicao a > b; bloco 2 roda
+ * sempre, fora de qualquer if.
+ */
+const prova1RealQ1Codigo = `if (a > b) {
+  for (int i = 0; i < n; i++) {
+    for (int j = n - 1; j > 0; j /= 2) {
+      foo(); // bloco 1
+    }
+  }
+} else {
+  for (int i = n; i > 0; i = i >> 1) {
+    foo(); // bloco 1
+  }
+}
+
+for (int i = 0; i < n - 1; i++) {
+  for (int j = n - 1; j > i; j--) {
+    foo(); // bloco 2 (roda sempre, fora de qualquer if)
+  }
+}
+
+if (a <= b) {
+  foo(); foo(); // bloco 3
+} else {
+  for (int i = n; i > 0; i--) {
+    for (int j = n - 1; j > 0; j--) {
+      for (int k = n - 2; k > 0; k--) {
+        foo(); foo(); foo(); // bloco 3
+      }
+    }
+  }
+}`;
 
 export const prova1CodeDrillCatalog: CodeDrill[] = [
   // ---------------------------------------------------------------------
@@ -2970,6 +3018,509 @@ class Lista {
       answers: ['Theta(n)', 'O(n)'],
       mistakeTag: 'wrong-case-analysis',
       explanation: 'Sem ponteiro pra tras, so da pra achar a penultima celula caminhando desde o inicio: Theta(n). Isso contrasta com inserirFim() e removerInicio(), que sao Theta(1).',
+    }),
+  },
+
+  // ---------------------------------------------------------------------
+  // QUESTOES REAIS DA PROVA 1 (materiais-privados/Provas1, fotografada)
+  // ---------------------------------------------------------------------
+  {
+    id: 'code-prova1-real-q1-bloco1-melhor',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): bloco 1, melhor caso (a <= b)',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q1-bloco1',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Questao 1 real da Prova I: analisar o bloco 1 quando o ramo else executa.',
+    stem:
+      'Questao real da Prova I. O codigo completo reune 3 blocos separados por chamadas de foo(); esta pergunta e so sobre o BLOCO 1 (if/else do topo). Quando a <= b, o ramo else executa: for (int i = n; i > 0; i = i >> 1) foo();',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual('array', 'Bloco 1: ramo else', 'i comeca em n e e dividido por 2 (i >> 1) a cada volta, ate chegar a 0.', ['n', 'n/2', 'n/4', '...', '1']),
+    step: gapStep({
+      id: 'code-prova1-real-q1-bloco1-melhor-step',
+      prompt: 'No ramo else (a <= b), i = i >> 1 divide i por 2 a cada volta. Qual a complexidade Theta do bloco 1 nesse ramo, em funcao de n?',
+      answers: ['Theta(log n)', 'O(log n)'],
+      mistakeTag: 'wrong-summation-bound',
+      explanation: 'i >> 1 e o mesmo que dividir por 2: de n ate chegar a 1 (ou 0) leva log2(n) voltas, cada uma com um foo(). Theta(log n).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-bloco1-pior',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): bloco 1, pior caso (a > b)',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q1-bloco1',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Fechar o somatorio do ramo if do bloco 1, que tem um laco duplo com divisao por 2 no laco interno.',
+    stem: 'Mesma questao real. Quando a > b, o ramo if executa: for (i = 0; i < n; i++) for (j = n - 1; j > 0; j /= 2) foo();',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual(
+      'array',
+      'Bloco 1: ramo if',
+      'Para CADA um dos n valores de i, o laco interno faz log2(n) voltas dividindo j por 2.',
+      ['i=0: log n', 'i=1: log n', '...', 'i=n-1: log n'],
+    ),
+    step: gapStep({
+      id: 'code-prova1-real-q1-bloco1-pior-step',
+      prompt:
+        'No ramo if (a > b), o laco externo roda n vezes e o laco interno (j /= 2) roda log n vezes, INDEPENDENTE de i. Qual a complexidade Theta do bloco 1 nesse ramo?',
+      answers: ['Theta(n log n)', 'O(n log n)'],
+      mistakeTag: 'wrong-summation-bound',
+      explanation:
+        'Somatorio_{i=0}^{n-1} log2(n) = n * log2(n), porque o laco interno nao depende de i (sempre comeca em n-1 e sempre faz log n voltas). Theta(n log n).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-bloco2',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): bloco 2, laco duplo incondicional',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q1-bloco2',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Fechar o somatorio triangular do bloco 2, que nao depende de a e b: roda sempre igual.',
+    stem:
+      'Mesma questao real. O bloco 2 fica entre os blocos 1 e 3, fora de qualquer if: for (i = 0; i < n - 1; i++) for (j = n - 1; j > i; j--) foo();',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual('array', 'Bloco 2: triangulo decrescente', 'i=0 faz n-1 voltas, i=1 faz n-2, ..., ate i=n-2 fazer 1 volta.', ['n-1', 'n-2', '...', '1']),
+    step: gapStep({
+      id: 'code-prova1-real-q1-bloco2-step',
+      prompt:
+        'O bloco 2 NAO esta dentro de nenhum if — roda sempre igual, nao importa a e b. Para cada i, j vai de n-1 ate i+1: (n-1-i) voltas. Qual a complexidade Theta do bloco 2?',
+      answers: ['Theta(n^2)', 'O(n^2)'],
+      mistakeTag: 'wrong-summation-bound',
+      explanation:
+        'Somatorio_{i=0}^{n-2} (n-1-i) = (n-1) + (n-2) + ... + 1 = (n-1)n/2. Theta(n^2). Como nao depende de a e b, o bloco 2 conta IGUAL no melhor e no pior caso — e o "piso" que impede o melhor caso de ficar menor que n^2.',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-bloco3-melhor',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): bloco 3, melhor caso (a <= b)',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q1-bloco3',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Reconhecer que um bloco sem laco nenhum e Theta(1).',
+    stem:
+      'Mesma questao real. O bloco 3 tem a MESMA condicao do bloco 1 (a e b), so que invertida: if (a <= b) { foo(); foo(); } else { ... }. Quando a <= b, so os dois foo() do if executam.',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual('array', 'Bloco 3: ramo if', 'Sem nenhum laco: so 2 chamadas diretas de foo().', ['foo()', 'foo()']),
+    step: gapStep({
+      id: 'code-prova1-real-q1-bloco3-melhor-step',
+      prompt: 'No ramo if (a <= b) do bloco 3, so tem 2 chamadas diretas de foo(), sem laco. Qual a complexidade Theta desse ramo?',
+      answers: ['Theta(1)', 'O(1)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation: '2 chamadas de foo() sem laco e constante, independente de n: Theta(1).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-bloco3-pior',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): bloco 3, pior caso (a > b)',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q1-bloco3',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Reconhecer 3 lacos aninhados independentes, cada um de tamanho n, como Theta(n^3).',
+    stem:
+      'Mesma questao real. Quando a > b (MESMA condicao do bloco 1), o bloco 3 executa: for (i=n; i>0; i--) for (j=n-1; j>0; j--) for (k=n-2; k>0; k--) { foo(); foo(); foo(); }',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual('array', 'Bloco 3: ramo else, triplo aninhado', 'Tres lacos, cada um dando aproximadamente n voltas, um dentro do outro.', ['i: n voltas', 'j: n voltas', 'k: n voltas']),
+    step: gapStep({
+      id: 'code-prova1-real-q1-bloco3-pior-step',
+      prompt:
+        'Os 3 lacos sao independentes entre si (nenhum limite depende dos outros indices) e cada um da aproximadamente n voltas. Qual a complexidade Theta do bloco 3 no ramo else?',
+      answers: ['Theta(n^3)', 'O(n^3)'],
+      mistakeTag: 'wrong-summation-bound',
+      explanation: 'n * n * n = n^3 (as 3 chamadas de foo() dentro so multiplicam por uma constante, nao mudam a ordem). Theta(n^3).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-total-melhor',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): complexidade total, melhor caso',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-real-q1-total',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Somar os 3 blocos e identificar o termo dominante no melhor caso.',
+    stem:
+      'Mesma questao real, juntando os 3 blocos. Melhor caso (a <= b): bloco 1 = Theta(log n), bloco 2 = Theta(n^2) (sempre roda), bloco 3 = Theta(1).',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual(
+      'array',
+      'Soma dos 3 blocos',
+      'log n + n^2 + 1 — o bloco 2 (que roda sempre) domina, porque nenhum outro bloco chega em n^2 no melhor caso.',
+      ['log n', '+ n^2', '+ 1'],
+    ),
+    step: gapStep({
+      id: 'code-prova1-real-q1-total-melhor-step',
+      prompt: 'Somando os 3 blocos no melhor caso (log n + n^2 + 1), qual termo domina? Digite a complexidade Theta total.',
+      answers: ['Theta(n^2)', 'O(n^2)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation:
+        'log n + n^2 + 1: o bloco 2 (Theta(n^2)) domina os outros dois. Mesmo no MELHOR caso da condicao a<=b, o metodo inteiro e Theta(n^2), porque o bloco 2 roda sempre, fora de qualquer if.',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-total-pior',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1): complexidade total, pior caso',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-real-q1-total',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Somar os 3 blocos e identificar o termo dominante no pior caso.',
+    stem: 'Mesma questao real. Pior caso (a > b): bloco 1 = Theta(n log n), bloco 2 = Theta(n^2) (sempre roda), bloco 3 = Theta(n^3).',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual('array', 'Soma dos 3 blocos', 'n log n + n^2 + n^3 — agora o bloco 3 domina.', ['n log n', '+ n^2', '+ n^3']),
+    step: gapStep({
+      id: 'code-prova1-real-q1-total-pior-step',
+      prompt: 'Somando os 3 blocos no pior caso (n log n + n^2 + n^3), qual termo domina? Digite a complexidade Theta total.',
+      answers: ['Theta(n^3)', 'O(n^3)'],
+      mistakeTag: 'wrong-case-analysis',
+      explanation:
+        'n log n + n^2 + n^3: o bloco 3 (Theta(n^3)) domina os outros dois. Repare que a > b faz os blocos 1 E 3 escolherem os ramos mais caros ao MESMO tempo, porque usam a MESMA condicao.',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-notacao-melhor',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1e): melhor caso e O(n^2 lg n) e Omega(n lg n)?',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-real-q1-notacao',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Distinguir cota justa (Theta) de cotas frouxas (O e Omega) validas.',
+    stem:
+      'Item (e) da questao real: "Justifique se o melhor caso e O(n^2 x lg n) e Omega(n x lg n)." O melhor caso ja calculado nos itens anteriores e Theta(n^2).',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual(
+      'array',
+      'Theta(n^2) cabe entre as duas cotas',
+      'n log n <= n^2 <= n^2 log n para n grande — Theta(n^2) satisfaz as duas cotas, mesmo nao sendo a mais justa.',
+      ['Omega(n log n)', 'Theta(n^2)', 'O(n^2 log n)'],
+    ),
+    step: rubricStep({
+      id: 'code-prova1-real-q1-notacao-melhor-step',
+      prompt: 'O melhor caso e Theta(n^2). A afirmacao "melhor caso e O(n^2 log n) E Omega(n log n)" e verdadeira ou falsa?',
+      acceptableOptionIds: ['verdadeira'],
+      options: [
+        {
+          id: 'verdadeira',
+          label:
+            'Verdadeira: Theta(n^2) implica O(n^2 log n) (n^2 cresce mais devagar que n^2 log n) e implica Omega(n log n) (n^2 cresce mais rapido que n log n). As duas cotas sao validas, so nao sao justas.',
+        },
+        {
+          id: 'falsa-nao-e-justa',
+          label: 'Falsa, porque a cota certa e Theta(n^2), nao O(n^2 log n).',
+          mistakeTag: 'wrong-case-analysis',
+        },
+        {
+          id: 'falsa-omega',
+          label: 'Falsa, porque n^2 nao e Omega(n log n).',
+          mistakeTag: 'wrong-case-analysis',
+        },
+      ],
+      explanation:
+        'O e Omega sao cotas (nao precisam ser justas). Theta(n^2) esta entre Omega(n log n) e O(n^2 log n), entao a afirmacao e verdadeira, mesmo a cota justa sendo Theta(n^2).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q1-notacao-pior',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q1f): pior caso e O(n^2 lg n) e Omega(n lg n)?',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-real-q1-notacao',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Reconhecer quando uma cota O(...) proposta e FALSA porque a funcao real cresce mais rapido.',
+    stem:
+      'Item (f) da questao real: "Justifique se o pior caso e O(n^2 x lg n) e Omega(n x lg n)." O pior caso ja calculado nos itens anteriores e Theta(n^3).',
+    scaffold: prova1RealQ1Codigo,
+    visual: visual(
+      'array',
+      'n^3 estoura o teto proposto',
+      'n^3 cresce mais rapido que n^2 log n: nao cabe como cota superior.',
+      ['Omega(n log n): ok', 'O(n^2 log n): nao cabe (n^3 e maior)'],
+    ),
+    step: rubricStep({
+      id: 'code-prova1-real-q1-notacao-pior-step',
+      prompt: 'O pior caso e Theta(n^3). A afirmacao "pior caso e O(n^2 log n) E Omega(n log n)" e verdadeira ou falsa?',
+      acceptableOptionIds: ['falsa'],
+      options: [
+        {
+          id: 'falsa',
+          label:
+            'Falsa: n^3 nao e O(n^2 log n), porque n^3 cresce mais rapido que n^2 log n (o quociente n^3 / (n^2 log n) = n / log n tende a infinito). A parte Omega(n log n) ate seria verdadeira sozinha, mas a afirmacao inteira (com o "E") ja fica falsa por causa do O.',
+        },
+        {
+          id: 'verdadeira-so-porque-omega',
+          label: 'Verdadeira, porque n^3 e Omega(n log n).',
+          mistakeTag: 'wrong-case-analysis',
+        },
+        {
+          id: 'verdadeira-mesma-familia',
+          label: 'Verdadeira, porque O(n^2 log n) e uma forma valida de escrever qualquer polinomio de grau ate 3.',
+          mistakeTag: 'algorithm-confusion',
+        },
+      ],
+      explanation:
+        'n^3 cresce mais rapido que n^2 log n, entao n^3 NAO E O(n^2 log n) — essa parte da afirmacao e falsa, o que derruba a afirmacao inteira (mesmo a parte do Omega sendo verdadeira sozinha).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q2-forma-fechada',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q2a): forma fechada de Sn = soma(i+2)',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q2',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'justify',
+    goal: 'Usar a propriedade de perturbacao (P2) pra achar a forma fechada de um somatorio real de prova.',
+    stem:
+      'Questao real da Prova I (materiais-privados/Provas1, foto 2). A propriedade de perturbacao P2 diz: Sn + a(n+1) = a0 + soma_{i=0}^{n} a(i+1). Use-a para achar a forma fechada de Sn = soma_{i=0}^{n} (i + 2).',
+    scaffold: `// Sn = soma_{i=0}^{n} (i + 2)
+// P2: Sn + a(n+1) = a0 + soma_{i=0}^{n} a(i+1)
+// a(i) = i + 2, entao a(i+1) = i + 3 e a(n+1) = n + 3, a0 = 2`,
+    visual: visual('array', 'Perturbacao', 'Sn + (n+3) = 2 + soma dos termos deslocados em 1 posicao.', ['a0=2', 'a1=3', '...', 'a(n+1)=n+3']),
+    step: codeStep({
+      id: 'code-prova1-real-q2-forma-fechada-step',
+      prompt: 'Digite a forma fechada de Sn = soma_{i=0}^{n} (i + 2).',
+      acceptedAnswers: ['(n + 1) * (n + 4) / 2', '(n+1)*(n+4)/2', '(n+1)(n+4)/2'],
+      mistakeTag: 'wrong-summation-bound',
+      explanation:
+        'Sn = soma(i) + soma(2) = n(n+1)/2 + 2(n+1) = (n+1)(n/2 + 2) = (n+1)(n+4)/2. A perturbacao leva na mesma formula: Sn + (n+3) = 2 + soma_{i=0}^{n} (i+3) — isolando Sn, cai no mesmo resultado.',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q2-passo-base',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q2b): passo base da inducao',
+    source: 'prova1',
+    difficulty: 'intermediario',
+    repetitionGroup: 'prova1-real-q2',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Verificar o passo base certo pra essa formula real (o somatorio comeca em i=0).',
+    stem: 'Mesma questao real. Prove por inducao que Sn = soma_{i=0}^{n} (i + 2) = (n+1)(n+4)/2, para todo n >= 0.',
+    scaffold: `// formula: Sn = (n + 1) * (n + 4) / 2
+// somatorio comeca em i = 0`,
+    visual: visual('array', 'Passo base em n=0', 'S0 tem 1 termo so: i=0, entao S0 = 0+2 = 2.', ['S0 = 2']),
+    step: rubricStep({
+      id: 'code-prova1-real-q2-passo-base-step',
+      prompt: 'Qual e o passo base correto dessa prova por inducao?',
+      acceptableOptionIds: ['base-n0'],
+      options: [
+        { id: 'base-n0', label: 'Para n = 0, S0 = 0 + 2 = 2, e a formula da (0+1)(0+4)/2 = 4/2 = 2: bate.' },
+        { id: 'base-n1', label: 'Para n = 1, S1 = 2 + 3 = 5, e a formula da (1+1)(1+4)/2 = 5: bate.', mistakeTag: 'wrong-summation-bound' },
+        { id: 'sem-base', label: 'Como o somatorio ja comeca em i=0, nao precisa checar passo base.', mistakeTag: 'algorithm-confusion' },
+      ],
+      explanation:
+        'O somatorio comeca em i = 0, entao o passo base testa n = 0 (o MENOR n valido), nao n = 1. S0 = 2 e a formula (0+1)(0+4)/2 = 2 tambem: bate.',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q2-passo-indutivo',
+    domainId: 'somatorio',
+    moduleId: 'complexidade',
+    title: 'Prova real (Q2b): passo indutivo',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q2',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'justify',
+    goal: 'Usar a hipotese de inducao pra fechar o passo indutivo dessa formula real, sem so substituir n por k+1.',
+    stem:
+      'Mesma questao real. Hipotese de inducao: suponha que vale pra n=k, ou seja, Sk = (k+1)(k+4)/2. O proximo termo da soma, quando n vai de k pra k+1, e a(k+1) = (k+1)+2 = k+3.',
+    scaffold: `// hipotese: Sk = (k + 1) * (k + 4) / 2
+// objetivo do passo indutivo: mostrar que S(k+1) = (k + 2) * (k + 5) / 2`,
+    visual: visual(
+      'array',
+      'Passo indutivo parte da hipotese',
+      'S(k+1) = Sk + (k+3) — usa Sk que a hipotese ja garante, so soma o termo novo.',
+      ['Sk (hipotese)', '+ (k+3)', '= (k+2)(k+5)/2'],
+    ),
+    step: rubricStep({
+      id: 'code-prova1-real-q2-passo-indutivo-step',
+      prompt: 'Qual sequencia de igualdades usa CORRETAMENTE a hipotese de inducao para chegar em S(k+1) = (k+2)(k+5)/2?',
+      acceptableOptionIds: ['certo'],
+      options: [
+        {
+          id: 'certo',
+          label: 'S(k+1) = Sk + (k+3) = (k+1)(k+4)/2 + (k+3) = (k^2+5k+4)/2 + (2k+6)/2 = (k^2+7k+10)/2 = (k+2)(k+5)/2',
+        },
+        {
+          id: 'sem-hipotese',
+          label: 'S(k+1) = (k+2)(k+5)/2, substituindo n por k+1 direto na formula original.',
+          mistakeTag: 'algorithm-confusion',
+        },
+        {
+          id: 'termo-errado',
+          label: 'S(k+1) = Sk + (k+2) = (k+1)(k+4)/2 + (k+2), usando k+1 como termo novo em vez de (k+1)+2.',
+          mistakeTag: 'wrong-summation-bound',
+        },
+      ],
+      explanation:
+        'O termo que entra quando i passa de k para k+1 e a(k+1) = (k+1)+2 = k+3, nao k+1 nem k+2. O passo indutivo tem que somar Sk (da hipotese) com esse termo novo, nao reescrever a formula do zero.',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q3-desfazer',
+    domainId: 'vetores',
+    moduleId: 'fila',
+    title: 'Prova real (Q3a): fila circular, desfazer()',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-real-q3-fila',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Implementar a questao real de fila circular: desfazer() e o inverso de inserir, recua ultimo.',
+    stem:
+      'Questao real da Prova I (materiais-privados/Provas1, foto 2). Implemente int desfazer(), que desfaz a ultima insercao realizada (recua ultimo) e retorna o elemento removido. Retorne -1 se a fila estiver vazia.',
+    scaffold: `class Fila {
+  int[] array;
+  int primeiro, ultimo;
+
+  Fila(int tamanho) {
+    array = new int[tamanho + 1];
+    primeiro = ultimo = 0;
+  }
+
+  boolean isVazia() {
+    return primeiro == ultimo;
+  }
+
+  int desfazer() {
+    // implementar
+  }
+}`,
+    visual: visual('queue', 'Fila circular', 'ultimo aponta pro proximo slot livre; desfazer volta um slot.', ['primeiro', '...', 'ultimo - 1', 'ultimo']),
+    step: functionStep({
+      id: 'code-prova1-real-q3-desfazer-step',
+      prompt: 'Escreva o corpo de desfazer().',
+      signature: 'int desfazer()',
+      solution: `int desfazer() {
+  int resp;
+  if (isVazia()) {
+    resp = -1;
+  } else {
+    ultimo = (ultimo - 1 + array.length) % array.length;
+    resp = array[ultimo];
+  }
+  return resp;
+}`,
+      requiredFragments: [
+        req('vazia', 'testa fila vazia antes de desfazer', 'if (isVazia())'),
+        req('volta-ultimo', 'volta ultimo uma posicao, circular', 'ultimo = (ultimo - 1 + array.length) % array.length;'),
+        req('retorno', 'retorna o elemento removido', 'resp = array[ultimo];'),
+      ],
+      lineExplanations: [
+        { code: 'if (isVazia())', note: 'Sem isso, desfazer numa fila vazia da estado invalido.' },
+        { code: 'ultimo = (ultimo - 1 + array.length) % array.length;', note: 'Anda uma posicao pra tras, voltando ao inicio do array se necessario (fila CIRCULAR).' },
+      ],
+      mistakeTag: 'lost-pointer',
+      explanation: 'desfazer() e o inverso de inserir(): recua ultimo em vez de avancar. Custo Theta(1).',
+    }),
+  },
+  {
+    id: 'code-prova1-real-q3-mostrarinverso',
+    domainId: 'vetores',
+    moduleId: 'fila',
+    title: 'Prova real (Q3b): fila circular, mostrarInverso() recursivo',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-real-q3-fila',
+    phase: 'modify',
+    format: 'code-modification',
+    skillId: 'program',
+    goal: 'Implementar a segunda parte da questao real: percorrer a fila de tras pra frente usando recursao, sem alterar a estrutura.',
+    stem:
+      'Mesma questao real. Implemente void mostrarInverso(), que exibe os elementos da fila do ultimo ao primeiro inserido, usando recursao. O metodo NAO pode alterar a estrutura da fila (nada de mudar primeiro/ultimo).',
+    scaffold: `class Fila {
+  int[] array;
+  int primeiro, ultimo;
+
+  boolean isVazia() {
+    return primeiro == ultimo;
+  }
+
+  void mostrarInverso() {
+    // implementar (pode criar um metodo auxiliar privado recursivo)
+  }
+}`,
+    visual: visual(
+      'queue',
+      'Percorrendo de tras pra frente',
+      'Comeca em ultimo - 1 (o mais recente) e recua ate chegar em primeiro.',
+      ['ultimo - 1 (comeca aqui)', '...', 'primeiro (para aqui)'],
+    ),
+    step: functionStep({
+      id: 'code-prova1-real-q3-mostrarinverso-step',
+      prompt: 'Escreva o corpo de mostrarInverso() (pode criar um metodo auxiliar privado recursivo).',
+      signature: 'void mostrarInverso()',
+      solution: `void mostrarInverso() {
+  if (!isVazia()) {
+    mostrarInversoAux((ultimo - 1 + array.length) % array.length);
+  }
+}
+
+private void mostrarInversoAux(int pos) {
+  System.out.println(array[pos]);
+  if (pos != primeiro) {
+    mostrarInversoAux((pos - 1 + array.length) % array.length);
+  }
+}`,
+      requiredFragments: [
+        req('vazia', 'nao faz nada se a fila estiver vazia', 'if (!isVazia())'),
+        req('comeco', 'comeca no ultimo elemento inserido (ultimo - 1), circular', '(ultimo - 1 + array.length) % array.length'),
+        req('imprime', 'imprime o elemento da posicao atual', 'System.out.println(array[pos]);'),
+        req('recua', 'recua uma posicao, circular, antes de chamar de novo', '(pos - 1 + array.length) % array.length'),
+        req('para', 'para quando chega em primeiro (nao passa da borda da fila)', 'if (pos != primeiro)'),
+      ],
+      lineExplanations: [
+        { code: '(ultimo - 1 + array.length) % array.length', note: 'ultimo aponta pro PROXIMO slot livre; o ultimo elemento de verdade esta em ultimo - 1 (circular).' },
+        { code: 'if (pos != primeiro)', note: 'Testado DEPOIS de imprimir: garante que o elemento em primeiro tambem e mostrado, e para exatamente ali.' },
+      ],
+      mistakeTag: 'lost-pointer',
+      explanation: 'Percorre de ultimo-1 ate primeiro, recuando um a um, sem tocar em primeiro/ultimo de verdade (so anda com a variavel local pos). Custo Theta(n).',
     }),
   },
 ];
