@@ -27,6 +27,7 @@ import {
 import {
   getDrillsForModule,
   getModuleTitle,
+  getOldExamDrills,
   getPracticeModules,
   type PracticeModuleId,
 } from '../content/practiceModules';
@@ -225,7 +226,13 @@ function getProvasTitle(
   if (teoricaMode === null) {
     return `${examTitle}: prova teorica`;
   }
-  return teoricaMode === 'simulado' ? `Simulado da ${examTitle}` : `Treino: ${examTitle}`;
+  if (teoricaMode === 'simulado') {
+    return `Simulado da ${examTitle}`;
+  }
+  if (teoricaMode === 'provas-antigas') {
+    return `Provas antigas: ${examTitle}`;
+  }
+  return `Treino: ${examTitle}`;
 }
 
 /** Blueprint fixo de referencia de cada prova (3 questoes reais); Reavaliacao usa o simulado dinamico. */
@@ -289,9 +296,12 @@ export function App() {
       }),
     [provaScopeModuleIds],
   );
+  const oldExamDrills = useMemo(() => (provaScope ? getOldExamDrills(provaScope) : []), [provaScope]);
   const practiceDrills = isPraticaMode
     ? praticaDrills
-    : getDrillsForModule(practiceModuleId ?? 'all', provaScopeModuleIds);
+    : teoricaMode === 'provas-antigas'
+      ? oldExamDrills
+      : getDrillsForModule(practiceModuleId ?? 'all', provaScopeModuleIds);
   const practiceSession =
     game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
   const currentPracticeDrill = getCurrentPracticeDrill(practiceDrills, practiceSession);
@@ -539,12 +549,20 @@ export function App() {
     }
   }
 
-  /** Escolhe treinar (Treino de Codigo) ou simulado dentro da prova teorica. */
+  /** Escolhe treinar (Treino de Codigo), simulado ou provas antigas dentro da prova teorica. */
   function selectTeoricaMode(mode: TeoricaMode) {
     setLastAttempt(null);
     setTeoricaMode(mode);
     setPracticeModuleId(null);
     setActiveMode(mode === 'simulado' ? 'exam' : 'practice');
+
+    if (mode === 'provas-antigas' && provaScope) {
+      const drills = getOldExamDrills(provaScope);
+      setGame((currentGame) => ({
+        ...currentGame,
+        practiceSession: createPracticeSession(drills, { mode: 'quick', targetCount: 2 }),
+      }));
+    }
   }
 
   function startQuickPractice() {
@@ -913,6 +931,44 @@ export function App() {
                   allowedModuleIds={provaScopeModuleIds}
                   onBackToProva={backToTeoricaModePicker}
                   onSelect={selectPracticeModule}
+                />
+              )
+            ) : teoricaMode === 'provas-antigas' ? (
+              oldExamDrills.length === 0 ? (
+                <div className="complete-state">
+                  <Code2 aria-hidden="true" size={42} />
+                  <h3>Ainda sem questoes reais aqui</h3>
+                  <p>A {getExam(provaScope).title} ainda nao tem questoes reais de prova antiga cadastradas.</p>
+                  <button className="ghost-button" onClick={backToTeoricaModePicker} type="button">
+                    <RotateCcw aria-hidden="true" size={18} />
+                    Voltar
+                  </button>
+                </div>
+              ) : (
+                <PracticeExperience
+                  answer={answer}
+                  blockOrder={blockOrder}
+                  choiceAnswer={choiceAnswer}
+                  currentPracticeDrill={currentPracticeDrill}
+                  fixId={fixId}
+                  fixLineIndex={fixLineIndex}
+                  lastAttempt={lastAttempt}
+                  moduleTitle={`${getExam(provaScope).title}: provas antigas`}
+                  onAddBlock={(blockId) => setBlockOrder((order) => [...order, blockId])}
+                  onChangeModule={backToTeoricaModePicker}
+                  onChoice={setChoiceAnswer}
+                  onFixId={setFixId}
+                  onFixLine={setFixLineIndex}
+                  onResetBlocks={() => setBlockOrder([])}
+                  onResetDrafts={resetAnswerDrafts}
+                  onStartMarathon={startMarathonPractice}
+                  onStartQuick={startQuickPractice}
+                  onSubmit={submitAnswer}
+                  onText={setTextAnswer}
+                  onToggleTeaching={() => setShowTeaching((value) => !value)}
+                  practiceSession={practiceSession}
+                  showTeaching={showTeaching}
+                  textAnswer={textAnswer}
                 />
               )
             ) : game.session.completed || !currentQuestion || !currentStep ? (

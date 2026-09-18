@@ -1,6 +1,6 @@
 import { codeDrillCatalog } from './codeDrills';
 import { contentModuleCatalog } from './contentModules';
-import type { CodeDrill, ContentModuleId } from '../types/content';
+import type { CodeDrill, ContentModuleId, OldExamPaper } from '../types/content';
 
 /**
  * Fonte única de classificação dos treinos por módulo.
@@ -92,4 +92,18 @@ export function getDrillsForModule(moduleId: PracticeModuleId, allowedModuleIds?
 /** Título curto do módulo, para mostrar durante o treino. */
 export function getModuleTitle(moduleId: PracticeModuleId): string {
   return getPracticeModules().find((module) => module.id === moduleId)?.title ?? 'Conteudo inteiro';
+}
+
+/**
+ * Questoes REAIS de provas fotografadas (campo `oldExam`), filtradas por
+ * `studyScope` (a que prova a questao serve de estudo — pode ser diferente
+ * da prova onde ela foi fotografada, quando vem da Reavaliacao cobrando
+ * materia de uma prova anterior). Reavaliacao em si mostra todas (e
+ * cumulativa: cai questao de todas as provas).
+ */
+export function getOldExamDrills(scope: OldExamPaper): CodeDrill[] {
+  if (scope === 'reav') {
+    return codeDrillCatalog.filter((drill) => drill.oldExam !== undefined);
+  }
+  return codeDrillCatalog.filter((drill) => drill.oldExam?.studyScope === scope);
 }

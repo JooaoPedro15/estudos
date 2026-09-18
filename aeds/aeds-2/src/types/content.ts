@@ -265,6 +265,27 @@ export type StructureVisual = {
 
 export type CodeDrillPhase = 'repeat' | 'modify';
 
+/**
+ * Mesmos 4 valores de ExamId (src/content/examCatalog.ts), duplicados aqui
+ * pra nao criar dependencia circular (examCatalog.ts ja importa tipos
+ * deste arquivo). Mantenha os dois em sincronia.
+ */
+export type OldExamPaper = 'p1' | 'p2' | 'p3' | 'reav';
+
+/**
+ * Marca um CodeDrill como reproducao de uma questao REAL de prova
+ * fotografada (nao um exercicio so inspirado nela). `studyScope` pode
+ * divergir de `paperExam` quando uma questao da Reavaliacao cobra materia
+ * de uma prova anterior (ex.: questao de somatorio na Reav conta pra
+ * estudar Prova 1 tambem).
+ */
+export type OldExamRef = {
+  paperExam: OldExamPaper;
+  studyScope: OldExamPaper;
+  /** Rotulo curto da questao original na prova fotografada (ex.: "Q1", "Q3b"). */
+  questionLabel: string;
+};
+
 export type CodeDrill = {
   id: string;
   domainId: DomainId;
@@ -281,4 +302,6 @@ export type CodeDrill = {
   scaffold: string;
   visual: StructureVisual;
   step: ExamStep;
+  /** Presente so quando o drill reproduz uma questao real de prova fotografada. */
+  oldExam?: OldExamRef;
 };

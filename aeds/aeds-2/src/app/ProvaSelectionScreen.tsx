@@ -1,7 +1,7 @@
 import { examCatalog, type ExamId } from '../content/examCatalog';
 
 export type ProvaSection = 'teorica' | 'pratica';
-export type TeoricaMode = 'treinar' | 'simulado';
+export type TeoricaMode = 'treinar' | 'simulado' | 'provas-antigas';
 
 type ProvaSelectionScreenProps = {
   onSelect: (scope: ExamId) => void;
@@ -78,6 +78,10 @@ export function TeoricaModePicker({ examTitle, onBack, onSelect }: TeoricaModePi
         <button className="domain-button" onClick={() => onSelect('simulado')} type="button">
           <strong>Simulado</strong>
           <span>Questoes em sequencia, no formato real da prova.</span>
+        </button>
+        <button className="domain-button" onClick={() => onSelect('provas-antigas')} type="button">
+          <strong>Provas antigas</strong>
+          <span>So as questoes REAIS de provas fotografadas (nao exercicios de pratica) — inclui questoes da Reavaliacao que caem na materia desta prova.</span>
         </button>
       </div>
     </div>
