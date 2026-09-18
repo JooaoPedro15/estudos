@@ -11,8 +11,18 @@ export const prova1Blueprint: ExamBlueprint = {
       moduleId: 'complexidade',
       format: 'case-analysis',
       title: 'Complexidade de lacos dependentes de condicao',
-      stem:
-        'Considere: if (a > b) { for (i = 0; i < n; i++) for (j = n; j > 0; j = j / 2) foo(); } else { for (i = n; i > 0; i--) foo(); }',
+      stem: 'Considere o codigo abaixo.',
+      scaffold: `if (a > b) {
+  for (int i = 0; i < n; i++) {
+    for (int j = n; j > 0; j = j / 2) {
+      foo();
+    }
+  }
+} else {
+  for (int i = n; i > 0; i--) {
+    foo();
+  }
+}`,
       visual: {
         kind: 'array',
         title: 'Dois ramos, dois custos',

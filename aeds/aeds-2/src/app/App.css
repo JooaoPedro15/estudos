@@ -1547,3 +1547,36 @@ h1 {
     gap: var(--space-2);
   }
 }
+
+/* =============================================================
+   Notacao matematica (MathText leve + Formula via KaTeX)
+   ============================================================= */
+
+.math-sum {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  vertical-align: middle;
+}
+
+.math-sum-symbol {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.math-sum-limits {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.62em;
+  line-height: 1.1;
+}
+
+.math-formula {
+  color: inherit;
+}
+
+.math-formula .katex {
+  color: inherit;
+  font-size: 1.05em;
+}

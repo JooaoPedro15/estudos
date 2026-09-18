@@ -959,8 +959,12 @@ public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
     format: 'code-modification',
     skillId: 'justify',
     goal: 'Diferenciar melhor e pior caso do insertion sort.',
-    stem: 'while (j >= 0 && array[j] > chave) { desloca; j--; } — no pior caso, esse while roda o maximo possivel a cada i.',
-    scaffold: `// pior caso: vetor em ordem decrescente (cada elemento desloca tudo que veio antes)`,
+    stem: 'No pior caso, o while abaixo roda o maximo possivel a cada i.',
+    scaffold: `while (j >= 0 && array[j] > chave) {
+  array[j + 1] = array[j];
+  j--;
+}
+// pior caso: vetor em ordem decrescente (cada elemento desloca tudo que veio antes)`,
     visual: visual('array', 'Pior caso do insertion sort', 'Vetor decrescente: cada chave desloca todo o prefixo.', ['9', '7', '5', '3', '1']),
     step: gapStep({
       id: 'code-prova1-ordenacao-insercao-complexidade-step',
@@ -982,8 +986,11 @@ public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
     format: 'code-modification',
     skillId: 'justify',
     goal: 'Perceber que selection sort nao melhora com entrada ja ordenada.',
-    stem: 'for (int j = i + 1; j < array.length; j++) sempre percorre a cauda inteira pra achar o menor, nao importa se ja esta ordenado.',
-    scaffold: `// o laco interno sempre roda ate o fim, mesmo se o vetor ja estiver ordenado`,
+    stem: 'O laco interno abaixo sempre percorre a cauda inteira pra achar o menor, nao importa se ja esta ordenado.',
+    scaffold: `for (int j = i + 1; j < array.length; j++) {
+  if (array[j] < array[menor]) menor = j;
+}
+// o laco interno sempre roda ate o fim, mesmo se o vetor ja estiver ordenado`,
     visual: visual('array', 'Busca sempre completa', 'O laco interno nunca para cedo, mesmo com entrada ja ordenada.', ['i', 'busca ate o fim']),
     step: gapStep({
       id: 'code-prova1-ordenacao-selection-complexidade-step',
@@ -1481,7 +1488,7 @@ public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
     format: 'code-repetition',
     skillId: 'justify',
     goal: 'Contar execucoes de um laco que depende linearmente de n.',
-    stem: 'for (int i = 0; i < n; i++) { foo(); }',
+    stem: 'Considere o codigo abaixo.',
     scaffold: `void metodo(int n) {
   for (int i = 0; i < n; i++) {
     foo();
@@ -1508,7 +1515,7 @@ public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
     format: 'code-modification',
     skillId: 'justify',
     goal: 'Fechar o somatorio de um laco interno que depende do externo.',
-    stem: 'for (int i = 0; i < n; i++) { for (int j = 0; j < i; j++) { foo(); } }',
+    stem: 'Considere o codigo abaixo, onde o laco interno depende do laco externo.',
     scaffold: `void metodo(int n) {
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < i; j++) {
@@ -1537,7 +1544,7 @@ public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
     format: 'code-modification',
     skillId: 'justify',
     goal: 'Reconhecer o padrao logaritmico de um laco que divide o contador.',
-    stem: 'for (int i = n; i > 0; i = i / 2) { foo(); }',
+    stem: 'Considere o codigo abaixo.',
     scaffold: `void metodo(int n) {
   for (int i = n; i > 0; i = i / 2) {
     foo();
@@ -1564,8 +1571,7 @@ public static boolean pesqBinRec(int[] vet, int x, int esq, int dir) {
     format: 'code-modification',
     skillId: 'justify',
     goal: 'Diferenciar melhor e pior caso de um laco que pode parar cedo.',
-    stem:
-      'boolean pesquisar(int[] array, int x) { for (int i = 0; i < array.length; i++) { if (array[i] == x) return true; } return false; } — o vetor NAO esta ordenado.',
+    stem: 'Considere o codigo abaixo. O vetor NAO esta ordenado.',
     scaffold: `boolean pesquisar(int[] array, int x) {
   for (int i = 0; i < array.length; i++) {
     if (array[i] == x) return true;

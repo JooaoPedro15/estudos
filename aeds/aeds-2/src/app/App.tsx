@@ -78,6 +78,7 @@ import type { ActiveMode } from './appTypes';
 import { CategoryBar } from './CategoryBar';
 import { DashboardScreen } from './DashboardScreen';
 import { ExploreScreen } from './ExploreScreen';
+import { Formula, MathText } from './MathText';
 import {
   ProvaSelectionScreen,
   SectionPicker,
@@ -103,6 +104,23 @@ const skillLabels: Record<SkillId, string> = {
   program: 'Programar',
   justify: 'Justificar',
 };
+
+/**
+ * Extrai a formula da mensagem "Resposta esperada: X." pra mostrar com o
+ * KaTeX. NAO usa o step atual pra isso: a sessao avanca de etapa assim que
+ * responde (certo ou errado), entao por essa altura o step atual ja seria o
+ * PROXIMO, nao o que gerou esse feedback.
+ */
+function extractExpectedFormula(feedback: string): string | null {
+  const match = feedback.match(/^Resposta esperada: (.+)\.$/);
+  return match ? match[1] : null;
+}
+
+/** Mostra a resposta esperada (gap/code) com o KaTeX, quando o feedback tiver uma. */
+function ExpectedFormula({ feedback }: { feedback: string }) {
+  const formula = extractExpectedFormula(feedback);
+  return formula ? <Formula text={formula} /> : null;
+}
 
 function createInitialGame(): SavedGameState {
   return {
@@ -1055,7 +1073,7 @@ export function App() {
                     </div>
                   </div>
                   <div className="problem-tags"><span>{currentDomain.shortTitle}</span><span>{skillLabels[currentStep.skillId]}</span></div>
-                  <p className="question-stem">{currentQuestion.stem}</p>
+                  <p className="question-stem"><MathText text={currentQuestion.stem} /></p>
                   {currentQuestion.scaffold && (
                     <pre className="code-scaffold">
                       <code>{currentQuestion.scaffold}</code>
@@ -1071,7 +1089,7 @@ export function App() {
                       <span>{skillLabels[currentStep.skillId]}</span>
                       <span>{currentDomain.shortTitle}</span>
                     </div>
-                    <h4>{currentStep.prompt}</h4>
+                    <h4><MathText text={currentStep.prompt} /></h4>
 
                     <AnswerControl
                       blockOrder={blockOrder}
@@ -1113,7 +1131,8 @@ export function App() {
                       ) : (
                         <XCircle aria-hidden="true" size={18} />
                       )}
-                      <span>{lastAttempt.feedback}</span>
+                      <span><MathText text={lastAttempt.feedback} /></span>
+                      {!lastAttempt.correct && <ExpectedFormula feedback={lastAttempt.feedback} />}
                     </div>
                   )}
                 </section>
@@ -1293,7 +1312,7 @@ function ConceptualPracticeExperience({
             ) : (
               <XCircle aria-hidden="true" size={18} />
             )}
-            <span>{lastAttempt.feedback}</span>
+            <span><MathText text={lastAttempt.feedback} /></span>
           </div>
         )}
         <div className="practice-actions">
@@ -1339,7 +1358,9 @@ function ConceptualPracticeExperience({
             </div>
           </div>
           <div className="problem-tags"><span>{currentQuestion.type === 'desenho' ? 'Desenho' : 'Conceitual'}</span><span>{currentQuestion.difficulty}</span></div>
-          <p className="question-stem">{currentQuestion.stem}</p>
+          <p className="question-stem">
+            <MathText text={currentQuestion.stem} />
+          </p>
           {currentQuestion.type === 'desenho' && <DrawingDemo question={currentQuestion} />}
         </section>
 
@@ -1397,7 +1418,7 @@ function ConceptualPracticeExperience({
           {lastAttempt && (
             <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
               {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
-              <span>{lastAttempt.feedback}</span>
+              <span><MathText text={lastAttempt.feedback} /></span>
             </div>
           )}
         </section>
@@ -1431,7 +1452,7 @@ function ConceptualChoiceControl({
           onClick={() => onChoice(option.id)}
           type="button"
         >
-          {formatOptionLabel(option, index)}
+          <OptionLabel index={index} option={option} />
         </button>
       ))}
     </div>
@@ -1467,7 +1488,7 @@ function VisualChoiceControl({
             onClick={() => onChoice(option.id)}
             type="button"
           >
-            {formatOptionLabel(option, index)}
+            <OptionLabel index={index} option={option} />
           </button>
         </div>
       ))}
@@ -1519,22 +1540,30 @@ function ConceptualTeachingBox({ question }: { question: ConceptualDrawingQuesti
         <BookOpenCheck aria-hidden="true" size={18} />
         <h3>Me ensine</h3>
       </div>
-      <p>{question.explanation}</p>
+      <p>
+        <MathText text={question.explanation} />
+      </p>
       {correctOption && (
         <p>
-          Alternativa correta: <strong>{correctOption.label}</strong>
+          Alternativa correta:{' '}
+          <strong>
+            <MathText text={correctOption.label} />
+          </strong>
         </p>
       )}
     </aside>
   );
 }
 
-function formatOptionLabel(option: ConceptualDrawingOption, index: number): string {
-  if (/^[A-D]\./.test(option.label)) {
-    return option.label;
-  }
-
-  return `${String.fromCharCode(65 + index)}. ${option.label}`;
+function OptionLabel({ option, index }: { option: ConceptualDrawingOption; index: number }) {
+  const alreadyPrefixed = /^[A-D]\./.test(option.label);
+  const prefix = alreadyPrefixed ? '' : `${String.fromCharCode(65 + index)}. `;
+  return (
+    <>
+      {prefix}
+      <MathText text={option.label} />
+    </>
+  );
 }
 
 type PracticeExperienceProps = {
@@ -1637,7 +1666,9 @@ function PracticeExperience({
             </div>
           </div>
           <div className="problem-tags"><span>{currentPracticeDrill.phase === 'repeat' ? 'Repeticao' : 'Modificacao'}</span><span>{skillLabels[currentPracticeDrill.step.skillId]}</span></div>
-          <p className="question-stem">{currentPracticeDrill.stem}</p>
+          <p className="question-stem">
+            <MathText text={currentPracticeDrill.stem} />
+          </p>
           <div className="paper-layout">
             <pre className="code-scaffold">
               <code>{currentPracticeDrill.scaffold}</code>
@@ -1653,7 +1684,9 @@ function PracticeExperience({
               <span>{skillLabels[currentPracticeDrill.step.skillId]}</span>
               <span>{currentPracticeDrill.phase === 'repeat' ? 'Repeticao' : 'Modificacao'}</span>
             </div>
-            <h4>{currentPracticeDrill.step.prompt}</h4>
+            <h4>
+              <MathText text={currentPracticeDrill.step.prompt} />
+            </h4>
 
             <AnswerControl
               blockOrder={blockOrder}
@@ -1691,7 +1724,8 @@ function PracticeExperience({
           {lastAttempt && (
             <div className={`feedback ${lastAttempt.correct ? 'is-correct' : 'is-wrong'}`} role="status">
               {lastAttempt.correct ? <CheckCircle2 aria-hidden="true" size={18} /> : <XCircle aria-hidden="true" size={18} />}
-              <span>{lastAttempt.feedback}</span>
+              <span><MathText text={lastAttempt.feedback} /></span>
+              {!lastAttempt.correct && <ExpectedFormula feedback={lastAttempt.feedback} />}
             </div>
           )}
         </section>
@@ -1713,8 +1747,12 @@ function TeachingBox({ step }: { step: ChallengeStep }) {
       <ol>
         {teachingItems.map((item) => (
           <li key={item.code}>
-            <code>{item.code}</code>
-            <span>{item.note}</span>
+            <code>
+              <MathText text={item.code} />
+            </code>
+            <span>
+              <MathText text={item.note} />
+            </span>
           </li>
         ))}
       </ol>
@@ -1735,7 +1773,11 @@ function TeachingBox({ step }: { step: ChallengeStep }) {
           </div>
         ))}
       {teachingVisual && <StaticStructureCard visual={teachingVisual} />}
-      {step.explanation && <p>{step.explanation}</p>}
+      {step.explanation && (
+        <p>
+          <MathText text={step.explanation} />
+        </p>
+      )}
     </aside>
   );
 }
@@ -1875,7 +1917,7 @@ function AnswerControl({
                 onClick={() => onChoice(option.id)}
                 type="button"
               >
-                {option.label}
+                <MathText text={option.label} />
               </button>
             </div>
           ))}
@@ -1892,7 +1934,7 @@ function AnswerControl({
             onClick={() => onChoice(option.id)}
             type="button"
           >
-            {option.label}
+            <MathText text={option.label} />
           </button>
         ))}
       </div>
@@ -2013,7 +2055,7 @@ function FixAnswer({ fixId, fixLineIndex, onFixId, onFixLine, step }: FixAnswerP
             onClick={() => onFixId(option.id)}
             type="button"
           >
-            {option.label}
+            <MathText text={option.label} />
           </button>
         ))}
       </div>
