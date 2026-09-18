@@ -266,6 +266,9 @@ const POSITION_1_POOL: Candidate[] = [
 }`,
     visual('array', 'Complexidade + inducao', 'Um laco aninhado onde o interno depende do externo.', ['Theta(n^2)', 'forma fechada', 'inducao']),
   ),
+  fromSingleDrill('code-prova1-inducao-soma-natural'), // inducao: soma dos n primeiros naturais
+  fromSingleDrill('code-prova1-inducao-soma-geometrica'), // inducao: soma de potencias de 2
+  fromSingleDrill('code-prova1-complexidade-laco-aninhado'), // complexidade: laco aninhado dependente
 ];
 
 const POSITION_2_POOL: Candidate[] = [ORDENACAO_LIVRE, ORDENACAO_TRES_OPCOES, ORDENACAO_ESPECIFICA_RADIX, ORDENACAO_ESPECIFICA_SELECAO];
@@ -300,6 +303,7 @@ const POSITION_3_POOL: Candidate[] = [
     visual('stack', 'Pilha e fila na pratica', 'FIFO -> Fila, LIFO -> Pilha; parenteses balanceados usa pilha.', ['FIFO/LIFO', 'parenteses balanceados']),
   ),
   fromSingleDrill('code-prova1-lista-flexivel-inserir-ordenado'),
+  fromSingleDrill('code-prova1-pilha-avaliar-posfixa'), // pilha complexa (inventada, classica): avaliar expressao pos-fixa
 ];
 
 const POSITION_POOLS: Candidate[][] = [POSITION_1_POOL, POSITION_2_POOL, POSITION_3_POOL];

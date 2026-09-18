@@ -2228,6 +2228,86 @@ class Fila {
       explanation: 'Custo Theta(1): le um indice e decrementa topo.',
     }),
   },
+  {
+    id: 'code-prova1-pilha-avaliar-posfixa',
+    domainId: 'vetores',
+    moduleId: 'pilha',
+    title: 'Pilha: avaliar expressao pos-fixa',
+    source: 'prova1',
+    difficulty: 'desafio',
+    repetitionGroup: 'prova1-pilha-posfixa',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Aplicacao classica de pilha: avaliar uma expressao pos-fixa (RPN), empilhando numeros e resolvendo operadores com o topo.',
+    stem:
+      'inserir(x) e remover() ja estao prontos. Implemente avaliarPosFixa(expressao), que recebe uma expressao pos-fixa com numeros e operadores (+, -, *, /) separados por espaco, e retorna o resultado. Ex.: "5 3 -" retorna 2; "4 2 3 * +" retorna 10.',
+    scaffold: `class Pilha {
+  private int[] array;
+  private int topo;
+
+  public Pilha(int tamanho) {
+    array = new int[tamanho];
+    topo = -1;
+  }
+
+  public void inserir(int x) throws Exception {
+    array[++topo] = x;
+  }
+
+  public int remover() throws Exception {
+    return array[topo--];
+  }
+
+  public int avaliarPosFixa(String expressao) throws Exception {
+    // implementar
+  }
+}`,
+    visual: visual('stack', 'Numero empilha, operador resolve', 'Ao achar um operador, desempilha os 2 ultimos numeros, calcula e empilha o resultado.', ['5', '3', '- (desempilha 3 e 5, empilha 2)']),
+    step: functionStep({
+      id: 'code-prova1-pilha-avaliar-posfixa-step',
+      prompt: 'Escreva o corpo de avaliarPosFixa(expressao).',
+      signature: 'public int avaliarPosFixa(String expressao)',
+      solution: `public int avaliarPosFixa(String expressao) throws Exception {
+  String[] tokens = expressao.split(" ");
+  for (String token : tokens) {
+    if (token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/")) {
+      int b = remover();
+      int a = remover();
+      int resultado = 0;
+      if (token.equals("+")) {
+        resultado = a + b;
+      } else if (token.equals("-")) {
+        resultado = a - b;
+      } else if (token.equals("*")) {
+        resultado = a * b;
+      } else {
+        resultado = a / b;
+      }
+      inserir(resultado);
+    } else {
+      inserir(Integer.parseInt(token));
+    }
+  }
+  return remover();
+}`,
+      requiredFragments: [
+        req('detecta-operador', 'reconhece um token de operador', 'token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/")'),
+        req('ordem-operandos', 'b sai da pilha ANTES de a (b e o operando da direita)', 'int b = remover();'),
+        req('segundo-operando', 'a e o operando da esquerda, sai depois de b', 'int a = remover();'),
+        req('empilha-resultado', 'empilha o resultado do operador', 'inserir(resultado);'),
+        req('empilha-numero', 'token que nao e operador vira numero e empilha direto', 'inserir(Integer.parseInt(token));'),
+        req('retorno', 'no final, o unico valor que sobra na pilha e o resultado', 'return remover();'),
+      ],
+      lineExplanations: [
+        { code: 'int b = remover(); int a = remover();', note: 'A ORDEM importa pra subtracao e divisao: b (removido primeiro) e o operando da direita, a e o da esquerda.' },
+        { code: 'inserir(resultado);', note: 'O resultado parcial volta pra pilha, como se fosse mais um numero.' },
+      ],
+      mistakeTag: 'algorithm-confusion',
+      explanation:
+        'Pos-fixa (RPN) nao precisa de parenteses nem precedencia: numero empilha, operador consome os 2 do topo e empilha o resultado. No final sobra so o resultado final na pilha. Custo Theta(n) no numero de tokens.',
+    }),
+  },
 
   // ---------------------------------------------------------------------
   // PILHA FLEXIVEL (u04) — encadeada, topo
