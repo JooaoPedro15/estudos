@@ -42,7 +42,15 @@ export function evaluateStep(step: ChallengeStep, answer: StepAnswer): StepResul
       normalizeCodeLikeText(acceptedAnswer) === normalizeCodeLikeText(answer.text),
     );
 
-    return correct ? correctResult(step.score, step.explanation) : incorrectResult(step.mistakeTag);
+    if (correct) {
+      return correctResult(step.score, step.explanation);
+    }
+    return {
+      correct: false,
+      scoreDelta: 0,
+      feedback: `Resposta esperada: ${step.answers[0]}.`,
+      mistakeTag: step.mistakeTag,
+    };
   }
 
   if (step.kind === 'code' && answer.kind === 'text') {
@@ -50,7 +58,15 @@ export function evaluateStep(step: ChallengeStep, answer: StepAnswer): StepResul
       normalizeCodeLikeText(acceptedAnswer) === normalizeCodeLikeText(answer.text),
     );
 
-    return correct ? correctResult(step.score, step.explanation) : incorrectResult(step.mistakeTag);
+    if (correct) {
+      return correctResult(step.score, step.explanation);
+    }
+    return {
+      correct: false,
+      scoreDelta: 0,
+      feedback: `Resposta esperada: ${step.acceptedAnswers[0]}.`,
+      mistakeTag: step.mistakeTag,
+    };
   }
 
   if (step.kind === 'function' && answer.kind === 'text') {
@@ -112,7 +128,7 @@ export function evaluateStep(step: ChallengeStep, answer: StepAnswer): StepResul
     return {
       correct: false,
       scoreDelta: 0,
-      feedback: `Nao bateu com nenhum dos algoritmos aceitos aqui (${triedNames}). Veja "Me ensine" para comparar com as solucoes aceitas.`,
+      feedback: `Nao bateu com nenhum dos algoritmos aceitos aqui (${triedNames}).`,
       mistakeTag: step.mistakeTag,
     };
   }

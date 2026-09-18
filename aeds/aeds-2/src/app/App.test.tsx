@@ -117,7 +117,7 @@ test('envia erro do simulado para o caderno adaptativo', async () => {
   await user.click(screen.getByRole('button', { name: 'O(n)' }));
   await user.click(screen.getByRole('button', { name: /responder/i }));
 
-  expect(await screen.findByText('Resposta incorreta.')).toBeInTheDocument();
+  expect(await screen.findByText(/Resposta incorreta/)).toBeInTheDocument();
 
   // Caderno de erros mora na dashboard, nao junto do exercicio.
   await user.click(screen.getByRole('button', { name: 'Voltar para a sala de estudo' }));

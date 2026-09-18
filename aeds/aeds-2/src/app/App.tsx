@@ -394,6 +394,10 @@ export function App() {
     const attempt = nextSession.attempts[nextSession.attempts.length - 1] ?? null;
     const nextNotebook = attempt ? applyAttempt(game.notebook, attempt, recoveryTargetId) : game.notebook;
 
+    // Nao auto-abre "Me ensine": a sessao avanca de etapa/questao assim que
+    // responde (certo ou errado), entao a caixa mostraria a solucao da
+    // proxima etapa, nao da que acabou de ser respondida. A recomendada
+    // curta (gap/code) ja vem embutida no proprio feedback (evaluator.ts).
     setLastAttempt(attempt);
     setGame((currentGame) => ({ ...currentGame, session: nextSession, notebook: nextNotebook }));
   }
@@ -407,6 +411,10 @@ export function App() {
     const attempt = nextPracticeSession.attempts[nextPracticeSession.attempts.length - 1] ?? null;
     const nextNotebook = attempt ? applyAttempt(game.notebook, attempt, recoveryTargetId) : game.notebook;
 
+    // Nao auto-abre "Me ensine" aqui: o treino avanca pro proximo drill na
+    // mesma resposta, entao a caixa mostraria a solucao do drill ERRADO
+    // (o novo, nao o que acabou de ser respondido). O feedback com "Faltou:
+    // ..." ja aparece; a recomendada completa fica so um clique atras.
     setLastAttempt(attempt);
     setGame((currentGame) => ({
       ...currentGame,
@@ -446,6 +454,8 @@ export function App() {
         : null;
     const nextNotebook = stepAttempt ? applyAttempt(game.notebook, stepAttempt, recoveryTargetId) : game.notebook;
 
+    // Nao auto-abre "Me ensine" aqui: o feedback de conceitual/desenho ja
+    // embute o gabarito completo (lista2Practice.ts), TeachingBox duplicaria.
     setLastConceptualAttempt(attempt);
     setGame((currentGame) => ({
       ...currentGame,
