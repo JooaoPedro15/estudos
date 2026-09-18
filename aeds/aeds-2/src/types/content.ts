@@ -161,7 +161,34 @@ export type RubricStep = {
   explanation?: string;
 };
 
-export type ChallengeStep = ChoiceStep | GapStep | BlocksStep | FixStep | CodeStep | FunctionStep | RubricStep;
+/** Uma opcao de algoritmo dentro de um FunctionChoiceStep. */
+export type FunctionVariant = {
+  id: string;
+  label: string;
+  signature: string;
+  solution: string;
+  requiredFragments: FunctionRequirement[];
+  forbiddenFragments?: FunctionRequirement[];
+  lineExplanations: FunctionLineExplanation[];
+};
+
+/**
+ * Questao de codigo que aceita MAIS DE UM algoritmo correto (ex.: "ordene
+ * este vetor, escolha o metodo"). O corretor testa a resposta contra cada
+ * variante e aceita se bater com QUALQUER uma delas (nao exige que o aluno
+ * declare antes qual escolheu).
+ */
+export type FunctionChoiceStep = {
+  id: string;
+  kind: 'function-choice';
+  prompt: string;
+  variants: FunctionVariant[];
+  score?: number;
+  explanation?: string;
+  mistakeTag?: MistakeTag;
+};
+
+export type ChallengeStep = ChoiceStep | GapStep | BlocksStep | FixStep | CodeStep | FunctionStep | RubricStep | FunctionChoiceStep;
 
 export type ExamStep = ChallengeStep & {
   skillId: SkillId;

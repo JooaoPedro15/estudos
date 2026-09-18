@@ -2902,6 +2902,60 @@ class Lista {
     }),
   },
   {
+    id: 'code-prova1-lista-flexivel-inserir-ordenado',
+    domainId: 'vetores',
+    moduleId: 'lista',
+    title: 'Lista flexivel: inserir ordenado',
+    source: 'prova1',
+    difficulty: 'avancado',
+    repetitionGroup: 'prova1-lista-flexivel-ordenada',
+    phase: 'repeat',
+    format: 'code-repetition',
+    skillId: 'program',
+    goal: 'Manter uma lista flexivel sempre ordenada, inserindo cada elemento na posicao certa (caminhando com um ponteiro auxiliar).',
+    stem:
+      'Implemente inserirOrdenado(x), que insere x na posicao certa pra manter a lista sempre crescente (a lista comeca vazia ou ja ordenada).',
+    scaffold: `class Celula { int elemento; Celula prox; }
+class Lista {
+  private Celula primeiro, ultimo;
+
+  public void inserirOrdenado(int x) {
+    // implementar
+  }
+}`,
+    visual: visual('list', 'Caminha ate achar o lugar certo', 'anterior para na ultima celula com elemento < x; a nova entra logo depois.', ['cabeca', '2', '5 (anterior para aqui)', 'x=7 (entra aqui)', '9']),
+    step: functionStep({
+      id: 'code-prova1-lista-flexivel-inserir-ordenado-step',
+      prompt: 'Escreva o corpo de inserirOrdenado(x).',
+      signature: 'public void inserirOrdenado(int x)',
+      solution: `public void inserirOrdenado(int x) {
+  Celula nova = new Celula(x);
+  Celula anterior = primeiro;
+  while (anterior.prox != null && anterior.prox.elemento < x) {
+    anterior = anterior.prox;
+  }
+  nova.prox = anterior.prox;
+  anterior.prox = nova;
+  if (nova.prox == null) {
+    ultimo = nova;
+  }
+}`,
+      requiredFragments: [
+        req('walk', 'caminha enquanto o proximo elemento real for menor que x', 'while (anterior.prox != null && anterior.prox.elemento < x)'),
+        req('link-new', 'nova celula aponta pro que vinha depois de anterior', 'nova.prox = anterior.prox;'),
+        req('attach', 'anterior passa a apontar pra nova celula', 'anterior.prox = nova;'),
+        req('fix-ultimo', 'atualiza ultimo se a insercao foi no fim', 'if (nova.prox == null)'),
+      ],
+      lineExplanations: [
+        { code: 'while (anterior.prox != null && anterior.prox.elemento < x)', note: 'Para assim que acha o primeiro elemento >= x (ou chega ao fim da lista) — ali e o lugar certo pra entrar.' },
+        { code: 'if (nova.prox == null)', note: 'Se a nova celula ficou por ultimo, ultimo precisa apontar pra ela.' },
+      ],
+      mistakeTag: 'lost-pointer',
+      explanation:
+        'Comeca em anterior = primeiro (a celula cabeca, nunca sai). Custo Theta(n): no pior caso (x maior que todos), anterior caminha ate o fim da lista.',
+    }),
+  },
+  {
     id: 'code-prova1-lista-flexivel-tamanho',
     domainId: 'vetores',
     moduleId: 'lista',

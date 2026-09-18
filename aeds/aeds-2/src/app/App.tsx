@@ -31,7 +31,7 @@ import {
   getPracticeModules,
   type PracticeModuleId,
 } from '../content/practiceModules';
-import { prova1Blueprint } from '../content/prova1Blueprint';
+import { buildProva1Simulado } from '../content/prova1SimuladoBuilder';
 import { prova2Blueprint } from '../content/prova2Blueprint';
 import { prova3Blueprint } from '../content/prova3Blueprint';
 import { reavaliacaoBlueprint } from '../content/reavaliacaoBlueprint';
@@ -235,11 +235,11 @@ function getProvasTitle(
   return `Treino: ${examTitle}`;
 }
 
-/** Blueprint fixo de referencia de cada prova (3 questoes reais); Reavaliacao usa o simulado dinamico. */
+/**
+ * Blueprint fixo de referencia de Prova 2/3 (3 questoes reais). Prova 1 e
+ * Reavaliacao usam simulado dinamico (buildProva1Simulado / buildSimulado).
+ */
 function getFixedBlueprint(scope: ExamId) {
-  if (scope === 'p1') {
-    return prova1Blueprint;
-  }
   if (scope === 'p2') {
     return prova2Blueprint;
   }
@@ -486,8 +486,8 @@ export function App() {
 
   /**
    * Novo simulado: sorteia uma nova combinacao evitando repetir a anterior.
-   * Na Prova 1 nao ha sorteio ainda (blueprint fixo de 3 questoes-referencia)
-   * — "novo simulado" so reinicia as mesmas 3 questoes.
+   * Prova 2/3 tem blueprint fixo (3 questoes-referencia); Prova 1 e
+   * Reavaliacao sorteiam dinamicamente (buildProva1Simulado / buildSimulado).
    */
   function newSimulado() {
     setLastAttempt(null);
@@ -498,15 +498,19 @@ export function App() {
       if (fixedBlueprint) {
         return { ...currentGame, blueprint: fixedBlueprint, session: createExamSession(fixedBlueprint) };
       }
-      const blueprint = buildSimulado({ previous: currentGame.blueprint });
+      const blueprint =
+        provaScope === 'p1'
+          ? buildProva1Simulado({ previous: currentGame.blueprint })
+          : buildSimulado({ previous: currentGame.blueprint });
       return { ...currentGame, blueprint, session: createExamSession(blueprint) };
     });
   }
 
   /**
-   * Escolhe a prova (Prova 1/2/3/Reavaliacao). Prova 1/2/3 usam blueprint
-   * fixo de referencia (3 questoes reais cada); Reavaliacao usa o simulado
-   * dinamico de sempre.
+   * Escolhe a prova (Prova 1/2/3/Reavaliacao). Prova 2/3 usam blueprint fixo
+   * de referencia (3 questoes reais cada); Prova 1 e Reavaliacao sorteiam
+   * dinamicamente um simulado novo (a nao ser que ja estejam num dinamico
+   * do proprio escopo, pra nao perder progresso so por navegar).
    */
   function selectProvaScope(scope: ExamId) {
     setLastAttempt(null);
@@ -527,13 +531,15 @@ export function App() {
     }
 
     setGame((currentGame) => {
-      const isFixedBlueprint = currentGame.blueprint.id === prova1Blueprint.id
-        || currentGame.blueprint.id === prova2Blueprint.id
-        || currentGame.blueprint.id === prova3Blueprint.id;
-      if (!isFixedBlueprint) {
+      const belongsToScope =
+        scope === 'p1'
+          ? currentGame.blueprint.id.startsWith('prova1-simulado-')
+          : currentGame.blueprint.id === reavaliacaoBlueprint.id ||
+            currentGame.blueprint.id.startsWith('reavaliacao-simulado-');
+      if (belongsToScope) {
         return currentGame;
       }
-      const blueprint = buildSimulado();
+      const blueprint = scope === 'p1' ? buildProva1Simulado() : buildSimulado();
       return { ...currentGame, blueprint, session: createExamSession(blueprint) };
     });
   }
@@ -1707,6 +1713,17 @@ function TeachingBox({ step }: { step: ChallengeStep }) {
           <code>{step.solution}</code>
         </pre>
       )}
+      {step.kind === 'function-choice' &&
+        step.variants.map((variant) => (
+          <div key={variant.id}>
+            <p>
+              <strong>{variant.label}</strong>
+            </p>
+            <pre className="code-scaffold">
+              <code>{variant.solution}</code>
+            </pre>
+          </div>
+        ))}
       {teachingVisual && <StaticStructureCard visual={teachingVisual} />}
       {step.explanation && <p>{step.explanation}</p>}
     </aside>
@@ -1770,6 +1787,13 @@ function getTeachingItems(step: ChallengeStep): Array<{ code: string; note: stri
 
   if (step.kind === 'function') {
     return step.lineExplanations;
+  }
+
+  if (step.kind === 'function-choice') {
+    return step.variants.map((variant) => ({
+      code: variant.label,
+      note: 'Um dos algoritmos aceitos nesta questao — veja a solucao completa abaixo.',
+    }));
   }
 
   if (step.kind === 'blocks') {
@@ -1865,14 +1889,23 @@ function AnswerControl({
     );
   }
 
-  if (step.kind === 'gap' || step.kind === 'code' || step.kind === 'function') {
+  if (step.kind === 'gap' || step.kind === 'code' || step.kind === 'function' || step.kind === 'function-choice') {
+    const isFunctionLike = step.kind === 'function' || step.kind === 'function-choice';
+    const placeholder =
+      step.kind === 'function-choice'
+        ? step.variants.length > 1
+          ? 'Escreva a funcao completa (escolha um dos algoritmos aceitos)'
+          : 'Escreva a funcao completa'
+        : step.kind === 'function'
+          ? 'Escreva a funcao completa'
+          : 'Digite a resposta';
     return (
       <textarea
         aria-label="Resposta"
         className="text-answer"
         onChange={(event) => onText(event.target.value)}
-        placeholder={step.kind === 'function' ? 'Escreva a funcao completa' : 'Digite a resposta'}
-        rows={step.kind === 'function' ? 8 : 4}
+        placeholder={placeholder}
+        rows={isFunctionLike ? 8 : 4}
         value={textAnswer}
       />
     );
@@ -1990,7 +2023,7 @@ function buildAnswer(
     return choiceAnswer ? { kind: 'choice', optionId: choiceAnswer } : undefined;
   }
 
-  if (step.kind === 'gap' || step.kind === 'code' || step.kind === 'function') {
+  if (step.kind === 'gap' || step.kind === 'code' || step.kind === 'function' || step.kind === 'function-choice') {
     return textAnswer.trim() ? { kind: 'text', text: textAnswer } : undefined;
   }
 

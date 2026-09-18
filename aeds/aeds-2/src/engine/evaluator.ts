@@ -85,6 +85,38 @@ export function evaluateStep(step: ChallengeStep, answer: StepAnswer): StepResul
     };
   }
 
+  if (step.kind === 'function-choice' && answer.kind === 'text') {
+    const normalizedAnswer = normalizeCodeLikeText(answer.text);
+
+    const matched = step.variants.find((variant) => {
+      const forbiddenHit = variant.forbiddenFragments?.some((fragment) =>
+        normalizedAnswer.includes(normalizeCodeLikeText(fragment.code)),
+      );
+      if (forbiddenHit) {
+        return false;
+      }
+      return variant.requiredFragments.every((requirement) =>
+        normalizedAnswer.includes(normalizeCodeLikeText(requirement.code)),
+      );
+    });
+
+    if (matched) {
+      return {
+        correct: true,
+        scoreDelta: getStepMaxScore(step),
+        feedback: `Reconhecido como ${matched.label}. ${step.explanation ?? ''}`.trim(),
+      };
+    }
+
+    const triedNames = step.variants.map((variant) => variant.label).join(', ');
+    return {
+      correct: false,
+      scoreDelta: 0,
+      feedback: `Nao bateu com nenhum dos algoritmos aceitos aqui (${triedNames}). Veja "Me ensine" para comparar com as solucoes aceitas.`,
+      mistakeTag: step.mistakeTag,
+    };
+  }
+
   if (step.kind === 'blocks' && answer.kind === 'blocks') {
     const correct =
       step.correctOrder.length === answer.order.length &&
