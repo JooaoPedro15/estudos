@@ -32,13 +32,17 @@ export function functionChoiceStep(step: Omit<FunctionChoiceExamStep, 'kind' | '
   return { kind: 'function-choice', skillId: 'program', ...step };
 }
 
-/** Problema do beecrowd (antigo URI Online Judge). O link abre a pagina de submissao. */
+/**
+ * Problema do beecrowd (antigo URI Online Judge). `url` e a pagina de
+ * submissao (pede login); `statementUrl` e o enunciado original publico.
+ */
 export function beecrowd(problemId: string, name: string, timeLimitSeconds: number): JudgeProblemRef {
   return {
     site: 'beecrowd',
     problemId,
     name,
     url: `https://judge.beecrowd.com/pt/problems/view/${problemId}`,
+    statementUrl: `https://resources.beecrowd.com/repository/UOJ_${problemId}.html`,
     timeLimit: `${timeLimitSeconds}s`,
   };
 }

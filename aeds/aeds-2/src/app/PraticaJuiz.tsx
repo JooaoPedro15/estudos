@@ -21,10 +21,18 @@ export function CabecalhoJuiz({ judge }: { judge: JudgeProblemRef }) {
           limite {judge.timeLimit}
         </span>
       )}
-      <a className="judge-link" href={judge.url} rel="noreferrer" target="_blank">
-        Abrir original
-        <ExternalLink aria-hidden="true" size={14} />
-      </a>
+      <div className="judge-links">
+        <a className="judge-link is-primary" href={judge.statementUrl ?? judge.url} rel="noreferrer" target="_blank">
+          Ver questao original no {judge.site}
+          <ExternalLink aria-hidden="true" size={14} />
+        </a>
+        {judge.statementUrl && (
+          <a className="judge-link" href={judge.url} rel="noreferrer" target="_blank" title="Pede login no beecrowd">
+            Enviar solucao no {judge.site}
+            <ExternalLink aria-hidden="true" size={14} />
+          </a>
+        )}
+      </div>
     </div>
   );
 }

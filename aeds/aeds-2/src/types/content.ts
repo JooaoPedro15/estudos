@@ -322,7 +322,10 @@ export type JudgeProblemRef = {
   problemId: string;
   /** Nome oficial do problema no site. */
   name: string;
+  /** Pagina do problema no juiz (onde se submete; o beecrowd pede login). */
   url: string;
+  /** Enunciado original aberto ao publico, sem login (so o beecrowd separa as duas paginas). */
+  statementUrl?: string;
   /** Limite de tempo do juiz (so beecrowd publica), ex.: "1s". */
   timeLimit?: string;
 };

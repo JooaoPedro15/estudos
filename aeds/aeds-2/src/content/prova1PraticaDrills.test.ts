@@ -35,6 +35,8 @@ test('todo drill pratico e um problema real de juiz, com link e exemplos oficiai
       // Exemplos do beecrowd vem do arquivo gerado a partir do site, nunca digitados a mao.
       expect(drill.samples).toBe(beecrowdSamples[drill.judge.problemId]);
       expect(drill.judge.timeLimit).toMatch(/^\d+s$/);
+      // A pagina do juiz pede login; o enunciado original publico abre direto.
+      expect(drill.judge.statementUrl).toBe(`https://resources.beecrowd.com/repository/UOJ_${drill.judge.problemId}.html`);
     }
   }
 });
