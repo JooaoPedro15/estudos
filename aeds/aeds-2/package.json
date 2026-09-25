@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "test": "vitest run --pool=vmThreads",
     "test:watch": "vitest",
-    "lint": "tsc -b --noEmit"
+    "lint": "tsc -b --noEmit",
+    "verificar:pratica": "vitest run --config corretor/vitest.java.config.ts"
   },
   "dependencies": {
     "katex": "^0.18.7",
