@@ -5,7 +5,9 @@ import {
   ChevronRight,
   ClipboardList,
   Code2,
+  FileCode,
   ListChecks,
+  Play,
   RotateCcw,
   Shapes,
   Shuffle,
@@ -59,6 +61,7 @@ import {
   type ConceptualAttempt,
   type ConceptualPracticeSession,
 } from '../engine/lista2Practice';
+import { resultadoDoVerde, rodarNoCorretor } from '../engine/verde';
 import { clearSavedGame, loadSavedGame, saveGame, type SavedGameState } from '../persistence/save';
 import type {
   BlocksStep,
@@ -77,6 +80,7 @@ import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import type { ActiveMode } from './appTypes';
 import { CategoryBar } from './CategoryBar';
 import { DashboardScreen } from './DashboardScreen';
+import { CabecalhoJuiz, ExemplosOficiais, PainelVerde, type EstadoVerde } from './PraticaJuiz';
 import { ExploreScreen } from './ExploreScreen';
 import { Formula, MathText } from './MathText';
 import {
@@ -289,6 +293,8 @@ export function App() {
   const [choiceAnswer, setChoiceAnswer] = useState('');
   const [conceptualChoiceAnswer, setConceptualChoiceAnswer] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
+  /** Ultima correcao do corretor Verde (prova pratica), amarrada ao drill que foi rodado. */
+  const [verde, setVerde] = useState<(EstadoVerde & { drillId: string }) | null>(null);
   const [blockOrder, setBlockOrder] = useState<string[]>([]);
   const [fixLineIndex, setFixLineIndex] = useState<number | null>(null);
   const [fixId, setFixId] = useState('');
@@ -420,12 +426,35 @@ export function App() {
     setGame((currentGame) => ({ ...currentGame, session: nextSession, notebook: nextNotebook }));
   }
 
-  function submitPracticeAnswer() {
+  /** Compila e roda o codigo do aluno no corretor estilo Verde (sem registrar acerto/erro). */
+  async function runVerde() {
+    if (!currentPracticeDrill) {
+      return null;
+    }
+    const drillId = currentPracticeDrill.id;
+    setVerde({ drillId, carregando: true, resultado: null });
+    const resultado = await rodarNoCorretor(drillId, textAnswer);
+    setVerde({ drillId, carregando: false, resultado });
+    return resultado;
+  }
+
+  async function submitPracticeAnswer() {
     if (!answer || !currentPracticeDrill) {
       return;
     }
 
-    const nextPracticeSession = answerCurrentPracticeStep(practiceDrills, practiceSession, answer);
+    // Prova pratica com casos de teste: quem corrige e o corretor (compila e
+    // executa). Sem corretor disponivel (build estatico, sem JDK), cai no
+    // avaliador de fragmentos de sempre.
+    let externalResult;
+    if (isPraticaMode && currentPracticeDrill.samples?.length) {
+      const resultado = await runVerde();
+      if (resultado && resultado.status !== 'indisponivel') {
+        externalResult = resultadoDoVerde(resultado, currentPracticeDrill.step);
+      }
+    }
+
+    const nextPracticeSession = answerCurrentPracticeStep(practiceDrills, practiceSession, answer, Math.random, externalResult);
     const attempt = nextPracticeSession.attempts[nextPracticeSession.attempts.length - 1] ?? null;
     const nextNotebook = attempt ? applyAttempt(game.notebook, attempt, recoveryTargetId) : game.notebook;
 
@@ -910,9 +939,11 @@ export function App() {
                   onSubmit={submitAnswer}
                   onText={setTextAnswer}
                   onToggleTeaching={() => setShowTeaching((value) => !value)}
+                  onRunVerde={() => void runVerde()}
                   practiceSession={practiceSession}
                   showTeaching={showTeaching}
                   textAnswer={textAnswer}
+                  verdeState={verde && verde.drillId === currentPracticeDrill?.id ? verde : null}
                 />
               )
             ) : teoricaMode === null ? (
@@ -1590,6 +1621,9 @@ type PracticeExperienceProps = {
   onStartMarathon: () => void;
   onToggleTeaching: () => void;
   showTeaching: boolean;
+  /** Corretor Verde: so na prova pratica, para drills com casos de teste. */
+  verdeState?: EstadoVerde | null;
+  onRunVerde?: () => void;
 };
 
 function PracticeExperience({
@@ -1616,6 +1650,8 @@ function PracticeExperience({
   practiceSession,
   showTeaching,
   textAnswer,
+  verdeState,
+  onRunVerde,
 }: PracticeExperienceProps) {
   if (practiceSession.completed || !currentPracticeDrill) {
     return (
@@ -1666,9 +1702,11 @@ function PracticeExperience({
             </div>
           </div>
           <div className="problem-tags"><span>{currentPracticeDrill.phase === 'repeat' ? 'Repeticao' : 'Modificacao'}</span><span>{skillLabels[currentPracticeDrill.step.skillId]}</span></div>
-          <p className="question-stem">
+          {currentPracticeDrill.judge && <CabecalhoJuiz judge={currentPracticeDrill.judge} />}
+          <p className={currentPracticeDrill.samples ? 'question-stem is-judge' : 'question-stem'}>
             <MathText text={currentPracticeDrill.stem} />
           </p>
+          {currentPracticeDrill.samples && <ExemplosOficiais samples={currentPracticeDrill.samples} />}
           <div className="paper-layout">
             <pre className="code-scaffold">
               <code>{currentPracticeDrill.scaffold}</code>
@@ -1699,13 +1737,24 @@ function PracticeExperience({
               onFixLine={onFixLine}
               onResetBlocks={onResetBlocks}
               onText={onText}
+              placeholder={
+                currentPracticeDrill.samples
+                  ? 'Escreva so os metodos pedidos, ou o programa inteiro (como no Verde)'
+                  : undefined
+              }
               step={currentPracticeDrill.step}
               textAnswer={textAnswer}
             />
           </div>
 
           <div className="action-row">
-            <button aria-label="Responder: verificar resposta" className="primary-button" disabled={!answer} onClick={onSubmit} type="button">
+            <button
+              aria-label="Responder: verificar resposta"
+              className="primary-button"
+              disabled={!answer || verdeState?.carregando}
+              onClick={onSubmit}
+              type="button"
+            >
               <CheckCircle2 aria-hidden="true" size={18} />
               Verificar resposta
             </button>
@@ -1718,6 +1767,26 @@ function PracticeExperience({
               Me ensine
             </button>
           </div>
+
+          {onRunVerde && currentPracticeDrill.samples && (
+            <div className="action-row verde-actions">
+              <button
+                className="ghost-button"
+                disabled={!textAnswer.trim() || verdeState?.carregando}
+                onClick={onRunVerde}
+                type="button"
+              >
+                <Play aria-hidden="true" size={18} />
+                Rodar no corretor
+              </button>
+              <button className="ghost-button" onClick={() => onText(currentPracticeDrill.scaffold)} type="button">
+                <FileCode aria-hidden="true" size={18} />
+                Escrever o programa inteiro
+              </button>
+            </div>
+          )}
+
+          {verdeState && <PainelVerde estado={verdeState} />}
 
           {showTeaching && <TeachingBox step={currentPracticeDrill.step} />}
 
@@ -1887,6 +1956,8 @@ type AnswerControlProps = {
   onResetBlocks: () => void;
   onFixLine: (lineIndex: number) => void;
   onFixId: (fixId: string) => void;
+  /** Substitui o texto de ajuda da caixa de codigo (ex.: prova pratica aceita o programa inteiro). */
+  placeholder?: string;
 };
 
 function AnswerControl({
@@ -1900,6 +1971,7 @@ function AnswerControl({
   onFixLine,
   onResetBlocks,
   onText,
+  placeholder: placeholderOverride,
   step,
   textAnswer,
 }: AnswerControlProps) {
@@ -1956,7 +2028,7 @@ function AnswerControl({
         aria-label="Resposta"
         className="text-answer"
         onChange={(event) => onText(event.target.value)}
-        placeholder={placeholder}
+        placeholder={placeholderOverride ?? placeholder}
         rows={isFunctionLike ? 8 : 4}
         value={textAnswer}
       />

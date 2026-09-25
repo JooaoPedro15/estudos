@@ -1,5 +1,5 @@
 import { evaluateStep } from './evaluator';
-import type { CodeDrill, StepAnswer } from '../types/content';
+import type { CodeDrill, StepAnswer, StepResult } from '../types/content';
 import type { PracticeMode, PracticeSession, StepAttempt } from '../types/progress';
 
 type PracticeSessionOptions = {
@@ -49,6 +49,8 @@ export function answerCurrentPracticeStep(
   session: PracticeSession,
   answer: StepAnswer,
   random: () => number = Math.random,
+  /** Correcao feita fora do avaliador de fragmentos (ex.: o corretor Verde, que compila e executa). */
+  externalResult?: StepResult,
 ): PracticeSession {
   const drill = getCurrentPracticeDrill(drills, session);
 
@@ -56,7 +58,7 @@ export function answerCurrentPracticeStep(
     return session;
   }
 
-  const result = evaluateStep(drill.step, answer);
+  const result = externalResult ?? evaluateStep(drill.step, answer);
   const completedCount = session.completedCount + 1;
   const completed = session.mode === 'quick' && completedCount >= (session.targetCount ?? 2);
   const currentDrillOrder = getSessionDrillOrder(drills, session);

@@ -1580,3 +1580,302 @@ h1 {
   color: inherit;
   font-size: 1.05em;
 }
+
+/* ---------- Prova pratica: juiz de origem, exemplos oficiais e corretor Verde ---------- */
+
+.judge-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.judge-site {
+  padding: 2px var(--space-2);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+}
+
+.judge-site-beecrowd {
+  color: var(--warning-ink);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning);
+}
+
+.judge-site-leetcode {
+  color: var(--primary-ink);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary);
+}
+
+.judge-site-codewars {
+  color: var(--danger-ink);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+}
+
+.judge-name {
+  color: var(--ink-muted);
+}
+
+.judge-limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-muted);
+}
+
+.judge-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--accent-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.judge-link:hover {
+  text-decoration: underline;
+}
+
+/* Enunciado de juiz tem paragrafos (Entrada/Saida) separados por linha em branco. */
+.question-stem.is-judge {
+  white-space: pre-line;
+}
+
+.judge-samples {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.judge-sample,
+.verde-io {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+/* Entrada em cima; esperada x obtida lado a lado embaixo. */
+.verde-io > :first-child {
+  grid-column: 1 / -1;
+}
+
+.judge-sample-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.judge-sample pre,
+.verde-io pre,
+.verde-error {
+  max-height: 260px;
+  margin: 0;
+  padding: var(--space-3);
+  overflow: auto;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  white-space: pre;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.verde-actions {
+  margin-top: var(--space-2);
+}
+
+.verde-panel {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.verde-panel h4 {
+  margin: 0;
+}
+
+.verde-loading,
+.verde-warning,
+.verde-compile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-weight: 700;
+}
+
+.verde-loading {
+  color: var(--ink-soft);
+}
+
+.verde-warning {
+  color: var(--warning-ink);
+}
+
+.verde-compile {
+  color: var(--success-ink);
+}
+
+.verde-compile.is-error {
+  color: var(--danger-ink);
+}
+
+.verde-error {
+  color: var(--danger-ink);
+  white-space: pre-wrap;
+}
+
+.verde-hint {
+  margin: 0;
+  color: var(--warning-ink);
+  font-size: var(--text-sm);
+}
+
+.spin {
+  animation: verde-spin 0.9s linear infinite;
+}
+
+@keyframes verde-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.verde-scores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.verde-score {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.verde-score strong {
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+}
+
+.verde-score-title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.verde-score.is-ok {
+  color: var(--success-ink);
+  background: var(--success-soft);
+  border: 1px solid var(--success);
+}
+
+.verde-score.is-parcial {
+  color: var(--warning-ink);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning);
+}
+
+.verde-score.is-zero {
+  color: var(--danger-ink);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+}
+
+.verde-cases {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.verde-case {
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.verde-case[open] {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.verde-case summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.verde-case.is-correto summary,
+.verde-private .is-correto {
+  color: var(--success-ink);
+}
+
+.verde-case.is-errado summary,
+.verde-case.is-erro-execucao summary,
+.verde-private .is-errado,
+.verde-private .is-erro-execucao {
+  color: var(--danger-ink);
+}
+
+.verde-case.is-tempo-excedido summary,
+.verde-private .is-tempo-excedido {
+  color: var(--warning-ink);
+}
+
+.verde-case-meta {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.verde-private {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.verde-private li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+}
+
+@media (max-width: 780px) {
+  .judge-sample,
+  .verde-io {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .judge-link {
+    margin-left: 0;
+  }
+}
