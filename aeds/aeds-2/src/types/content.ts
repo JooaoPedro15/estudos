@@ -313,6 +313,26 @@ export type OldExamRef = {
   questionLabel: string;
 };
 
+export type JudgeSite = 'beecrowd' | 'LeetCode' | 'Codewars';
+
+/** Problema real de juiz online que um drill de prova pratica reproduz. */
+export type JudgeProblemRef = {
+  site: JudgeSite;
+  /** Numero/slug do problema no site (ex.: "1068", "20", "josephus-permutation"). */
+  problemId: string;
+  /** Nome oficial do problema no site. */
+  name: string;
+  url: string;
+  /** Limite de tempo do juiz (so beecrowd publica), ex.: "1s". */
+  timeLimit?: string;
+};
+
+/** Exemplo oficial de entrada/saida, copiado caractere a caractere do juiz. */
+export type ProblemSample = {
+  input: string;
+  output: string;
+};
+
 export type CodeDrill = {
   id: string;
   domainId: DomainId;
@@ -331,4 +351,8 @@ export type CodeDrill = {
   step: ExamStep;
   /** Presente so quando o drill reproduz uma questao real de prova fotografada. */
   oldExam?: OldExamRef;
+  /** Presente quando o drill reproduz um problema real de juiz online (prova pratica). */
+  judge?: JudgeProblemRef;
+  /** Exemplos oficiais do problema, exibidos como no juiz (entrada | saida). */
+  samples?: ProblemSample[];
 };
