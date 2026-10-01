@@ -2134,3 +2134,17 @@ tbody tr:last-child td {
   stroke: var(--nao);
   stroke-width: 1.4;
 }
+
+/* sem ligaduras: "<=" do sklearn tem que aparecer como no notebook */
+code,
+pre,
+.codigo,
+.sk-texto,
+.sk-linha,
+.sk-teste,
+.no-home,
+.dg-mono,
+input {
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0, 'calt' 0;
+}
