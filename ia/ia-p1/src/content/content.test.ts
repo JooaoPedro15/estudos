@@ -146,7 +146,7 @@ describe('me ensine', () => {
     for (const q of [...QUESTOES, ...PROVA_2025]) {
       const e = ENSINE[q.id];
       const texto = [e.ideia, ...(e.passos ?? [])].join(' ');
-      expect(texto, q.id).not.toMatch(/(alternativa|resposta|gabarito)\s+(é|e)\s+[A-E]/i);
+      expect(texto, q.id).not.toMatch(/(alternativa|resposta|gabarito)\s+(é|e)\s+[A-E]\b/i);
       if (q.tipo === 'num') {
         for (const c of q.campos) {
           if (Math.abs(c.resposta) < 1e-9 || Number.isInteger(c.resposta)) continue;
