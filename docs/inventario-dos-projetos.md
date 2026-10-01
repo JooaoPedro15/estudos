@@ -1,6 +1,6 @@
 # Inventario dos Modulos
 
-Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-09-11.
+Inventario tecnico dos modulos do repositorio. Ultima atualizacao: 2026-10-01.
 
 ---
 
@@ -117,6 +117,46 @@ Abrir `mips-datapath-quest.html` no navegador.
 ### Documentacao
 
 - `arquitetura-computadores/README.md`
+
+---
+
+## Modulo 4: IA P1
+
+| Campo | Valor |
+| --- | --- |
+| Nome | IA P1 |
+| Pasta | `ia/ia-p1/` |
+| Materia | Inteligencia Artificial |
+| Tecnologia | React, TypeScript, Vite, Vitest, KaTeX (saida MathML) |
+| Estado | Modulo interativo atual |
+
+### Objetivo
+
+Estudo para a primeira prova de IA (05/10/2026) usando so o material da
+disciplina: 7 modulos com resumo, formulas, exemplo resolvido, pegadinhas e
+questoes (fechadas e abertas-fechadas com correcao por campo), caderno de
+erros, simulado da prova de 2025 e ferramentas de calculo. Sem gamificacao.
+
+### Comandos
+
+Dentro de `ia/ia-p1/`:
+
+| Acao | Comando |
+| --- | --- |
+| Instalar | `npm install` |
+| Desenvolvimento | `npm run dev` |
+| Testes | `npm test` |
+| Type-check | `npm run lint` |
+| Build (arquivo unico) | `npm run build` |
+
+### Documentacao
+
+- `ia/ia-p1/README.md`
+- `ia/ia-p1/docs/fontes-e-decisoes.md`
+
+### Materiais relacionados
+
+- `D:\CC\IA` (fora do repositorio): slides, notebooks, prova de 2025, listas, CSVs e planilha do teste t
 
 ---
 
