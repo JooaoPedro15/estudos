@@ -76,6 +76,24 @@ describe('estrutura do conteudo', () => {
     }
   });
 
+  it('numeros escritos a mao no "porque" de cada campo batem com o gabarito calculado', () => {
+    const problemas: string[] = [];
+    for (const q of QUESTOES) {
+      if (q.tipo !== 'num') continue;
+      for (const c of q.campos) {
+        const numeros = [...c.porque.matchAll(/-?\d+(?:,\d+)?/g)].map((m) => m[0]);
+        for (const bruto of numeros) {
+          const casas = bruto.includes(',') ? bruto.split(',')[1].length : 0;
+          const valor = Number(bruto.replace(',', '.'));
+          const perto = Math.abs(valor - c.resposta) < 0.01;
+          const arredondaCerto = Math.abs(valor - c.resposta) <= 0.5 * 10 ** -casas + 1e-9;
+          if (casas >= 2 && perto && !arredondaCerto) problemas.push(`${q.id}/${c.id}: ${bruto} x ${c.resposta}`);
+        }
+      }
+    }
+    expect(problemas).toEqual([]);
+  });
+
   it('a maioria das questoes e fechada, como na prova', () => {
     const mc = QUESTOES.filter((q) => q.tipo === 'mc').length;
     expect(mc / QUESTOES.length).toBeGreaterThan(0.55);

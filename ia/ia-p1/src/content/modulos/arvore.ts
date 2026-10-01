@@ -322,8 +322,8 @@ export const questoesArvore: Questao[] = [
       { id: 'es', rotulo: 'E(S)', resposta: entropia([7, 5]), porque: '−(7/12)log₂(7/12) − (5/12)log₂(5/12) = 0,9799.' },
       { id: 'efez', rotulo: 'E(Fez)', resposta: entropia([6, 1]), porque: '−(6/7)log₂(6/7) − (1/7)log₂(1/7) = 0,5917.' },
       { id: 'enao', rotulo: 'E(Não fez)', resposta: entropia([1, 4]), porque: '−(1/5)log₂(1/5) − (4/5)log₂(4/5) = 0,7219.' },
-      { id: 'pond', rotulo: 'Ponderada', resposta: entropiaPonderada(LISTAS), porque: '7/12 · 0,5917 + 5/12 · 0,7219 = 0,6460. Pesos pelo tamanho de cada ramo, não 1/2.' },
-      { id: 'ganho', rotulo: 'Ganho', resposta: ganhoInformacao(LISTAS), porque: '0,9799 − 0,6460 = 0,3339. É a entropia da classe menos a ponderada.' },
+      { id: 'pond', rotulo: 'Ponderada', resposta: entropiaPonderada(LISTAS), porque: '7/12 · 0,5917 + 5/12 · 0,7219 = 0,6459. Pesos pelo tamanho de cada ramo, não 1/2.' },
+      { id: 'ganho', rotulo: 'Ganho', resposta: ganhoInformacao(LISTAS), porque: '0,9799 − 0,6459 = 0,3339. É a entropia da classe menos a ponderada.' },
     ],
     resolucao: [
       formula(String.raw`E(S) = -\tfrac{7}{12}\log_2\tfrac{7}{12} - \tfrac{5}{12}\log_2\tfrac{5}{12} = ${n(entropia([7, 5]))}`),
