@@ -5,6 +5,7 @@ import type { Campo, QuestaoMC, QuestaoNum, Questao } from '../content/types';
 import { dentroDaTolerancia, fmt, lerNumero } from '../engine/calc';
 import { useEstudo } from '../state/EstudoContext';
 import { Blocos, Fontes } from './Blocos';
+import { MeEnsine } from './MeEnsine';
 import { RichText } from './RichText';
 
 export const LETRAS = ['A', 'B', 'C', 'D', 'E'];
@@ -42,8 +43,18 @@ function Fechada({ questao, onRespondida }: { questao: QuestaoMC; onRespondida?:
   const [marcada, setMarcada] = useState<number | null>(null);
   const [corrigida, setCorrigida] = useState(false);
   const [retorno, setRetorno] = useState<Retorno>({ saiu: false, entrou: false });
+  const [desistiu, setDesistiu] = useState(false);
   const nome = useId();
-  const correta = marcada === questao.correta;
+  const correta = !desistiu && marcada === questao.correta;
+
+  const desistir = () => {
+    if (corrigida) return;
+    const r = responder(questao.id, false, 'abriu a resolução');
+    setRetorno({ saiu: r.saiuDoCaderno, entrou: r.entrouNoCaderno });
+    setDesistiu(true);
+    setCorrigida(true);
+    onRespondida?.(false);
+  };
 
   const confirmar = () => {
     if (marcada === null || corrigida) return;
@@ -67,6 +78,7 @@ function Fechada({ questao, onRespondida }: { questao: QuestaoMC; onRespondida?:
 
   return (
     <>
+      <MeEnsine questaoId={questao.id} respondida={corrigida} onDesistir={desistir} />
       <fieldset className="opcoes" disabled={corrigida}>
         <legend className="sr-only">Alternativas</legend>
         {questao.opcoes.map((op, i) => {
@@ -97,7 +109,7 @@ function Fechada({ questao, onRespondida }: { questao: QuestaoMC; onRespondida?:
         <div className={`feedback ${correta ? 'feedback-ok' : 'feedback-erro'}`} role="status">
           <p className="feedback-titulo">
             {correta ? <Check size={18} aria-hidden="true" /> : <X size={18} aria-hidden="true" />}
-            {correta ? 'Certo.' : `Resposta certa: ${LETRAS[questao.correta]}.`}
+            {correta ? 'Certo.' : desistiu ? `Resolução aberta. Resposta certa: ${LETRAS[questao.correta]}.` : `Resposta certa: ${LETRAS[questao.correta]}.`}
           </p>
           <Blocos blocos={questao.explicacao} />
           <AvisoCaderno correta={correta} retorno={retorno} />
@@ -153,7 +165,7 @@ function CampoInput({
       {corrigido && !estado?.ok && (
         <p className="campo-porque">
           Esperado {fmt(campo.resposta, 4)}
-          {estado?.lido === null ? ' (não entendi o número digitado)' : ''}. <RichText texto={campo.porque} />
+          {estado?.lido === null && estado.valor.trim() !== '' ? ' (não entendi o número digitado)' : ''}. <RichText texto={campo.porque} />
         </p>
       )}
     </div>
@@ -165,11 +177,12 @@ function Aberta({ questao, onRespondida }: { questao: QuestaoNum; onRespondida?:
   const [valores, setValores] = useState<Record<string, string>>({});
   const [estados, setEstados] = useState<Record<string, EstadoCampo> | null>(null);
   const [retorno, setRetorno] = useState<Retorno>({ saiu: false, entrou: false });
+  const [desistiu, setDesistiu] = useState(false);
   const campos = useMemo(() => new Map(questao.campos.map((c) => [c.id, c])), [questao]);
   const corrigido = estados !== null;
   const preenchidos = questao.campos.filter((c) => (valores[c.id] ?? '').trim() !== '').length;
   const acertos = estados ? Object.values(estados).filter((e) => e.ok).length : 0;
-  const tudoCerto = estados !== null && acertos === questao.campos.length;
+  const tudoCerto = !desistiu && estados !== null && acertos === questao.campos.length;
 
   const corrigir = () => {
     const novos: Record<string, EstadoCampo> = {};
@@ -179,6 +192,17 @@ function Aberta({ questao, onRespondida }: { questao: QuestaoNum; onRespondida?:
     setRetorno({ saiu: r.saiuDoCaderno, entrou: r.entrouNoCaderno });
     setEstados(novos);
     onRespondida?.(certo);
+  };
+
+  const desistir = () => {
+    if (corrigido) return;
+    const novos: Record<string, EstadoCampo> = {};
+    for (const c of questao.campos) novos[c.id] = avaliar(c, valores[c.id] ?? '');
+    const r = responder(questao.id, false, 'abriu a resolução');
+    setRetorno({ saiu: r.saiuDoCaderno, entrou: r.entrouNoCaderno });
+    setDesistiu(true);
+    setEstados(novos);
+    onRespondida?.(false);
   };
 
   const input = (id: string, rotuloVisivel: boolean) => {
@@ -197,6 +221,7 @@ function Aberta({ questao, onRespondida }: { questao: QuestaoNum; onRespondida?:
 
   return (
     <>
+      <MeEnsine questaoId={questao.id} respondida={corrigido} onDesistir={desistir} />
       <form
         className="aberta"
         onSubmit={(e) => {
@@ -249,7 +274,11 @@ function Aberta({ questao, onRespondida }: { questao: QuestaoNum; onRespondida?:
         <div className={`feedback ${tudoCerto ? 'feedback-ok' : 'feedback-erro'}`} role="status">
           <p className="feedback-titulo">
             {tudoCerto ? <Check size={18} aria-hidden="true" /> : <X size={18} aria-hidden="true" />}
-            {tudoCerto ? 'Todos os campos certos.' : `${acertos} de ${questao.campos.length} campos certos. Os errados estão marcados acima, com o porquê.`}
+            {tudoCerto
+              ? 'Todos os campos certos.'
+              : desistiu
+                ? 'Resolução aberta. Os valores esperados estão em cada campo acima.'
+                : `${acertos} de ${questao.campos.length} campos certos. Os errados estão marcados acima, com o porquê.`}
           </p>
           <h4 className="resolucao-titulo">Resolução passo a passo</h4>
           <Blocos blocos={questao.resolucao} />

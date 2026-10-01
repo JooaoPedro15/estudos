@@ -2205,3 +2205,114 @@ input {
     padding: 7px 8px;
   }
 }
+
+/* ------------------------------------------------------- me ensine */
+
+.me-ensine {
+  display: grid;
+  gap: 10px;
+}
+
+.btn-ensine {
+  justify-self: start;
+  min-height: 38px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  border-color: var(--sim-line);
+  background: var(--sim-soft);
+  color: var(--sim-ink);
+}
+
+.btn-ensine:hover:not(:disabled) {
+  background: rgb(57 157 229 / 24%);
+}
+
+.ensine-painel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--sim-line);
+  background: linear-gradient(180deg, rgb(57 157 229 / 8%), transparent 70%), var(--bg-2);
+  animation: entrar var(--dur-med) var(--ease-out);
+}
+
+.ensine-painel > * {
+  min-width: 0;
+}
+
+.ensine-bloco {
+  display: grid;
+  gap: 8px;
+}
+
+.ensine-bloco > * {
+  min-width: 0;
+}
+
+.ensine-bloco h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-md);
+  color: var(--sim-ink);
+}
+
+.ensine-passos {
+  margin: 0;
+  padding-left: 1.3em;
+  display: grid;
+  gap: 6px;
+}
+
+.ensine-passos li::marker {
+  color: var(--sim-ink);
+  font-weight: 700;
+}
+
+.ensine-formulas {
+  display: grid;
+  gap: 8px;
+}
+
+.ensine-secao {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.ensine-secao summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.ensine-modulo {
+  font-weight: 400;
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+}
+
+.ensine-secao-corpo {
+  display: grid;
+  gap: 12px;
+  padding: 4px 12px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.ensine-secao-corpo > * {
+  min-width: 0;
+}
+
+.ensine-desistir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-strong);
+}
