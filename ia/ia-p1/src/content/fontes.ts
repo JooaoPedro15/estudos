@@ -1,0 +1,42 @@
+import type { Fonte } from './types';
+
+/** Nomes exatos dos arquivos do material (pasta D:\CC\IA). "slide N" = pagina N do PDF. */
+export const ARQ = {
+  introIA: 'Introdução à Inteligência Artificial.pdf',
+  introAM: 'Introdução a aprendizado de Máquina.pdf',
+  kdd: 'Introdução a KDD.pdf',
+  passado: 'IA - passado - presente e futuro - 2024.pdf',
+  ad1: 'Parte 1 - Algoritmos de Indução de Árvore - Introdução geral a AD.pdf',
+  ad2: 'Parte 2 - Algoritmos de Indução de Árvore - Como gerar - entendimento geral.pdf',
+  ad3: 'Parte 3 - Algoritmos de Indução de Árvore - Como gerar - como calcular.pdf',
+  ad4: 'Parte 4 - Algoritmos de Indução de Árvore - Vantagens e desvantagens.pdf',
+  ad5: 'Parte 5 - Algoritmos de Indução de Árvore - métricas de avaliação.pdf',
+  bal: 'Parte 1 - Processsamento - Balanceamento.pdf',
+  aus: 'Parte 2 - Processamento - Dados ausentes.pdf',
+  inc: 'Parte 3 - Processamento - Dados inconsistentes e redundantes.pdf',
+  conv: 'Parte 4 - Processamento - Conversão simbólica-numérica.pdf',
+  ens: 'Métodos Ensemble.pdf',
+  nb: 'Naïve Bayes.pdf',
+  ra: 'Parte 1 - Regras de associação.pdf',
+  apr: 'Parte 2 - Algoritmo Apriori.pdf',
+  prova: 'Primeira Prova_IA_1o2025 Coreu.pdf',
+  csvSimNao: 'PãoeManteiga SimNao.csv',
+  csvSim: 'PãoeManteiga Sim.csv',
+  testeT: 'Teste T - AD e RF.xlsx',
+  lista2: 'Lista 2 - IA - 2o2026.pdf',
+  nbRest: 'AD_Restaurante_codifica_treina_e_avalia.ipynb',
+  nbApriori: 'Apriori.ipynb',
+  nbBagging: 'Bagging.ipynb',
+  nbCodifica: 'Codifica imputa e balanceia.ipynb',
+  nbCV: 'CrossValidationAD_RF.ipynb',
+  nbGrid: 'DecisionTree_com_gridsearch.ipynb',
+  nbIC: 'Intervalo_de_confiança.ipynb',
+  nbKmeans: 'Kmeans.ipynb',
+  nbIris: 'Lendo_e_tratando_arquivo_IRIS.ipynb',
+  nbNB: 'NaiveBayes.ipynb',
+  nbRF: 'Random_Forest.ipynb',
+  nbRNA: 'RNA.ipynb',
+  nbPresos: 'validacao_cruzada_presos.ipynb',
+} as const;
+
+export const f = (arquivo: keyof typeof ARQ, onde: string): Fonte => ({ arquivo: ARQ[arquivo], onde });
