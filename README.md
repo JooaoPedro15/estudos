@@ -1,4 +1,4 @@
-﻿# Plataforma Interativa de Estudos
+# Plataforma Interativa de Estudos
 
 Repositorio unico com modulos educacionais interativos criados para visualizacao,
 pratica e revisao de conteudos academicos. Cada modulo e independente: tem sua
@@ -19,6 +19,8 @@ propria pasta, dependencias, testes e comandos.
     materiais/
     docs/
     work/
+  ia/                           Materia Inteligencia Artificial
+    ia-p1/                      Modulo de estudo da primeira prova
   Grafos/                       Materia Teoria dos Grafos (modulo na propria raiz)
     src/                        Modulo interativo de Grafos (React + Vite)
     Materiais/                  Materiais academicos versionados
@@ -31,6 +33,7 @@ propria pasta, dependencias, testes e comandos.
 | --- | --- | --- | --- |
 | AEDS II | AEDS II | Modulo interativo atual | [`aeds/aeds-2/`](aeds/aeds-2/) |
 | Grafos | Teoria dos Grafos | Modulo interativo atual | [`Grafos/`](Grafos/) |
+| IA P1 | Inteligencia Artificial | Modulo interativo atual | [`ia/ia-p1/`](ia/ia-p1/) |
 | Modulo Interativo de Arquitetura de Computadores | Arquitetura II | Preservado | [`arquitetura-computadores/datapath-quest/`](arquitetura-computadores/datapath-quest/) |
 
 ## Materiais da disciplina
@@ -78,6 +81,17 @@ npm run lint
 npm run build
 ```
 
+## Como executar o modulo de IA
+
+```bash
+cd ia/ia-p1
+npm install
+npm run dev
+```
+
+`npm run build` gera `dist/index.html` com tudo embutido, que abre direto do
+arquivo (inclusive no celular). Tambem existem `npm test` e `npm run lint`.
+
 ## Documentacao
 
 - [Organizacao do repositorio](docs/organizacao-do-repositorio.md)
@@ -85,3 +99,5 @@ npm run build
 - [README da materia AEDS](aeds/README.md)
 - [README do modulo de AEDS](aeds/aeds-2/README.md)
 - [README do modulo de Grafos](Grafos/README.md)
+- [README da materia IA](ia/README.md)
+- [README do modulo IA P1](ia/ia-p1/README.md)
