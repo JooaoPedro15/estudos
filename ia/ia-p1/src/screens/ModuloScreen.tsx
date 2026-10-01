@@ -146,7 +146,9 @@ function ListaQuestoes({ m, questoes }: { m: Modulo; questoes: Questao[] }) {
               <a href={link(`/treino/${m.id}/${q.id}`)} className={`item-questao item-${estado}`}>
                 <span className="item-num">{i + 1}</span>
                 <span className="item-texto">
-                  <RichText texto={resumoEnunciado(q)} />
+                  <span>
+                    <RichText texto={resumoEnunciado(q)} />
+                  </span>
                   <span className="item-meta">
                     {q.tipo === 'mc' ? 'Fechada' : 'Aberta-fechada'}, nível {q.nivel}
                     {noCaderno ? ', no caderno de erros' : ''}

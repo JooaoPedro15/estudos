@@ -66,10 +66,12 @@ export function Caderno() {
                       <span className="item-num">{item.vezes}x</span>
                       <span className="item-texto">
                         {daProva.has(q.id) && <span className="selo selo-prova">Prova 2025</span>}
-                        <RichText texto={resumoEnunciado(q)} />
+                        <span>
+                          <RichText texto={resumoEnunciado(q)} />
+                        </span>
                         <span className="item-meta">
                           Errou {item.vezes === 1 ? 'uma vez' : `${item.vezes} vezes`}, a última em {quando(item.quando)}
-                          {item.ultimaResposta ? `; marcou ${item.ultimaResposta}` : ''}
+                          {item.ultimaResposta ? `; última resposta: ${item.ultimaResposta}` : ''}
                         </span>
                       </span>
                       <span className="item-estado">
