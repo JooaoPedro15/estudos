@@ -1,4 +1,5 @@
 import { ARVORE_PROVA_TENIS, ARVORE_RESTAURANTE, folhas, profundidade } from './arvores';
+import { ENSINE } from './ensine';
 import { ARQ } from './fontes';
 import { MODULOS, QUESTOES } from './index';
 import { votoDeTres } from './modulos/ensemble';
@@ -122,6 +123,38 @@ describe('estrutura do conteudo', () => {
       }
     });
     textos.forEach((t) => expect(emoji.test(t), t).toBe(false));
+  });
+});
+
+describe('me ensine', () => {
+  it('toda questao (modulos e prova 2025) tem Me ensine com secoes e formulas que existem', () => {
+    const secoes = new Set(MODULOS.flatMap((m) => m.resumo.map((s) => `${m.id}/${s.id}`)));
+    const formulas = new Set(MODULOS.flatMap((m) => m.formulas.map((fo) => `${m.id}/${fo.nome}`)));
+    for (const q of [...QUESTOES, ...PROVA_2025]) {
+      const e = ENSINE[q.id];
+      expect(e, q.id).toBeDefined();
+      expect(e.ideia.length, q.id).toBeGreaterThan(30);
+      expect(e.rever.length, q.id).toBeGreaterThan(0);
+      e.rever.forEach((r) => expect(secoes.has(r), `${q.id}: ${r}`).toBe(true));
+      (e.formulas ?? []).forEach((r) => expect(formulas.has(r), `${q.id}: ${r}`).toBe(true));
+    }
+    const ids = new Set([...QUESTOES, ...PROVA_2025].map((q) => q.id));
+    Object.keys(ENSINE).forEach((id) => expect(ids.has(id), `Me ensine sem questao: ${id}`).toBe(true));
+  });
+
+  it('o Me ensine nao entrega a letra nem o numero do gabarito', () => {
+    for (const q of [...QUESTOES, ...PROVA_2025]) {
+      const e = ENSINE[q.id];
+      const texto = [e.ideia, ...(e.passos ?? [])].join(' ');
+      expect(texto, q.id).not.toMatch(/(alternativa|resposta|gabarito)\s+(é|e)\s+[A-E]/i);
+      if (q.tipo === 'num') {
+        for (const c of q.campos) {
+          if (Math.abs(c.resposta) < 1e-9 || Number.isInteger(c.resposta)) continue;
+          const alvo = c.resposta.toFixed(2).replace('.', ',');
+          expect(texto.includes(alvo), `${q.id}/${c.id} entrega ${alvo}`).toBe(false);
+        }
+      }
+    }
   });
 });
 
