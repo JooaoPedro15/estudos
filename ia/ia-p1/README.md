@@ -20,6 +20,10 @@ O que não está no material aparece marcado como "Fora do material".
 - **86 questões**: fechadas no estilo da professora (afirmações I/II/III) e
   abertas-fechadas, em que você completa campos ou uma tabela e a página corrige
   com tolerância de ±0,01, aponta o campo errado e mostra a resolução.
+- **Me ensine** em toda questão (inclusive as da prova de 2025 refeitas pelo
+  caderno): o que a questão cobra e como atacar sem dar a resposta, passos do
+  método nas contas, fórmulas do módulo e as seções do resumo abertas ali
+  mesmo. Quem desiste vê a resolução, e a questão conta como errada.
 - **Caderno de erros**: toda questão errada (inclusive do simulado) fica salva
   no navegador e pode ser refeita sozinha; sai do caderno quando você acerta.
 - **Simulado da prova de 2025** com cronômetro, correção e revisão. A Q9 é
