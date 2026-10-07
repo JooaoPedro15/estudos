@@ -5,6 +5,7 @@ import { isomorfismoDefinitions } from './isomorfismo';
 import { buscaConectividadeDefinitions } from './busca-conectividade';
 import { logicaDefinitions } from './logica';
 import { conjuntosDefinitions } from './conjuntos';
+import { p2Definitions } from './p2';
 import { PREREQUISITES } from './prerequisites';
 
 /**
@@ -18,4 +19,5 @@ export const definitionQuestions: DefinitionQuestion[] = [
   ...buscaConectividadeDefinitions,
   ...conjuntosDefinitions,
   ...logicaDefinitions,
+  ...p2Definitions,
 ].map((d) => ({ ...d, prerequisites: (PREREQUISITES[d.id.slice('def-'.length)] ?? []).map((p) => `def-${p}`) }));

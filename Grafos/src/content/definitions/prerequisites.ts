@@ -139,6 +139,37 @@ export const PREREQUISITES: Record<string, string[]> = {
   'funcao-bijetora': ['funcao-injetora', 'funcao-sobrejetora'],
   'funcao-inversa': ['funcao-bijetora'],
   'composicao-de-funcoes': ['funcao', 'dominio-contradominio-imagem'],
+
+  // P2 — Euler e Hamilton
+  'caminho-euleriano': ['trail', 'grau'],
+  'circuito-euleriano': ['caminho-euleriano', 'caminho-aberto-fechado'],
+  ponte: ['grafo-conexo', 'remocao-de-aresta'],
+  fleury: ['caminho-euleriano', 'ponte', 'teorema-grau-impar'],
+  'caminho-hamiltoniano': ['path'],
+  // P2 — Árvores e cortes
+  arvore: ['grafo-conexo', 'cycle'],
+  floresta: ['arvore'],
+  folha: ['arvore', 'grau'],
+  'arvore-geradora': ['arvore', 'subgrafo'],
+  'ramo-corda': ['arvore-geradora'],
+  'posto-nulidade': ['ramo-corda', 'floresta'],
+  corte: ['grafo-conexo', 'remocao-de-aresta'],
+  'cut-s': ['corte'],
+  'conectividade-arestas-vertices': ['corte', 'remocao-de-vertice'],
+  articulacao: ['conectividade-arestas-vertices'],
+  agm: ['arvore-geradora', 'grafo-valorado'],
+  'propriedade-corte': ['cut-s', 'agm'],
+  'propriedade-ciclo': ['cycle', 'agm'],
+  prim: ['propriedade-corte'],
+  kruskal: ['agm', 'cycle'],
+  'reverse-delete': ['agm', 'grafo-conexo'],
+  'arvore-steiner': ['arvore', 'subgrafo'],
+  // P2 — Caminhos mínimos
+  'comprimento-caminho': ['path', 'grafo-valorado'],
+  'mapa-lx': ['comprimento-caminho'],
+  dijkstra: ['mapa-lx'],
+  'ciclo-negativo': ['comprimento-caminho', 'cycle'],
+  'bellman-ford': ['ciclo-negativo'],
 };
 
 /** Conceitos que são o ponto de partida absoluto — não têm "antes". */
