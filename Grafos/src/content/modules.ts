@@ -47,9 +47,9 @@ export const modules: Module[] = [
     order: 5,
     title: 'Conectividade e Caminhos Especiais',
     shortTitle: 'Conectividade',
-    description: 'Excentricidade/raio/diâmetro/centro, SCC (Kosaraju), Dijkstra e — com ressalva de escopo — ordenação topológica.',
+    description: 'Excentricidade/raio/diâmetro/centro, SCC (Kosaraju) e — com ressalva de escopo — ordenação topológica.',
     icon: 'route',
-    topicIds: ['excentricidade-raio-diametro', 'scc-kosaraju', 'dijkstra', 'topologica-maior-caminho'],
+    topicIds: ['excentricidade-raio-diametro', 'scc-kosaraju', 'topologica-maior-caminho'],
   },
   {
     id: 'logica-conjuntos',
@@ -91,6 +91,16 @@ export const modules: Module[] = [
     description: 'Árvores e florestas, árvore geradora (ramos, cordas, posto), cortes e conectividade, Prim, Kruskal e Reverse-Delete.',
     icon: 'graph',
     topicIds: ['arvores', 'arvore-geradora', 'cortes', 'agm-prim-kruskal', 'steiner'],
+  },
+  {
+    id: 'p2-caminhos-minimos',
+    exam: 'P2',
+    order: 4,
+    title: 'Caminhos Mínimos',
+    shortTitle: 'Caminhos mínimos',
+    description: 'O problema e o mapa Lx, Dijkstra, Bellman-Ford (pesos negativos) e Floyd-Warshall (todos os pares, pelo livro).',
+    icon: 'route',
+    topicIds: ['caminho-minimo-conceitos', 'dijkstra', 'bellman-ford', 'floyd-warshall'],
   },
 ];
 

@@ -8,6 +8,7 @@ import { logicaConjuntosTopics } from './06-logica-conjuntos';
 import { inducaoTopics } from './07-p2-inducao';
 import { eulerHamiltonTopics } from './08-p2-euler-hamilton';
 import { arvoresAgmTopics } from './09-p2-arvores-agm';
+import { caminhosMinimosTopics } from './10-p2-caminhos-minimos';
 
 export const topics: Topic[] = [
   ...fundamentosTopics,
@@ -19,6 +20,7 @@ export const topics: Topic[] = [
   ...inducaoTopics,
   ...eulerHamiltonTopics,
   ...arvoresAgmTopics,
+  ...caminhosMinimosTopics,
 ];
 
 export function getTopic(id: string): Topic | undefined {

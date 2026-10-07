@@ -1,9 +1,9 @@
 import type { Topic } from '../types';
 
-// dijkstra/topologica-maior-caminho: as provas antigas do professor testam
-// esses temas, mas o cronograma oficial 2026/2 os coloca DEPOIS da Prova 1.
-// Mantidos visíveis com `scopeNote` (ver docs/p1-scope.md "Revisão 3").
-// O euleriano foi para o módulo da P2 (topics/08-p2-euler-hamilton.ts).
+// topologica-maior-caminho: as provas antigas testam o tema, mas o cronograma
+// 2026/2 o coloca depois da Prova 2 (09-12/11, P3). Mantido visível com
+// `scopeNote` (ver docs/p1-scope.md "Revisão 3"). Euleriano e Dijkstra foram
+// para os módulos da P2 (topics/08-p2-euler-hamilton.ts e 10-p2-caminhos-minimos.ts).
 
 export const conectividadeTopics: Topic[] = [
   {
@@ -54,27 +54,6 @@ export const conectividadeTopics: Topic[] = [
       examGuidance: 'Siga a ordem do professor: DFS em G → transpõe → DFS no transposto, do maior para o menor tempo de término.',
     },
     sources: [{ type: 'professor_support_material', file: 'Resumo Prova 1 Grafos.pdf' }, { type: 'old_exam', file: '2022-1-exam.pdf' }],
-  },
-  {
-    id: 'dijkstra',
-    moduleId: 'conectividade-caminhos',
-    order: 4,
-    slug: 'dijkstra',
-    title: 'Menor caminho — Algoritmo de Dijkstra',
-    examLikelihood: 'medium',
-    examEvidence: 'Não aparece isolado nas 8 provas amostradas, mas está na lista de exercícios oficial e no aulão.',
-    scopeNote:
-      'Conflito de fontes: o cronograma oficial 2026/2 coloca "Caminhos mínimos: Método de Dijkstra" a partir de 30/09 — mais de 2 semanas depois da Prova 1 (14/09). Não há prova antiga que teste isso isoladamente. Mantido por precaução, mas é o tópico com sinal mais fraco de cair na P1 deste semestre — priorize outros primeiro.',
-    whatYouNeedToKnow:
-      'Para grafo ponderado com pesos não-negativos: vetor de distância D (0 para a origem, ∞ para os demais); fila de prioridade; a cada passo, remove o vértice de menor D ainda não processado e relaxa suas arestas de saída.',
-    understand: [
-      'Relaxamento da aresta (u,v) com peso w: se D[u] + w < D[v], atualiza D[v] = D[u] + w e o predecessor de v vira u.',
-      'Falha com pesos NEGATIVOS — nesse caso seria necessário Bellman-Ford (fora do escopo confirmado da P1, mas mencionado como contraste).',
-      'Complexidade: O(V²) com busca linear pelo mínimo, O((V+E)log V) com fila de prioridade (heap).',
-      'Para reconstruir o caminho (não só a distância), é preciso guardar e seguir os predecessores a partir do vértice destino.',
-    ],
-    commonPitfall: 'Esquecer de reconstruir o CAMINHO (lista de vértices/arestas), entregando só a distância numérica quando a questão pede "o caminho".',
-    sources: [{ type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' }, { type: 'professor_support_material', file: 'Lista-de-exercicios-1.pdf' }],
   },
   {
     id: 'topologica-maior-caminho',
