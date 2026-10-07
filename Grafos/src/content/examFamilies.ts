@@ -116,6 +116,65 @@ export const examFamilies: ExamFamily[] = [
     exam: 'P2',
     appearances: ['P1 2023/2-Q4', 'P1 2026/1-Q2'],
   },
+
+  // --- P2: uma prova antiga (2024/1, Prof. Zenilton). Toda família do
+  // cronograma entra com peso 1; quem caiu na prova antiga ganha +1.
+  {
+    id: 'p2-agm',
+    exam: 'P2',
+    concepts: ['def-agm', 'def-prim', 'def-kruskal', 'def-arvore-geradora'],
+    title: 'Modelar com AGM (rodovias, redes) e executar Prim/Kruskal',
+    appearances: ['P2 2024/1-Q1'],
+  },
+  {
+    id: 'p2-caminho-negativo',
+    exam: 'P2',
+    concepts: ['def-bellman-ford', 'def-ciclo-negativo', 'def-comprimento-caminho'],
+    title: 'Caminhos mínimos com pesos negativos a partir de uma origem (tamanho e arestas)',
+    appearances: ['P2 2024/1-Q2'],
+  },
+  {
+    id: 'p2-dijkstra',
+    exam: 'P2',
+    concepts: ['def-dijkstra', 'def-mapa-lx', 'def-comprimento-caminho'],
+    title: 'Dijkstra à mão: ordem de S, distâncias e caminhos (exercícios do slide 10)',
+    appearances: [],
+  },
+  {
+    id: 'p2-floyd',
+    exam: 'P2',
+    concepts: [],
+    title: 'Todos os pares: matrizes D(k) do Floyd-Warshall (pelo livro)',
+    appearances: [],
+  },
+  {
+    id: 'p2-hamilton',
+    exam: 'P2',
+    concepts: ['def-caminho-hamiltoniano', 'def-caminho-euleriano'],
+    title: 'Euler × Hamilton: definição e dificuldade algorítmica',
+    appearances: [],
+  },
+  {
+    id: 'p2-arvores',
+    exam: 'P2',
+    concepts: ['def-arvore', 'def-floresta', 'def-arvore-geradora', 'def-ramo-corda', 'def-posto-nulidade'],
+    title: 'Árvores, florestas, árvore geradora: contagens, posto e nulidade',
+    appearances: [],
+  },
+  {
+    id: 'p2-cortes',
+    exam: 'P2',
+    concepts: ['def-cut-s', 'def-propriedade-corte', 'def-propriedade-ciclo', 'def-conectividade-arestas-vertices'],
+    title: 'Cortes, conectividade e propriedades do corte e do ciclo',
+    appearances: [],
+  },
+  {
+    id: 'p2-inducao',
+    exam: 'P2',
+    concepts: [],
+    title: 'Demonstração por indução',
+    appearances: [],
+  },
 ];
 
 export function getExamFamily(id: string): ExamFamily | undefined {

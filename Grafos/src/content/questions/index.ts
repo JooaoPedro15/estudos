@@ -9,6 +9,7 @@ import { logicaConjuntosQuestions } from './06-logica-conjuntos';
 import { treinoProvaQuestions } from './07-treino-prova';
 import { treinoProvaProofQuestions } from './08-treino-prova-provas';
 import { provasReaisQuestions } from './09-provas-reais';
+import { p2Questions, provaRealP2 } from './10-p2';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 import { conceptExamWeights, examFamilies, examFamiliesFor, examFamilyWeight } from '@/content/examFamilies';
 import { getActiveExam } from '@/store/activeExam';
@@ -24,6 +25,8 @@ export const questions: Question[] = [
   ...treinoProvaQuestions,
   ...treinoProvaProofQuestions,
   ...provasReaisQuestions,
+  ...p2Questions,
+  ...provaRealP2.questions.map((x) => x.question),
   ...definitionQuestions,
   ...closedDefinitionQuestions,
 ].map((q) => (EXAM_ANSWERS[q.id] ? { ...q, examAnswer: EXAM_ANSWERS[q.id] } : q));
