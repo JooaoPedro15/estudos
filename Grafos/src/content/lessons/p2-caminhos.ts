@@ -1,45 +1,20 @@
 import type { GraphData } from '../types';
 import type { AnimationStep, GraphConcept, LessonCatalog } from './types';
 import { GREEN, AMBER, RED } from './builders';
-import { SLIDE_DIJKSTRA, concept, dijkstraSetSteps, edgeIdsOf, placed, step } from './p2';
+import { concept, dijkstraSetSteps, edgeIdsOf, placed, step } from './p2';
+import { SLIDE_DIJKSTRA, FW_EXAMPLE, P2_2024_Q2, SLIDE_FINAL, SLIDE_LX, SLIDE_NEG, SLIDE_NEG_CYCLE, SLIDE_REWEIGHT } from '../questions/graphs-p2';
 import { bellmanFord, bfs, dijkstra, floydWarshall } from '../../lib/graph';
 
 const fmt = (n: number) => (n === Infinity ? '∞' : String(n));
 const colorAll = (ids: string[], color: string) => Object.fromEntries(ids.map((id) => [id, color]));
 
-/** "Illustration: the map Lx" — 10-graphs-shortest-path.pdf, quadro 8. */
-const SLIDE_LX = placed(
-  { x0: [60, 100], x1: [190, 100], x4: [330, 100], x6: [480, 100], x2: [120, 250], x3: [260, 250], x5: [400, 250] },
-  [['x0', 'x1', 3], ['x1', 'x4', 2], ['x4', 'x6', 4], ['x2', 'x1', 2], ['x1', 'x3', 5], ['x4', 'x3', 2], ['x4', 'x5', 1], ['x2', 'x3', 3], ['x5', 'x3', 1], ['x5', 'x6', 2]],
-  true,
-);
 
-/** "Shortest path — an example" — quadro 26 (calcular a partir de e). */
-const SLIDE_FINAL = placed(
-  { e: [60, 110], f: [210, 40], c: [480, 40], g: [190, 160], h: [350, 150], a: [60, 290], b: [270, 250], d: [480, 290] },
-  [['e', 'f', 5], ['e', 'g', 8], ['e', 'a', 9], ['f', 'c', 15], ['f', 'g', 4], ['f', 'h', 12], ['g', 'h', 7], ['g', 'b', 6], ['a', 'g', 5], ['a', 'b', 4], ['a', 'd', 20], ['b', 'h', 1], ['b', 'd', 13], ['h', 'c', 3], ['h', 'd', 11], ['c', 'd', 9]],
-  true,
-);
 
-/** Quadro 22: "Dijkstra — Can fail if negative edge costs". */
-const SLIDE_NEG = placed({ a: [80, 160], b: [280, 60], d: [480, 160], c: [280, 260] }, [['a', 'b', 2], ['a', 'c', 1], ['b', 'd', 3], ['d', 'c', -6]], true);
 
-/** Quadro 22: "Re-weighting — Adding a constant to every edge weight can fail" (pesos antes de somar 3). */
-const SLIDE_REWEIGHT = placed({ a: [70, 160], b: [270, 60], d: [480, 160], c: [200, 270], e: [370, 270] }, [['a', 'b', 2], ['b', 'd', 2], ['a', 'c', 3], ['c', 'e', -3], ['e', 'd', 3]], true);
 const SLIDE_REWEIGHT_PLUS3: GraphData = { ...SLIDE_REWEIGHT, edges: SLIDE_REWEIGHT.edges.map((e) => ({ ...e, weight: (e.weight ?? 0) + 3 })) };
 
-/** Quadro 23: ciclo negativo b → d → c → b. */
-const SLIDE_NEG_CYCLE = placed({ a: [80, 160], b: [280, 60], d: [480, 160], c: [280, 260] }, [['a', 'b', 2], ['a', 'c', 1], ['b', 'd', 3], ['c', 'b', -5], ['d', 'c', -6]], true);
 
-/** P2 2024/1, Q2: matriz D com pesos negativos, origem no vértice 1. */
-const P2_2024_Q2 = placed(
-  { '1': [60, 160], '2': [210, 50], '3': [210, 160], '4': [210, 280], '5': [360, 90], '6': [360, 260], '7': [500, 170] },
-  [['1', '2', 6], ['1', '3', 5], ['1', '4', 5], ['2', '5', -1], ['3', '2', -2], ['3', '5', 1], ['4', '3', -2], ['4', '6', -1], ['5', '7', 3], ['6', '7', 3]],
-  true,
-);
 
-/** Exemplo criado para explicação do Floyd-Warshall (livro): 4 vértices, com uma aresta negativa. */
-const FW_EXAMPLE = placed({ '1': [100, 80], '2': [460, 80], '3': [460, 260], '4': [100, 260] }, [['1', '2', 3], ['2', '3', 2], ['1', '4', 7], ['4', '3', -2], ['3', '1', 4], ['2', '4', 1]], true);
 
 // ---------------------------------------------------------------------------
 // Conceitos gerais

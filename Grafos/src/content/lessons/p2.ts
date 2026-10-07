@@ -2,6 +2,9 @@ import type { GraphData } from '../types';
 import type { AnimationStep, GraphConcept, LessonCatalog } from './types';
 import { BLUE, GREEN, AMBER, RED } from './builders';
 import { bridges, fleury } from '../../lib/graph';
+import { placed, SLIDE_DIJKSTRA, SLIDE_EULER, SLIDE_FLEURY } from '../questions/graphs-p2';
+
+export { placed };
 
 // Lições da P2. Sempre que possível o grafo é o do slide do professor, com as
 // posições aproximadas do desenho, e os números saem do motor (src/lib/graph.ts),
@@ -9,14 +12,6 @@ import { bridges, fleury } from '../../lib/graph';
 
 const gray = 'var(--color-text-tertiary)';
 
-/** Grafo com posições fixas (canvas da lição: 560 × 320). */
-export function placed(coords: Record<string, [number, number]>, edges: Array<[string, string] | [string, string, number]>, directed = false): GraphData {
-  return {
-    directed,
-    vertices: Object.entries(coords).map(([id, [x, y]]) => ({ id, label: id, x, y })),
-    edges: edges.map(([source, target, weight], i) => ({ id: `e${i}`, source, target, weight })),
-  };
-}
 
 export function edgeIdsOf(graph: GraphData, pairs: string[][]): string[] {
   return pairs.flatMap(([from, to]) =>
@@ -38,24 +33,8 @@ const fmt = (n: number) => (n === Infinity ? '∞' : String(n));
 // Grafos dos slides
 // ---------------------------------------------------------------------------
 
-/** "Example of Dijkstra's Algorithm" — 10-graphs-shortest-path.pdf, quadro 16 de 26. */
-export const SLIDE_DIJKSTRA = placed(
-  { a: [70, 165], b: [225, 105], c: [225, 225], d: [380, 40], e: [380, 165], f: [380, 290] },
-  [['a', 'b', 1], ['a', 'e', 4], ['a', 'c', 1], ['b', 'd', 3], ['b', 'e', 1], ['c', 'e', 2], ['c', 'f', 3], ['e', 'd', 1], ['e', 'f', 2]],
-  true,
-);
 
-/** "Eulerian graph" — 08-graphs-traversing.pdf, quadro 24 (caminho e-a-d-c-e-b-f-d). */
-const SLIDE_EULER = placed(
-  { a: [110, 70], b: [360, 70], c: [110, 250], d: [235, 160], e: [235, 40], f: [450, 200] },
-  [['e', 'a'], ['a', 'd'], ['d', 'c'], ['c', 'e'], ['e', 'b'], ['b', 'f'], ['f', 'd']],
-);
 
-/** Fleury — 08-graphs-traversing.pdf, quadro 33 (grafo desenhado abaixo do algoritmo). */
-const SLIDE_FLEURY = placed(
-  { b: [150, 50], f: [300, 80], e: [230, 140], d: [400, 170], a: [140, 230], c: [270, 290] },
-  [['b', 'f'], ['b', 'e'], ['e', 'f'], ['f', 'd'], ['d', 'a'], ['a', 'c'], ['c', 'd']],
-);
 
 // ---------------------------------------------------------------------------
 // Dijkstra passo a passo com o conjunto S (usado na indução e no Dijkstra)

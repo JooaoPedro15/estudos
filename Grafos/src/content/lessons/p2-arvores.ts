@@ -2,6 +2,7 @@ import type { GraphData } from '../types';
 import type { AnimationStep, GraphConcept, LessonCatalog } from './types';
 import { BLUE, GREEN, AMBER, RED } from './builders';
 import { concept, edgeIdsOf, placed, step } from './p2';
+import { P2_2024_Q1, SLIDE_MST, SLIDE_SPANNING } from '../questions/graphs-p2';
 import { connectedComponentCount, cutSet, kruskal, prim, rankAndNullity } from '../../lib/graph';
 
 const gray = 'var(--color-text-tertiary)';
@@ -11,23 +12,8 @@ const pair = (g: GraphData, id: string) => {
   return `${e.source}–${e.target}`;
 };
 
-/** "Example of Prim's / Kruskal's Algorithm" — 11-graphs-trees-spanning-trees.pdf, quadros 16-17. */
-export const SLIDE_MST = placed(
-  { a: [70, 40], b: [274, 130], c: [478, 130], d: [70, 200], e: [370, 210], f: [274, 296], g: [478, 296] },
-  [['a', 'b', 7], ['a', 'd', 5], ['b', 'c', 8], ['b', 'd', 9], ['b', 'e', 7], ['c', 'e', 5], ['d', 'e', 15], ['d', 'f', 6], ['e', 'f', 8], ['e', 'g', 9], ['f', 'g', 11]],
-);
 
-/** Grafo dos quadros 7 e 11 (construção da árvore geradora; posto e nulidade). */
-const SLIDE_SPANNING = placed(
-  { f: [70, 90], b: [190, 50], c: [320, 50], g: [400, 120], a: [210, 160], e: [70, 250], d: [340, 260], h: [480, 260] },
-  [['f', 'a'], ['f', 'e'], ['e', 'a'], ['b', 'a'], ['c', 'a'], ['a', 'g'], ['c', 'g'], ['g', 'd'], ['d', 'h']],
-);
 
-/** P2 2024/1, Q1: custos de construção (milhões) entre 4 cidades. */
-const P2_2024_Q1 = placed(
-  { C1: [120, 70], C2: [440, 70], C3: [120, 260], C4: [440, 260] },
-  [['C1', 'C2', 30], ['C1', 'C3', 20], ['C1', 'C4', 50], ['C2', 'C3', 50], ['C2', 'C4', 10], ['C3', 'C4', 75]],
-);
 
 const without = (g: GraphData, ids: string[]): GraphData => ({ ...g, edges: g.edges.filter((e) => !ids.includes(e.id)) });
 
