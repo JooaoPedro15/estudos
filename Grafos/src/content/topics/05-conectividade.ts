@@ -1,11 +1,9 @@
 import type { Topic } from '../types';
 
-// euleriano/dijkstra/topologica-maior-caminho: as provas antigas do
-// professor testam esses temas, mas o cronograma oficial 2026/2 os coloca
-// DEPOIS da Prova 1 (17/09 em diante — a P1 é 14/09). Sinais conflitantes —
-// ver docs/p1-scope.md "Revisão 3". Por pedido do usuário, mantidos visíveis
-// (não escondidos), com `scopeNote` explicando o conflito em cada um, para
-// ele decidir quanto priorizar em vez do app decidir sozinho.
+// dijkstra/topologica-maior-caminho: as provas antigas do professor testam
+// esses temas, mas o cronograma oficial 2026/2 os coloca DEPOIS da Prova 1.
+// Mantidos visíveis com `scopeNote` (ver docs/p1-scope.md "Revisão 3").
+// O euleriano foi para o módulo da P2 (topics/08-p2-euler-hamilton.ts).
 
 export const conectividadeTopics: Topic[] = [
   {
@@ -56,38 +54,6 @@ export const conectividadeTopics: Topic[] = [
       examGuidance: 'Siga a ordem do professor: DFS em G → transpõe → DFS no transposto, do maior para o menor tempo de término.',
     },
     sources: [{ type: 'professor_support_material', file: 'Resumo Prova 1 Grafos.pdf' }, { type: 'old_exam', file: '2022-1-exam.pdf' }],
-  },
-  {
-    id: 'euleriano',
-    moduleId: 'conectividade-caminhos',
-    order: 3,
-    slug: 'euleriano',
-    title: 'Caminho e circuito euleriano',
-    examLikelihood: 'medium',
-    examEvidence: '2023/2-Q4 (problema narrativo do detetive) e 2026/1-Q2 (25%, pede solução direta) — apareceu em 2 das 8 provas antigas do professor.',
-    scopeNote:
-      'Conflito de fontes: as provas antigas testaram este tema, mas o cronograma oficial 2026/2 coloca "Grafos hamiltonianos e eulerianos" em 17/09 — 3 dias DEPOIS da Prova 1 (14/09). Ou o cronograma muda, ou este ano não cai na P1. Mantido no app por precaução — estude com prioridade menor que os tópicos sem esse conflito.',
-    whatYouNeedToKnow:
-      'Circuito euleriano (fechado, passa por toda aresta exatamente uma vez, volta ao início) existe ⟺ grafo conexo e TODOS os vértices têm grau par. Caminho euleriano (aberto) existe ⟺ grafo conexo e EXATAMENTE 2 vértices têm grau ímpar (o caminho começa em um e termina no outro).',
-    understand: [
-      'Método do professor (aulão): (1) DFS a partir de um vértice de grau ímpar, se existir; (2) priorizar arestas que NÃO desconectam o grafo (evitar pontes/arestas de corte a menos que seja a única opção); (3) parar ao voltar ao início ou não conseguir prosseguir — isso é essencialmente o Algoritmo de Fleury.',
-      'Se todos os graus são pares mas algum vértice tem grau 0 (isolado) e o resto do grafo é conexo, ainda existe circuito euleriano no componente não-trivial — "conexo" aqui refere-se ao componente que contém arestas.',
-      'Grafo com mais de 2 vértices de grau ímpar: NÃO tem caminho nem circuito euleriano.',
-    ],
-    commonPitfall: 'Confundir caminho euleriano (passa por toda ARESTA uma vez) com caminho hamiltoniano (passa por todo VÉRTICE uma vez) — são conceitos diferentes; a P1 do professor Silvio testa apenas euleriano.',
-    conceptConflict: {
-      topic: 'Construção do caminho/circuito euleriano',
-      hasRealDifference: true,
-      professorDefinition: 'DFS a partir de vértice de grau ímpar, priorizando arestas que não desconectam o grafo (evitar pontes).',
-      professorSource: { type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf', note: 'Cita West p.26 para a condição de existência' },
-      alternatives: [
-        { author: 'West', text: 'Prova a condição de existência por indução (Teorema 1.2.26); cita "Tucker\'s Algorithm" só em exercício, sem detalhar.' },
-        { author: 'Sedgewick', text: 'Mesma condição de existência, prova construtiva por indução, sem nomear um algoritmo específico.' },
-      ],
-      differenceExplanation: 'A condição de existência é unânime. O MÉTODO descrito pelo professor (evitar desconectar o grafo a cada passo) é o Algoritmo de Fleury — diferente do Algoritmo de Hierholzer (constrói via pilha/backtracking, sem testar pontes a cada passo), mais comum em implementações de referência e usado internamente neste app para a animação.',
-      examGuidance: 'Na prova, descreva o raciocínio de Fleury (evitar desconectar o grafo, ou seja, evitar arestas de corte, a menos que não haja alternativa) — é o que o professor ensinou em aula.',
-    },
-    sources: [{ type: 'professor_support_material', file: 'Flash Cards Grafos-1.pdf' }, { type: 'old_exam', file: '2023-2-exam.pdf' }],
   },
   {
     id: 'dijkstra',

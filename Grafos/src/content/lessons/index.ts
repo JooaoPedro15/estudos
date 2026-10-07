@@ -3,10 +3,17 @@ import { walkConcepts } from './walks';
 import { foundationsLessons } from './foundations';
 import { algorithmLessons } from './algorithms';
 import { logicLessons } from './logic';
+import { p2ExtraLessons, p2Lessons } from './p2';
 
 export const lessons: LessonCatalog = {
   ...foundationsLessons,
   ...algorithmLessons,
   ...logicLessons,
   'passeios-caminhos-ciclos': walkConcepts,
+  ...p2Lessons,
 };
+
+// Tópicos que já tinham lição recebem os conceitos extras da P2 no fim.
+for (const [topicId, extra] of Object.entries(p2ExtraLessons)) {
+  lessons[topicId] = [...(lessons[topicId] ?? []), ...extra];
+}

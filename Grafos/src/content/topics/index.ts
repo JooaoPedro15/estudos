@@ -5,6 +5,8 @@ import { isomorfismoTopics } from './03-isomorfismo';
 import { buscaTopics } from './04-busca';
 import { conectividadeTopics } from './05-conectividade';
 import { logicaConjuntosTopics } from './06-logica-conjuntos';
+import { inducaoTopics } from './07-p2-inducao';
+import { eulerHamiltonTopics } from './08-p2-euler-hamilton';
 
 export const topics: Topic[] = [
   ...fundamentosTopics,
@@ -13,6 +15,8 @@ export const topics: Topic[] = [
   ...buscaTopics,
   ...conectividadeTopics,
   ...logicaConjuntosTopics,
+  ...inducaoTopics,
+  ...eulerHamiltonTopics,
 ];
 
 export function getTopic(id: string): Topic | undefined {

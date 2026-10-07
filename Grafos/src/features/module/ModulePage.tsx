@@ -61,7 +61,7 @@ export function ModulePage() {
                   <div className="flex items-center gap-1.5">
                     {topic.scopeNote && (
                       <span title={topic.scopeNote} className="inline-flex cursor-help items-center gap-1 rounded-full border border-[var(--color-cyan)]/40 bg-[var(--color-cyan-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-cyan)]">
-                        <CircleHelp size={11} /> P1 ou P2?
+                        <CircleHelp size={11} /> {module.exam === 'P2' ? 'Fontes' : 'P1 ou P2?'}
                       </span>
                     )}
                     <ExamLikelihoodBadge level={topic.examLikelihood} />

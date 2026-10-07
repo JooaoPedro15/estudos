@@ -381,7 +381,7 @@ export function ConceptLessonPage() {
         >
           <CircleHelp size={16} className="mt-0.5 shrink-0 text-[var(--color-cyan)]" />
           <div className="flex flex-col gap-0.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-cyan)]">P1 ou P2? Fontes divergem</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-cyan)]">{module?.exam === 'P2' ? 'Sobre as fontes deste tópico' : 'P1 ou P2? Fontes divergem'}</p>
             <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{topic.scopeNote}</p>
           </div>
         </motion.div>
@@ -404,7 +404,7 @@ export function ConceptLessonPage() {
       <motion.section variants={itemVariants} aria-labelledby="lesson-know">
         <Card padding="lg" className="flex flex-col gap-3">
           <h2 id="lesson-know" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
-            O que você precisa saber para a P1
+            O que você precisa saber para a {module?.exam ?? 'P1'}
           </h2>
           <p className="text-base leading-relaxed text-[var(--color-text-primary)]">{topic.whatYouNeedToKnow}</p>
         </Card>
@@ -466,7 +466,7 @@ export function ConceptLessonPage() {
             )}
 
             <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3.5 py-2.5">
-              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Na P1</span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Na {module?.exam ?? 'P1'}</span>
               <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{topic.conceptConflict.examGuidance}</p>
             </div>
           </Card>
@@ -516,7 +516,7 @@ export function ConceptLessonPage() {
               <h2 id="lesson-exam-style" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
                 Questões estilo prova
               </h2>
-              <Badge tone="cyan">estilo P1</Badge>
+              <Badge tone="cyan">estilo {module?.exam ?? 'P1'}</Badge>
             </div>
             <LessonQuizSection questions={examStyleQuestions} topicId={topic.id} />
           </Card>

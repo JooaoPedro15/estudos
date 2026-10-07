@@ -112,8 +112,9 @@ export const examFamilies: ExamFamily[] = [
     id: 'euleriano',
     concepts: ['def-trail', 'def-grau', 'def-teorema-grau-impar', 'def-grafo-conexo', 'def-caminho-aberto-fechado'],
     title: 'Caminho/circuito euleriano (detetive, "projete uma solução para encontrar um circuito euleriano")',
-    appearances: ['2023/2-Q4', '2026/1-Q2'],
-    scopeUncertain: true,
+    // Caiu em provas de P1 do Prof. Silvio quando vinha antes da P1; em 2026/2 é P2.
+    exam: 'P2',
+    appearances: ['P1 2023/2-Q4', 'P1 2026/1-Q2'],
   },
 ];
 

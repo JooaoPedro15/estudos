@@ -16,7 +16,7 @@ export function ExamRelevance({ question }: { question: Question }) {
     return (
       <div className="flex flex-col gap-1 rounded-xl border border-[var(--color-danger)]/35 bg-[var(--color-danger-soft)] px-3.5 py-2.5">
         <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-danger)]">
-          <Flame size={13} /> {family.exam === 'P2' && n === 0 ? 'Formato de prova (sem prova antiga deste assunto)' : `Caiu em ${n} de ${total} prova${total > 1 ? 's' : ''}`}
+          <Flame size={13} /> {family.exam === 'P2' ? (n === 0 ? 'Formato de prova (sem prova antiga deste assunto)' : `Caiu em ${n} prova${n > 1 ? 's' : ''} antiga${n > 1 ? 's' : ''}`) : `Caiu em ${n} de ${total} provas`}
           {family.scopeUncertain && (
             <span className="ml-1 inline-flex items-center gap-1 rounded-full border border-[var(--color-cyan)]/45 bg-[var(--color-cyan-soft)] px-2 py-0.5 text-[10px] normal-case tracking-normal text-[var(--color-cyan)]" title="Cronograma 2026/2 põe este assunto depois da P1">
               <CircleHelp size={10} /> P1 ou P2?

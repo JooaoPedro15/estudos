@@ -47,9 +47,9 @@ export const modules: Module[] = [
     order: 5,
     title: 'Conectividade e Caminhos Especiais',
     shortTitle: 'Conectividade',
-    description: 'Excentricidade/raio/diâmetro/centro, SCC (Kosaraju), e — com ressalva de escopo (ver cada tópico) — euleriano, Dijkstra e ordenação topológica.',
+    description: 'Excentricidade/raio/diâmetro/centro, SCC (Kosaraju), Dijkstra e — com ressalva de escopo — ordenação topológica.',
     icon: 'route',
-    topicIds: ['excentricidade-raio-diametro', 'scc-kosaraju', 'euleriano', 'dijkstra', 'topologica-maior-caminho'],
+    topicIds: ['excentricidade-raio-diametro', 'scc-kosaraju', 'dijkstra', 'topologica-maior-caminho'],
   },
   {
     id: 'logica-conjuntos',
@@ -60,6 +60,27 @@ export const modules: Module[] = [
     description: 'Conjuntos e funções, lógica proposicional e lógica de predicados — dadas nos dias imediatamente antes da P1, conforme o cronograma.',
     icon: 'logic',
     topicIds: ['teoria-de-conjuntos', 'logica-proposicional', 'logica-de-predicados'],
+  },
+  // --- P2 (cronograma 2026/2: aulas de 16/09 a 19/10, prova em 22/10) ---
+  {
+    id: 'p2-inducao',
+    exam: 'P2',
+    order: 1,
+    title: 'Indução',
+    shortTitle: 'Indução',
+    description: 'Prova por indução: base, hipótese e passo — e como os slides a usam para provar o Dijkstra.',
+    icon: 'logic',
+    topicIds: ['inducao'],
+  },
+  {
+    id: 'p2-euler-hamilton',
+    exam: 'P2',
+    order: 2,
+    title: 'Grafos Eulerianos e Hamiltonianos',
+    shortTitle: 'Euler & Hamilton',
+    description: 'Caminho e circuito euleriano, pontes, Algoritmo de Fleury e o contraste com o caminho hamiltoniano.',
+    icon: 'route',
+    topicIds: ['euleriano', 'hamiltoniano'],
   },
 ];
 

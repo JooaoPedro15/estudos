@@ -146,7 +146,8 @@ describe('treino de prova', () => {
 
   it('pickNextExamDrill sorteia famílias proporcionalmente ao nº de provas', async () => {
     const { pickNextExamDrill } = await import('./index');
-    const { examFamilies, examFamilyWeight } = await import('@/content/examFamilies');
+    const { examFamiliesFor, examFamilyWeight } = await import('@/content/examFamilies');
+    const examFamilies = examFamiliesFor('P1');
     const counts: Record<string, number> = {};
     const N = 4000;
     for (let i = 0; i < N; i++) {
