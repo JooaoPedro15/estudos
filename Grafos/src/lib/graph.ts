@@ -639,6 +639,81 @@ export function bellmanFord(g: GraphData, start: string): {
 }
 
 // ---------------------------------------------------------------------------
+// Floyd-Warshall
+// ---------------------------------------------------------------------------
+
+/**
+ * Floyd-Warshall. NÃO há slide do professor sobre este algoritmo: segue
+ * Cormen (ed. PT), seção 25.2. d(k)ij = peso do menor caminho de i a j cujos
+ * vértices intermediários estão em {1..k}; D(0) é a matriz de pesos e
+ * d(k)ij = min(d(k-1)ij, d(k-1)ik + d(k-1)kj). Vértices numerados na ordem
+ * em que foram declarados.
+ */
+export function floydWarshall(g: GraphData): {
+  ids: string[];
+  matrices: number[][][];
+  predecessors: (string | null)[][];
+  negativeCycle: boolean;
+  path: (from: string, to: string) => string[] | null;
+  steps: AlgorithmStep[];
+} {
+  const ids = vertexIds(g);
+  const n = ids.length;
+  const idx = new Map(ids.map((v, i) => [v, i]));
+  const d0 = ids.map((_, i) => ids.map((__, j) => (i === j ? 0 : Infinity)));
+  const pred: (string | null)[][] = ids.map(() => ids.map(() => null));
+  for (const a of directedArcs(g)) {
+    const i = idx.get(a.from)!;
+    const j = idx.get(a.to)!;
+    if (i !== j && a.w < d0[i][j]) {
+      d0[i][j] = a.w;
+      pred[i][j] = a.from;
+    }
+  }
+  const matrices = [d0];
+  const steps: AlgorithmStep[] = [{ description: 'D(0): matriz de pesos (0 na diagonal, ∞ onde não há aresta).' }];
+
+  for (let k = 0; k < n; k++) {
+    const prev = matrices[k];
+    const next = prev.map((row) => [...row]);
+    const changed: string[] = [];
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        const viaK = prev[i][k] + prev[k][j];
+        if (viaK < next[i][j]) {
+          next[i][j] = viaK;
+          pred[i][j] = pred[k][j];
+          changed.push(`d(${ids[i]},${ids[j]})=${viaK}`);
+        }
+      }
+    }
+    matrices.push(next);
+    steps.push({
+      description: `D(${k + 1}): permite ${ids[k]} como intermediário. ${changed.length ? `Melhoram: ${changed.join(', ')}.` : 'Nada melhora.'}`,
+      currentVertex: ids[k],
+      highlightVertices: [ids[k]],
+    });
+  }
+
+  const last = matrices[n];
+  const negativeCycle = ids.some((_, i) => last[i][i] < 0);
+  const path = (from: string, to: string): string[] | null => {
+    const i = idx.get(from)!;
+    let j = idx.get(to)!;
+    if (last[i][j] === Infinity) return null;
+    const out = [to];
+    while (j !== i) {
+      const p = pred[i][j];
+      if (p === null || out.length > n) return null; // ciclo negativo: caminho mínimo não existe
+      out.push(p);
+      j = idx.get(p)!;
+    }
+    return out.reverse();
+  };
+  return { ids, matrices, predecessors: pred, negativeCycle, path, steps };
+}
+
+// ---------------------------------------------------------------------------
 // Árvore geradora mínima (AGM)
 // ---------------------------------------------------------------------------
 

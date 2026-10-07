@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeGraph, prim, kruskal, bellmanFord, dijkstra } from './graph';
+import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall } from './graph';
 
 // Grafo dos slides "Example of Prim's/Kruskal's Algorithm"
 // (11-graphs-trees-spanning-trees.pdf, p. 51-52 — quadros 16 e 17 de 29).
@@ -122,5 +122,38 @@ describe('Dijkstra no exemplo do slide 10 (quadro 26)', () => {
       ['b', 'd', 13], ['h', 'c', 3], ['h', 'd', 11], ['c', 'd', 9],
     ]);
     expect(dijkstra(g, 'e').distances).toEqual({ a: 9, b: 13, c: 17, d: 25, e: 0, f: 5, g: 8, h: 14 });
+  });
+});
+
+describe('Floyd-Warshall', () => {
+  it('D(0) é a matriz de pesos: 0 na diagonal, ∞ sem aresta', () => {
+    const { matrices, ids } = floydWarshall(p2Q2);
+    const d0 = matrices[0];
+    const i1 = ids.indexOf('1');
+    expect(d0[i1][i1]).toBe(0);
+    expect(d0[i1][ids.indexOf('2')]).toBe(6);
+    expect(d0[i1][ids.indexOf('7')]).toBe(Infinity);
+  });
+
+  it('gera n + 1 matrizes, D(0) a D(n)', () => {
+    expect(floydWarshall(p2Q2).matrices).toHaveLength(8);
+  });
+
+  it('cada linha de D(n) bate com Bellman-Ford a partir daquele vértice', () => {
+    const { matrices, ids } = floydWarshall(p2Q2);
+    const dn = matrices[matrices.length - 1];
+    for (const s of ids) {
+      const { distances } = bellmanFord(p2Q2, s);
+      ids.forEach((t, j) => expect(dn[ids.indexOf(s)][j]).toBe(distances[t]));
+    }
+  });
+
+  it('reconstrói o caminho 1 -> 7 pela matriz de predecessores', () => {
+    expect(floydWarshall(p2Q2).path('1', '7')).toEqual(['1', '4', '3', '2', '5', '7']);
+  });
+
+  it('diagonal negativa indica ciclo negativo', () => {
+    const g = makeGraph(true, ['a', 'b', 'c', 'd'], [['a', 'b', 2], ['a', 'c', 1], ['b', 'd', 3], ['c', 'b', -5], ['d', 'c', -6]]);
+    expect(floydWarshall(g).negativeCycle).toBe(true);
   });
 });
