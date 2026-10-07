@@ -129,9 +129,11 @@ export function ExamDrillSession() {
         </Link>
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
-        Só o que caiu nas {TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados. Fechadas: marcar,
-        ordenar passos, clicar no grafo. Abertas: as dissertativas como na prova — você escreve e depois compara com a resposta-modelo. O que
-        caiu em mais provas aparece mais vezes. Sem fim: saia quando quiser.
+        {exam === 'P2'
+          ? 'Questões no formato de prova para cada assunto da P2 (só há 1 prova antiga de P2, de outro professor; o que caiu nela aparece mais vezes).'
+          : `Só o que caiu nas ${TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados. O que caiu em mais provas aparece mais vezes.`}{' '}
+        Fechadas: marcar, ordenar passos, clicar no grafo. Abertas: as dissertativas como na prova — você escreve e depois compara com a
+        resposta-modelo. Sem fim: saia quando quiser.
       </p>
 
       <ChipGroup label="Tipo de questão" tone="danger" value={kind} onChange={(id) => changeKind(id as ExamDrillKind)} options={KIND_OPTIONS} />
