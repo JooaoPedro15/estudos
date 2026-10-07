@@ -9,6 +9,7 @@ import { GraphLesson } from './GraphLesson';
 import { isDefinitionQuestion, questionsForTopic } from '@/content/questions';
 import { setLastPosition, recordAttempt } from '@/store/progress';
 import { makeGraph } from '@/lib/graph';
+import { FW_EXAMPLE, P2_2024_Q2, SLIDE_DIJKSTRA, SLIDE_EULER, SLIDE_FLEURY, SLIDE_LX, SLIDE_MST, SLIDE_SPANNING } from '@/content/questions/graphs-p2';
 import type { GraphData, Question } from '@/content/types';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { RepresentationPanel } from '@/components/graph/RepresentationPanel';
@@ -53,21 +54,26 @@ function buildTopicGraph(topicId: string): GraphData {
       return makeGraph(false, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e']]);
     case 'scc-kosaraju':
       return makeGraph(true, ['a', 'b', 'c', 'd', 'e', 'f'], [['a', 'b'], ['b', 'c'], ['c', 'a'], ['c', 'd'], ['d', 'e'], ['e', 'f'], ['f', 'd']]);
+    // P2: os grafos dos próprios slides (ver content/questions/graphs-p2.ts)
     case 'euleriano':
-      return makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'a'], ['a', 'c']]);
+      return SLIDE_FLEURY;
+    case 'hamiltoniano':
+      return SLIDE_EULER;
+    case 'inducao':
     case 'dijkstra':
-      return makeGraph(
-        false,
-        ['a', 'b', 'c', 'd', 'e'],
-        [
-          ['a', 'b', 2],
-          ['a', 'c', 5],
-          ['b', 'c', 1],
-          ['b', 'd', 4],
-          ['c', 'd', 1],
-          ['d', 'e', 3],
-        ],
-      );
+      return SLIDE_DIJKSTRA;
+    case 'arvores':
+    case 'arvore-geradora':
+      return SLIDE_SPANNING;
+    case 'cortes':
+    case 'agm-prim-kruskal':
+      return SLIDE_MST;
+    case 'caminho-minimo-conceitos':
+      return SLIDE_LX;
+    case 'bellman-ford':
+      return P2_2024_Q2;
+    case 'floyd-warshall':
+      return FW_EXAMPLE;
     case 'topologica-maior-caminho':
       return makeGraph(true, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['a', 'c'], ['b', 'd'], ['c', 'd'], ['d', 'e']]);
     default:
