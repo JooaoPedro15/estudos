@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, questions, type ExamDrillKind } from '@/content/questions';
-import { TOTAL_EXAMS, examFamilies, examFamilyWeight } from '@/content/examFamilies';
+import { examFamiliesFor, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
+import { useActiveExam } from '@/store/activeExam';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
 import { Button, Card, IconChip, StatTile } from '@/components/ui';
@@ -11,10 +12,8 @@ import { ExamRelevance } from './ExamRelevance';
 import { ChipGroup } from './ModuleFilter';
 
 const RECENT_LIMIT = 12;
-const FAMILIES_BY_WEIGHT = [...examFamilies].sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
-const TOTAL_WEIGHT = examFamilies.reduce((acc, f) => acc + examFamilyWeight(f), 0);
-const QUESTIONS_PER_FAMILY = new Map(examFamilies.map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isExamDrillQuestion(q)).length]));
-const OPEN_PER_FAMILY = new Map(examFamilies.map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isOpenExamQuestion(q)).length]));
+const QUESTIONS_PER_FAMILY = new Map(examFamiliesFor('P1').concat(examFamiliesFor('P2')).map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isExamDrillQuestion(q)).length]));
+const OPEN_PER_FAMILY = new Map(examFamiliesFor('P1').concat(examFamiliesFor('P2')).map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isOpenExamQuestion(q)).length]));
 const KIND_OPTIONS: { id: ExamDrillKind; label: string }[] = [
   { id: 'closed', label: 'Fechadas (marco)' },
   { id: 'open', label: 'Abertas (escrevo)' },
@@ -33,6 +32,11 @@ function formatSeconds(totalSeconds: number): string {
  * mais provas aparece mais vezes (ver `pickNextExamDrill`). Rota: /estudar/prova
  */
 export function ExamDrillSession() {
+  const exam = useActiveExam();
+  const examFamilies = examFamiliesFor(exam);
+  const FAMILIES_BY_WEIGHT = [...examFamilies].sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
+  const TOTAL_WEIGHT = examFamilies.reduce((acc, f) => acc + examFamilyWeight(f), 0);
+  const TOTAL_EXAMS = totalExamsFor(exam);
   const [question, setQuestion] = useState<Question | null>(null);
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [attempts, setAttempts] = useState<QuestionAttempt[]>([]);

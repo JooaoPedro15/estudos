@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { modules } from '@/content/modules';
+import { modulesForExam } from '@/content/modules';
+import { useActiveExam } from '@/store/activeExam';
 import { ALL_MODULES } from './moduleScope';
 
 export type ChipTone = 'accent' | 'cyan' | 'amber' | 'success' | 'danger';
@@ -58,6 +59,7 @@ export function ChipGroup({
 
 /** Chips "Todos + um por módulo" para escolher se a sessão cobre a matéria inteira ou um módulo só. */
 export function ModuleFilter({ value, onChange, tone, disabled }: { value: string; onChange: (id: string) => void; tone?: ChipTone; disabled?: boolean }) {
+  const exam = useActiveExam();
   return (
     <ChipGroup
       label="Escolher módulo"
@@ -65,7 +67,7 @@ export function ModuleFilter({ value, onChange, tone, disabled }: { value: strin
       disabled={disabled}
       value={value}
       onChange={onChange}
-      options={[{ id: ALL_MODULES, label: 'Matéria inteira' }, ...modules.map((m) => ({ id: m.id, label: m.shortTitle }))]}
+      options={[{ id: ALL_MODULES, label: `Matéria inteira (${exam})` }, ...modulesForExam(exam).map((m) => ({ id: m.id, label: m.shortTitle }))]}
     />
   );
 }

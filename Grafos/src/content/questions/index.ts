@@ -10,7 +10,8 @@ import { treinoProvaQuestions } from './07-treino-prova';
 import { treinoProvaProofQuestions } from './08-treino-prova-provas';
 import { provasReaisQuestions } from './09-provas-reais';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
-import { conceptExamWeights, examFamilies, examFamilyWeight } from '@/content/examFamilies';
+import { conceptExamWeights, examFamilies, examFamiliesFor, examFamilyWeight } from '@/content/examFamilies';
+import { getActiveExam } from '@/store/activeExam';
 import { EXAM_ANSWERS } from '@/content/examAnswers';
 
 export const questions: Question[] = [
@@ -298,8 +299,9 @@ export function isOpenExamQuestion(q: Question): boolean {
  */
 export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[], kind: ExamDrillKind = 'closed', familyIds?: string[]): Question | undefined {
   const excluded = new Set(excludeIds);
-  const allowed = familyIds && familyIds.length > 0 ? new Set(familyIds) : undefined;
-  const inScope = (q: Question) => Boolean(q.examFamily) && (!allowed || allowed.has(q.examFamily!));
+  // Sem escolha explícita: todas as famílias da prova ativa (P1 ou P2).
+  const allowed = new Set(familyIds && familyIds.length > 0 ? familyIds : examFamiliesFor(getActiveExam()).map((f) => f.id));
+  const inScope = (q: Question) => Boolean(q.examFamily) && allowed.has(q.examFamily!);
   const hasOpen = questions.some((q) => inScope(q) && isOpenExamQuestion(q));
   const hasClosed = questions.some((q) => inScope(q) && isClosedQuestion(q));
   const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : !hasClosed ? true : !hasOpen ? false : Math.random() < 0.5;

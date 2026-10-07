@@ -1,3 +1,5 @@
+import type { ExamId } from './types';
+
 /**
  * Famílias de questão que se repetem nas provas antigas do Prof. Silvio
  * (8 provas: 2022/1 … 2026/1 — ver docs/exam-pattern.md). Cada questão do
@@ -11,6 +13,8 @@ export interface ExamFamily {
   title: string;
   /** Provas em que caiu, no formato "semestre-Questão" (ex.: "2022/1-Q1"). */
   appearances: string[];
+  /** Prova a que a família pertence; ausente = P1. */
+  exam?: ExamId;
   /** Cronograma 2026/2 põe o assunto DEPOIS da P1 — peso reduzido pela metade (ver docs/p1-scope.md). */
   scopeUncertain?: boolean;
   /** Definições (ids `def-*`) que a resposta correta usa — lidas das provas e das resoluções anexadas. Alimentam "conceitos que mais caem". */
@@ -18,6 +22,11 @@ export interface ExamFamily {
 }
 
 export const TOTAL_EXAMS = 8;
+
+/** Provas antigas analisadas por prova: 8 da P1 (Prof. Silvio) e 1 da P2 (2024/1, Prof. Zenilton). */
+export function totalExamsFor(exam: ExamId): number {
+  return exam === 'P2' ? 1 : TOTAL_EXAMS;
+}
 
 export const examFamilies: ExamFamily[] = [
   {
@@ -114,6 +123,9 @@ export function getExamFamily(id: string): ExamFamily | undefined {
 
 /** Peso de sorteio: nº de provas em que caiu; metade se o cronograma põe o assunto depois da P1. */
 export function examFamilyWeight(f: ExamFamily): number {
+  // P2: só uma prova antiga, de outro professor — toda família do cronograma
+  // entra no sorteio (peso 1) e quem caiu na prova antiga ganha +1 por vez.
+  if (f.exam === 'P2') return 1 + f.appearances.length;
   return f.appearances.length * (f.scopeUncertain ? 0.5 : 1);
 }
 
@@ -130,4 +142,8 @@ export function conceptExamWeights(): Map<string, number> {
 /** Famílias de prova em que uma definição é usada, da mais frequente para a menos. */
 export function familiesUsingConcept(definitionId: string): ExamFamily[] {
   return examFamilies.filter((f) => f.concepts.includes(definitionId)).sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
+}
+
+export function examFamiliesFor(exam: ExamId): ExamFamily[] {
+  return examFamilies.filter((f) => (f.exam ?? 'P1') === exam);
 }

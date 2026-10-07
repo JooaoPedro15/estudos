@@ -1,8 +1,9 @@
-import type { Module } from './types';
+import type { ExamId, Module } from './types';
 
 export const modules: Module[] = [
   {
     id: 'fundamentos',
+    exam: 'P1',
     order: 1,
     title: 'Fundamentos de Grafos',
     shortTitle: 'Fundamentos',
@@ -12,6 +13,7 @@ export const modules: Module[] = [
   },
   {
     id: 'representacoes',
+    exam: 'P1',
     order: 2,
     title: 'Representações de Grafos',
     shortTitle: 'Representações',
@@ -21,6 +23,7 @@ export const modules: Module[] = [
   },
   {
     id: 'isomorfismo-propriedades',
+    exam: 'P1',
     order: 3,
     title: 'Isomorfismo & Propriedades',
     shortTitle: 'Isomorfismo',
@@ -30,6 +33,7 @@ export const modules: Module[] = [
   },
   {
     id: 'busca-alcancabilidade',
+    exam: 'P1',
     order: 4,
     title: 'Busca e Alcançabilidade',
     shortTitle: 'Busca',
@@ -39,6 +43,7 @@ export const modules: Module[] = [
   },
   {
     id: 'conectividade-caminhos',
+    exam: 'P1',
     order: 5,
     title: 'Conectividade e Caminhos Especiais',
     shortTitle: 'Conectividade',
@@ -48,6 +53,7 @@ export const modules: Module[] = [
   },
   {
     id: 'logica-conjuntos',
+    exam: 'P1',
     order: 6,
     title: 'Lógica e Teoria dos Conjuntos',
     shortTitle: 'Lógica & Conjuntos',
@@ -56,6 +62,14 @@ export const modules: Module[] = [
     topicIds: ['teoria-de-conjuntos', 'logica-proposicional', 'logica-de-predicados'],
   },
 ];
+
+export function modulesForExam(exam: ExamId): Module[] {
+  return modules.filter((m) => m.exam === exam);
+}
+
+export function topicIdsForExam(exam: ExamId): string[] {
+  return modulesForExam(exam).flatMap((m) => m.topicIds);
+}
 
 export function getModule(id: string): Module | undefined {
   return modules.find((m) => m.id === id);

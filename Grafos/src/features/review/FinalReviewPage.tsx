@@ -5,6 +5,8 @@ import { Button, Card, IconChip, ProgressBar } from '@/components/ui';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { flashFactsForMinutes } from '@/content/finalReview';
 import { pickQuickReview } from '@/content/questions';
+import { topicIdsForExam } from '@/content/modules';
+import { getActiveExam } from '@/store/activeExam';
 import { getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { loadProgress, recordAttempt, weakestTopics } from '@/store/progress';
@@ -28,7 +30,7 @@ export function FinalReviewPage() {
 
   function start(m: (typeof DURATIONS)[number]) {
     setMinutes(m);
-    setBatch(pickQuickReview(QUESTIONS_BY_MINUTES[m]));
+    setBatch(pickQuickReview(QUESTIONS_BY_MINUTES[m], topicIdsForExam(getActiveExam())));
     setIndex(0);
     setStarted(true);
   }
@@ -72,7 +74,7 @@ export function FinalReviewPage() {
     );
   }
 
-  const facts = flashFactsForMinutes(minutes);
+  const facts = flashFactsForMinutes(minutes, getActiveExam());
   const showQuestions = started && index < batch.length;
   const doneQuestions = started && index >= batch.length && batch.length > 0;
 

@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import clsx from 'clsx';
 import { Zap, BookOpen, FileText, Target, Dumbbell, Brain, Flame, type LucideIcon } from 'lucide-react';
-import type { ExamLikelihood, ProgressState } from '@/content/types';
+import type { ExamId, ExamLikelihood, ProgressState } from '@/content/types';
 import { Button, Card, ExamLikelihoodBadge, IconChip, type IconChipTone, ProgressBar } from '@/components/ui';
-import { modules } from '@/content/modules';
+import { modulesForExam } from '@/content/modules';
+import { useActiveExam } from '@/store/activeExam';
 import { topicsForModule, getTopic } from '@/content/topics';
 import { loadProgress, topicMasteryPercent } from '@/store/progress';
 
@@ -13,15 +14,16 @@ interface QuickAction {
   icon: LucideIcon;
   tone: IconChipTone;
   title: string;
-  description: string;
+  /** Texto fixo ou um por prova, quando a ação muda de sentido entre P1 e P2. */
+  description: string | Record<ExamId, string>;
   href: string;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
   { icon: Zap, tone: 'amber', title: 'Revisão de 5 min', description: 'Sessão curta com 3-7 atividades rápidas.', href: '/estudar/rapido' },
   { icon: BookOpen, tone: 'accent', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
-  { icon: FileText, tone: 'cyan', title: 'Provas reais e simulados', description: 'As 8 provas antigas literais (2022/1–2026/1) + simulados montados. Abertas, com resposta-modelo.', href: '/simulado' },
-  { icon: Flame, tone: 'danger', title: 'Treino de prova', description: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', href: '/estudar/prova' },
+  { icon: FileText, tone: 'cyan', title: 'Provas reais e simulados', description: { P1: 'As 8 provas antigas literais (2022/1–2026/1) + simulados montados. Abertas, com resposta-modelo.', P2: 'Simulados da P2 no formato da prova antiga: modelar o problema e executar o algoritmo passo a passo.' }, href: '/simulado' },
+  { icon: Flame, tone: 'danger', title: 'Treino de prova', description: { P1: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', P2: 'Questões no formato de prova: AGM, caminhos mínimos e euleriano, com resposta-modelo.' }, href: '/estudar/prova' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
   { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
   { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: 'Definições literais dos slides: abertas (escreve de memória e compara) e fechadas (múltipla escolha e V/F). Por módulo ou matéria inteira.', href: '/estudar/conceitos' },
@@ -44,7 +46,7 @@ function moduleProgressPercent(moduleId: string, state: ProgressState | null): n
   return Math.round(total / topics.length);
 }
 
-function QuickActionCard({ action, index }: { action: QuickAction; index: number }) {
+function QuickActionCard({ action, index, exam }: { action: QuickAction; index: number; exam: ExamId }) {
   return (
     <Link to={action.href} className="block h-full">
       <motion.div
@@ -62,7 +64,7 @@ function QuickActionCard({ action, index }: { action: QuickAction; index: number
         <IconChip icon={action.icon} tone={action.tone} size="lg" />
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{action.title}</h3>
-          <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">{action.description}</p>
+          <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">{typeof action.description === 'string' ? action.description : action.description[exam]}</p>
         </div>
       </motion.div>
     </Link>
@@ -94,24 +96,27 @@ function ModuleRow({ moduleId, title, percent, examLikelihood, index }: { module
   );
 }
 
-/** Página inicial do Grafos P1 — visão geral de progresso, ações rápidas e módulos. */
+/** Página inicial — visão geral de progresso, ações rápidas e módulos da prova ativa. */
 export function HomePage() {
   const navigate = useNavigate();
+  const exam = useActiveExam();
+  const modules = modulesForExam(exam);
   const [progress, setProgress] = useState<ProgressState | null>(null);
 
   useEffect(() => {
     loadProgress().then(setProgress);
   }, []);
 
-  const lastTopic = progress?.lastTopicId ? getTopic(progress.lastTopicId) : undefined;
+  // "Continuar" só aponta para um tópico da prova ativa.
   const lastModule = progress?.lastModuleId ? modules.find((m) => m.id === progress.lastModuleId) : undefined;
+  const lastTopic = lastModule && progress?.lastTopicId ? getTopic(progress.lastTopicId) : undefined;
   const continuePercent = lastTopic ? topicMasteryPercent(progress?.topicStats[lastTopic.id]) : 0;
 
   return (
     <div className="flex flex-col gap-10">
       <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-col gap-1.5">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Grafos</h1>
-        <p className="text-[var(--color-text-secondary)]">Preparação para P1 — Teoria dos Grafos, Prof. Silvio Jamil.</p>
+        <p className="text-[var(--color-text-secondary)]">Preparação para {exam} — Teoria dos Grafos, Prof. Silvio Jamil.</p>
       </motion.header>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
@@ -138,7 +143,7 @@ export function HomePage() {
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ações rápidas">
         {QUICK_ACTIONS.map((action, i) => (
-          <QuickActionCard key={action.title} action={action} index={i} />
+          <QuickActionCard key={action.title} action={action} index={i} exam={exam} />
         ))}
       </section>
 

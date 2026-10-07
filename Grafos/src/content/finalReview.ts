@@ -1,9 +1,11 @@
-import type { Source } from './types';
+import type { ExamId, Source } from './types';
 
 export interface FlashFact {
   id: string;
   text: string;
   tier: 'core' | 'extra';
+  /** Prova a que o fato pertence; ausente = P1. */
+  exam?: ExamId;
   source?: Source;
 }
 
@@ -110,7 +112,8 @@ export const flashFacts: FlashFact[] = [
   },
 ];
 
-export function flashFactsForMinutes(minutes: number): FlashFact[] {
-  if (minutes >= 15) return flashFacts;
-  return flashFacts.filter((f) => f.tier === 'core');
+export function flashFactsForMinutes(minutes: number, exam: ExamId = 'P1'): FlashFact[] {
+  const ofExam = flashFacts.filter((f) => (f.exam ?? 'P1') === exam);
+  if (minutes >= 15) return ofExam;
+  return ofExam.filter((f) => f.tier === 'core');
 }

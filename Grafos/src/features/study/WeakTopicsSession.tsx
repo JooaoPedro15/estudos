@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Target, Zap } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { pickWeakTopicSession } from '@/content/questions';
+import { topicIdsForExam } from '@/content/modules';
+import { getActiveExam } from '@/store/activeExam';
 import { getTopic } from '@/content/topics';
 import type { Question } from '@/content/types';
 import { loadProgress, recordAttempt, weakestTopics } from '@/store/progress';
@@ -23,8 +25,11 @@ export function WeakTopicsSession() {
   async function startBatch() {
     setLoading(true);
     const state = await loadProgress();
-    const weak = weakestTopics(state, 2, 6).map((s) => s.topic);
-    const pool = weak.length > 0 ? weak : Array.from(new Set(state.attempts.map((a) => a.topic)));
+    const weak = weakestTopics(state, 2, 20).map((s) => s.topic);
+    const examTopics = new Set(topicIdsForExam(getActiveExam()));
+    const weakInExam = weak.filter((t) => examTopics.has(t)).slice(0, 6);
+    const practiced = Array.from(new Set(state.attempts.map((a) => a.topic))).filter((t) => examTopics.has(t));
+    const pool = weakInExam.length > 0 ? weakInExam : practiced;
     setBatch(pickWeakTopicSession(pool, 8));
     setIndex(0);
     setAnswered([]);

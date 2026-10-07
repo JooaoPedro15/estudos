@@ -1,4 +1,7 @@
 import { Outlet, Link } from 'react-router-dom';
+import clsx from 'clsx';
+import type { ExamId } from '@/content/types';
+import { setActiveExam, useActiveExam } from '@/store/activeExam';
 
 interface NavItem {
   label: string;
@@ -25,7 +28,32 @@ function GrafosGlyph() {
   );
 }
 
-/** Layout raiz: topo fixo com wordmark + navegação, área de conteúdo com largura máxima. */
+const EXAMS: ExamId[] = ['P1', 'P2'];
+
+/** Troca a prova ativa: o app inteiro passa a mostrar só os módulos e simulados dela. */
+function ExamSwitch() {
+  const active = useActiveExam();
+  return (
+    <div role="group" aria-label="Prova" className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-0.5">
+      {EXAMS.map((exam) => (
+        <button
+          key={exam}
+          type="button"
+          aria-pressed={active === exam}
+          onClick={() => setActiveExam(exam)}
+          className={clsx(
+            'rounded-md px-2.5 py-1 text-xs font-semibold transition-colors',
+            active === exam ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]',
+          )}
+        >
+          {exam}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Layout raiz: topo fixo com wordmark + seletor de prova + navegação, área de conteúdo com largura máxima. */
 export function AppShell() {
   return (
     <div className="min-h-full">
@@ -36,11 +64,14 @@ export function AppShell() {
         Pular para o conteúdo
       </a>
       <header className="sticky top-0 z-40 border-b border-[var(--color-border-soft)] bg-[var(--color-bg-overlay)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3.5">
-          <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-[var(--color-text-primary)]">
-            <GrafosGlyph />
-            Grafos <span className="font-normal text-[var(--color-text-tertiary)]">P1</span>
-          </Link>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:gap-6 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-[var(--color-text-primary)]">
+              <GrafosGlyph />
+              Grafos
+            </Link>
+            <ExamSwitch />
+          </div>
           <nav aria-label="Navegação principal" className="hidden items-center gap-1 sm:flex">
             {NAV_ITEMS.map((item) => (
               <Link

@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { modules } from '@/content/modules';
+import { modulesForExam } from '@/content/modules';
+import { useActiveExam } from '@/store/activeExam';
 import { topicsForModule } from '@/content/topics';
 import { Card, ExamLikelihoodBadge, IconChip } from '@/components/ui';
 import { moduleIcon } from './moduleIcons';
@@ -14,12 +15,14 @@ function moduleLikelihood(moduleId: string): ExamLikelihood {
   return topics.reduce<ExamLikelihood>((best, t) => (LIKELIHOOD_RANK[t.examLikelihood] > LIKELIHOOD_RANK[best] ? t.examLikelihood : best), 'low');
 }
 
-/** Grade com os 5 módulos da P1 — ponto de entrada para navegar até um módulo específico. Rota: /modulos */
+/** Grade com os módulos da prova ativa — ponto de entrada para navegar até um módulo específico. Rota: /modulos */
 export function ModuleListPage() {
+  const exam = useActiveExam();
+  const modules = modulesForExam(exam);
   return (
     <div className="flex flex-col gap-8">
       <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-col gap-1.5">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Módulos da P1</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Módulos da {exam}</h1>
         <p className="text-[var(--color-text-secondary)]">Escolha um módulo para ver os tópicos e começar a estudar.</p>
       </motion.header>
 

@@ -1,12 +1,14 @@
 import { useSearchParams } from 'react-router-dom';
-import { modules } from '@/content/modules';
+import { modulesForExam, topicIdsForExam } from '@/content/modules';
+import { getActiveExam } from '@/store/activeExam';
 
 export const ALL_MODULES = 'todos';
 
-/** Tópicos do módulo escolhido; undefined = matéria inteira. */
+/** Tópicos do módulo escolhido; "matéria inteira" = todos os tópicos da prova ativa (P1 ou P2). */
 export function topicIdsForModule(moduleId: string): string[] | undefined {
-  if (moduleId === ALL_MODULES) return undefined;
-  return modules.find((m) => m.id === moduleId)?.topicIds;
+  const exam = getActiveExam();
+  if (moduleId === ALL_MODULES) return topicIdsForExam(exam);
+  return modulesForExam(exam).find((m) => m.id === moduleId)?.topicIds ?? topicIdsForExam(exam);
 }
 
 /**
@@ -16,7 +18,7 @@ export function topicIdsForModule(moduleId: string): string[] | undefined {
 export function useModuleParam(): [string, (id: string) => void] {
   const [params, setParams] = useSearchParams();
   const raw = params.get('modulo');
-  const value = raw && modules.some((m) => m.id === raw) ? raw : ALL_MODULES;
+  const value = raw && modulesForExam(getActiveExam()).some((m) => m.id === raw) ? raw : ALL_MODULES;
   const set = (id: string) => {
     const next = new URLSearchParams(params);
     if (id === ALL_MODULES) next.delete('modulo');

@@ -52,8 +52,12 @@ export interface GraphData {
 // Módulos e tópicos
 // ---------------------------------------------------------------------------
 
+/** Prova a que o conteúdo pertence (o app mostra uma de cada vez). */
+export type ExamId = 'P1' | 'P2';
+
 export interface Module {
   id: string;
+  exam: ExamId;
   order: number;
   title: string;
   shortTitle: string;
@@ -284,6 +288,8 @@ export interface Exam {
   suggestedDurationMinutes: number;
   /** 'real' = prova antiga transcrita literalmente; 'montado' (default) = simulado composto com questões do banco. */
   kind?: 'real' | 'montado';
+  /** Prova a que o simulado pertence; ausente = P1. */
+  prova?: ExamId;
 }
 
 // ---------------------------------------------------------------------------

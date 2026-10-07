@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { exams, realExams } from '@/content/exams';
+import { exams as allExams, realExams as allRealExams } from '@/content/exams';
+import { useActiveExam } from '@/store/activeExam';
+import type { ExamId } from '@/content/types';
 import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
 
@@ -30,8 +32,23 @@ function ExamCard({ exam }: { exam: Exam }) {
   );
 }
 
-/** Lista as provas reais (literais) e os simulados montados — cada um leva ao simulador em `/simulado/:examId`. */
+const REAL_EXAMS_TEXT: Record<ExamId, { title: string; description: string }> = {
+  P1: {
+    title: 'Provas reais — 2022/1 a 2026/1',
+    description: 'As 8 provas do Prof. Silvio Jamil, questão por questão, com o enunciado literal (matrizes, listas e grafos transcritos dos PDFs).',
+  },
+  P2: {
+    title: 'Prova real — P2 de 2024/1',
+    description:
+      'Prova do Prof. Zenilton (outro professor, mesma disciplina). Entram só as questões de assuntos que o cronograma 2026/2 põe na P2: AGM e caminhos mínimos. Fluxo, emparelhamento e ordenação topológica ficam para a P3.',
+  },
+};
+
+/** Lista as provas reais (literais) e os simulados montados da prova ativa — cada um leva ao simulador em `/simulado/:examId`. */
 export function ExamListPage() {
+  const active = useActiveExam();
+  const exams = allExams.filter((e) => (e.prova ?? 'P1') === active);
+  const realExams = allRealExams.filter((e) => (e.prova ?? 'P1') === active);
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-1.5">
@@ -45,11 +62,9 @@ export function ExamListPage() {
       <section className="flex flex-col gap-4" aria-labelledby="provas-reais">
         <div className="flex flex-col gap-1">
           <h2 id="provas-reais" className="text-lg font-semibold text-[var(--color-text-primary)]">
-            Provas reais — 2022/1 a 2026/1
+            {REAL_EXAMS_TEXT[active].title}
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            As 8 provas do Prof. Silvio Jamil, questão por questão, com o enunciado literal (matrizes, listas e grafos transcritos dos PDFs).
-          </p>
+          <p className="text-sm text-[var(--color-text-secondary)]">{REAL_EXAMS_TEXT[active].description}</p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {realExams.map((exam) => (

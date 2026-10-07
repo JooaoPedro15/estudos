@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { setActiveExam } from '@/store/activeExam';
 import type { QuestionAttempt } from '@/content/types';
 import { modules } from '@/content/modules';
+
+// Estes testes cobrem o banco da P1; o padrão do app é a P2.
+beforeAll(() => setActiveExam('P1'));
 import {
   isDefinitionFamily,
   isDefinitionQuestion,

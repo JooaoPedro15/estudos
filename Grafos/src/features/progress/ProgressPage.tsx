@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Target } from 'lucide-react';
-import { topics } from '@/content/topics';
+import { topics as allTopics } from '@/content/topics';
+import { topicIdsForExam } from '@/content/modules';
+import { useActiveExam } from '@/store/activeExam';
 import type { ProgressState, TopicStat } from '@/content/types';
 import { loadProgress, topicMasteryPercent } from '@/store/progress';
 import { Button, Card, IconChip, ProgressBar, StatTile } from '@/components/ui';
@@ -17,6 +19,9 @@ function formatStudyTime(totalSeconds: number): string {
 /** Painel de progresso do estudante — estatísticas gerais + domínio por tópico, com atalho para reforçar pontos fracos. */
 export function ProgressPage() {
   const navigate = useNavigate();
+  const exam = useActiveExam();
+  const examTopicIds = new Set(topicIdsForExam(exam));
+  const topics = allTopics.filter((t) => examTopicIds.has(t.id));
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<ProgressState | null>(null);
 
@@ -69,7 +74,7 @@ export function ProgressPage() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-1.5">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Seu progresso</h1>
-        <p className="text-[var(--color-text-secondary)]">Acompanhe seu desempenho por tópico na preparação para a P1.</p>
+        <p className="text-[var(--color-text-secondary)]">Acompanhe seu desempenho por tópico na preparação para a {exam}.</p>
       </header>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Estatísticas gerais">
