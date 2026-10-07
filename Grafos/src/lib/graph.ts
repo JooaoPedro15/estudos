@@ -594,10 +594,12 @@ export function rankAndNullity(g: GraphData): { n: number; e: number; k: number;
  * atravessa uma que não seja ponte; senão, atravessa a única disponível.
  * Desempate: ordem de declaração das arestas.
  */
-export function fleury(g: GraphData): { trail: string[]; edgeOrder: string[]; steps: AlgorithmStep[] } | null {
+export function fleury(g: GraphData, start?: string): { trail: string[]; edgeOrder: string[]; steps: AlgorithmStep[] } | null {
   const { kind, oddVertices } = eulerianClassification(g);
   if (kind === 'none' || g.edges.length === 0) return null;
-  let v = kind === 'path' ? oddVertices[0] : g.edges[0].source;
+  // Com 2 ímpares, o início precisa ser um deles; `start` só escolhe qual (ou o vértice, num circuito).
+  const validStart = start && (kind === 'circuit' || oddVertices.includes(start)) ? start : undefined;
+  let v = validStart ?? (kind === 'path' ? oddVertices[0] : g.edges[0].source);
   let remaining = [...g.edges];
   const trail = [v];
   const edgeOrder: string[] = [];

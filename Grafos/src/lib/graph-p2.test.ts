@@ -207,6 +207,14 @@ describe('Fleury', () => {
     expect(edgeOrder).toHaveLength(7);
   });
 
+  it('exemplo do Fleury no slide 08 (quadro 33): começa em f e evita a ponte f-d', () => {
+    const g = makeGraph(false, ['a', 'b', 'c', 'd', 'e', 'f'], [['b', 'f'], ['b', 'e'], ['e', 'f'], ['f', 'd'], ['d', 'a'], ['a', 'c'], ['c', 'd']]);
+    const { trail } = fleury(g, 'f')!;
+    expect(trail[0]).toBe('f');
+    expect(trail.slice(0, 4)).toEqual(['f', 'b', 'e', 'f']);
+    expect(trail).toHaveLength(8);
+  });
+
   it('devolve null com mais de 2 vértices de grau ímpar', () => {
     const star = makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b'], ['a', 'c'], ['a', 'd']]);
     expect(fleury(star)).toBeNull();
