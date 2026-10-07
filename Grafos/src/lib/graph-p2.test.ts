@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall } from './graph';
+import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall, fleury, bridges, cutSet, rankAndNullity } from './graph';
 
 // Grafo dos slides "Example of Prim's/Kruskal's Algorithm"
 // (11-graphs-trees-spanning-trees.pdf, p. 51-52 — quadros 16 e 17 de 29).
@@ -155,5 +155,60 @@ describe('Floyd-Warshall', () => {
   it('diagonal negativa indica ciclo negativo', () => {
     const g = makeGraph(true, ['a', 'b', 'c', 'd'], [['a', 'b', 2], ['a', 'c', 1], ['b', 'd', 3], ['c', 'b', -5], ['d', 'c', -6]]);
     expect(floydWarshall(g).negativeCycle).toBe(true);
+  });
+});
+
+// Grafo do slide "Eulerian graph" (08-graphs-traversing.pdf, p. 103): e-a-d-c-e-b-f-d.
+const slideEuler = makeGraph(false, ['a', 'b', 'c', 'd', 'e', 'f'], [
+  ['e', 'a'], ['a', 'd'], ['d', 'c'], ['c', 'e'], ['e', 'b'], ['b', 'f'], ['f', 'd'],
+]);
+
+describe('pontes e cortes', () => {
+  it('em um caminho todas as arestas são pontes; em um ciclo, nenhuma', () => {
+    const path = makeGraph(false, ['a', 'b', 'c'], [['a', 'b'], ['b', 'c']]);
+    const cycle = makeGraph(false, ['a', 'b', 'c'], [['a', 'b'], ['b', 'c'], ['c', 'a']]);
+    expect(bridges(path)).toEqual(['e0', 'e1']);
+    expect(bridges(cycle)).toEqual([]);
+  });
+
+  it('cut(S) = arestas com uma ponta em S e outra em V - S', () => {
+    expect(cutSet(slideMst, ['a', 'd']).sort()).toEqual(['e0', 'e3', 'e6', 'e7'].sort());
+  });
+});
+
+describe('posto e nulidade (slide 11, p. 35)', () => {
+  it('exemplo do slide: n = 8, e = 9, k = 1 dá posto 7 e 2 cordas', () => {
+    const g = makeGraph(false, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'], [
+      ['f', 'a'], ['f', 'e'], ['e', 'a'], ['b', 'a'], ['c', 'a'], ['a', 'g'], ['c', 'g'], ['g', 'd'], ['d', 'h'],
+    ]);
+    expect(rankAndNullity(g)).toEqual({ n: 8, e: 9, k: 1, rank: 7, nullity: 2 });
+  });
+});
+
+describe('Fleury', () => {
+  it('constrói caminho euleriano no exemplo do slide, começando em vértice de grau ímpar', () => {
+    const result = fleury(slideEuler)!;
+    expect(result.trail).toHaveLength(slideEuler.edges.length + 1);
+    expect(['d', 'e']).toContain(result.trail[0]);
+    expect(['d', 'e']).toContain(result.trail[result.trail.length - 1]);
+  });
+
+  it('usa cada aresta exatamente uma vez', () => {
+    const { edgeOrder } = fleury(slideEuler)!;
+    expect(new Set(edgeOrder).size).toBe(slideEuler.edges.length);
+  });
+
+  it('não atravessa ponte enquanto houver outra opção', () => {
+    // dois triângulos ligados pela ponte c-d; começando em c, ir para d cedo deixaria arestas para trás
+    const g = makeGraph(false, ['a', 'b', 'c', 'd', 'e', 'f'], [
+      ['c', 'd'], ['a', 'b'], ['b', 'c'], ['c', 'a'], ['d', 'e'], ['e', 'f'], ['f', 'd'],
+    ]);
+    const { edgeOrder } = fleury(g)!;
+    expect(edgeOrder).toHaveLength(7);
+  });
+
+  it('devolve null com mais de 2 vértices de grau ímpar', () => {
+    const star = makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b'], ['a', 'c'], ['a', 'd']]);
+    expect(fleury(star)).toBeNull();
   });
 });

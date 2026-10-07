@@ -529,6 +529,110 @@ export function eulerianTrail(g: GraphData): { trail: string[]; steps: Algorithm
 }
 
 // ---------------------------------------------------------------------------
+// Pontes, cortes e Fleury (slides 08, 09 e 11)
+// ---------------------------------------------------------------------------
+
+/** Vértices alcançáveis de `start` usando só as arestas dadas (sem direção). */
+function reachableVia(edges: EdgeData[], start: string): Set<string> {
+  const seen = new Set([start]);
+  const stack = [start];
+  while (stack.length) {
+    const v = stack.pop()!;
+    for (const e of edges) {
+      if (e.source !== v && e.target !== v) continue;
+      const u = otherEnd(e, v);
+      if (!seen.has(u)) {
+        seen.add(u);
+        stack.push(u);
+      }
+    }
+  }
+  return seen;
+}
+
+function isBridgeAmong(edges: EdgeData[], e: EdgeData): boolean {
+  return !reachableVia(edges.filter((x) => x.id !== e.id), e.source).has(e.target);
+}
+
+/** Ponte: aresta cuja remoção desconecta o grafo (slide 08, "Finding Eulerian tours — Bridges"). */
+export function bridges(g: GraphData): string[] {
+  return g.edges.filter((e) => isBridgeAmong(g.edges, e)).map((e) => e.id);
+}
+
+/** cut(S): arestas (v, w) com v ∈ S e w ∈ V − S (slide 11, "Graph Cuts"). */
+export function cutSet(g: GraphData, s: string[]): string[] {
+  const inS = new Set(s);
+  return g.edges.filter((e) => inS.has(e.source) !== inS.has(e.target)).map((e) => e.id);
+}
+
+export function connectedComponentCount(g: GraphData): number {
+  const seen = new Set<string>();
+  let k = 0;
+  for (const v of vertexIds(g)) {
+    if (seen.has(v)) continue;
+    k++;
+    for (const u of reachableVia(g.edges, v)) seen.add(u);
+  }
+  return k;
+}
+
+/**
+ * Posto r = n − k (ramos) e nulidade = e − r (cordas). O slide 11, p. 35
+ * imprime "μ = e − n − k", mas o próprio exemplo do slide (n=8, e=9, k=1,
+ * 2 cordas) só fecha com e − n + k — ver o conflito registrado no tópico.
+ */
+export function rankAndNullity(g: GraphData): { n: number; e: number; k: number; rank: number; nullity: number } {
+  const n = g.vertices.length;
+  const e = g.edges.length;
+  const k = connectedComponentCount(g);
+  return { n, e, k, rank: n - k, nullity: e - n + k };
+}
+
+/**
+ * Algoritmo de Fleury exatamente como no slide 08 (quadro 33): começa em
+ * vértice de grau ímpar se houver; se há mais de uma aresta incidente,
+ * atravessa uma que não seja ponte; senão, atravessa a única disponível.
+ * Desempate: ordem de declaração das arestas.
+ */
+export function fleury(g: GraphData): { trail: string[]; edgeOrder: string[]; steps: AlgorithmStep[] } | null {
+  const { kind, oddVertices } = eulerianClassification(g);
+  if (kind === 'none' || g.edges.length === 0) return null;
+  let v = kind === 'path' ? oddVertices[0] : g.edges[0].source;
+  let remaining = [...g.edges];
+  const trail = [v];
+  const edgeOrder: string[] = [];
+  const steps: AlgorithmStep[] = [
+    {
+      description: kind === 'path' ? `Vértices de grau ímpar: ${oddVertices.join(', ')}. Começa em ${v}.` : `Todos os graus são pares. Começa em ${v}.`,
+      currentVertex: v,
+    },
+  ];
+
+  while (remaining.length) {
+    const incident = remaining.filter((e) => e.source === v || e.target === v);
+    if (incident.length === 0) return null; // desconexo: sobraram arestas inalcançáveis
+    let e: EdgeData;
+    let why: string;
+    if (incident.length > 1) {
+      e = incident.find((x) => !isBridgeAmong(remaining, x)) ?? incident[0];
+      const skipped = incident.filter((x) => x.id !== e.id && isBridgeAmong(remaining, x));
+      why = skipped.length ? `evita a ponte ${skipped.map((x) => `(${x.source},${x.target})`).join(', ')}` : 'não é ponte';
+    } else {
+      e = incident[0];
+      why = 'é a única aresta disponível';
+    }
+    remaining = remaining.filter((x) => x.id !== e.id);
+    const next = otherEnd(e, v);
+    edgeOrder.push(e.id);
+    trail.push(next);
+    steps.push({ description: `Atravessa (${v},${next}): ${why}. E = E − {(${v},${next})}.`, currentVertex: next, highlightEdges: [...edgeOrder], highlightVertices: [next] });
+    v = next;
+  }
+  steps.push({ description: `Trilha: ${trail.join('-')}.`, highlightEdges: [...edgeOrder] });
+  return { trail, edgeOrder, steps };
+}
+
+// ---------------------------------------------------------------------------
 // Dijkstra
 // ---------------------------------------------------------------------------
 
