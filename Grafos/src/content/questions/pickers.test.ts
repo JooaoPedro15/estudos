@@ -256,9 +256,10 @@ describe('respostas-modelo', () => {
 });
 
 describe('provas reais', () => {
-  it('8 provas, pesos somando 100, toda questão com resposta-modelo e no banco', async () => {
+  it('8 provas da P1 + 1 da P2, pesos somando 100, toda questão com resposta-modelo e no banco', async () => {
     const { realExams } = await import('@/content/exams');
-    expect(realExams.length).toBe(8);
+    expect(realExams.filter((e) => (e.prova ?? 'P1') === 'P1').length).toBe(8);
+    expect(realExams.filter((e) => e.prova === 'P2').length).toBe(1);
     const byId = new Map(questions.map((q) => [q.id, q]));
     for (const exam of realExams) {
       // 2022/1 soma 105% no original (10 + 25 + 30 + 20 + 20) — mantido literal.
