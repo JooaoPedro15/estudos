@@ -569,6 +569,54 @@ export function dijkstra(g: GraphData, start: string): { distances: Record<strin
 }
 
 // ---------------------------------------------------------------------------
+// Árvore geradora mínima (AGM)
+// ---------------------------------------------------------------------------
+
+export interface MstResult {
+  treeEdgeIds: string[];
+  totalWeight: number;
+  /** false quando o grafo é desconexo e a árvore não alcança todos os vértices. */
+  spanning: boolean;
+  steps: AlgorithmStep[];
+}
+
+function otherEnd(e: EdgeData, v: string): string {
+  return e.source === v ? e.target : e.source;
+}
+
+/**
+ * Prim (slide 11, "Optimality of Prim's Algorithm"): mantém a árvore (S, U) e
+ * a cada passo adiciona a aresta mais barata de cut(S). Empate: a primeira
+ * aresta na ordem em que o grafo foi declarado.
+ */
+export function prim(g: GraphData, start: string): MstResult {
+  const inTree = new Set([start]);
+  const treeEdgeIds: string[] = [];
+  let totalWeight = 0;
+  const steps: AlgorithmStep[] = [{ description: `S = {${start}}, U = ∅.`, currentVertex: start, highlightVertices: [start] }];
+
+  while (inTree.size < g.vertices.length) {
+    const cut = g.edges.filter((e) => inTree.has(e.source) !== inTree.has(e.target));
+    if (cut.length === 0) break;
+    const best = cut.reduce((a, b) => ((b.weight ?? 1) < (a.weight ?? 1) ? b : a));
+    const v = inTree.has(best.source) ? best.target : best.source;
+    inTree.add(v);
+    treeEdgeIds.push(best.id);
+    totalWeight += best.weight ?? 1;
+    steps.push({
+      description: `Aresta mais barata de cut(S): (${otherEnd(best, v)},${v}) com custo ${best.weight ?? 1}. Adiciona ${v} a S.`,
+      currentVertex: v,
+      highlightVertices: [...inTree],
+      highlightEdges: [...treeEdgeIds],
+      state: { custo: totalWeight },
+    });
+  }
+  const spanning = inTree.size === g.vertices.length;
+  steps.push({ description: spanning ? `S = V. Custo da AGM = ${totalWeight}.` : `cut(S) vazio: o grafo é desconexo.`, highlightEdges: [...treeEdgeIds] });
+  return { treeEdgeIds, totalWeight, spanning, steps };
+}
+
+// ---------------------------------------------------------------------------
 // Ordenação topológica / maior caminho em DAG
 // ---------------------------------------------------------------------------
 
