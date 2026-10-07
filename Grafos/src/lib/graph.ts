@@ -569,6 +569,76 @@ export function dijkstra(g: GraphData, start: string): { distances: Record<strin
 }
 
 // ---------------------------------------------------------------------------
+// Bellman-Ford
+// ---------------------------------------------------------------------------
+
+/** Arestas como pares ordenados; grafo não direcionado vira duas arestas direcionadas (slide 10, "Aside"). */
+function directedArcs(g: GraphData): { id: string; from: string; to: string; w: number }[] {
+  return g.edges.flatMap((e) => {
+    const w = e.weight ?? 1;
+    const arc = { id: e.id, from: e.source, to: e.target, w };
+    return g.directed ? [arc] : [arc, { id: e.id, from: e.target, to: e.source, w }];
+  });
+}
+
+/**
+ * Bellman-Ford na forma do slide 10 (quadro 25): d[i, v] = comprimento do
+ * menor caminho de s a v com no máximo i arestas. Linha 0: d[0, s] = 0, resto ∞.
+ * Para i = 1..n-1: d[i, v] = d[i-1, v] e, para cada aresta (w, v),
+ * d[i, v] = min{d[i, v], d[i-1, w] + c_wv}.
+ *
+ * A detecção de ciclo negativo (uma rodada extra que ainda melhora algum
+ * valor) NÃO está no slide — o slide só pergunta "How to detect negative
+ * cycles?". Fica aqui para o app conseguir avisar.
+ */
+export function bellmanFord(g: GraphData, start: string): {
+  table: Record<string, number>[];
+  distances: Record<string, number>;
+  predecessors: Record<string, string | null>;
+  negativeCycle: boolean;
+  steps: AlgorithmStep[];
+} {
+  const ids = vertexIds(g);
+  const arcs = directedArcs(g);
+  const first: Record<string, number> = Object.fromEntries(ids.map((v) => [v, v === start ? 0 : Infinity]));
+  const table = [first];
+  const predecessors: Record<string, string | null> = Object.fromEntries(ids.map((v) => [v, null]));
+  const fmt = (row: Record<string, number>) => ids.map((v) => `${v}=${row[v] === Infinity ? '∞' : row[v]}`).join(', ');
+  const steps: AlgorithmStep[] = [{ description: `i = 0: d[0, ${start}] = 0, demais = ∞.`, currentVertex: start, state: { ...first } }];
+
+  for (let i = 1; i < ids.length; i++) {
+    const prev = table[i - 1];
+    const row = { ...prev };
+    const changedEdges: string[] = [];
+    const changedVertices: string[] = [];
+    for (const a of arcs) {
+      if (prev[a.from] === Infinity) continue;
+      const candidate = prev[a.from] + a.w;
+      if (candidate < row[a.to]) {
+        row[a.to] = candidate;
+        predecessors[a.to] = a.from;
+        changedEdges.push(a.id);
+        changedVertices.push(a.to);
+      }
+    }
+    table.push(row);
+    steps.push({
+      description: changedVertices.length
+        ? `i = ${i} (caminhos com até ${i} arestas): melhora ${[...new Set(changedVertices)].join(', ')}. Linha: ${fmt(row)}.`
+        : `i = ${i}: nenhum valor mudou em relação à linha ${i - 1}. Linha: ${fmt(row)}.`,
+      highlightEdges: changedEdges,
+      highlightVertices: changedVertices,
+      state: { ...row },
+    });
+  }
+
+  const last = table[table.length - 1];
+  const negativeCycle = arcs.some((a) => last[a.from] !== Infinity && last[a.from] + a.w < last[a.to]);
+  if (negativeCycle) steps.push({ description: 'Uma rodada extra ainda melhoraria algum valor: há ciclo de custo negativo alcançável a partir da origem.' });
+  return { table, distances: { ...last }, predecessors, negativeCycle, steps };
+}
+
+// ---------------------------------------------------------------------------
 // Árvore geradora mínima (AGM)
 // ---------------------------------------------------------------------------
 
