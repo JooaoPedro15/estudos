@@ -70,3 +70,36 @@ ordenação topológica, emparelhamento, planaridade, coloração, conjuntos de 
 Exercícios 1–11 cobrem conteúdo da P1 (aperto de mãos, famílias de grafos, complemento,
 bipartição, operações). Só o **Exercício 12** (assassinato com portas: passar por todas as
 portas uma única vez) é de grafo euleriano — conteúdo da P2.
+
+## Decisões (07/10/2026)
+
+- **Floyd–Warshall e Indução**: sem slide; o usuário escolheu usar o livro (Cormen) com
+  etiqueta. Todo trecho de livro diz "Cormen, seção X" no app. Se aparecer slide ou foto
+  do quadro dessas aulas, ele passa a valer acima do livro (inclusive a notação).
+- **Nulidade (slide 11, p. 35)**: o slide imprime `μ = e − n − k`, mas o grafo do mesmo
+  slide (n = 8, e = 9, k = 1, 2 cordas) só fecha com `μ = e − n + k`. O app mostra os dois
+  como conflito (`conceptConflict` do tópico `arvore-geradora`) e recomenda confirmar com o
+  professor.
+- **DNA Reconstruction (slide 08, quadros 29–30)**: as páginas da modelagem estão em branco
+  no PDF (resolvido em aula). O app dá só o enunciado; não inventa a modelagem.
+- **Euleriano e Dijkstra** saíram do módulo da P1 e foram para a P2, onde agora têm slide.
+  A família de treino "euleriano" (2 provas antigas do Silvio) passou para a P2.
+- **Ordenação topológica** continua no módulo da P1 com `scopeNote`: pelo cronograma é P3.
+
+## No app
+
+Seletor P1/P2 no topo (padrão P2). Módulos da P2:
+
+| Módulo | Tópicos |
+|---|---|
+| `p2-inducao` | inducao |
+| `p2-euler-hamilton` | euleriano, hamiltoniano |
+| `p2-arvores-agm` | arvores, arvore-geradora, cortes, agm-prim-kruskal, steiner |
+| `p2-caminhos-minimos` | caminho-minimo-conceitos, dijkstra, bellman-ford, floyd-warshall |
+
+Motor (`src/lib/graph.ts`): `prim`, `kruskal`, `bellmanFord` (tabela `d[i, v]` do slide),
+`floydWarshall` (matrizes `D(k)`), `fleury`, `bridges`, `cutSet`, `rankAndNullity`.
+Grafos dos slides em `src/content/questions/graphs-p2.ts`. Questões em
+`src/content/questions/10-p2.ts` (inclui a P2 2024/1 transcrita, Q1 e Q2), definições em
+`src/content/definitions/p2.ts`, simulados `simulado-p2-a` e `simulado-p2-b` em
+`src/content/exams.ts`.
