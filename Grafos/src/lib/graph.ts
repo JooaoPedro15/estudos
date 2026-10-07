@@ -616,6 +616,40 @@ export function prim(g: GraphData, start: string): MstResult {
   return { treeEdgeIds, totalWeight, spanning, steps };
 }
 
+/**
+ * Kruskal (slide 11, "Optimality of Kruskal's Algorithm"): processa as arestas
+ * em ordem não decrescente de custo e descarta a que criaria ciclo. Empate:
+ * ordem de declaração. Cada vértice guarda o rótulo do seu componente.
+ */
+export function kruskal(g: GraphData): MstResult & { rejectedEdgeIds: string[] } {
+  const comp = new Map(vertexIds(g).map((v) => [v, v]));
+  const sorted = g.edges.map((e, i) => ({ e, i })).sort((x, y) => (x.e.weight ?? 1) - (y.e.weight ?? 1) || x.i - y.i).map((x) => x.e);
+  const treeEdgeIds: string[] = [];
+  const rejectedEdgeIds: string[] = [];
+  let totalWeight = 0;
+  const steps: AlgorithmStep[] = [
+    { description: `Ordem não decrescente de custo: ${sorted.map((e) => `(${e.source},${e.target})=${e.weight ?? 1}`).join(', ')}. T = ∅.` },
+  ];
+
+  for (const e of sorted) {
+    const a = comp.get(e.source)!;
+    const b = comp.get(e.target)!;
+    const label = `(${e.source},${e.target}) custo ${e.weight ?? 1}`;
+    if (a === b) {
+      rejectedEdgeIds.push(e.id);
+      steps.push({ description: `${label}: ${e.source} e ${e.target} já estão ligados em T, criaria ciclo. Descarta.`, highlightEdges: [...treeEdgeIds], highlightVertices: [e.source, e.target], state: { custo: totalWeight } });
+      continue;
+    }
+    for (const [v, c] of comp) if (c === b) comp.set(v, a);
+    treeEdgeIds.push(e.id);
+    totalWeight += e.weight ?? 1;
+    steps.push({ description: `${label}: não cria ciclo. Adiciona a T.`, highlightEdges: [...treeEdgeIds], highlightVertices: [e.source, e.target], state: { custo: totalWeight } });
+  }
+  const spanning = treeEdgeIds.length === g.vertices.length - 1;
+  steps.push({ description: spanning ? `Todas as arestas processadas. Custo da AGM = ${totalWeight}.` : `Grafo desconexo: T é uma floresta geradora com ${treeEdgeIds.length} arestas.`, highlightEdges: [...treeEdgeIds] });
+  return { treeEdgeIds, rejectedEdgeIds, totalWeight, spanning, steps };
+}
+
 // ---------------------------------------------------------------------------
 // Ordenação topológica / maior caminho em DAG
 // ---------------------------------------------------------------------------

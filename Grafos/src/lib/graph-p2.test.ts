@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeGraph, prim } from './graph';
+import { makeGraph, prim, kruskal } from './graph';
 
 // Grafo dos slides "Example of Prim's/Kruskal's Algorithm"
 // (11-graphs-trees-spanning-trees.pdf, p. 51-52 — quadros 16 e 17 de 29).
@@ -40,6 +40,29 @@ describe('Prim', () => {
     const g = makeGraph(false, ['a', 'b', 'c'], [['a', 'b', 1]]);
     const result = prim(g, 'a');
     expect(result.treeEdgeIds).toHaveLength(1);
+    expect(result.spanning).toBe(false);
+  });
+});
+
+describe('Kruskal', () => {
+  it('AGM do exemplo do slide pesa 39, igual à de Prim', () => {
+    expect(kruskal(slideMst).totalWeight).toBe(39);
+  });
+
+  it('aceita arestas em ordem não decrescente de custo', () => {
+    const { treeEdgeIds } = kruskal(slideMst);
+    expect(treeEdgeIds.map((id) => edgePair(slideMst, id))).toEqual(['a-d', 'c-e', 'd-f', 'a-b', 'b-e', 'e-g']);
+  });
+
+  it('descarta as arestas que formariam ciclo', () => {
+    const { rejectedEdgeIds } = kruskal(slideMst);
+    expect(rejectedEdgeIds.map((id) => edgePair(slideMst, id))).toEqual(['b-c', 'e-f', 'b-d', 'f-g', 'd-e']);
+  });
+
+  it('em grafo desconexo devolve floresta geradora (n - k arestas)', () => {
+    const g = makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b', 1], ['c', 'd', 2]]);
+    const result = kruskal(g);
+    expect(result.treeEdgeIds).toHaveLength(2);
     expect(result.spanning).toBe(false);
   });
 });
