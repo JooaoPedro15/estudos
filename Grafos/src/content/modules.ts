@@ -82,6 +82,16 @@ export const modules: Module[] = [
     icon: 'route',
     topicIds: ['euleriano', 'hamiltoniano'],
   },
+  {
+    id: 'p2-arvores-agm',
+    exam: 'P2',
+    order: 3,
+    title: 'Árvores, Cortes e AGM',
+    shortTitle: 'Árvores & AGM',
+    description: 'Árvores e florestas, árvore geradora (ramos, cordas, posto), cortes e conectividade, Prim, Kruskal e Reverse-Delete.',
+    icon: 'graph',
+    topicIds: ['arvores', 'arvore-geradora', 'cortes', 'agm-prim-kruskal', 'steiner'],
+  },
 ];
 
 export function modulesForExam(exam: ExamId): Module[] {
