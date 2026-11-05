@@ -259,16 +259,17 @@ describe('provas reais', () => {
   it('8 provas da P1 + 1 da P2, pesos somando 100, toda questão com resposta-modelo e no banco', async () => {
     const { realExams } = await import('@/content/exams');
     expect(realExams.filter((e) => (e.prova ?? 'P1') === 'P1').length).toBe(8);
-    expect(realExams.filter((e) => e.prova === 'P2').length).toBe(1);
+    expect(realExams.filter((e) => e.prova === 'P2').length).toBe(10);
     const byId = new Map(questions.map((q) => [q.id, q]));
     for (const exam of realExams) {
       // 2022/1 soma 105% no original (10 + 25 + 30 + 20 + 20) — mantido literal.
-      expect(exam.questions.reduce((a, x) => a + x.weightPercent, 0), exam.id).toBe(exam.id === 'prova-2022-1' ? 105 : 100);
+      const printed: Record<string, number> = { 'prova-2022-1': 105, 'prova-silvio-20xx-p7': 105, 'prova-silvio-20xx-p8': 110 };
+      expect(exam.questions.reduce((a, x) => a + x.weightPercent, 0), exam.id).toBe(printed[exam.id] ?? 100);
       for (const { questionId } of exam.questions) {
         const q = byId.get(questionId);
         expect(q, questionId).toBeTruthy();
         expect(q!.examAnswer, questionId).toBeTruthy();
-        expect(q!.type).toBe('PROOF_OR_JUSTIFICATION');
+        expect(['PROOF_OR_JUSTIFICATION', 'MULTIPLE_CHOICE']).toContain(q!.type);
       }
     }
   });

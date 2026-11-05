@@ -11,6 +11,7 @@ import { treinoProvaProofQuestions } from './08-treino-prova-provas';
 import { provasReaisQuestions } from './09-provas-reais';
 import { p2Questions, provaRealP2 } from './10-p2';
 import { p2SilvioQuestions } from './11-p2-silvio';
+import { provasSilvioQuestions } from './12-p2-provas-silvio';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 import { conceptExamWeights, examFamilies, examFamiliesFor, examFamilyWeight } from '@/content/examFamilies';
 import { getActiveExam } from '@/store/activeExam';
@@ -28,6 +29,7 @@ export const questions: Question[] = [
   ...provasReaisQuestions,
   ...p2Questions,
   ...p2SilvioQuestions,
+  ...provasSilvioQuestions,
   ...provaRealP2.questions.map((x) => x.question),
   ...definitionQuestions,
   ...closedDefinitionQuestions,

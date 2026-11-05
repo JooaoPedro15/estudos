@@ -38,9 +38,9 @@ const REAL_EXAMS_TEXT: Record<ExamId, { title: string; description: string }> = 
     description: 'As 8 provas do Prof. Silvio Jamil, questão por questão, com o enunciado literal (matrizes, listas e grafos transcritos dos PDFs).',
   },
   P2: {
-    title: 'Prova real — P2 de 2024/1',
+    title: 'Provas reais — 9 de P2 do Prof. Silvio',
     description:
-      'Prova do Prof. Zenilton (outro professor, mesma disciplina). Entram só as questões de assuntos que o cronograma 2026/2 põe na P2: AGM e caminhos mínimos. Fluxo, emparelhamento e ordenação topológica ficam para a P3.',
+      'Enunciados transcritos das fotos, da mais recente para a mais antiga, com respostas no jeito do resumo e das resoluções. Só os gabaritos da 2024/1 são oficiais. No fim, uma prova do Prof. Zenilton, de outro professor.',
   },
 };
 

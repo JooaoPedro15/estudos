@@ -983,7 +983,7 @@ ${pathText(q2.predecessors, '1', ['1', '2', '3', '4', '5', '6', '7'], q2.distanc
 export const provaRealP2 = {
   exam: {
     id: 'prova-p2-2024-1',
-    title: 'Prova 2 — 2024/1 (real, Q1 e Q2)',
+    title: 'Prova 2 — Prof. Zenilton (outro professor)',
     basedOn:
       'P2 - 1º 2024 (fotos), Prof. Zenilton — transcrição literal das questões 1 e 2 (4 + 4 de 20 pontos). As questões 3 (atribuição de almoços), 4 (fluxo máximo e corte mínimo) e 5 (ordenação topológica por Kahn) ficaram de fora: no cronograma 2026/2 esses assuntos são da P3.',
     suggestedDurationMinutes: 60,

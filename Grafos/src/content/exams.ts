@@ -1,6 +1,7 @@
 import type { Exam } from './types';
 import { provasReais } from './questions/09-provas-reais';
 import { provaRealP2 } from './questions/10-p2';
+import { provasSilvioP2 } from './questions/12-p2-provas-silvio';
 
 // Estrutura, contagem de questões e distribuição de peso baseadas no padrão
 // real das 8 provas do Prof. Silvio Jamil analisadas (ver docs/exam-pattern.md):
@@ -52,8 +53,8 @@ export const exams: Exam[] = [
   {
     id: 'simulado-p2-a',
     prova: 'P2',
-    title: 'Simulado P2 — Estilo A',
-    basedOn: 'Formato da P2 2024/1 (modelagem + execução) com os quatro algoritmos centrais do cronograma: AGM, Bellman-Ford, Dijkstra e Fleury.',
+    title: 'Simulado P2 — execução de algoritmos',
+    basedOn: 'Modelar e executar passo a passo: AGM, Bellman-Ford, Dijkstra e Fleury.',
     suggestedDurationMinutes: 110,
     questions: [
       { questionId: 'p2-agm-05', weightPercent: 25 },
@@ -65,14 +66,14 @@ export const exams: Exam[] = [
   {
     id: 'simulado-p2-b',
     prova: 'P2',
-    title: 'Simulado P2 — Estilo B',
-    basedOn: 'Demonstração por indução + euleriano em prova real do Prof. Silvio (2026/1-Q2) + AGM da P2 2024/1 + Floyd-Warshall (pelo livro).',
-    suggestedDurationMinutes: 120,
+    title: 'Simulado P2 — o que mais se repete',
+    basedOn: 'As famílias mais frequentes nas provas do Prof. Silvio: grafo de linha, Prim com aresta obrigatória, capacidade máxima e conectividade.',
+    suggestedDurationMinutes: 100,
     questions: [
-      { questionId: 'p2-ind-03', weightPercent: 20 },
-      { questionId: 'pr-2026-1-q2', weightPercent: 30 },
-      { questionId: 'pr-p2-2024-1-q1', weightPercent: 25 },
-      { questionId: 'p2-fw-03', weightPercent: 25 },
+      { questionId: 'ps-2026-1-q1', weightPercent: 30 },
+      { questionId: 'ps-2025-1-q4', weightPercent: 25 },
+      { questionId: 'ps-20xx6-q4', weightPercent: 25 },
+      { questionId: 'ps-2021-2-q2', weightPercent: 20 },
     ],
   },
 ];
@@ -82,6 +83,12 @@ export const realExams: Exam[] = [
   ...provasReais.map((p) => ({
     ...p.exam,
     kind: 'real' as const,
+    questions: p.questions.map((x) => ({ questionId: x.question.id, weightPercent: x.weightPercent })),
+  })),
+  ...provasSilvioP2.map((p) => ({
+    ...p.exam,
+    kind: 'real' as const,
+    prova: 'P2' as const,
     questions: p.questions.map((x) => ({ questionId: x.question.id, weightPercent: x.weightPercent })),
   })),
   {
