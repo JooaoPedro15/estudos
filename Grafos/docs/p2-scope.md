@@ -7,7 +7,10 @@
 - Dado até agora, segundo o aluno: até grafo de linha; ponderados, AGM, euleriano, hamiltoniano; provavelmente Dijkstra e Bellman-Ford. Floyd-Warshall não foi citado.
 - **Cumulativa**: cai conteúdo da P1. Lógica e conjuntos não aparecem em nenhuma prova de P2.
 - 9 provas de P2 do Prof. Silvio em `Materiais/Provas/Prova2`: 2021/2, 2024/1, 2024/2, 2025/1, `P2-TGC.pdf` (2026/1) e 4 sem data em `20xx-x-exam.pdf` (p. 1, 6, 7, 8). As provas do Prof. Zenilton são de outro professor e pesam pouco.
-- Pendente: transcrever as 9 provas, com respostas-modelo no registro do material de aluna que o usuário vai colocar em `Materiais/Outros`, que vale como estilo do professor.
+- Material de aluna, tratado como o jeito do professor a pedido do usuário: `Outros/Resumo Prova 2 Grafos.pdf`, `Outros/Aulão II De Grafos .pdf` e `Provas/Prova2/provas2_antigas_treino.pdf`. A lista de matéria do resumo inclui conectividade direcionada, Kosaraju, Dijkstra, Bellman-Ford, Min-Max e Max-Min, maior caminho, AGM, Johnson, caminho crítico e excentricidade; Floyd-Warshall está riscado.
+- Provas transcritas em `src/content/questions/12-p2-provas-silvio.ts`. Respostas no registro do material; só os gabaritos de 2024/1 são oficiais.
+- Erros do material não copiados: na resolução da prova da p. 7 de `20xx-x-exam.pdf`, Kruskal e Prim usam c–e = 2, mas a matriz dá 4 (AGM = 16). O texto digitado do resumo troca as frases de Min-Max e Max-Min; valem as anotações à mão e os pseudocódigos.
+- Roteiro por dia em `src/content/p2Plan.ts`, exibido na página `/prova2` (Estudo P2).
 - Gabarito de 2024/1 ("CORRIGIDO") a confirmar com o professor: Q3 item 3 e Q7 item 4.
 
 ## Hierarquia de fontes
