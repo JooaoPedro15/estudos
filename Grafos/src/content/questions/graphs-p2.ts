@@ -83,3 +83,15 @@ export const P2_2024_Q2 = placed(
 
 /** Exemplo criado para explicação do Floyd-Warshall (livro): 4 vértices, com uma aresta negativa. */
 export const FW_EXAMPLE = placed({ '1': [100, 80], '2': [460, 80], '3': [460, 260], '4': [100, 260] }, [['1', '2', 3], ['2', '3', 2], ['1', '4', 7], ['4', '3', -2], ['3', '1', 4], ['2', '4', 1]], true);
+
+/** "Line graph" — 13-graphs-planarity.pdf, quadro 34. Arestas na ordem dos rótulos 1 a 6 do slide. */
+export const SLIDE_LINE_G = placed(
+  { d: [150, 50], c: [330, 50], e: [60, 170], b: [440, 170], f: [150, 280], a: [330, 280] },
+  [['e', 'a'], ['c', 'a'], ['d', 'e'], ['d', 'f'], ['c', 'b'], ['d', 'c']],
+);
+
+/** Contraexemplo de 2026/1-Q1.3: K4 menos uma aresta (semi-euleriano; L(G) tem 4 vértices ímpares). */
+export const K4_MENOS_E = placed({ x: [150, 160], y: [410, 160], u: [280, 50], v: [280, 280] }, [['x', 'y'], ['x', 'u'], ['x', 'v'], ['y', 'u'], ['y', 'v']]);
+
+/** K4 da lista, Exercício 20. */
+export const K4 = placed({ '1': [120, 60], '2': [440, 60], '3': [440, 270], '4': [120, 270] }, [['1', '2'], ['1', '3'], ['1', '4'], ['2', '3'], ['2', '4'], ['3', '4']]);

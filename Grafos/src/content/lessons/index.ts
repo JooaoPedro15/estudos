@@ -6,6 +6,7 @@ import { logicLessons } from './logic';
 import { p2ExtraLessons, p2Lessons } from './p2';
 import { p2ArvoresLessons } from './p2-arvores';
 import { p2CaminhosExtraLessons, p2CaminhosLessons } from './p2-caminhos';
+import { p2LinhaLessons } from './p2-linha';
 
 export const lessons: LessonCatalog = {
   ...foundationsLessons,
@@ -15,6 +16,7 @@ export const lessons: LessonCatalog = {
   ...p2Lessons,
   ...p2ArvoresLessons,
   ...p2CaminhosLessons,
+  ...p2LinhaLessons,
 };
 
 // Tópicos que já tinham lição recebem os conceitos extras da P2 no fim.

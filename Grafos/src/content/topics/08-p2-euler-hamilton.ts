@@ -69,4 +69,28 @@ export const eulerHamiltonTopics: Topic[] = [
       { type: 'professor_slide', file: T, page: 119, note: 'DNA Reconstruction — quadros 28-30 de 33' },
     ],
   },
+  {
+    id: 'grafo-de-linha',
+    moduleId: 'p2-euler-hamilton',
+    order: 3,
+    slug: 'grafo-de-linha',
+    title: 'Grafo de linha L(G)',
+    examLikelihood: 'high',
+    examEvidence:
+      'A P2 mais recente do Prof. Silvio (2026/1-Q1, 45%) é inteira sobre grafo de linha + euleriano/hamiltoniano. Segundo o aluno, foi a última matéria dada em 2026/2.',
+    whatYouNeedToKnow:
+      'Seja G não direcionado e conexo. Os vértices de L(G) são as ARESTAS de G; dois vértices de L(G) são adjacentes se as arestas correspondentes são adjacentes em G (compartilham um vértice).',
+    understand: [
+      'Definição (slide 13, quadro 34; lista, Exercício 20): cada aresta de G vira um vértice de L(G); liga-se dois deles quando as arestas compartilham uma ponta. No exemplo do slide, 6 arestas viram 6 vértices.',
+      'Contagem (consequência da definição, não está escrita no slide): a aresta uv encosta em d(u) − 1 arestas por u e d(v) − 1 por v, logo seu grau em L(G) é d(u) + d(v) − 2. Cada vértice v gera C(d(v), 2) pares de arestas adjacentes, logo |E(L(G))| = Σ C(d(v), 2). L(K4) tem 6 vértices e 12 arestas (Exercício 20 da lista).',
+      'Com Euler e Hamilton (2026/1-Q1; a justificativa é raciocínio sobre a prova, não resposta oficial): G euleriano ⇒ L(G) euleriano, pois d(u) + d(v) − 2 é par. G euleriano ⇒ L(G) hamiltoniano, pois o circuito passa por cada aresta uma vez e arestas seguidas são adjacentes: vira um ciclo por todos os vértices de L(G). G semi-euleriano NÃO garante L(G) semi-euleriano: K4 menos uma aresta dá 4 vértices de grau ímpar em L(G).',
+      'O slide fecha com χ′(G) = χ(L(G)): o índice cromático de G é o número cromático de L(G). Colorir as arestas de G é colorir os vértices de L(G), porque arestas adjacentes viram vértices adjacentes.',
+    ],
+    commonPitfall: 'Trocar quem vira o quê: vértice de L(G) é ARESTA de G. Outro erro: responder V/F sem justificar — a prova avisa que "apenas indicar verdadeiro ou falso irá anular sua resposta".',
+    sources: [
+      { type: 'professor_slide', file: '13-graphs-planarity.pdf', page: 106, note: 'Line graph — quadro 34 de 37' },
+      { type: 'professor_support_material', file: 'Lista-de-exercicios-1.pdf', note: 'Exercício 20' },
+      { type: 'old_exam', file: 'P2-TGC.pdf', note: '2026/1 (Prova 2), Questão 1' },
+    ],
+  },
 ];

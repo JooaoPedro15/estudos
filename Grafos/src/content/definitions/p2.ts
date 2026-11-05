@@ -66,6 +66,18 @@ export const p2Definitions = [
     source: slide(TV, 110, 'Algorithmic issues — Hamiltonian tour, quadro 26 de 33'),
   }),
 
+  def({
+    id: 'grafo-de-linha',
+    topic: 'grafo-de-linha',
+    concept: 'grafo de linha',
+    definition: 'Seja G = (V, E) um grafo não direcionado e conexo. O grafo de linha L(G) é definido assim: os vértices de L(G) são as arestas de G; dois vértices são adjacentes em L(G) se as arestas correspondentes são adjacentes em G.',
+    keyPoints: ['Vértices de L(G) = arestas de G', 'Adjacentes em L(G) ⟺ as arestas são adjacentes em G (compartilham vértice)'],
+    intuition: 'Troque o ponto de vista: cada estrada vira um ponto, e duas estradas ficam ligadas se elas se encontram.',
+    example: 'Lista, Exercício 20: L(K4) tem 6 vértices e 12 arestas.',
+    note: 'Original: "The vertices of L(G) are the edges of G; Two vertices are adjacent in L(G) if their corresponding edges in G are adjacent".',
+    source: slide('13-graphs-planarity.pdf', 106, 'Line graph — quadro 34 de 37'),
+  }),
+
   // ---------------------------------------------------------------- Árvores
   def({
     id: 'arvore',

@@ -9,7 +9,7 @@ import { GraphLesson } from './GraphLesson';
 import { isDefinitionQuestion, questionsForTopic } from '@/content/questions';
 import { setLastPosition, recordAttempt } from '@/store/progress';
 import { makeGraph } from '@/lib/graph';
-import { FW_EXAMPLE, P2_2024_Q2, SLIDE_DIJKSTRA, SLIDE_EULER, SLIDE_FLEURY, SLIDE_LX, SLIDE_MST, SLIDE_SPANNING } from '@/content/questions/graphs-p2';
+import { FW_EXAMPLE, P2_2024_Q2, SLIDE_DIJKSTRA, SLIDE_EULER, SLIDE_FLEURY, SLIDE_LINE_G, SLIDE_LX, SLIDE_MST, SLIDE_SPANNING } from '@/content/questions/graphs-p2';
 import type { GraphData, Question } from '@/content/types';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { RepresentationPanel } from '@/components/graph/RepresentationPanel';
@@ -59,6 +59,8 @@ function buildTopicGraph(topicId: string): GraphData {
       return SLIDE_FLEURY;
     case 'hamiltoniano':
       return SLIDE_EULER;
+    case 'grafo-de-linha':
+      return SLIDE_LINE_G;
     case 'inducao':
     case 'dijkstra':
       return SLIDE_DIJKSTRA;
