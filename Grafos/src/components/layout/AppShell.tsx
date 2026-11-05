@@ -9,9 +9,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { label: 'Estudo P2', href: '/prova2' },
   { label: 'Início', href: '/' },
   { label: 'Módulos', href: '/modulos' },
-  { label: 'Playground', href: '/playground' },
+  { label: 'Laboratório', href: '/playground' },
   { label: 'Simulado', href: '/simulado' },
   { label: 'Progresso', href: '/progresso' },
   { label: 'Revisão Final', href: '/revisao-final' },
@@ -64,7 +65,7 @@ export function AppShell() {
         Pular para o conteúdo
       </a>
       <header className="sticky top-0 z-40 border-b border-[var(--color-border-soft)] bg-[var(--color-bg-overlay)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:gap-6 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:gap-x-6 sm:px-6">
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-[var(--color-text-primary)]">
               <GrafosGlyph />
@@ -72,12 +73,12 @@ export function AppShell() {
             </Link>
             <ExamSwitch />
           </div>
-          <nav aria-label="Navegação principal" className="hidden items-center gap-1 sm:flex">
+          <nav aria-label="Navegação principal" className="-mx-1 flex w-full items-center gap-1 overflow-x-auto sm:mx-0 sm:w-auto">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.label}
                 to={item.href}
-                className="rounded-lg px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
+                className="shrink-0 rounded-lg px-3 py-1.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
               >
                 {item.label}
               </Link>

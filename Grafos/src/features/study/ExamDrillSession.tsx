@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, questions, type ExamDrillKind } from '@/content/questions';
@@ -45,7 +45,8 @@ export function ExamDrillSession() {
   const [showTable, setShowTable] = useState(false);
   const [kind, setKind] = useState<ExamDrillKind>('closed');
   // Famílias escolhidas na tabela "o que mais cai"; vazio = todas (sorteio pelo peso).
-  const [familyIds, setFamilyIds] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
+  const [familyIds, setFamilyIds] = useState<string[]>(() => (searchParams.get('familia') ? [searchParams.get('familia')!] : []));
   const [loaded, setLoaded] = useState(false);
   const startedAtRef = useRef(Date.now());
   const lastSavedSecondsRef = useRef(0);

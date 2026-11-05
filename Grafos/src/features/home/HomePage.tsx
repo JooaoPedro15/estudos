@@ -119,6 +119,18 @@ export function HomePage() {
         <p className="text-[var(--color-text-secondary)]">Preparação para {exam} — Teoria dos Grafos, Prof. Silvio Jamil.</p>
       </motion.header>
 
+      {exam === 'P2' && (
+        <Link to="/prova2" className="block">
+          <div className="flex flex-col gap-2 rounded-2xl border border-[var(--color-accent)] bg-[var(--color-accent-soft)] p-5 transition-colors hover:bg-[var(--color-accent)]/25 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-lg font-semibold text-[var(--color-text-primary)]">Estudo P2</span>
+              <span className="text-sm text-[var(--color-text-secondary)]">O roteiro de cada dia até a prova, as 9 provas antigas e o que mais cai.</span>
+            </div>
+            <span className="text-sm font-medium text-[var(--color-accent-strong)]">Abrir roteiro →</span>
+          </div>
+        </Link>
+      )}
+
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
         <Card padding="lg" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-col gap-2">
