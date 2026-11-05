@@ -245,6 +245,53 @@ export const p2Definitions = [
     source: slide(TR, 86, 'Steiner Tree — quadros 28-29 de 29'),
   }),
 
+  // ---------------------------------------------------------------- Material da P2
+  def({
+    id: 'conectividade-tipos',
+    topic: 'conectividade-direcionada',
+    concept: 'tipos de conectividade em grafos direcionados',
+    prompt: 'Discorra sobre conectividade em grafos direcionados: apresente os tipos e como identificá-los.',
+    definition:
+      'Fracamente conexo: existe caminho entre quaisquer dois vértices ao ignorar a direção das arestas (identifica-se com busca em profundidade no grafo subjacente). Semi-fortemente conexo: para qualquer par (u, v), existe caminho de u para v ou de v para u. Fortemente conexo: existe caminho em ambas as direções para qualquer par (identifica-se com Kosaraju: uma única DFS no transposto visita todo o grafo).',
+    keyPoints: ['Fraco: ignorando a direção', 'Semi-forte: caminho em pelo menos um sentido, para todo par', 'Forte: caminho nos dois sentidos, para todo par', 'Forte se identifica com Kosaraju'],
+    intuition: 'Ruas de mão única: fraco ignora a mão; semi-forte, pelo menos um chega no outro; forte, os dois chegam.',
+    note: 'O slide 09 chama o tipo fraco de "simplesmente conexo (s-conexo)".',
+    sourceStyle: 'board',
+    source: { type: 'professor_support_material', file: 'Resumo Prova 2 Grafos.pdf', page: 3, note: 'Conectividade em Grafos Direcionados' },
+  }),
+  def({
+    id: 'max-min',
+    topic: 'max-min',
+    concept: 'Max-Min (caminho de capacidade máxima)',
+    definition: 'Capacidade de um caminho é o peso da sua aresta de menor peso. Max-Min encontra o caminho de maior capacidade (o maior dos menores). É uma adaptação do Dijkstra: valores = +∞ na origem e −∞ nos demais; extrai o vértice de maior valor; para cada vizinho v, menor_custo = min(valores[u], W(u, v)); se menor_custo > valores[v], atualiza.',
+    keyPoints: ['Capacidade = menor aresta do caminho', 'Maior dos menores', 'Adaptação do Dijkstra: extrai o MAIOR valor', 'Atualiza com min(valores[u], W(u, v))'],
+    intuition: 'Caso do cano: o trecho mais fino limita a vazão de todo o caminho.',
+    sourceStyle: 'board',
+    source: { type: 'professor_support_material', file: 'Resumo Prova 2 Grafos.pdf', page: 8, note: 'Algoritmos de Fluxo' },
+  }),
+  def({
+    id: 'johnson',
+    topic: 'johnson',
+    concept: 'Algoritmo de Johnson',
+    prompt: 'Descreva o Algoritmo de Johnson.',
+    definition: 'Encontra o menor caminho de n para n vértices. (1) Adiciona um vértice s com aresta de peso 0 para todo v; (2) aplica Bellman-Ford a partir de s para obter d[v]; (3) se houver ciclo negativo, encerra; (4) ajusta peso′(u, v) = peso(u, v) + d[u] − d[v], o que deixa os pesos não negativos; (5) aplica Dijkstra para cada v; (6) desfaz o ajuste: d[u, v] = d′[u, v] − d[u] + d[v].',
+    keyPoints: ['Vértice novo com peso 0 para todos', 'Bellman-Ford para obter d[v]', 'peso′(u, v) = peso(u, v) + d[u] − d[v]', 'Dijkstra de cada vértice', 'Desfaz: d[u, v] = d′[u, v] − d[u] + d[v]'],
+    intuition: 'Usa o Bellman-Ford uma vez para deixar os pesos "bonzinhos" e depois aproveita o Dijkstra várias vezes.',
+    examLikelihood: 'medium',
+    sourceStyle: 'board',
+    source: { type: 'professor_support_material', file: 'Resumo Prova 2 Grafos.pdf', page: 13, note: 'Algoritmo de Johnson' },
+  }),
+  def({
+    id: 'caminho-critico',
+    topic: 'caminho-critico',
+    concept: 'caminho crítico',
+    definition: 'Usado para alcançar o vértice mais distante no menor tempo possível. Identificamos a base (vértices com grau de entrada 0), removemos a base e repetimos até o grafo ficar vazio; enquanto houver conjuntos de bases diferentes, adicionamos ao caminho. Isso garante a ordem topológica.',
+    keyPoints: ['Base = grau de entrada 0', 'Remove a base e repete até esvaziar', 'Garante a ordem topológica'],
+    intuition: 'Grade de disciplinas: cada rodada é um período com tudo que já pode ser cursado.',
+    sourceStyle: 'board',
+    source: { type: 'professor_support_material', file: 'Resumo Prova 2 Grafos.pdf', page: 14, note: 'Caminho Crítico' },
+  }),
+
   // ---------------------------------------------------------------- Caminhos mínimos
   def({
     id: 'comprimento-caminho',

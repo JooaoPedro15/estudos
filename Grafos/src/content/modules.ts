@@ -70,7 +70,7 @@ export const modules: Module[] = [
   {
     id: 'p2-inducao',
     exam: 'P2',
-    order: 1,
+    order: 5,
     title: 'Indução',
     shortTitle: 'Indução',
     description: 'Prova por indução: base, hipótese e passo — e como os slides a usam para provar o Dijkstra.',
@@ -90,7 +90,7 @@ export const modules: Module[] = [
   {
     id: 'p2-arvores-agm',
     exam: 'P2',
-    order: 3,
+    order: 1,
     title: 'Árvores, Cortes e AGM',
     shortTitle: 'Árvores & AGM',
     description: 'Árvores e florestas, árvore geradora (ramos, cordas, posto), cortes e conectividade, Prim, Kruskal e Reverse-Delete.',
@@ -100,18 +100,28 @@ export const modules: Module[] = [
   {
     id: 'p2-caminhos-minimos',
     exam: 'P2',
-    order: 4,
+    order: 3,
     title: 'Caminhos Mínimos',
     shortTitle: 'Caminhos mínimos',
-    description: 'O problema e o mapa Lx, Dijkstra, Bellman-Ford (pesos negativos) e Floyd-Warshall (todos os pares, pelo livro).',
+    description: 'Dijkstra, Bellman-Ford, Max-Min/Min-Max, caminho crítico, Johnson e, pelo livro, Floyd-Warshall.',
     icon: 'route',
-    topicIds: ['caminho-minimo-conceitos', 'dijkstra', 'bellman-ford', 'floyd-warshall'],
+    topicIds: ['caminho-minimo-conceitos', 'dijkstra', 'bellman-ford', 'max-min', 'caminho-critico', 'johnson', 'floyd-warshall'],
+  },
+  {
+    id: 'p2-conectividade',
+    exam: 'P2',
+    order: 4,
+    title: 'Conectividade em Grafos Direcionados',
+    shortTitle: 'Conectividade',
+    description: 'Fracamente, semi-fortemente e fortemente conexo: o que é cada um e como identificar.',
+    icon: 'search',
+    topicIds: ['conectividade-direcionada'],
   },
 ];
 
 export function modulesForExam(exam: ExamId): Module[] {
   // Matéria nova da prova primeiro; depois a revisão que vem de outras provas.
-  return [...modules.filter((m) => m.exam === exam), ...modules.filter((m) => m.alsoIn?.includes(exam))];
+  return [...modules.filter((m) => m.exam === exam).sort((a, b) => a.order - b.order), ...modules.filter((m) => m.alsoIn?.includes(exam))];
 }
 
 export function topicIdsForExam(exam: ExamId): string[] {

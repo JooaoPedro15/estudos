@@ -146,6 +146,10 @@ export const PREREQUISITES: Record<string, string[]> = {
   ponte: ['grafo-conexo', 'remocao-de-aresta'],
   fleury: ['caminho-euleriano', 'ponte', 'teorema-grau-impar'],
   'caminho-hamiltoniano': ['path'],
+  'conectividade-tipos': ['grafo-direcionado', 'grafo-conexo'],
+  'max-min': ['dijkstra'],
+  johnson: ['bellman-ford', 'dijkstra'],
+  'caminho-critico': ['grafo-direcionado', 'grau-entrada-saida'],
   'grafo-de-linha': ['arestas-adjacentes', 'grafo-conexo'],
   // P2 — Árvores e cortes
   arvore: ['grafo-conexo', 'cycle'],

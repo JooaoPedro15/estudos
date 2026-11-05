@@ -95,3 +95,36 @@ export const K4_MENOS_E = placed({ x: [150, 160], y: [410, 160], u: [280, 50], v
 
 /** K4 da lista, Exercício 20. */
 export const K4 = placed({ '1': [120, 60], '2': [440, 60], '3': [440, 270], '4': [120, 270] }, [['1', '2'], ['1', '3'], ['1', '4'], ['2', '3'], ['2', '4'], ['3', '4']]);
+
+/** Min-Max do Resumo Prova 2, p. 8: três caminhos de s a t (cima 2-1-8, meio 6-9-3, baixo 7-4-5). */
+export const RESUMO_MINMAX = placed(
+  { s: [50, 160], a: [190, 50], b: [350, 50], c: [190, 160], d: [350, 160], e: [190, 275], f: [350, 275], t: [500, 160] },
+  [['s', 'a', 2], ['a', 'b', 1], ['b', 't', 8], ['s', 'c', 6], ['c', 'd', 9], ['d', 't', 3], ['s', 'e', 7], ['e', 'f', 4], ['f', 't', 5]],
+);
+
+/** Caminho crítico do aulão II, p. 4. */
+export const AULAO_CRITICO = placed(
+  { A: [90, 70], B: [90, 250], C: [280, 40], D: [280, 160], E: [280, 280], F: [470, 90], G: [470, 240] },
+  [['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F'], ['D', 'F'], ['D', 'G'], ['E', 'G']],
+  true,
+);
+
+/** Bellman-Ford do aulão II, p. 3. */
+export const AULAO_BF = placed(
+  { A: [90, 60], B: [430, 60], C: [90, 270], D: [300, 270], E: [490, 270] },
+  [['A', 'B', 4], ['A', 'C', 1], ['C', 'D', -5], ['D', 'B', 1], ['E', 'B', 7], ['E', 'D', -2]],
+  true,
+);
+
+/** Exemplo criado: fracamente e semi-fortemente conexo, sem ser fortemente conexo. */
+export const PASSEIO_CONEXO = placed(
+  { a: [70, 160], b: [190, 60], c: [320, 60], d: [320, 260], e: [490, 160] },
+  [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e']],
+  true,
+);
+
+/** Matriz de 2021/2-Q3 e da prova sem data da p. 7. */
+export const SILVIO_MATRIZ = placed(
+  { A: [60, 150], B: [210, 50], C: [390, 50], D: [120, 280], E: [290, 180], F: [480, 200] },
+  [['A', 'B', 6], ['A', 'C', 9], ['A', 'D', 11], ['A', 'E', 15], ['A', 'F', 9], ['B', 'C', 13], ['B', 'D', 3], ['B', 'E', 1], ['B', 'F', 2], ['C', 'D', 10], ['C', 'E', 4], ['C', 'F', 4], ['D', 'E', 5], ['D', 'F', 6], ['E', 'F', 2]],
+);

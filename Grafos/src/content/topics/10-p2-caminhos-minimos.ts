@@ -94,7 +94,7 @@ export const caminhosMinimosTopics: Topic[] = [
     slug: 'floyd-warshall',
     title: 'Todos os pares — Algoritmo de Floyd-Warshall',
     examLikelihood: 'low',
-    examEvidence: 'Está no cronograma, mas o aluno não o citou entre o que foi dado, nenhum slide foi fornecido e nenhuma das 9 provas de P2 do Prof. Silvio cobra. Todo o conteúdo abaixo é do Cormen, exceto a menção ao problema 3 do slide 10.',
+    examEvidence: 'Riscado na lista de matéria do resumo ("ainda a ser estudado"). Está no cronograma, mas o aluno não o citou, nenhum slide foi fornecido e nenhuma das 9 provas de P2 do Prof. Silvio cobra. Todo o conteúdo abaixo é do Cormen, exceto a menção ao problema 3 do slide 10.',
     scopeNote:
       'Sem slide do professor. A única base de Nível 1 é o problema 3 do slide 10 ("para cada par x, y, o menor caminho"). O algoritmo, a notação d(k)ij e a complexidade vêm do Cormen, seção 25.2. Se o professor soltar slide ou se tiver foto do quadro dessas aulas, ela passa a valer acima do livro, inclusive a notação.',
     whatYouNeedToKnow:
