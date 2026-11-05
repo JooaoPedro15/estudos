@@ -58,6 +58,8 @@ export type ExamId = 'P1' | 'P2';
 export interface Module {
   id: string;
   exam: ExamId;
+  /** Outras provas que também cobram o módulo (a P2 é cumulativa). */
+  alsoIn?: ExamId[];
   order: number;
   title: string;
   shortTitle: string;

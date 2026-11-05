@@ -4,6 +4,7 @@ export const modules: Module[] = [
   {
     id: 'fundamentos',
     exam: 'P1',
+    alsoIn: ['P2'],
     order: 1,
     title: 'Fundamentos de Grafos',
     shortTitle: 'Fundamentos',
@@ -14,6 +15,7 @@ export const modules: Module[] = [
   {
     id: 'representacoes',
     exam: 'P1',
+    alsoIn: ['P2'],
     order: 2,
     title: 'Representações de Grafos',
     shortTitle: 'Representações',
@@ -24,6 +26,7 @@ export const modules: Module[] = [
   {
     id: 'isomorfismo-propriedades',
     exam: 'P1',
+    alsoIn: ['P2'],
     order: 3,
     title: 'Isomorfismo & Propriedades',
     shortTitle: 'Isomorfismo',
@@ -34,6 +37,7 @@ export const modules: Module[] = [
   {
     id: 'busca-alcancabilidade',
     exam: 'P1',
+    alsoIn: ['P2'],
     order: 4,
     title: 'Busca e Alcançabilidade',
     shortTitle: 'Busca',
@@ -44,6 +48,7 @@ export const modules: Module[] = [
   {
     id: 'conectividade-caminhos',
     exam: 'P1',
+    alsoIn: ['P2'],
     order: 5,
     title: 'Conectividade e Caminhos Especiais',
     shortTitle: 'Conectividade',
@@ -105,7 +110,7 @@ export const modules: Module[] = [
 ];
 
 export function modulesForExam(exam: ExamId): Module[] {
-  return modules.filter((m) => m.exam === exam);
+  return modules.filter((m) => m.exam === exam || m.alsoIn?.includes(exam));
 }
 
 export function topicIdsForExam(exam: ExamId): string[] {

@@ -28,6 +28,7 @@ export function ModuleListPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {modules.map((module, i) => {
+          const isReview = module.exam !== exam;
           const topicCount = topicsForModule(module.id).length;
           return (
             <motion.div
@@ -44,7 +45,7 @@ export function ModuleListPage() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
-                      Módulo {module.order.toString().padStart(2, '0')}
+                      {isReview ? `Revisão da ${module.exam} (cai, a prova é cumulativa)` : `Módulo ${module.order.toString().padStart(2, '0')}`}
                     </span>
                     <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{module.title}</h2>
                     <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{module.description}</p>
