@@ -1,6 +1,14 @@
 # P2 Scope — Teoria dos Grafos e Computabilidade (Prof. Silvio Jamil F. Guimarães)
 
-**Prova 2 de 2026/2: quinta-feira, 22/10/2026** (cronograma oficial, p. 2).
+**Prova 2 de 2026/2: quarta-feira, 11/11/2026** (informada pelo aluno em 05/11; o cronograma previa 22/10, mas o professor atrasou).
+
+## Revisão de 05/11/2026 (vale acima do resto deste arquivo)
+
+- Dado até agora, segundo o aluno: até grafo de linha; ponderados, AGM, euleriano, hamiltoniano; provavelmente Dijkstra e Bellman-Ford. Floyd-Warshall não foi citado.
+- **Cumulativa**: cai conteúdo da P1. Lógica e conjuntos não aparecem em nenhuma prova de P2.
+- 9 provas de P2 do Prof. Silvio em `Materiais/Provas/Prova2`: 2021/2, 2024/1, 2024/2, 2025/1, `P2-TGC.pdf` (2026/1) e 4 sem data em `20xx-x-exam.pdf` (p. 1, 6, 7, 8). As provas do Prof. Zenilton são de outro professor e pesam pouco.
+- Pendente: transcrever as 9 provas, com respostas-modelo no registro do material de aluna que o usuário vai colocar em `Materiais/Outros`, que vale como estilo do professor.
+- Gabarito de 2024/1 ("CORRIGIDO") a confirmar com o professor: Q3 item 3 e Q7 item 4.
 
 ## Hierarquia de fontes
 
