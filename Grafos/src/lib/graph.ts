@@ -684,6 +684,84 @@ export function widestPath(g: GraphData, start: string): { capacities: Record<st
   return { capacities, predecessors };
 }
 
+/**
+ * Min-Max (Resumo Prova 2, p. 8): "menor dos maiores". cap[v] = menor valor
+ * possível para a MAIOR aresta de um caminho de s a v.
+ */
+export function minMaxPath(g: GraphData, start: string): { values: Record<string, number>; predecessors: Record<string, string | null> } {
+  const values: Record<string, number> = Object.fromEntries(vertexIds(g).map((v) => [v, v === start ? -Infinity : Infinity]));
+  const predecessors: Record<string, string | null> = Object.fromEntries(vertexIds(g).map((v) => [v, null]));
+  const done = new Set<string>();
+  while (done.size < g.vertices.length) {
+    const open = vertexIds(g).filter((v) => !done.has(v) && values[v] < Infinity);
+    if (open.length === 0) break;
+    const u = open.reduce((a, b) => (values[b] < values[a] ? b : a));
+    done.add(u);
+    for (const e of g.edges) {
+      const to = e.source === u ? e.target : !g.directed && e.target === u ? e.source : null;
+      if (to === null || done.has(to)) continue;
+      const candidate = Math.max(values[u], e.weight ?? 1);
+      if (candidate < values[to]) {
+        values[to] = candidate;
+        predecessors[to] = u;
+      }
+    }
+  }
+  return { values, predecessors };
+}
+
+// ---------------------------------------------------------------------------
+// Ordem topológica por largura e caminho crítico (aulão II e Resumo Prova 2, p. 14)
+// ---------------------------------------------------------------------------
+
+/**
+ * "Identificamos a base, removemos a base, fazemos isso até o grafo ficar
+ * vazio": cada nível é o conjunto de vértices com grau de entrada 0 naquele
+ * momento. Devolve null se sobrar vértice (há ciclo).
+ */
+export function topologicalLevels(g: GraphData): string[][] | null {
+  const inDeg = new Map(vertexIds(g).map((v) => [v, inDegree(g, v)]));
+  const levels: string[][] = [];
+  let left = vertexIds(g);
+  while (left.length) {
+    const base = left.filter((v) => inDeg.get(v) === 0);
+    if (base.length === 0) return null;
+    levels.push(base);
+    for (const v of base) for (const e of g.edges) if (e.source === v) inDeg.set(e.target, inDeg.get(e.target)! - 1);
+    left = left.filter((v) => !base.includes(v));
+  }
+  return levels;
+}
+
+// ---------------------------------------------------------------------------
+// Johnson (Resumo Prova 2, p. 13)
+// ---------------------------------------------------------------------------
+
+/**
+ * Menor caminho de n para n: vértice novo s com peso 0 para todos, Bellman-Ford
+ * a partir de s, peso'(u, v) = peso(u, v) + d[u] − d[v] (nunca negativo),
+ * Dijkstra de cada vértice e desfaz: d(u, v) = d'(u, v) − d[u] + d[v].
+ * Devolve null se houver ciclo negativo.
+ */
+export function johnson(g: GraphData): { h: Record<string, number>; reweighted: GraphData; distances: Record<string, Record<string, number>> } | null {
+  const NEW = '__s__';
+  const arcs = directedArcs(g);
+  const extended = makeGraph(true, [...vertexIds(g), NEW], [
+    ...arcs.map((a) => [a.from, a.to, a.w] as [string, string, number]),
+    ...vertexIds(g).map((v) => [NEW, v, 0] as [string, string, number]),
+  ]);
+  const bf = bellmanFord(extended, NEW);
+  if (bf.negativeCycle) return null;
+  const h: Record<string, number> = Object.fromEntries(vertexIds(g).map((v) => [v, bf.distances[v]]));
+  const reweighted = makeGraph(true, vertexIds(g), arcs.map((a) => [a.from, a.to, a.w + h[a.from] - h[a.to]] as [string, string, number]));
+  const distances: Record<string, Record<string, number>> = {};
+  for (const u of vertexIds(g)) {
+    const d = dijkstra(reweighted, u).distances;
+    distances[u] = Object.fromEntries(vertexIds(g).map((v) => [v, d[v] === Infinity ? Infinity : d[v] - h[u] + h[v]]));
+  }
+  return { h, reweighted, distances };
+}
+
 // ---------------------------------------------------------------------------
 // Dijkstra
 // ---------------------------------------------------------------------------
@@ -714,6 +792,8 @@ export function dijkstra(g: GraphData, start: string): { distances: Record<strin
       if (e.source !== u && (g.directed || e.target !== u)) continue;
       const v = e.source === u ? e.target : e.source;
       const w = e.weight ?? 1;
+      // Vértice já visitado não é reconsiderado: por isso o Dijkstra erra com peso negativo.
+      if (visited.has(v)) continue;
       if (distances[u] + w < distances[v]) {
         distances[v] = distances[u] + w;
         predecessors[v] = u;

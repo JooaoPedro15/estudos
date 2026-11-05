@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall, fleury, bridges, cutSet, rankAndNullity, lineGraph, widestPath, degree, eulerianClassification } from './graph';
+import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall, fleury, bridges, cutSet, rankAndNullity, lineGraph, widestPath, minMaxPath, topologicalLevels, johnson, degree, eulerianClassification } from './graph';
 
 // Grafo dos slides "Example of Prim's/Kruskal's Algorithm"
 // (11-graphs-trees-spanning-trees.pdf, p. 51-52 — quadros 16 e 17 de 29).
@@ -266,5 +266,57 @@ describe('widest path (capacidade máxima)', () => {
     const { capacities, predecessors } = widestPath(g, 's');
     expect(capacities.t).toBe(3);
     expect(predecessors.t).toBe('b');
+  });
+});
+
+// Exemplos do material de aluna (Materiais/Outros: Aulão II e Resumo Prova 2).
+describe('material da P2', () => {
+  it('Bellman-Ford do aulão II: 0, −3, 1, −4, ∞', () => {
+    const g = makeGraph(true, ['A', 'B', 'C', 'D', 'E'], [['A', 'B', 4], ['A', 'C', 1], ['C', 'D', -5], ['D', 'B', 1], ['E', 'B', 7], ['E', 'D', -2]]);
+    expect(bellmanFord(g, 'A').distances).toEqual({ A: 0, B: -3, C: 1, D: -4, E: Infinity });
+  });
+
+  it('Dijkstra falha no exemplo do aulão II: D fica 0,5 sem contar C → D = −5', () => {
+    const g = makeGraph(true, ['A', 'B', 'C', 'D'], [['A', 'B', 4], ['A', 'C', 1], ['A', 'D', 0.5], ['D', 'B', 1], ['C', 'D', -5]]);
+    expect(dijkstra(g, 'A').distances.D).toBe(0.5);
+    expect(bellmanFord(g, 'A').distances.D).toBe(-4);
+  });
+
+  it('Min-Max do resumo (p. 8): menor dos maiores = 7', () => {
+    const g = makeGraph(false, ['s', 'a', 'b', 'c', 'd', 'e', 'f', 't'], [
+      ['s', 'a', 2], ['a', 'b', 1], ['b', 't', 8],
+      ['s', 'c', 6], ['c', 'd', 9], ['d', 't', 3],
+      ['s', 'e', 7], ['e', 'f', 4], ['f', 't', 5],
+    ]);
+    expect(minMaxPath(g, 's').values.t).toBe(7);
+    expect(widestPath(g, 's').capacities.t).toBe(4);
+  });
+
+  it('níveis de caminho crítico do aulão II', () => {
+    const g = makeGraph(true, ['A', 'B', 'C', 'D', 'E', 'F', 'G'], [['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F'], ['D', 'F'], ['D', 'G'], ['E', 'G']]);
+    expect(topologicalLevels(g)).toEqual([['A', 'B'], ['C', 'D', 'E'], ['F', 'G']]);
+    expect(topologicalLevels(makeGraph(true, ['a', 'b'], [['a', 'b'], ['b', 'a']]))).toBeNull();
+  });
+
+  it('Johnson concorda com Floyd-Warshall e deixa os pesos não negativos', () => {
+    const r = johnson(p2Q2)!;
+    expect(r.reweighted.edges.every((e) => e.weight! >= 0)).toBe(true);
+    const fw = floydWarshall(p2Q2);
+    fw.ids.forEach((u, i) => fw.ids.forEach((v, j) => expect(r.distances[u][v]).toBe(fw.matrices[7][i][j])));
+  });
+
+  it('Johnson para em ciclo negativo', () => {
+    const g = makeGraph(true, ['a', 'b', 'c'], [['a', 'b', 1], ['b', 'c', -3], ['c', 'a', 1]]);
+    expect(johnson(g)).toBeNull();
+  });
+
+  it('matriz de 2021/2-Q3: AGM = 16 e Dijkstra de F = 8, 2, 4, 5, 2, 0', () => {
+    const g = makeGraph(false, ['A', 'B', 'C', 'D', 'E', 'F'], [
+      ['A', 'B', 6], ['A', 'C', 9], ['A', 'D', 11], ['A', 'E', 15], ['A', 'F', 9], ['B', 'C', 13], ['B', 'D', 3], ['B', 'E', 1], ['B', 'F', 2],
+      ['C', 'D', 10], ['C', 'E', 4], ['C', 'F', 4], ['D', 'E', 5], ['D', 'F', 6], ['E', 'F', 2],
+    ]);
+    expect(kruskal(g).totalWeight).toBe(16);
+    expect(prim(g, 'F').totalWeight).toBe(16);
+    expect(dijkstra(g, 'F').distances).toEqual({ A: 8, B: 2, C: 4, D: 5, E: 2, F: 0 });
   });
 });
