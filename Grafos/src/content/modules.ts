@@ -110,7 +110,8 @@ export const modules: Module[] = [
 ];
 
 export function modulesForExam(exam: ExamId): Module[] {
-  return modules.filter((m) => m.exam === exam || m.alsoIn?.includes(exam));
+  // Matéria nova da prova primeiro; depois a revisão que vem de outras provas.
+  return [...modules.filter((m) => m.exam === exam), ...modules.filter((m) => m.alsoIn?.includes(exam))];
 }
 
 export function topicIdsForExam(exam: ExamId): string[] {
