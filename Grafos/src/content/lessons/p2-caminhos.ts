@@ -107,7 +107,7 @@ const dijkstraSlide: GraphConcept[] = [
 // Bellman-Ford
 // ---------------------------------------------------------------------------
 
-function bellmanSteps(graph: GraphData, source: string): AnimationStep[] {
+export function bellmanSteps(graph: GraphData, source: string): AnimationStep[] {
   const { table, steps, predecessors } = bellmanFord(graph, source);
   const ids = graph.vertices.map((v) => v.id);
   return steps.slice(0, table.length).map((s, i) => {

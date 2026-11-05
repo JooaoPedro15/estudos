@@ -21,7 +21,7 @@ const without = (g: GraphData, ids: string[]): GraphData => ({ ...g, edges: g.ed
 // Animações geradas pelo motor
 // ---------------------------------------------------------------------------
 
-function primSteps(graph: GraphData, start: string): AnimationStep[] {
+export function primSteps(graph: GraphData, start: string): AnimationStep[] {
   const { steps, treeEdgeIds } = prim(graph, start);
   return steps.map((s, i) => {
     const inTree = s.highlightVertices ?? (i === 0 ? [start] : graph.vertices.map((v) => v.id));
@@ -41,7 +41,7 @@ function primSteps(graph: GraphData, start: string): AnimationStep[] {
   });
 }
 
-function kruskalSteps(graph: GraphData): AnimationStep[] {
+export function kruskalSteps(graph: GraphData): AnimationStep[] {
   const { steps, treeEdgeIds, rejectedEdgeIds } = kruskal(graph);
   const order = [...graph.edges].map((e, i) => ({ e, i })).sort((x, y) => (x.e.weight ?? 1) - (y.e.weight ?? 1) || x.i - y.i).map((x) => x.e.id);
   return steps.map((s, i) => {
@@ -64,7 +64,7 @@ function kruskalSteps(graph: GraphData): AnimationStep[] {
 }
 
 /** Reverse-Delete (quadro 25): ordem não crescente; apaga se continuar conexo. */
-function reverseDeleteSteps(graph: GraphData): AnimationStep[] {
+export function reverseDeleteSteps(graph: GraphData): AnimationStep[] {
   const order = [...graph.edges].map((e, i) => ({ e, i })).sort((x, y) => (y.e.weight ?? 1) - (x.e.weight ?? 1) || x.i - y.i).map((x) => x.e);
   const k0 = connectedComponentCount(graph);
   let kept = graph.edges.map((e) => e.id);

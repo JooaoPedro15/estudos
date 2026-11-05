@@ -8,7 +8,7 @@ import { Button, Card } from '@/components/ui';
 import { useLessonPlayback } from './lessonPlayback';
 import './graphLesson.css';
 
-function AnimationPlayer({ animation }: { animation: GraphAnimation }) {
+export function AnimationPlayer({ animation }: { animation: GraphAnimation }) {
   const playback = useLessonPlayback(animation.steps.length);
   const reducedMotion = useReducedMotion();
   const step = animation.steps[playback.index];
@@ -18,7 +18,7 @@ function AnimationPlayer({ animation }: { animation: GraphAnimation }) {
       <div className="lesson-scene">
         {step.groups && <div className="lesson-groups">{step.groups.map(group => <div key={group.label} style={{ borderColor: group.color, color: group.color }}><strong>{group.label}</strong><span>{group.vertexIds.join(', ')}</span></div>)}</div>}
         <GraphVisualizer
-          graph={step.graph} width={560} height={320} interactive={false} showWeights
+          graph={step.graph} width={560} height={320} interactive={false} draggable showWeights
           highlightVertexIds={[...step.highlightVertexIds ?? [], ...step.currentVertex ? [step.currentVertex] : []]}
           highlightEdgeIds={step.highlightEdgeIds} visitedVertexIds={step.visitedVertexIds}
           vertexColorMap={step.vertexColorMap} edgeColorMap={step.edgeColorMap}
@@ -33,6 +33,7 @@ function AnimationPlayer({ animation }: { animation: GraphAnimation }) {
           {Boolean(step.highlightEdgeIds?.length) && !step.edgeColorMap && <span><i className="legend-visited" />Aresta em destaque</span>}
           {step.legend?.map(item => <span key={item.label}><i style={{ background: item.color }} />{item.label}</span>)}
           {step.edgeLabels && Object.values(step.edgeLabels).some(label => label.endsWith('×')) && <span>2× = aresta reutilizada</span>}
+          <span>Arraste os vértices para reorganizar</span>
         </div>
       </div>
       {step.sequence && <div className="lesson-sequence" aria-label={step.sequenceLabel ?? 'Sequência desta etapa'}><span className="lesson-eyebrow">{step.sequenceLabel ?? 'Sequência desta etapa'}</span>{step.sequence.map((vertex, i) => <span key={i} className={i === step.sequence!.length - 1 ? 'is-current' : ''}>{i > 0 && <span aria-hidden="true"> → </span>}{vertex}</span>)}</div>}

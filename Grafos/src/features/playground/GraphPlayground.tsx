@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { AlgorithmLab } from './AlgorithmLab';
+import { AULAO_BF, AULAO_CRITICO, P2_2024_Q2, RESUMO_MINMAX, SILVIO_MATRIZ, SLIDE_DIJKSTRA, SLIDE_FINAL, SLIDE_FLEURY, SLIDE_LINE_G, SLIDE_MST } from '@/content/questions/graphs-p2';
 import type { GraphData } from '@/content/types';
 import { degree, inDegree, incidentEdges, neighbors, outDegree } from '@/lib/graph';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
@@ -7,10 +9,10 @@ import { Badge, Button, Card, StatTile } from '@/components/ui';
 const DEFAULT_GRAPH: GraphData = {
   directed: false,
   vertices: [
-    { id: 'a', label: 'a' },
-    { id: 'b', label: 'b' },
-    { id: 'c', label: 'c' },
-    { id: 'd', label: 'd' },
+    { id: 'a', label: 'a', x: 180, y: 140 },
+    { id: 'b', label: 'b', x: 380, y: 140 },
+    { id: 'c', label: 'c', x: 380, y: 340 },
+    { id: 'd', label: 'd', x: 180, y: 340 },
   ],
   edges: [],
 };
@@ -25,6 +27,26 @@ function nextVertexLabel(existing: Set<string>): string {
   while (existing.has(`v${n}`)) n++;
   return `v${n}`;
 }
+
+/** Posição livre para um vértice novo: círculo ao redor do centro, sem cair em cima dos outros. */
+function freePosition(count: number): { x: number; y: number } {
+  const angle = -Math.PI / 2 + count * 2.4;
+  const radius = 90 + (count % 3) * 45;
+  return { x: 280 + radius * Math.cos(angle), y: 240 + radius * Math.sin(angle) };
+}
+
+const PRESETS: { id: string; label: string; graph: GraphData }[] = [
+  { id: 'agm', label: 'AGM do slide 11', graph: SLIDE_MST },
+  { id: 'matriz', label: 'Matriz das provas (2021/2-Q3)', graph: SILVIO_MATRIZ },
+  { id: 'dijkstra', label: 'Dijkstra do slide 10', graph: SLIDE_DIJKSTRA },
+  { id: 'final', label: 'Exercício final do slide 10', graph: SLIDE_FINAL },
+  { id: 'bf', label: 'Bellman-Ford do aulão', graph: AULAO_BF },
+  { id: 'q2', label: 'Pesos negativos (matriz da prova)', graph: P2_2024_Q2 },
+  { id: 'minmax', label: 'Max-Min do resumo', graph: RESUMO_MINMAX },
+  { id: 'fleury', label: 'Fleury do slide 08', graph: SLIDE_FLEURY },
+  { id: 'linha', label: 'Grafo de linha do slide 13', graph: SLIDE_LINE_G },
+  { id: 'critico', label: 'Caminho crítico do aulão', graph: AULAO_CRITICO },
+];
 
 function newEdgeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? `e-${crypto.randomUUID()}` : `e-${Date.now()}-${Math.random()}`;
@@ -44,12 +66,26 @@ export function GraphPlayground() {
   const [selectedVertexId, setSelectedVertexId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState('');
+  const [presetId, setPresetId] = useState('');
+
+  function loadPreset(id: string) {
+    setPresetId(id);
+    const preset = PRESETS.find((p) => p.id === id);
+    if (!preset) return;
+    setGraph(preset.graph);
+    setSelectedVertexId(null);
+    setSelectedEdgeId(null);
+  }
+
+  function moveVertex(id: string, x: number, y: number) {
+    setGraph((g) => ({ ...g, vertices: g.vertices.map((v) => (v.id === id ? { ...v, x, y } : v)) }));
+  }
 
   function addVertex() {
     setGraph((g) => {
       const existingIds = new Set(g.vertices.map((v) => v.id));
       const label = nextVertexLabel(existingIds);
-      return { ...g, vertices: [...g.vertices, { id: label, label }] };
+      return { ...g, vertices: [...g.vertices, { id: label, label, ...freePosition(g.vertices.length) }] };
     });
   }
 
@@ -132,13 +168,28 @@ export function GraphPlayground() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1.5">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Playground de grafos</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Laboratório de grafos</h1>
         <p className="max-w-2xl text-[var(--color-text-secondary)]">
-          Monte qualquer grafo — com laços, arestas paralelas e pesos — e veja suas propriedades em tempo real.
+          Carregue um grafo dos slides ou monte o seu. Arraste os vértices, edite os pesos e rode os algoritmos passo a passo.
         </p>
       </header>
 
       <div className="flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
+          Carregar
+          <select
+            value={presetId}
+            onChange={(e) => loadPreset(e.target.value)}
+            className="max-w-[220px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
+          >
+            <option value="">Escolha um grafo…</option>
+            {PRESETS.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <Button onClick={addVertex}>+ Vértice</Button>
         <Button variant={graph.directed ? 'primary' : 'secondary'} onClick={toggleDirected}>
           {graph.directed ? 'Direcionado: sim' : 'Direcionado: não'}
@@ -196,6 +247,7 @@ export function GraphPlayground() {
               selectedEdgeIds={selectedEdgeId ? [selectedEdgeId] : []}
               onVertexClick={handleVertexClick}
               onEdgeClick={handleEdgeClick}
+              onVertexMoved={moveVertex}
             />
           )}
         </Card>
@@ -310,6 +362,8 @@ export function GraphPlayground() {
           )}
         </Card>
       </div>
+
+      <AlgorithmLab graph={graph} />
     </div>
   );
 }

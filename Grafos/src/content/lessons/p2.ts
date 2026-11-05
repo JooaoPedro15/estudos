@@ -94,7 +94,7 @@ export function dijkstraSetSteps(graph: GraphData, source: string, note: (s: str
 // Fleury a partir do motor
 // ---------------------------------------------------------------------------
 
-function fleurySteps(graph: GraphData, start: string): AnimationStep[] {
+export function fleurySteps(graph: GraphData, start?: string): AnimationStep[] {
   const result = fleury(graph, start);
   if (!result) throw new Error('Grafo sem caminho euleriano');
   const { trail, edgeOrder } = result;
