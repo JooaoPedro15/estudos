@@ -10,6 +10,7 @@ import { treinoProvaQuestions } from './07-treino-prova';
 import { treinoProvaProofQuestions } from './08-treino-prova-provas';
 import { provasReaisQuestions } from './09-provas-reais';
 import { p2Questions, provaRealP2 } from './10-p2';
+import { p2SilvioQuestions } from './11-p2-silvio';
 import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isDefinitionQuestion } from '@/content/definitions';
 import { conceptExamWeights, examFamilies, examFamiliesFor, examFamilyWeight } from '@/content/examFamilies';
 import { getActiveExam } from '@/store/activeExam';
@@ -26,6 +27,7 @@ export const questions: Question[] = [
   ...treinoProvaProofQuestions,
   ...provasReaisQuestions,
   ...p2Questions,
+  ...p2SilvioQuestions,
   ...provaRealP2.questions.map((x) => x.question),
   ...definitionQuestions,
   ...closedDefinitionQuestions,
@@ -317,7 +319,8 @@ export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttemp
     byFamily.set(q.examFamily!, list);
   }
   const families = examFamilies.filter((f) => (byFamily.get(f.id)?.length ?? 0) > 0);
-  const family = weightedPick(families, examFamilyWeight);
+  const activeExam = getActiveExam();
+  const family = weightedPick(families, (f) => examFamilyWeight(f, activeExam));
   if (!family) return undefined;
   const all = byFamily.get(family.id)!;
   let pool = all.filter((q) => !excluded.has(q.id));

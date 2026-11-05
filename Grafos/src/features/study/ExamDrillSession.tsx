@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
 import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, questions, type ExamDrillKind } from '@/content/questions';
-import { examFamiliesFor, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
+import { appearancesFor, examFamiliesFor, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
 import { useActiveExam } from '@/store/activeExam';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
@@ -34,8 +34,8 @@ function formatSeconds(totalSeconds: number): string {
 export function ExamDrillSession() {
   const exam = useActiveExam();
   const examFamilies = examFamiliesFor(exam);
-  const FAMILIES_BY_WEIGHT = [...examFamilies].sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
-  const TOTAL_WEIGHT = examFamilies.reduce((acc, f) => acc + examFamilyWeight(f), 0);
+  const FAMILIES_BY_WEIGHT = [...examFamilies].sort((a, b) => examFamilyWeight(b, exam) - examFamilyWeight(a, exam));
+  const TOTAL_WEIGHT = examFamilies.reduce((acc, f) => acc + examFamilyWeight(f, exam), 0);
   const TOTAL_EXAMS = totalExamsFor(exam);
   const [question, setQuestion] = useState<Question | null>(null);
   const [recentIds, setRecentIds] = useState<string[]>([]);
@@ -130,7 +130,7 @@ export function ExamDrillSession() {
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
         {exam === 'P2'
-          ? 'Questões no formato de prova para cada assunto da P2 (só há 1 prova antiga de P2, de outro professor; o que caiu nela aparece mais vezes).'
+          ? 'Questões no formato de prova, com peso pelas 9 provas de P2 do Prof. Silvio, incluindo o que vem da P1 (a prova é cumulativa). O que caiu em mais provas aparece mais vezes.'
           : `Só o que caiu nas ${TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados. O que caiu em mais provas aparece mais vezes.`}{' '}
         Fechadas: marcar, ordenar passos, clicar no grafo. Abertas: as dissertativas como na prova — você escreve e depois compara com a
         resposta-modelo. Sem fim: saia quando quiser.
@@ -177,10 +177,10 @@ export function ExamDrillSession() {
               >
                 <span className="flex w-4 shrink-0 items-center justify-center pt-0.5 text-[var(--color-danger)]">{selected ? <Check size={14} /> : null}</span>
                 <span className="mono w-11 shrink-0 text-[var(--color-danger)]">
-                  {f.appearances.length}/{TOTAL_EXAMS}
+                  {appearancesFor(f, exam).length}x
                   {f.scopeUncertain ? '*' : ''}
                 </span>
-                <span className="mono w-10 shrink-0 text-[var(--color-text-tertiary)]">{Math.round((examFamilyWeight(f) / TOTAL_WEIGHT) * 100)}%</span>
+                <span className="mono w-10 shrink-0 text-[var(--color-text-tertiary)]">{Math.round((examFamilyWeight(f, exam) / TOTAL_WEIGHT) * 100)}%</span>
                 <span className="flex-1 leading-relaxed text-[var(--color-text-secondary)]">
                   {f.title}{' '}
                   <span className="text-[var(--color-text-tertiary)]">

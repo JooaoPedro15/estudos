@@ -1,6 +1,7 @@
 import { Flame, CircleHelp } from 'lucide-react';
 import type { Question } from '@/content/types';
-import { familiesUsingConcept, getExamFamily, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
+import { appearancesFor, familiesUsingConcept, getExamFamily, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
+import { getActiveExam } from '@/store/activeExam';
 
 /**
  * Selo "quanto isso cai na prova", acima de uma questão:
@@ -11,12 +12,14 @@ import { familiesUsingConcept, getExamFamily, examFamilyWeight, totalExamsFor } 
 export function ExamRelevance({ question }: { question: Question }) {
   const family = question.examFamily ? getExamFamily(question.examFamily) : undefined;
   if (family) {
-    const n = family.appearances.length;
-    const total = totalExamsFor(family.exam ?? 'P1');
+    const exam = getActiveExam();
+    const list = appearancesFor(family, exam);
+    const n = new Set(list.map((a) => a.split('-Q')[0])).size;
+    const total = totalExamsFor(exam);
     return (
       <div className="flex flex-col gap-1 rounded-xl border border-[var(--color-danger)]/35 bg-[var(--color-danger-soft)] px-3.5 py-2.5">
         <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--color-danger)]">
-          <Flame size={13} /> {family.exam === 'P2' ? (n === 0 ? 'Formato de prova (sem prova antiga deste assunto)' : `Caiu em ${n} prova${n > 1 ? 's' : ''} antiga${n > 1 ? 's' : ''}`) : `Caiu em ${n} de ${total} provas`}
+          <Flame size={13} /> {n === 0 ? 'Formato de prova (sem prova antiga deste assunto)' : `Caiu em ${n} prova${n > 1 ? 's' : ''} antiga${n > 1 ? 's' : ''} (de ${total})`}
           {family.scopeUncertain && (
             <span className="ml-1 inline-flex items-center gap-1 rounded-full border border-[var(--color-cyan)]/45 bg-[var(--color-cyan-soft)] px-2 py-0.5 text-[10px] normal-case tracking-normal text-[var(--color-cyan)]" title="Cronograma 2026/2 põe este assunto depois da P1">
               <CircleHelp size={10} /> P1 ou P2?
@@ -24,7 +27,7 @@ export function ExamRelevance({ question }: { question: Question }) {
           )}
         </p>
         <p className="text-xs leading-relaxed text-[var(--color-text-primary)]">{family.title}</p>
-        {n > 0 && <p className="mono text-[11px] text-[var(--color-text-tertiary)]">{family.appearances.join(' · ')}</p>}
+        {n > 0 && <p className="mono text-[11px] text-[var(--color-text-tertiary)]">{list.join(' · ')}</p>}
       </div>
     );
   }
