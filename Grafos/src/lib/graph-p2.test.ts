@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall, fleury, bridges, cutSet, rankAndNullity } from './graph';
+import { makeGraph, prim, kruskal, bellmanFord, dijkstra, floydWarshall, fleury, bridges, cutSet, rankAndNullity, lineGraph, widestPath, degree, eulerianClassification } from './graph';
 
 // Grafo dos slides "Example of Prim's/Kruskal's Algorithm"
 // (11-graphs-trees-spanning-trees.pdf, p. 51-52 — quadros 16 e 17 de 29).
@@ -218,5 +218,53 @@ describe('Fleury', () => {
   it('devolve null com mais de 2 vértices de grau ímpar', () => {
     const star = makeGraph(false, ['a', 'b', 'c', 'd'], [['a', 'b'], ['a', 'c'], ['a', 'd']]);
     expect(fleury(star)).toBeNull();
+  });
+});
+
+describe('grafo de linha', () => {
+  const k4 = makeGraph(false, ['1', '2', '3', '4'], [['1', '2'], ['1', '3'], ['1', '4'], ['2', '3'], ['2', '4'], ['3', '4']]);
+
+  it('L(K4), lista Exercício 20: 6 vértices e 12 arestas', () => {
+    const l = lineGraph(k4);
+    expect(l.vertices).toHaveLength(6);
+    expect(l.edges).toHaveLength(12);
+  });
+
+  it('grau em L(G) da aresta uv é d(u) + d(v) − 2', () => {
+    const g = makeGraph(false, ['x', 'y', 'u', 'v'], [['x', 'y'], ['x', 'u'], ['x', 'v'], ['y', 'u'], ['y', 'v']]);
+    const l = lineGraph(g);
+    for (const e of g.edges) expect(degree(l, e.id)).toBe(degree(g, e.source) + degree(g, e.target) - 2);
+  });
+
+  it('2026/1-Q1.1: G euleriano ⇒ L(G) euleriano', () => {
+    const c5 = makeGraph(false, ['a', 'b', 'c', 'd', 'e'], [['a', 'b'], ['b', 'c'], ['c', 'd'], ['d', 'e'], ['e', 'a'], ['a', 'c'], ['c', 'e'], ['e', 'b'], ['b', 'd'], ['d', 'a']]);
+    expect(eulerianClassification(c5).kind).toBe('circuit');
+    expect(eulerianClassification(lineGraph(c5)).kind).toBe('circuit');
+  });
+
+  it('2026/1-Q1.3: contraexemplo K4 − e, semi-euleriano com L(G) de 4 ímpares', () => {
+    const g = makeGraph(false, ['x', 'y', 'u', 'v'], [['x', 'y'], ['x', 'u'], ['x', 'v'], ['y', 'u'], ['y', 'v']]);
+    expect(eulerianClassification(g).kind).toBe('path');
+    expect(eulerianClassification(lineGraph(g)).kind).toBe('none');
+  });
+});
+
+describe('Prim com arestas obrigatórias (2024/2-Q3, 2025/1-Q4, 2026/1-Q3)', () => {
+  it('peso menor que todos força a aresta na árvore, sem mudar o algoritmo', () => {
+    const forced = slideMst.edges.find((e) => e.source === 'd' && e.target === 'e')!;
+    const min = Math.min(...slideMst.edges.map((e) => e.weight!));
+    const g = { ...slideMst, edges: slideMst.edges.map((e) => (e.id === forced.id ? { ...e, weight: min - 1 } : e)) };
+    const { treeEdgeIds } = prim(g, 'a');
+    expect(treeEdgeIds).toContain(forced.id);
+    expect(treeEdgeIds).toHaveLength(6);
+  });
+});
+
+describe('widest path (capacidade máxima)', () => {
+  it('maximiza a menor aresta do caminho', () => {
+    const g = makeGraph(false, ['s', 'a', 'b', 't'], [['s', 'a', 5], ['a', 't', 2], ['s', 'b', 3], ['b', 't', 4]]);
+    const { capacities, predecessors } = widestPath(g, 's');
+    expect(capacities.t).toBe(3);
+    expect(predecessors.t).toBe('b');
   });
 });

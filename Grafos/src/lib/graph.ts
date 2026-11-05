@@ -635,6 +635,56 @@ export function fleury(g: GraphData, start?: string): { trail: string[]; edgeOrd
 }
 
 // ---------------------------------------------------------------------------
+// Grafo de linha (slide 13, quadro 34; lista, Exercício 20)
+// ---------------------------------------------------------------------------
+
+/**
+ * L(G): os vértices de L(G) são as arestas de G; dois vértices são adjacentes
+ * em L(G) se as arestas correspondentes são adjacentes em G. O id de cada
+ * vértice de L(G) é o id da aresta de G; o rótulo mostra as pontas.
+ */
+export function lineGraph(g: GraphData): GraphData {
+  const edges: EdgeData[] = [];
+  g.edges.forEach((a, i) => {
+    g.edges.slice(i + 1).forEach((b) => {
+      const share = a.source === b.source || a.source === b.target || a.target === b.source || a.target === b.target;
+      if (share) edges.push({ id: `l${edges.length}`, source: a.id, target: b.id });
+    });
+  });
+  return { directed: false, vertices: g.edges.map((e) => ({ id: e.id, label: `${e.source}${e.target}` })), edges };
+}
+
+// ---------------------------------------------------------------------------
+// Caminho de capacidade máxima (widest path) — provas de P2 do Prof. Silvio
+// ---------------------------------------------------------------------------
+
+/**
+ * Dijkstra adaptado: cap[v] = maior capacidade mínima de um caminho de s a v.
+ * Escolhe o v fora de S com MAIOR cap e relaxa com min(cap[u], w).
+ */
+export function widestPath(g: GraphData, start: string): { capacities: Record<string, number>; predecessors: Record<string, string | null> } {
+  const capacities: Record<string, number> = Object.fromEntries(vertexIds(g).map((v) => [v, v === start ? Infinity : -Infinity]));
+  const predecessors: Record<string, string | null> = Object.fromEntries(vertexIds(g).map((v) => [v, null]));
+  const done = new Set<string>();
+  while (done.size < g.vertices.length) {
+    const open = vertexIds(g).filter((v) => !done.has(v) && capacities[v] > -Infinity);
+    if (open.length === 0) break;
+    const u = open.reduce((a, b) => (capacities[b] > capacities[a] ? b : a));
+    done.add(u);
+    for (const e of g.edges) {
+      const to = e.source === u ? e.target : !g.directed && e.target === u ? e.source : null;
+      if (to === null || done.has(to)) continue;
+      const candidate = Math.min(capacities[u], e.weight ?? 1);
+      if (candidate > capacities[to]) {
+        capacities[to] = candidate;
+        predecessors[to] = u;
+      }
+    }
+  }
+  return { capacities, predecessors };
+}
+
+// ---------------------------------------------------------------------------
 // Dijkstra
 // ---------------------------------------------------------------------------
 
