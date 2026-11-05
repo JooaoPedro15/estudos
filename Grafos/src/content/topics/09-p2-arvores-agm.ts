@@ -107,7 +107,7 @@ export const arvoresAgmTopics: Topic[] = [
     title: 'Árvore geradora mínima — Prim, Kruskal e Reverse-Delete',
     examLikelihood: 'high',
     examEvidence:
-      'Três aulas no cronograma (23, 24 e 28/09). A P2 de 2024/1 (Q1, 20%) pediu exatamente isto: modelar a construção de rodovias como grafo e achar o conjunto de menor custo que conecta todas as cidades.',
+      'Nas provas de P2 do Prof. Silvio: Kruskal, Prim e Dijkstra numa matriz (2021/2-Q3 e 20xx p.7-Q2), unicidade da AGM (2026/1-Q2, 2024/1) e Prim com aresta obrigatória nas 3 provas mais recentes com data (2024/2-Q3, 2025/1-Q4, 2026/1-Q3). A do Prof. Zenilton (2024/1-Q1) pediu modelar rodovias.',
     whatYouNeedToKnow:
       'AGM: dado G não direcionado com custo c_e > 0 em cada aresta, achar T ⊆ E tal que (V, T) seja conexo e a soma dos custos seja a menor possível — a solução é uma árvore. Três algoritmos gulosos funcionam: Kruskal (arestas em ordem crescente, descarta a que cria ciclo), Prim (cresce a partir de um vértice pela aresta mais barata do corte) e Reverse-Delete (ordem decrescente, apaga a aresta se o grafo continuar conexo).',
     understand: [

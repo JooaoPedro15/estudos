@@ -67,8 +67,8 @@ export const caminhosMinimosTopics: Topic[] = [
     order: 3,
     slug: 'bellman-ford',
     title: 'Pesos negativos — Algoritmo de Bellman-Ford',
-    examLikelihood: 'high',
-    examEvidence: 'Duas aulas no cronograma (07 e 08/10). A P2 2024/1 (Q2, 20%) deu uma matriz com pesos negativos e pediu os caminhos mínimos a partir do vértice 1.',
+    examLikelihood: 'medium',
+    examEvidence: 'O aluno ouviu do professor que cai. Nenhuma das 9 provas de P2 do Prof. Silvio cobra; só a do Prof. Zenilton (2024/1, Q2) deu uma matriz com pesos negativos.',
     whatYouNeedToKnow:
       'Resolve o caminho mínimo de origem única quando há pesos negativos, desde que não haja ciclo de custo negativo. Tabela d[i, v] = comprimento do menor caminho de s a v usando no máximo i arestas. d[0, s] = 0, demais ∞. Para i = 1 até n − 1: d[i, v] = d[i − 1, v] e, para cada aresta (w, v), d[i, v] = min{d[i, v], d[i − 1, w] + c_wv}. Custo O(mn).',
     understand: [
@@ -93,8 +93,8 @@ export const caminhosMinimosTopics: Topic[] = [
     order: 4,
     slug: 'floyd-warshall',
     title: 'Todos os pares — Algoritmo de Floyd-Warshall',
-    examLikelihood: 'medium',
-    examEvidence: 'Duas aulas no cronograma (15 e 19/10), mas NENHUM slide sobre o algoritmo foi fornecido. Todo o conteúdo abaixo é do Cormen, exceto a menção ao problema 3 do slide 10.',
+    examLikelihood: 'low',
+    examEvidence: 'Está no cronograma, mas o aluno não o citou entre o que foi dado, nenhum slide foi fornecido e nenhuma das 9 provas de P2 do Prof. Silvio cobra. Todo o conteúdo abaixo é do Cormen, exceto a menção ao problema 3 do slide 10.',
     scopeNote:
       'Sem slide do professor. A única base de Nível 1 é o problema 3 do slide 10 ("para cada par x, y, o menor caminho"). O algoritmo, a notação d(k)ij e a complexidade vêm do Cormen, seção 25.2. Se o professor soltar slide ou se tiver foto do quadro dessas aulas, ela passa a valer acima do livro, inclusive a notação.',
     whatYouNeedToKnow:

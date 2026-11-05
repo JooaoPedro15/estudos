@@ -13,9 +13,9 @@ export const inducaoTopics: Topic[] = [
     order: 1,
     slug: 'inducao',
     title: 'Prova por indução',
-    examLikelihood: 'medium',
+    examLikelihood: 'low',
     examEvidence:
-      'Aula própria no cronograma 2026/2 (16/09), mas sem slide. Nos slides, indução aparece na prova de correção do Dijkstra ("Prove by induction on the size of S"). As provas antigas da P1 cobravam demonstrações ("prove que…"), então o formato "demonstre" é plausível.',
+      'Nenhuma das 9 provas de P2 do Prof. Silvio pede indução. Aula própria no cronograma 2026/2 (16/09), mas sem slide. Nos slides, indução aparece na prova de correção do Dijkstra ("Prove by induction on the size of S"). As provas antigas da P1 cobravam demonstrações ("prove que…"), então o formato "demonstre" é plausível.',
     scopeNote:
       'Sem slide desta aula. O que está aqui vem de dois lugares: (1) os trechos dos slides de caminho mínimo que USAM indução; (2) o Cormen, para a estrutura geral — marcado como livro. Se tiver foto do quadro da aula de 16/09, ela passa a valer acima do livro.',
     whatYouNeedToKnow:
