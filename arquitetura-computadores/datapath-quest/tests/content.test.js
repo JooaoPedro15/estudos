@@ -284,6 +284,52 @@ assert(
   'Expected the simulado to include fixed exam-style questions.'
 );
 
+// Contas conferidas com os numeros do gabarito da prova real
+const conta = code => vm.runInContext(code, sandbox);
+const perto = (a, b, msg) => assert(Math.abs(a - b) < 0.01, msg + ': ' + a + ' != ' + b);
+const provaTabela = "[{pct:45,cpi:8},{pct:20,cpi:6},{pct:30,cpi:10},{pct:5,cpi:12}]";
+perto(conta('CONTA.amdahlDepois(0.6,8)'), 5.2, 'P6 da prova');
+perto(conta('CONTA.trocaJusta(3,0.5,4,3)'), 0.75, 'P5 da prova');
+perto(conta('CONTA.fracaoParaTempo(2.5,0.5)'), 0.8333, 'P4 da prova');
+perto(conta('CONTA.cpi(' + provaTabela + ')'), 8.4, 'P7 da prova');
+perto(conta('CONTA.compilador(' + provaTabela + ',0.7,0.1).cpi'), 8.643, 'P9 da prova');
+perto(conta('CONTA.compilador(' + provaTabela + ',0.7,0.1).speedup'), 1.359, 'P10 da prova');
+perto(conta('CONTA.tempoUs(10000,8.4,200)'), 420, 'P11 da prova');
+perto(conta('CONTA.mips(200,8.4)'), 23.81, 'P12 da prova');
+
+// Cada gerador, muitas vezes: alternativas validas e sem texto quebrado
+const relatorio = JSON.parse(conta(`(()=>{
+  const erros=[];
+  for(const [nome,lista] of [['P1',GEN_P1],['P2',GEN_P2]]) for(const g of lista) for(let i=0;i<300;i++){
+    const q=g(Math.random), tudo=[q.question,q.explain,...q.options].join(' ');
+    if(q.options.length<3) erros.push(g.name+': poucas alternativas');
+    if(new Set(q.options).size!==q.options.length) erros.push(g.name+': alternativa repetida');
+    if(!(q.correct>=0&&q.correct<q.options.length)) erros.push(g.name+': correta invalida');
+    if(/NaN|undefined|Infinity|null/.test(tudo)) erros.push(g.name+': texto quebrado');
+    if(q.options[q.correct]==='NDA'&&!/marque NDA/.test(q.explain)) erros.push(g.name+': NDA sem explicacao');
+    if(!q.noVisual&&q.vis&&!WIDGETS[q.vis.name]) erros.push(g.name+': desenho inexistente');
+  }
+  // Confere a resposta recalculando a partir do enunciado
+  for(let i=0;i<500;i++){
+    const r=Math.random;
+    let q=GEN_P1[0](r), m=q.question.match(/([0-9A-F]{4}) \\+ ([0-9A-F]{4})/), a=parseInt(m[1],16), b=parseInt(m[2],16);
+    const certa=q.options[q.correct];
+    if(certa!=='NDA'){
+      if(!certa.includes('propagador='+gHex(a|b))||!certa.includes('gerador='+gHex(a&b))||certa.startsWith('Sim')!==(a+b>0xFFFF)) erros.push('claSoma errada');
+    }
+    q=GEN_P2[0](r); m=q.question.match(/vet\\[(\\d+)\\]/);
+    if(q.options[q.correct]!=='NDA'&&!q.options[q.correct].includes(', '+(+m[1]*4)+'(')) erros.push('vetIndice errada');
+    q=GEN_P2[9](r); m=q.question.match(/por <b>(\\d+)<\\/b>/);
+    if(q.options[q.correct]!=='NDA'&&!q.options[q.correct].endsWith(', '+Math.log2(+m[1]))) erros.push('shiftDivide errada');
+  }
+  const conta=e=>buildFreeQueue(Math.random,e).length;
+  return JSON.stringify({erros:[...new Set(erros)],p1:conta('p1'),p2:conta('p2'),p3:conta('p3'),all:conta('all')});
+})()`));
+assert.deepStrictEqual(relatorio.erros, [], 'Geradores com problema: ' + relatorio.erros.join('; '));
+assert(relatorio.p1 >= 150, 'Prova 1 deveria ter rodada grande: ' + relatorio.p1);
+assert(relatorio.p2 >= 150, 'Prova 2 deveria ter rodada grande: ' + relatorio.p2);
+console.log('Tamanho das rodadas:', relatorio.p1, relatorio.p2, relatorio.p3, relatorio.all);
+
 const propagador = REVIEW_BANK.find(question => question.id === 'rev_p1_cla_prop');
 assert.strictEqual(propagador.options[propagador.correct], 'Pi = Ai OR Bi', 'Expected the propagator to match the professor exam (OR).');
 
