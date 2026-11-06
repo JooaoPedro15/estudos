@@ -478,9 +478,17 @@ table.ctl td.x{color:var(--muted);}
 <div id="toast-wrap"></div>
 
 <div id="app">
-  <!-- ===================== BARRA DE TOPO / HUD ===================== -->
-  <div class="topbar" id="topbar" style="display:none">
-    <div class="brand">Arquitetura 2<span class="chip" id="modeChip">—</span></div>
+  <!-- ===================== NAVEGACAO ===================== -->
+  <header class="topbar" id="topbar">
+    <button class="nav-back" id="navBack" type="button">← Voltar</button>
+    <button class="brand" id="navBrand" type="button"><i></i>Arquitetura 2<span class="chip" id="modeChip"></span></button>
+    <nav class="mainnav" id="mainNav" aria-label="Principal">
+      <button type="button" data-nav="scr-home">Início</button>
+      <button type="button" data-nav="scr-learn">Conteúdo</button>
+      <button type="button" data-nav="scr-practice">Praticar</button>
+      <button type="button" data-nav="scr-exams">Simulados</button>
+      <button type="button" data-nav="scr-progress">Progresso</button>
+    </nav>
     <div class="spacer"></div>
     <div class="hud">
       <div class="stat">Nível <b id="hudLevel">1</b></div>
@@ -488,51 +496,62 @@ table.ctl td.x{color:var(--muted);}
       <button class="iconbtn" id="glBtn" title="Glossário de Conceitos">📖</button>
       <button class="iconbtn" id="homeBtn" title="Início">🏠</button>
     </div>
-  </div>
+  </header>
 
-  <!-- ===================== HOME / DASHBOARD ===================== -->
+  <!-- ===================== INICIO ===================== -->
   <section class="screen active" id="scr-home">
-    <div class="dash-header">
-      <div class="dash-brand">Arquitetura 2</div>
+    <div class="hero">
+      <div>
+        <h1>Veja o processador funcionando. Depois, faça a prova.</h1>
+        <p class="lead">Arquitetura de Computadores 2 com desenhos que se mexem e questões no estilo das provas.</p>
+        <div class="cta">
+          <button class="btn" id="heroLearn" type="button">Ver o conteúdo</button>
+          <button class="btn ghost" id="heroPractice" type="button">Ir direto para as questões</button>
+        </div>
+      </div>
+      <div class="hero-scene" id="heroScene"></div>
     </div>
+    <div id="homeResume"></div>
+    <div class="group-head" style="border-top:none;margin-top:0;padding-top:0"><h2>Escolha a sua prova</h2></div>
+    <div class="prova-grid" id="homeExams"></div>
+    <div class="group-head"><h2>Como estudar por aqui</h2></div>
+    <div class="start-steps">
+      <button class="start-step" type="button" data-go="scr-learn"><span class="ss-n">1</span><span class="ss-title">Entenda vendo</span><span class="ss-text">Em Conteúdo, cada assunto é um desenho para mexer.</span></button>
+      <button class="start-step" type="button" data-go="scr-practice"><span class="ss-n">2</span><span class="ss-title">Treine sem pressa</span><span class="ss-text">No Modo Livre, errar não custa nada e dá para pedir explicação.</span></button>
+      <button class="start-step" type="button" data-go="scr-exams"><span class="ss-n">3</span><span class="ss-title">Teste com o relógio</span><span class="ss-text">O simulado dá nota e gabarito comentado, como no dia da prova.</span></button>
+    </div>
+  </section>
 
-    <div class="dash-hero">
-      <h1>O que você quer estudar?</h1>
-      <div class="sub">Escolha uma prova para revisar o conteúdo por tópico ou treinar num simulado cronometrado, no seu ritmo.</div>
-    </div>
-
-    <div class="prova-grid">
-      <div class="prova-card">
-        <span class="tag">PROVA 1</span>
-        <h3>CLA, ponto flutuante e desempenho</h3>
-        <p>Somador antecipado (CLA), IEEE754, Lei de Amdahl/speedup e CPI.</p>
-        <span class="best" id="best-p1"></span>
-        <div class="row">
-          <button class="btn ghost" data-review="p1">Revisar</button>
-          <button class="btn" data-sim="p1">Simulado</button>
-        </div>
+  <!-- ===================== PRATICAR ===================== -->
+  <section class="screen" id="scr-practice">
+    <div class="page-head"><h1>Praticar</h1><p>Cada modo serve para um momento do estudo. Na dúvida, comece pelo Modo Livre.</p></div>
+    <div class="mode-list">
+      <div class="mode-card primary">
+        <h3>Modo Livre</h3>
+        <p class="mc-what">Questões sem fim da prova que você escolher, ou de todo o conteúdo. As que têm números sorteados mudam de valor a cada rodada.</p>
+        <dl><dt>Como funciona</dt><dd>Você responde, vê a explicação e passa para a próxima. Pode pular quando quiser. Mistura questões de marcar, contas e atividades no diagrama.</dd><dt>Use quando</dt><dd>Estiver treinando no dia a dia.</dd></dl>
+        <button class="btn" id="btnFree" type="button">Escolher a prova</button>
       </div>
-      <div class="prova-card">
-        <span class="tag">PROVA 2</span>
-        <h3>Vetores, deslocamento e pilha</h3>
-        <p>Endereçamento de vetores, shift (sll/srl/sra), CPI/desempenho e pilha em chamadas de função.</p>
-        <span class="best" id="best-p2"></span>
-        <div class="row">
-          <button class="btn ghost" data-review="p2">Revisar</button>
-          <button class="btn" data-sim="p2">Simulado</button>
-        </div>
+      <div class="mode-card">
+        <h3>Revisão por assunto</h3>
+        <p class="mc-what">Uma seleção de questões de cada assunto da prova.</p>
+        <dl><dt>Como funciona</dt><dd>Mostra os assuntos da prova e mistura algumas questões de cada um.</dd><dt>Use quando</dt><dd>A prova estiver perto.</dd></dl>
+        <button class="btn ghost" id="btnReview" type="button">Ver assuntos</button>
       </div>
-      <div class="prova-card">
-        <span class="tag">PROVA 3</span>
-        <h3>Datapath, controle e pipeline</h3>
-        <p>Tempo de instruções, SLT, J, registradores de função e loop com CPI médio.</p>
-        <span class="best" id="best-p3"></span>
-        <div class="row">
-          <button class="btn ghost" data-review="p3">Revisar</button>
-          <button class="btn" data-sim="p3">Simulado</button>
-        </div>
+      <div class="mode-card">
+        <h3>Níveis</h3>
+        <p class="mc-what">10 fases do caminho de dados, da mais fácil à mais difícil.</p>
+        <dl><dt>Como funciona</dt><dd>Termine uma fase para liberar a seguinte. Cobre o conteúdo da Prova 3.</dd><dt>Use quando</dt><dd>Quiser uma sequência já pronta.</dd></dl>
+        <button class="btn ghost" id="btnStart" type="button">Ver as fases</button>
+      </div>
+      <div class="mode-card">
+        <h3>Praticar dificuldades</h3>
+        <p class="mc-what">Questões dos assuntos em que você mais errou.</p>
+        <dl><dt>Como funciona</dt><dd>Usa o seu caderno de erros para escolher o que treinar.</dd><dt>Use quando</dt><dd>Já tiver respondido algumas questões.</dd></dl>
+        <button class="btn ghost" id="btnTargeted" type="button">Treinar meus erros</button>
       </div>
     </div>
+  </section>
 
     <div class="section-label">Outras formas de praticar</div>
     <div class="tool-grid">
@@ -562,16 +581,20 @@ table.ctl td.x{color:var(--muted);}
         <div class="td">Foca no que você mais erra</div>
       </button>
     </div>
+    <div class="resume" style="margin-top:14px"><span><b>Simulado geral:</b> mistura as três provas.</span><button class="btn ghost small" id="btnSimulado" type="button">Fazer simulado geral</button></div>
+  </section>
 
-    <div class="util-bar">
-      <button class="iconbtn" id="btnSimulado">Simulado geral</button>
-      <button class="iconbtn" id="btnReview">Todas as revisões</button>
-      <button class="iconbtn" id="btnTutorial">Como usar</button>
-      <button class="iconbtn" id="btnAch2">Conquistas</button>
-      <button class="iconbtn" id="btnErrors">Caderno de erros</button>
-      <button class="iconbtn" id="btnLoad">Carregar progresso</button>
-      <button class="iconbtn" id="btnReset">Resetar</button>
+  <!-- ===================== PROGRESSO ===================== -->
+  <section class="screen" id="scr-progress">
+    <div class="page-head"><h1>Seu progresso</h1><p>Fica salvo neste navegador. Em outro aparelho, começa do zero.</p></div>
+    <div class="stat-row" id="progressStats"></div>
+    <div class="link-list">
+      <button class="link-card" id="btnErrors" type="button"><b>Caderno de erros</b><span>O que você errou e o tipo de confusão.</span></button>
+      <button class="link-card" id="btnAch2" type="button"><b>Conquistas</b><span>Marcos que você já alcançou.</span></button>
+      <button class="link-card" id="btnLoad" type="button"><b>Fases dos Níveis</b><span>Até onde você chegou.</span></button>
+      <button class="link-card" id="btnTutorial" type="button"><b>Como usar o site</b><span>Um passeio rápido pelas atividades.</span></button>
     </div>
+    <button class="danger-link" id="btnReset" type="button">Apagar todo o meu progresso</button>
   </section>
 
   <!-- ===================== TUTORIAL ===================== -->
@@ -584,7 +607,7 @@ table.ctl td.x{color:var(--muted);}
     </div>
   </section>
 
-  <!-- ===================== ACADEMIA (menu de capítulos) ===================== -->
+  <!-- ===================== CONTEUDO ===================== -->
   <section class="screen" id="scr-learn">
     <div class="page-head"><h1>Conteúdo</h1><p>Cada assunto é um desenho para você mexer. Escolha por onde começar, a ordem é livre.</p></div>
     <div id="chapterGroups"></div>
@@ -598,11 +621,7 @@ table.ctl td.x{color:var(--muted);}
         <tr><td>Q4: fases do pipeline</td><td>Pipeline (5 fases)</td></tr>
         <tr><td>Q1: duas funções em assembly MIPS</td><td>Ainda não coberto: é programação, não caminho de dados</td></tr>
       </table>
-    </div>
-    <div class="actionsbar" style="margin-top:14px">
-      <button class="btn ghost" id="learnBack">← Início</button>
-      <button class="btn" id="learnToPractice">Pular para a prática →</button>
-    </div>
+    </details>
   </section>
 
   <!-- ===================== LIÇÃO (player de slides) ===================== -->
@@ -618,7 +637,6 @@ table.ctl td.x{color:var(--muted);}
     <div class="actionsbar" style="justify-content:space-between">
       <button class="btn ghost small" id="lessonPrev">← Voltar</button>
       <div style="display:flex;gap:8px">
-        <button class="btn ghost small" id="lessonExit">Sair</button>
         <button class="btn small" id="lessonNext">Próximo →</button>
       </div>
     </div>
@@ -626,10 +644,7 @@ table.ctl td.x{color:var(--muted);}
 
   <!-- ===================== MAPA DE NÍVEIS ===================== -->
   <section class="screen" id="scr-levels">
-    <div class="panel">
-      <h2>Selecione um nível</h2>
-      <p class="muted">Níveis 1–3: básico · 4–7: combinado · 8–10: estilo prova.</p>
-    </div>
+    <div class="page-head"><h1>Níveis</h1><p>1 a 3 são básicos, 4 a 7 combinam assuntos e 8 a 10 seguem o estilo da prova.</p></div>
     <div class="levelgrid" id="levelGrid"></div>
   </section>
 
@@ -645,7 +660,6 @@ table.ctl td.x{color:var(--muted);}
       <button class="btn" id="reviewStart">Começar revisão</button>
       <button class="btn ghost" id="reviewFree">Modo Livre (infinito)</button>
       <button class="btn ghost" id="reviewTargeted">Praticar pelo caderno de erros</button>
-      <button class="btn ghost" id="reviewBack">← Início</button>
     </div>
   </section>
 
@@ -672,7 +686,6 @@ table.ctl td.x{color:var(--muted);}
     </div>
     <div class="actionsbar" style="justify-content:center;flex-wrap:wrap">
       <button class="btn" id="errorsPractice">Praticar dificuldades</button>
-      <button class="btn ghost" id="errorsBack">← Início</button>
     </div>
   </section>
 
@@ -710,9 +723,6 @@ table.ctl td.x{color:var(--muted);}
       <p class="muted" id="achCount"></p>
     </div>
     <div class="ach-list" id="achList"></div>
-    <div class="actionsbar" style="margin-top:14px">
-      <button class="btn ghost" id="achBack">← Voltar</button>
-    </div>
   </section>
 
   <!-- ===================== SIMULADO (joga aqui) ===================== -->
@@ -738,11 +748,8 @@ table.ctl td.x{color:var(--muted);}
       <div class="exam-tabs" id="simSetupTabs" style="justify-content:center"></div>
       <div id="simBestInfo" style="margin:12px 0;font-size:14px;"></div>
       <div class="actionsbar" style="justify-content:center;flex-direction:column;max-width:320px;margin:12px auto;">
-        <button class="btn" id="simStartReal" style="margin-bottom:10px;">⏱ Simulado Real (cronometrado)</button>
-        <button class="btn ghost" id="simStartTreino">🎓 Simulado Treino (sem relógio)</button>
-      </div>
-      <div class="actionsbar" style="justify-content:center">
-        <button class="btn ghost" id="simSetupBack">← Voltar</button>
+        <button class="btn" id="simStartReal" style="margin-bottom:10px;">Simulado Real (cronometrado)</button>
+        <button class="btn ghost" id="simStartTreino">Simulado Treino (sem relógio)</button>
       </div>
     </div>
   </section>
@@ -758,7 +765,6 @@ table.ctl td.x{color:var(--muted);}
       <div class="actionsbar" style="justify-content:center">
         <button class="btn" id="simRetry">↻ Refazer</button>
         <button class="btn ghost" id="simRetryWrong">Treinar erros</button>
-        <button class="btn ghost" id="simHome">🏠 Início</button>
       </div>
       <div style="text-align:left;margin-top:10px;">
         <h3 style="font-size:15px;text-align:center;margin:10px 0;">Gabarito Comentado</h3>
@@ -1519,7 +1525,7 @@ function winLevel(){
   const nx=$('resNext');
   if(G.level<LEVELS.length){ nx.style.display=''; nx.textContent=`Nível ${G.level+1} →`; nx.onclick=()=>startLevel(G.level+1); }
   else { nx.style.display='none'; }
-  showScreen('scr-result');
+  showScreen('scr-result',{replace:true});
 }
 
 /* -------------------- MODO 1: Roteirista da Instrução -------------------- */
@@ -2313,11 +2319,96 @@ function finishChapter(){
 /* ===========================================================================
    10. JS — SEÇÃO H: NAVEGAÇÃO + TUTORIAL + BOOT
    =========================================================================== */
-function showScreen(id){
+const ROOT_SCREENS=['scr-home','scr-learn','scr-practice','scr-exams','scr-progress'];
+const SCREEN_SLUGS={'scr-home':'inicio','scr-learn':'conteudo','scr-practice':'praticar','scr-exams':'simulados','scr-progress':'progresso',
+  'scr-levels':'niveis','scr-review':'revisao','scr-free-setup':'escolher-prova','scr-errors':'erros','scr-ach':'conquistas','scr-tutorial':'como-usar',
+  'scr-lesson':'aula','scr-game':'questoes','scr-result':'resultado','scr-sim':'simulado','scr-sim-setup':'preparar-simulado','scr-sim-result':'resultado-simulado'};
+const NAV={current:'scr-home',scroll:{},fromPop:false};
+function showScreen(id,opts){
+  opts=opts||{};
+  const fromPop=NAV.fromPop, prev=NAV.current;
+  $('tooltip').style.display='none';
+  document.body.classList.add('nav-anim'); // a primeira tela aparece sem animacao
+  NAV.scroll[prev]=window.scrollY;
+  if(prev==='scr-sim' && id!=='scr-sim' && SIM.timer) clearInterval(SIM.timer);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
-  $('topbar').style.display = (id==='scr-home') ? 'none' : 'flex';
-  window.scrollTo(0,0);
+  NAV.current=id;
+  document.body.classList.toggle('sub',!ROOT_SCREENS.includes(id));
+  document.body.classList.toggle('in-game',id==='scr-game');
+  document.body.classList.toggle('in-sim',id==='scr-sim');
+  const section=ROOT_SCREENS.includes(id)?id:({'scr-lesson':'scr-learn','scr-sim':'scr-exams','scr-sim-setup':'scr-exams','scr-sim-result':'scr-exams','scr-errors':'scr-progress','scr-ach':'scr-progress','scr-tutorial':'scr-progress'})[id]||'scr-practice';
+  document.querySelectorAll('[data-nav]').forEach(b=>{ b.classList.toggle('on',b.dataset.nav===section); b.setAttribute('aria-current',b.dataset.nav===section?'page':'false'); });
+  if(id==='scr-home') renderHome();
+  if(id==='scr-progress') renderProgress();
+  if(!fromPop && id!==prev){
+    const url='#/'+SCREEN_SLUGS[id];
+    if(opts.replace) history.replaceState({screen:id},'',url); else history.pushState({screen:id},'',url);
+  }
+  window.scrollTo(0,fromPop?(NAV.scroll[id]||0):0);
+}
+// Volta a uma tela pelo historico: redesenha o que pode ter mudado e cuida de telas sem estado.
+function enterScreen(id){
+  const has=$(id)?id:'scr-home';
+  NAV.fromPop=true;
+  try{
+    if(has==='scr-learn') renderAcademy();
+    if(has==='scr-levels') renderLevels();
+    if(has==='scr-ach') renderAchievements();
+    if(has==='scr-errors') renderErrorNotebook();
+    if(has==='scr-review') renderReviewHub();
+    if(has==='scr-free-setup') showFreeSetup();
+    else if(has==='scr-sim'||has==='scr-sim-result') showScreen('scr-exams');
+    else if(has==='scr-result'||(has==='scr-game'&&!G.queue.length)) showScreen('scr-practice');
+    else showScreen(has);
+  } finally { NAV.fromPop=false; }
+}
+function goBack(){
+  if(NAV.current==='scr-sim' && !confirm('Sair do simulado? As respostas desta tentativa serão perdidas.')) return;
+  history.back();
+}
+function goTo(id){
+  if(NAV.current==='scr-sim' && id!=='scr-sim' && !confirm('Sair do simulado? As respostas desta tentativa serão perdidas.')) return;
+  if(id==='scr-learn') renderAcademy();
+  showScreen(id);
+}
+function examLessonStats(ex){
+  const all=LESSONS.filter(l=>l.exam===ex);
+  return {total:all.length,done:all.filter(l=>save.lessonsDone.includes(l.id)).length};
+}
+const HOME_EXAMS=[
+  {id:'p1',h:'CLA, ponto flutuante e desempenho',p:'Vai-um antecipado, IEEE 754, Lei de Amdahl, speedup e CPI.'},
+  {id:'p2',h:'Vetores, deslocamento e pilha',p:'Endereçamento, sll/srl/sra, contagem de instruções e chamadas de função.'},
+  {id:'p3',h:'Caminho de dados, controle e pipeline',p:'O que acontece em cada instrução, sinais, tempo e as 5 fases.'}
+];
+let heroStop=null;
+function renderHome(){
+  const wrap=$('homeExams');
+  wrap.innerHTML=HOME_EXAMS.map(e=>{
+    const s=examLessonStats(e.id), best=save.simBest[e.id];
+    return `<div class="prova-card"><span class="tag">${EXAM_NAMES[e.id]}</span><h3>${e.h}</h3><p>${e.p}</p>
+      <div class="meter" aria-hidden="true"><i style="width:${s.total?s.done/s.total*100:0}%"></i></div>
+      <span class="meter-lbl">${s.done} de ${s.total} conteúdos vistos${best>0?` · simulado: ${best.toFixed(1)}`:''}</span>
+      <div class="row"><button class="btn" type="button" data-train="${e.id}">Treinar</button><button class="btn ghost" type="button" data-review="${e.id}">Revisar</button><button class="btn ghost" type="button" data-sim="${e.id}">Simulado</button></div></div>`;
+  }).join('');
+  wrap.querySelectorAll('[data-train]').forEach(b=>b.onclick=()=>startFree(b.dataset.train));
+  wrap.querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>setReviewExamFilter(b.dataset.review));
+  wrap.querySelectorAll('[data-sim]').forEach(b=>b.onclick=()=>showSimSetup(b.dataset.sim));
+  const r=$('homeResume'), l=save.last;
+  r.innerHTML='';
+  if(l){
+    const label=l.type==='lesson'?`Conteúdo: ${l.title}`:`Modo Livre: ${l.exam==='all'?'todo o conteúdo':EXAM_NAMES[l.exam]}`;
+    r.innerHTML=`<div class="resume"><span><b>Continuar:</b> ${label}</span><button class="btn small" type="button">Continuar</button></div>`;
+    r.querySelector('button').onclick=()=>{ if(l.type==='lesson'&&LESSONS[l.idx]) openChapter(l.idx); else startFree(l.exam); };
+  }
+  if(heroStop) heroStop();
+  heroStop=mountScene($('heroScene'),'lw',{loop:true});
+}
+function renderProgress(){
+  const notes=save.errorNotebook.length, seen=save.lessonsDone.length;
+  const best=Math.max(save.simBest.p1,save.simBest.p2,save.simBest.p3,save.simBest.geral);
+  $('progressStats').innerHTML=[[save.totalCorrect,'questões certas'],[`${seen}/${LESSONS.length}`,'conteúdos vistos'],[best>0?best.toFixed(1):'–','melhor simulado'],[notes,'erros anotados']]
+    .map(s=>`<div class="stat-box"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('');
 }
 
 // ---- Mapa de níveis ----
@@ -3351,7 +3442,7 @@ function finishSim(){
       const sp=Math.round((per/avg)*100)/100; exp=`Uniciclo=${per} · Média=${avg} · Speedup=${sp}×`; }
     return `<div class="gab-item"><div class="gab-q"><b>${i+1}.</b> [${r.q.topic||'—'}] <span class="${annulled?'':ok?'gab-ok':'gab-fail'}">${annulled?'Anulada':ok?'✓ Correto':''+(r.assisted?'(usou ajuda)':'Incorreto')}</span></div><div class="gab-exp">${exp}</div></div>`;
   }).join('');
-  showScreen('scr-sim-result');
+  showScreen('scr-sim-result',{replace:true});
 }
 const SIM_SETUP_TABS=[
   {id:'p1', label:'Prova 1'},
@@ -3428,7 +3519,6 @@ function boot(){
   $('btnTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
   $('btnLoad').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); toast('Progresso carregado', `Nível ${save.unlocked} de 10.`); };
   $('btnTutorial').onclick=()=>{ sfx.click(); tutIdx=0; renderTutorial(); showScreen('scr-tutorial'); };
-  $('btnLearn').onclick=()=>{ sfx.click(); renderAcademy(); showScreen('scr-learn'); };
   $('btnAch2').onclick=()=>{ sfx.click(); renderAchievements(); showScreen('scr-ach'); };
   $('btnErrors').onclick=()=>{ sfx.click(); renderErrorNotebook(); };
   document.querySelectorAll('[data-review]').forEach(b=>{
@@ -3446,22 +3536,17 @@ function boot(){
   $('reviewStart').onclick=()=>{ sfx.click(); startReview(); };
   $('reviewFree').onclick=()=>{ sfx.click(); startFree(reviewExamFilter); };
   $('reviewTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
-  $('reviewBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   $('errorsPractice').onclick=()=>{ sfx.click(); startTargetedPractice(); };
-  $('errorsBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   // Tutorial
   $('tutPrev').onclick=()=>{ if(tutIdx>0){tutIdx--; renderTutorial(); sfx.click();} };
   $('tutNext').onclick=()=>{ if(tutIdx<TUTORIAL.length-1){tutIdx++; renderTutorial(); sfx.click();} else { sfx.click(); renderLevels(); showScreen('scr-levels'); } };
   // Academia / Lições
-  $('learnBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
-  $('learnToPractice').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); };
   $('lessonPrev').onclick=()=>{ if(LS.i>0){ LS.i--; renderLessonSlide(); sfx.click(); } };
   $('lessonNext').onclick=()=>{
     const ch=LESSONS[LS.ch];
     if(LS.i<ch.slides.length-1){ LS.i++; renderLessonSlide(); sfx.click(); }
     else { finishChapter(); }
   };
-  $('lessonExit').onclick=()=>{ sfx.click(); renderAcademy(); showScreen('scr-learn'); };
   // HUD / topo
   $('learnToggle').onclick=()=>{
     save.learnMode=!save.learnMode; persist(); sfx.click();
@@ -3473,19 +3558,16 @@ function boot(){
   // Resultado
   $('resMap').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); };
   // Conquistas
-  $('achBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   // Glossário
   $('glBtn').onclick=()=>{ sfx.click(); openGlossary(); };
   $('glClose').onclick=()=>{ closeGlossary(); };
   $('glOverlay').onclick=(e)=>{ if(e.target===$('glOverlay')) closeGlossary(); };
   $('glSearch').oninput=()=>renderGlossary();
   // Simulado
-  $('simSetupBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   $('simStartReal').onclick=()=>{ sfx.click(); startSim(true); };
   $('simStartTreino').onclick=()=>{ sfx.click(); startSim(false); };
   $('simRetry').onclick=()=>{ sfx.click(); showSimSetup(SIM.examId); };
   $('simRetryWrong').onclick=()=>{ sfx.click(); startTargetedPractice(); };
-  $('simHome').onclick=()=>{ sfx.click(); refreshHUD(); showScreen('scr-home'); };
 }
 boot();
 </script>
