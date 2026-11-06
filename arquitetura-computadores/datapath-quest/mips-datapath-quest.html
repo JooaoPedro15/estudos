@@ -586,20 +586,17 @@ table.ctl td.x{color:var(--muted);}
 
   <!-- ===================== ACADEMIA (menu de capítulos) ===================== -->
   <section class="screen" id="scr-learn">
-    <div class="panel">
-      <h2>📚 Academia MIPS</h2>
-      <p class="muted">Aprenda a matéria do zero, no seu ritmo. Cada capítulo ensina com diagramas, demonstrações animadas e exemplos resolvidos. Depois é só praticar.</p>
-    </div>
-    <div class="chapter-grid" id="chapterGrid"></div>
-    <div class="panel" style="margin-top:14px">
-      <h2>📋 Lista 3 = Prova — onde estudar cada questão</h2>
-      <table class="bench-table" style="margin-top:6px">
-        <tr><th>Questão da Lista 3</th><th>Onde treinar na ferramenta</th></tr>
-        <tr><td>Q2 — explicar as ações de cada unidade e o controle (LW, SW, BEQ, ADD)</td><td>Cap. 1 e 3 + Modo 1 (Roteirista) e Modo 2 (Controle)</td></tr>
-        <tr><td>Q3a — tempo de execução de cada instrução</td><td>Cap. 4 + Modo 3 (tempo único / período)</td></tr>
-        <tr><td>Q3b — comparar benchmarks GCC e ABC (speedup mono×multi)</td><td>Modo 3 benchmark — níveis 8 (GCC) e 9 (ABC), valores idênticos aos da lista</td></tr>
-        <tr><td>Q4 — fases do pipeline, dividir o diagrama</td><td>Cap. 5 + Modo 4 (Pipeline Master)</td></tr>
-        <tr><td>Q1 — programar 2 funções em assembly MIPS (vetor + quadrado)</td><td><span style="color:var(--yellow)">Não coberto</span> — é programação MIPS, não datapath</td></tr>
+    <div class="page-head"><h1>Conteúdo</h1><p>Cada assunto é um desenho para você mexer. Escolha por onde começar, a ordem é livre.</p></div>
+    <div id="chapterGroups"></div>
+    <details class="more">
+      <summary>Onde treinar cada questão da Lista 3</summary>
+      <table class="bench-table" style="margin-top:10px">
+        <tr><th>Questão da Lista 3</th><th>Onde treinar</th></tr>
+        <tr><td>Q2: ações de cada unidade e o controle (LW, SW, BEQ, ADD)</td><td>Por dentro do processador, Sinais de controle</td></tr>
+        <tr><td>Q3a: tempo de execução de cada instrução</td><td>Cálculo de tempos</td></tr>
+        <tr><td>Q3b: benchmarks GCC e ABC (speedup mono × multi)</td><td>Níveis 8 e 9, com os valores da lista</td></tr>
+        <tr><td>Q4: fases do pipeline</td><td>Pipeline (5 fases)</td></tr>
+        <tr><td>Q1: duas funções em assembly MIPS</td><td>Ainda não coberto: é programação, não caminho de dados</td></tr>
       </table>
     </div>
     <div class="actionsbar" style="margin-top:14px">
@@ -1118,6 +1115,7 @@ function wireTooltips(root){
 <script src="content/prova2.js"></script>
 <script src="content/prova3.js"></script>
 <script src="content/index.js"></script>
+<script src="content/visuals.js"></script>
 
 <script>
 function seededShuffle(arr,r){
@@ -2065,7 +2063,8 @@ function teachTime(q){
 
 // --- Conteúdo da Academia: 5 capítulos de slides ---
 const LESSONS = [
-  { id:'unidades', ic:'🧱', title:'1 · Unidades funcionais', desc:'O que cada bloco do datapath faz.',
+  VISUAL_LESSONS[0],
+  { id:'unidades', ic:'', title:'1 · Unidades funcionais', desc:'O que cada bloco do datapath faz.',
     slides:[
       {t:'text', html:`<h3>O que é o caminho de dados?</h3>
         <p>O <b>datapath</b> (caminho de dados) é o conjunto de blocos por onde os bits da instrução passam para serem executados. No MIPS <b>uniciclo</b>, toda instrução começa e termina em <b>um único ciclo de clock</b>.</p>
@@ -2183,25 +2182,37 @@ const LESSONS = [
     ]}
 ];
 
-// --- Renderiza o menu de capítulos da Academia ---
+LESSONS.forEach(ch=>{ if(!ch.exam) ch.exam='p3'; });
+LESSONS.push(...VISUAL_LESSONS.slice(1));
+// --- Renderiza o menu de capítulos ---
+const EXAM_NAMES={p1:'Prova 1',p2:'Prova 2',p3:'Prova 3'};
 function renderAcademy(){
-  const grid=$('chapterGrid'); grid.innerHTML='';
-  LESSONS.forEach((ch,i)=>{
-    const done=save.lessonsDone.includes(ch.id);
-    const c=document.createElement('div'); c.className='chapter-card';
-    c.innerHTML=`${done?'<span class="cdone">✔</span>':''}<div class="cic">${ch.ic}</div>
-      <div class="ct">${ch.title}</div><div class="cd">${ch.desc}</div>`;
-    c.onclick=()=>{ sfx.click(); openChapter(i); };
-    grid.appendChild(c);
+  const wrap=$('chapterGroups'); wrap.innerHTML='';
+  ['p1','p2','p3'].forEach(ex=>{
+    const items=LESSONS.map((ch,i)=>({ch,i})).filter(x=>x.ch.exam===ex);
+    const head=document.createElement('div'); head.className='group-head';
+    head.innerHTML=`<h2>${EXAM_NAMES[ex]}</h2><button class="linkbtn" type="button">Treinar questões da ${EXAM_NAMES[ex]} →</button>`;
+    head.querySelector('button').onclick=()=>startFree(ex);
+    const grid=document.createElement('div'); grid.className='chapter-grid';
+    items.forEach(({ch,i})=>{
+      const c=document.createElement('button'); c.type='button';
+      c.className='chapter-card'+(ch.first?' featured':'');
+      const done=save.lessonsDone.includes(ch.id);
+      c.innerHTML=`${done?'<span class="cdone">✓ Visto</span>':''}<div class="thumb-wrap">${lessonThumb(ch.id)}</div><div class="cbody"><div class="ct">${ch.title.replace(/^\d+ · /,'')}</div><div class="cd">${ch.desc}</div></div>`;
+      c.onclick=()=>openChapter(i);
+      grid.appendChild(c);
+    });
+    wrap.append(head,grid);
   });
 }
 // --- Player de lição ---
 const LS = {ch:0, i:0};
-function openChapter(idx){ LS.ch=idx; LS.i=0; showScreen('scr-lesson'); renderLessonSlide(); }
+function openChapter(idx){ LS.ch=idx; LS.i=0; save.last={type:'lesson',idx,title:LESSONS[idx].title.replace(/^\d+ · /,'')}; persist(); showScreen('scr-lesson'); renderLessonSlide(); }
 function renderLessonSlide(){
   const ch=LESSONS[LS.ch], s=ch.slides[LS.i], body=$('lessonBody');
-  $('lessonTitle').textContent=ch.ic+' '+ch.title;
+  $('lessonTitle').textContent=ch.title.replace(/^\d+ · /,'');
   $('lessonProg').textContent=`${LS.i+1}/${ch.slides.length}`;
+  $('lessonDots').style.display=ch.slides.length>1?'':'none';
   $('lessonDots').innerHTML=ch.slides.map((_,k)=>`<span class="${k===LS.i?'on':''}"></span>`).join('');
   $('lessonPrev').style.visibility = LS.i===0 ? 'hidden':'visible';
   $('lessonNext').textContent = LS.i===ch.slides.length-1 ? '✓ Concluir' : 'Próximo →';
@@ -2212,6 +2223,11 @@ function renderLessonSlide(){
   else if(s.t==='signals'){ renderSignalsLesson(body, s.instr); }
   else if(s.t==='worked'){ renderWorked(body, s); }
   else if(s.t==='pipemap'){ renderPipemap(body); }
+  else if(s.t==='visual'){
+    body.innerHTML=`<h3>${s.h}</h3><p>${s.p}</p><div id="lessonVisual"></div>`;
+    if(s.scene) mountScene($('lessonVisual'),s.scene);
+    else mountWidget(s.widget,$('lessonVisual'),s.params?JSON.parse(JSON.stringify(s.params)):{});
+  }
   window.scrollTo(0,0);
 }
 function renderExplore(body){
@@ -2290,8 +2306,8 @@ function renderPipemap(body){
 function finishChapter(){
   const ch=LESSONS[LS.ch];
   if(!save.lessonsDone.includes(ch.id)){ save.lessonsDone.push(ch.id); persist(); }
-  sfx.win(); toast('✅ Capítulo concluído', ch.title);
-  renderAcademy(); showScreen('scr-learn');
+  sfx.win(); toast('Capítulo concluído', ch.title);
+  renderAcademy(); showScreen('scr-learn',{replace:true});
 }
 
 /* ===========================================================================
@@ -3375,6 +3391,28 @@ function showSimSetup(examId){
 // ---- Ligações de botões / boot ----
 function boot(){
   refreshHUD();
+  // Navegacao
+  document.querySelectorAll('[data-nav]').forEach(b=>{ b.onclick=()=>goTo(b.dataset.nav); });
+  document.querySelectorAll('[data-go]').forEach(b=>{ b.onclick=()=>goTo(b.dataset.go); });
+  $('navBack').onclick=goBack;
+  $('navBrand').onclick=()=>goTo('scr-home');
+  $('heroLearn').onclick=()=>goTo('scr-learn');
+  $('heroPractice').onclick=()=>goTo('scr-practice');
+  window.addEventListener('popstate',e=>{
+    const id=(e.state&&e.state.screen)||'scr-home';
+    enterScreen(id);
+  });
+  const slug=location.hash.replace('#/','');
+  const initial=Object.keys(SCREEN_SLUGS).find(k=>SCREEN_SLUGS[k]===slug)||'scr-home';
+  history.replaceState({screen:'scr-home'},'','#/inicio');
+  renderHome();
+  if(['scr-learn','scr-practice','scr-exams','scr-progress','scr-levels','scr-ach','scr-errors','scr-tutorial'].includes(initial)){
+    if(initial==='scr-learn') renderAcademy();
+    if(initial==='scr-levels') renderLevels();
+    if(initial==='scr-ach') renderAchievements();
+    if(initial==='scr-tutorial'){ tutIdx=0; renderTutorial(); }
+    if(initial==='scr-errors') renderErrorNotebook(); else showScreen(initial);
+  }
   // Home
   $('btnStart').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); };
   $('btnFree').onclick=()=>{ sfx.click(); showFreeSetup('free'); };
