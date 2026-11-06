@@ -695,7 +695,7 @@ table.ctl td.x{color:var(--muted);}
   <!-- ===================== RESULTADO ===================== -->
   <section class="screen" id="scr-result">
     <div class="panel center">
-      <div class="result-big" id="resEmoji">🎉</div>
+      <div class="result-big" id="resEmoji"></div>
       <h2 id="resTitle">Nível completo!</h2>
       <p class="muted" id="resSub"></p>
       <div class="result-stats" id="resStats"></div>
@@ -709,7 +709,7 @@ table.ctl td.x{color:var(--muted);}
   <!-- ===================== CONQUISTAS ===================== -->
   <section class="screen" id="scr-ach">
     <div class="panel">
-      <h2>🏆 Conquistas</h2>
+      <h2>Conquistas</h2>
       <p class="muted" id="achCount"></p>
     </div>
     <div class="ach-list" id="achList"></div>
@@ -722,10 +722,10 @@ table.ctl td.x{color:var(--muted);}
   <section class="screen" id="scr-sim">
     <div class="panel">
       <div class="q-head">
-        <span class="q-tag" id="simTag">📝 Simulado</span>
+        <span class="q-tag" id="simTag">Simulado</span>
         <span class="q-progress" id="simProg">1/10</span>
       </div>
-      <div class="sim-timer" id="simTimer">⏱ 12:00</div>
+      <div class="sim-timer" id="simTimer">12:00</div>
       <div id="simBody"></div>
       <div class="feedback" id="simFeedback"></div>
       <div class="actionsbar" id="simActions"></div>
@@ -735,7 +735,7 @@ table.ctl td.x{color:var(--muted);}
   <!-- ===================== SIMULADO (configuração) ===================== -->
   <section class="screen" id="scr-sim-setup">
     <div class="panel center">
-      <div class="result-big">📝</div>
+      <div class="result-big"></div>
       <h2 id="simSetupTitle">Simulado — Modelo da Prova 3</h2>
       <p class="muted" id="simSetupSub">Tempo de instruções, SLT, J, registradores de função e loop com CPI médio. Você pode anular uma questão ao finalizar.</p>
       <div class="exam-tabs" id="simSetupTabs" style="justify-content:center"></div>
@@ -753,7 +753,7 @@ table.ctl td.x{color:var(--muted);}
   <!-- ===================== RESULTADO DO SIMULADO ===================== -->
   <section class="screen" id="scr-sim-result">
     <div class="panel center">
-      <div class="result-big" id="simResEmoji">📊</div>
+      <div class="result-big" id="simResEmoji"></div>
       <h2 id="simResTitle">Simulado Concluído</h2>
       <div class="sim-grade" id="simGrade">—</div>
       <p class="muted" id="simResSub"></p>
@@ -764,7 +764,7 @@ table.ctl td.x{color:var(--muted);}
         <button class="btn ghost" id="simHome">🏠 Início</button>
       </div>
       <div style="text-align:left;margin-top:10px;">
-        <h3 style="font-size:15px;text-align:center;margin:10px 0;">📋 Gabarito Comentado</h3>
+        <h3 style="font-size:15px;text-align:center;margin:10px 0;">Gabarito Comentado</h3>
         <div id="simGabarito"></div>
       </div>
     </div>
@@ -774,7 +774,7 @@ table.ctl td.x{color:var(--muted);}
 <!-- ===================== OVERLAY DO GLOSSÁRIO ===================== -->
 <div id="glOverlay">
   <div id="glModal">
-    <h2>📖 Glossário de Conceitos</h2>
+    <h2>Glossário de Conceitos</h2>
     <input type="text" id="glSearch" placeholder="Buscar termo..." />
     <div id="glBody"></div>
     <button class="btn ghost small gl-close" id="glClose">Fechar ✕</button>
@@ -1442,18 +1442,18 @@ function renderQuestion(){
   if(save.learnMode){
     // MODO APRENDIZ: botão "Me ensina" gratuito e repetível — mostra o raciocínio completo.
     const teachBtn=document.createElement('button');
-    teachBtn.className='btn ghost small'; teachBtn.innerHTML='📖 Me ensina';
+    teachBtn.className='btn ghost small'; teachBtn.innerHTML='Me ensina';
     teachBtn.onclick=()=>{ G.assisted=true; teachForQuestion(q); };
     act.appendChild(teachBtn);
   } else {
     // MODO PROVA: dica única por questão, sem custo.
     const hintBtn=document.createElement('button');
-    hintBtn.className='btn ghost small'; hintBtn.innerHTML='💡 Dica';
+    hintBtn.className='btn ghost small'; hintBtn.innerHTML='Dica';
     hintBtn.onclick=()=>{
       if(G.usedHint) return;
       G.usedHint=true;
       const fb=$('feedback'); fb.className='feedback hint show';
-      fb.innerHTML=`💡 <b>Dica:</b> ${q.hint}`;
+      fb.innerHTML=`<b>Dica:</b> ${q.hint}`;
       hintBtn.disabled=true;
     };
     act.appendChild(hintBtn);
@@ -1462,7 +1462,7 @@ function renderQuestion(){
   if(['free','review','targeted','provaInfinita'].includes(G.mode)){
     const skipBtn=document.createElement('button');
     skipBtn.className='btn ghost small';
-    skipBtn.textContent='⏭ Pular';
+    skipBtn.textContent='Pular';
     skipBtn.onclick=skipFreeQuestion;
     act.appendChild(skipBtn);
   }
@@ -1481,12 +1481,12 @@ function questionSolved(){
   persist();
   const fb=$('feedback');
   fb.className='feedback ok show';
-  fb.innerHTML = `✅ <b>Correto!</b> ${q.explainOK||''}`;
+  fb.innerHTML = `<b>Correto!</b> ${q.explainOK||''}`;
   checkAchievements(q);
   // botão próximo
   const act=$('qActions'); act.innerHTML='';
   const nx=document.createElement('button');
-  nx.className='btn green'; nx.textContent = (G.idx+1>=G.queue.length && !G.free) ? '🏁 Finalizar nível' : 'Próxima →';
+  nx.className='btn green'; nx.textContent = (G.idx+1>=G.queue.length && !G.free) ? 'Finalizar nível' : 'Próxima →';
   nx.onclick=nextQuestion; act.appendChild(nx);
 }
 function nextQuestion(){
@@ -1507,14 +1507,14 @@ function addWrongNextButton(){
   const act=$('qActions'); act.innerHTML='';
   const nx=document.createElement('button');
   nx.className='btn green';
-  nx.textContent = (G.idx+1>=G.queue.length && !G.free) ? '🏁 Finalizar' : 'Próxima →';
+  nx.textContent = (G.idx+1>=G.queue.length && !G.free) ? 'Finalizar' : 'Próxima →';
   nx.onclick=nextQuestion;
   act.appendChild(nx);
 }
 function winLevel(){
   if(G.level>=save.unlocked && save.unlocked<LEVELS.length){ save.unlocked=G.level+1; }
   persist();
-  $('resEmoji').textContent='🎉';
+  $('resEmoji').textContent='';
   $('resTitle').textContent=`Nível ${G.level} completo!`;
   $('resSub').textContent = LEVELS[G.level-1].label;
   $('resStats').innerHTML='';
@@ -1556,7 +1556,7 @@ function renderMode1(q, body){
         const slot=$('slot-'+cur); slot.className='slot filled'; slot.textContent=(cur+1)+'. '+stepLabel(q.instr,cur);
         cur++; sfx.click();
         if(cur>=seq.length){
-          q.explainOK=`Caminho da ${INSTR[q.instr].name} completo! 🟢`;
+          q.explainOK=`Caminho da ${INSTR[q.instr].name} completo! `;
           const bonus = Math.max(0, 60 - Math.floor((Date.now()-G.qStart)/1000)*3); // bônus de tempo
           questionSolved(bonus);
         }
@@ -1565,7 +1565,7 @@ function renderMode1(q, body){
         sfx.err(); G.errInQ++;
         const fb=$('feedback'); fb.className='feedback err show';
         const expected=stepLabel(q.instr,cur);
-        fb.innerHTML=`❌ <b>Agora não.</b> O próximo passo é <b>${expected}</b>, não <b>${UNITS[k].name}</b>. <br><span class="muted">${UNITS[k].name}: ${UNITS[k].tip}</span>`;
+        fb.innerHTML=`<b>Agora não.</b> O próximo passo é <b>${expected}</b>, não <b>${UNITS[k].name}</b>. <br><span class="muted">${UNITS[k].name}: ${UNITS[k].tip}</span>`;
         loseLife();
       }
     });
@@ -1586,7 +1586,7 @@ function renderMode2(q, body, act){
   const assistToggle=$('ctlAssistToggle');
   const syncSignalAssist=()=>{
     wrap.classList.toggle('hide-signal-help', !save.signalAssistVisible);
-    assistToggle.textContent = save.signalAssistVisible ? '👁 Ajuda ligada' : '🙈 Modo difícil';
+    assistToggle.textContent = save.signalAssistVisible ? 'Ajuda ligada' : 'Modo difícil';
     assistToggle.title = save.signalAssistVisible ? 'Ocultar descrições dos sinais' : 'Mostrar descrições dos sinais';
     assistToggle.setAttribute('aria-pressed', save.signalAssistVisible ? 'true' : 'false');
   };
@@ -1597,8 +1597,8 @@ function renderMode2(q, body, act){
   const state = SIGNAL_NAMES.map(nm=>nm==='ALUOp'?'00':0);
   const valText=(nm,v)=>`${v} → ${SIG_INFO[nm]['v'+v]}`;   // significado do valor atual
   const detailHTML=(nm,info)=> nm==='ALUOp'
-    ? `🟣 <b>=00:</b> ${info.v00}<br>🟡 <b>=01:</b> ${info.v01}<br>🔵 <b>=10:</b> ${info.v10}`
-    : `🔵 <b>=1:</b> ${info.v1}<br>⚪ <b>=0:</b> ${info.v0}`;
+    ? `<b>=00:</b> ${info.v00}<br><b>=01:</b> ${info.v01}<br><b>=10:</b> ${info.v10}`
+    : `<b>=1:</b> ${info.v1}<br><b>=0:</b> ${info.v0}`;
   SIGNAL_NAMES.forEach((nm,i)=>{
     const info=SIG_INFO[nm];
     const controlHTML = nm==='ALUOp'
@@ -1654,12 +1654,12 @@ function renderMode2(q, body, act){
     });
     const fb=$('feedback');
     if(allOk){
-      q.explainOK = `Todos os 8 sinais corretos para a ${INSTR[q.instr].name}. 🎛`;
+      q.explainOK = `Todos os 8 sinais corretos para a ${INSTR[q.instr].name}. `;
       q._noHintControl = !G.usedHint && !G.assisted;   // p/ conquista (sem nenhuma ajuda)
       questionSolved();
     } else {
       fb.className='feedback err show';
-      fb.innerHTML=`❌ <b>${wrongs.length} sinal(is) errado(s):</b> ${wrongs.join(', ')}. Veja as explicações em vermelho e ajuste.`;
+      fb.innerHTML=`<b>${wrongs.length} sinal(is) errado(s):</b> ${wrongs.join(', ')}. Veja as explicações em vermelho e ajuste.`;
       recordConceptError(q, wrongs.join(', '), correct.map((v,i)=>`${SIGNAL_NAMES[i]}=${v}`).join(', '));
       sfx.err(); G.errInQ++; loseLife();
     }
@@ -1751,7 +1751,7 @@ function timeContextHTML(t){
 function addCheck(act, fn){ const b=document.createElement('button'); b.className='btn'; b.textContent='✔ Verificar'; b.onclick=fn; act.appendChild(b); }
 function failNum(msg){
   const fb=$('feedback'); fb.className='feedback err show';
-  fb.innerHTML=`❌ <b>Não foi dessa vez.</b> ${msg}`; sfx.err(); G.timeStreak=0; G.errInQ++; loseLife();
+  fb.innerHTML=`<b>Não foi dessa vez.</b> ${msg}`; sfx.err(); G.timeStreak=0; G.errInQ++; loseLife();
 }
 
 /* -------------------- MODO 4: Pipeline Master -------------------- */
@@ -1794,7 +1794,7 @@ function renderMode4(q, body, act){
   verify.className='btn'; verify.textContent='✔ Verificar';
   verify.onclick=()=>{
     const zones=body.querySelectorAll('.stagezone');
-    if(Object.keys(placed).length<5){ const fb=$('feedback'); fb.className='feedback err show'; fb.innerHTML='❌ Coloque as 5 etiquetas antes de verificar.'; sfx.err(); return; }
+    if(Object.keys(placed).length<5){ const fb=$('feedback'); fb.className='feedback err show'; fb.innerHTML='Coloque as 5 etiquetas antes de verificar.'; sfx.err(); return; }
     let allOk=true;
     zones.forEach(z=>{ const st=z.dataset.stage; const ok=placed[st]===st; z.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; });
     const fb=$('feedback');
@@ -1803,7 +1803,7 @@ function renderMode4(q, body, act){
       questionSolved();
     } else {
       fb.className='feedback err show';
-      fb.innerHTML=`❌ <b>Algumas fases erradas.</b> Lembre: <span class="mono">IF</span>=busca · <span class="mono">ID</span>=decodifica/lê reg. · <span class="mono">EX</span>=ULA · <span class="mono">MEM</span>=memória de dados · <span class="mono">WB</span>=escreve reg. Ajuste e tente de novo.`;
+      fb.innerHTML=`<b>Algumas fases erradas.</b> Lembre: <span class="mono">IF</span>=busca · <span class="mono">ID</span>=decodifica/lê reg. · <span class="mono">EX</span>=ULA · <span class="mono">MEM</span>=memória de dados · <span class="mono">WB</span>=escreve reg. Ajuste e tente de novo.`;
       sfx.err(); G.errInQ++; loseLife();
       // limpa marcação para nova tentativa (mantém posições)
       setTimeout(()=>zones.forEach(z=>z.classList.remove('ok','bad')),900);
@@ -1816,20 +1816,20 @@ function renderMode4(q, body, act){
    9. JS — SEÇÃO G: CONQUISTAS
    =========================================================================== */
 const ACHIEVEMENTS = [
-  {id:'lw_signals', ic:'🎛', nm:'Mestre do lw', ds:'Acertou todos os 8 sinais do lw sem usar dica.'},
-  {id:'time_streak',ic:'⏱', nm:'Cronômetro humano', ds:'Calculou 5 tempos seguidos sem errar.'},
-  {id:'control_master', ic:'🧠', nm:'Decorou o controle', ds:'Acertou os 8 sinais de R, lw, sw e beq.'},
-  {id:'first_level', ic:'🥇', nm:'Primeiros passos', ds:'Completou o nível 1.'},
-  {id:'half_way', ic:'🚀', nm:'Na metade', ds:'Desbloqueou o nível 6.'},
-  {id:'finish', ic:'👑', nm:'Arquiteto MIPS', ds:'Completou o nível 10.'},
-  {id:'pipeliner', ic:'🚉', nm:'Pipeliner', ds:'Montou o pipeline de 5 fases sem erro.'},
-  {id:'veterano', ic:'💎', nm:'Veterano', ds:'Acertou 200 questões.'}
+  {id:'lw_signals', ic:'', nm:'Mestre do lw', ds:'Acertou todos os 8 sinais do lw sem usar dica.'},
+  {id:'time_streak',ic:'', nm:'Cronômetro humano', ds:'Calculou 5 tempos seguidos sem errar.'},
+  {id:'control_master', ic:'', nm:'Decorou o controle', ds:'Acertou os 8 sinais de R, lw, sw e beq.'},
+  {id:'first_level', ic:'', nm:'Primeiros passos', ds:'Completou o nível 1.'},
+  {id:'half_way', ic:'', nm:'Na metade', ds:'Desbloqueou o nível 6.'},
+  {id:'finish', ic:'', nm:'Arquiteto MIPS', ds:'Completou o nível 10.'},
+  {id:'pipeliner', ic:'', nm:'Pipeliner', ds:'Montou o pipeline de 5 fases sem erro.'},
+  {id:'veterano', ic:'', nm:'Veterano', ds:'Acertou 200 questões.'}
 ];
 function unlock(id){
   if(save.achievements.includes(id)) return;
   save.achievements.push(id); persist();
   const a=ACHIEVEMENTS.find(x=>x.id===id);
-  sfx.ach(); toast(`🏆 Conquista: ${a.nm}`, a.ds);
+  sfx.ach(); toast(`Conquista: ${a.nm}`, a.ds);
 }
 function checkAchievements(q){
   // streak de tempos (modo 3) — incrementa só em acerto de tempo
@@ -1857,7 +1857,7 @@ function renderAchievements(){
   $('achCount').textContent=`${save.achievements.length}/${ACHIEVEMENTS.length} desbloqueadas`;
   $('achList').innerHTML = ACHIEVEMENTS.map(a=>{
     const un=save.achievements.includes(a.id);
-    return `<div class="ach ${un?'un':'lock'}"><div class="ic">${un?a.ic:'🔒'}</div>
+    return `<div class="ach ${un?'un':'lock'}"><div class="ic">${un?a.ic:''}</div>
       <div><div class="nm">${a.nm}</div><div class="ds">${a.ds}</div></div></div>`;
   }).join('');
 }
@@ -1961,7 +1961,7 @@ function animatePath(instr, svgRoot, captionEl, done){
   (function step(){
     if(i>0){ const prev=svgRoot.querySelector('#u-'+seq[i-1]); if(prev){prev.classList.remove('hl-pulse');prev.classList.add('hl-green');} }
     if(i>=seq.length){
-      if(captionEl) captionEl.innerHTML=`✅ <b>Fim.</b> A ${INSTR[instr].name} percorreu ${seq.length} blocos.`;
+      if(captionEl) captionEl.innerHTML=`<b>Fim.</b> A ${INSTR[instr].name} percorreu ${seq.length} blocos.`;
       if(done) done(); return;
     }
     const g=svgRoot.querySelector('#u-'+seq[i]); if(g) g.classList.add('hl-pulse');
@@ -1999,7 +1999,7 @@ function teachForQuestion(q){
   const fb=$('feedback'); fb.className='feedback hint show'; sfx.click();
   if(q.mode===1){
     const svg=document.querySelector('#qBody svg.datapath');
-    fb.innerHTML=`📖 <b>Veja a ordem certa no diagrama:</b><div class="demo-caption" id="teachCap" style="margin-top:6px">▶ rodando…</div>`;
+    fb.innerHTML=`<b>Veja a ordem certa no diagrama:</b><div class="demo-caption" id="teachCap" style="margin-top:6px">▶ rodando…</div>`;
     svg.querySelectorAll('.unit').forEach(g=>g.classList.remove('hl-green','hl-pulse','hl-red'));
     animatePath(q.instr, svg, $('teachCap'), ()=>{
       // limpa os destaques para você refazer sozinho
@@ -2007,12 +2007,12 @@ function teachForQuestion(q){
     });
   } else if(q.mode===2){
     const c=CONTROL[q.instr];
-    fb.innerHTML=`📖 <b>Como deduzir os sinais da ${INSTR[q.instr].name}:</b>
+    fb.innerHTML=`<b>Como deduzir os sinais da ${INSTR[q.instr].name}:</b>
       <div class="sig-teach" style="margin-top:6px">`+
       SIGNAL_NAMES.map((nm,i)=>`<div class="sig-trow"><span class="badge ${signalBadgeClass(c[i])}">${nm}=${c[i]}</span><span>${SIG_WHY[nm][c[i]]}</span></div>`).join('')
       +`</div>`;
   } else if(q.mode===3){
-    fb.innerHTML='📖 '+teachTime(q);
+    fb.innerHTML=''+teachTime(q);
   } else if(q.mode===5){
     // Modo Prova: explica o conceito da questão
     let h='<div class="demo-caption" style="margin-top:6px">';
@@ -2034,9 +2034,9 @@ function teachForQuestion(q){
       h+=`<b>Explicação:</b> ${q.explain||''}`;
     }
     h+='</div>';
-    fb.innerHTML='📖 '+h;
+    fb.innerHTML=''+h;
   } else {
-    fb.innerHTML=`📖 <b>Mapa das fases do pipeline</b> — passe sobre cada bloco do diagrama p/ confirmar:
+    fb.innerHTML=`<b>Mapa das fases do pipeline</b> — passe sobre cada bloco do diagrama p/ confirmar:
       <ul><li><b>IF</b> (busca): PC, Memória de Instruções</li>
       <li><b>ID</b> (decodifica): Banco de Registradores (leitura), Unidade de Controle</li>
       <li><b>EX</b> (executa): ULA, Somador de Desvio</li>
@@ -2070,7 +2070,7 @@ const LESSONS = [
       {t:'text', html:`<h3>O que é o caminho de dados?</h3>
         <p>O <b>datapath</b> (caminho de dados) é o conjunto de blocos por onde os bits da instrução passam para serem executados. No MIPS <b>uniciclo</b>, toda instrução começa e termina em <b>um único ciclo de clock</b>.</p>
         <p>Os blocos principais são: <span class="mono">PC</span>, <span class="mono">Memória de Instruções</span>, <span class="mono">Banco de Registradores</span>, <span class="mono">ULA</span>, <span class="mono">Memória de Dados</span>, <span class="mono">Extensão de Sinal</span>, <span class="mono">Somadores</span>, <span class="mono">MUXes</span> e a <span class="mono">Unidade de Controle</span>.</p>
-        <p>Vamos conhecer cada um. Toque para avançar. 👉</p>`},
+        <p>Vamos conhecer cada um. Toque para avançar. </p>`},
       {t:'explore'},
       {t:'text', html:`<h3>Resumo dos blocos</h3>
         <ul>
@@ -2084,10 +2084,10 @@ const LESSONS = [
         <li><b>MUXes</b> — chaves que escolhem o caminho (RegDst, ALUSrc, MemtoReg, PCSrc).</li>
         <li><b>Controle</b> — lê o opcode e comanda tudo isso.</li>
         </ul>
-        <div class="callout">Próximo capítulo: como a <b>Unidade de Controle</b> liga/desliga os sinais. 🎛</div>`}
+        <div class="callout">Próximo capítulo: como a <b>Unidade de Controle</b> liga/desliga os sinais. </div>`}
     ]},
 
-  { id:'sinais', ic:'🎛', title:'2 · Sinais de controle', desc:'Os 8 sinais e por que cada um liga.',
+  { id:'sinais', ic:'', title:'2 · Sinais de controle', desc:'Os 8 sinais e por que cada um liga.',
     slides:[
       {t:'text', html:`<h3>A Unidade de Controle</h3>
         <p>Ela lê o <b>opcode</b> (os 6 primeiros bits da instrução) e gera os sinais que comandam os MUXes, as memórias e a ULA. São <b>8 sinais</b> principais:</p>
@@ -2101,7 +2101,7 @@ const LESSONS = [
         <li><b>Branch</b> — é um desvio? (beq).</li>
         <li><b>ALUOp</b> — indica para a ULA somar, subtrair ou usar o campo funct.</li>
         </ul>
-        <p>Veja agora, sinal por sinal, como cada instrução é decodificada. 👉</p>`},
+        <p>Veja agora, sinal por sinal, como cada instrução é decodificada. </p>`},
       {t:'signals', instr:'lw'},
       {t:'signals', instr:'R'},
       {t:'signals', instr:'sw'},
@@ -2119,11 +2119,11 @@ const LESSONS = [
         <div class="callout"><b>Regras pra decorar:</b> RegWrite=1 só se grava registrador (R, lw) · ALUSrc=1 quando há imediato (lw, sw) · MemRead/MemWrite só em lw/sw · Branch só em beq · ALUOp=00 para lw/sw, 01 para beq e 10 para tipo-R · <b>X</b> = indiferente (quando não escreve registrador, RegDst e MemtoReg não importam).</div>`}
     ]},
 
-  { id:'caminho', ic:'🛣️', title:'3 · Caminho de uma instrução', desc:'Demonstração animada de cada instrução.',
+  { id:'caminho', ic:'', title:'3 · Caminho de uma instrução', desc:'Demonstração animada de cada instrução.',
     slides:[
       {t:'text', html:`<h3>Como uma instrução "anda" no datapath</h3>
         <p>Cada tipo de instrução percorre um conjunto diferente de blocos. Nas próximas telas você verá a <b>animação passo a passo</b> de cada uma. Observe a ordem dos blocos que acendem e leia a narração.</p>
-        <p>👉 Comece pela tipo-R.</p>`},
+        <p>Comece pela tipo-R.</p>`},
       {t:'demo', instr:'R'},
       {t:'demo', instr:'lw'},
       {t:'demo', instr:'sw'},
@@ -2137,10 +2137,10 @@ const LESSONS = [
         <li><b>beq:</b> PC → Instr → Reg → ULA (subtrai) + Somador de Desvio → MUX PCSrc.</li>
         <li><b>j:</b> PC → Instr → PC (salto direto).</li>
         </ul>
-        <div class="callout">Quanto mais blocos no caminho, mais lenta a instrução. Isso liga direto com o <b>cálculo de tempos</b>. ⏱</div>`}
+        <div class="callout">Quanto mais blocos no caminho, mais lenta a instrução. Isso liga direto com o <b>cálculo de tempos</b>. </div>`}
     ]},
 
-  { id:'tempos', ic:'⏱️', title:'4 · Cálculo de tempos', desc:'Caminho crítico, período e speedup.',
+  { id:'tempos', ic:'', title:'4 · Cálculo de tempos', desc:'Caminho crítico, período e speedup.',
     slides:[
       {t:'text', html:`<h3>Modelo de tempos (do professor)</h3>
         <p>Cada bloco tem um atraso fixo em nanossegundos:</p>
@@ -2159,7 +2159,7 @@ const LESSONS = [
       {t:'worked', kind:'benchmark', name:'GCC', mix:{lw:22,sw:11,R:49,beq:16,j:2}},
     ]},
 
-  { id:'pipeline', ic:'🚉', title:'5 · Pipeline (5 fases)', desc:'IF, ID, EX, MEM, WB.',
+  { id:'pipeline', ic:'', title:'5 · Pipeline (5 fases)', desc:'IF, ID, EX, MEM, WB.',
     slides:[
       {t:'text', html:`<h3>Por que pipeline?</h3>
         <p>No uniciclo, uma instrução só começa quando a outra termina. O <b>pipeline</b> divide o datapath em <b>5 fases</b> e executa várias instruções ao mesmo tempo — como uma linha de montagem.</p>
@@ -2218,7 +2218,7 @@ function renderExplore(body){
   const keys=Object.keys(UNITS);
   body.innerHTML=`<p class="prompt">Toque em cada bloco do datapath para aprender o que ele faz. <span class="muted" id="expCount">(0/${keys.length})</span></p>
     ${buildDatapathSVG()}
-    <div class="lesson-caption" id="expCap">👆 Toque numa unidade para ver a explicação…</div>`;
+    <div class="lesson-caption" id="expCap">Toque numa unidade para ver a explicação…</div>`;
   wireTooltips(body);
   const visited=new Set();
   body.querySelectorAll('.unit').forEach(g=>{
@@ -2312,7 +2312,7 @@ function renderLevels(){
     const c=document.createElement('div');
     c.className='levelcard '+(unlocked?'unlocked':'locked');
     const done = n<save.unlocked;
-    c.innerHTML=`${done?'<span class="done">✔</span>':''}${!unlocked?'<span class="lock">🔒</span>':''}
+    c.innerHTML=`${done?'<span class="done">✔</span>':''}${!unlocked?'<span class="lock"></span>':''}
       <div class="num">${n}</div><div class="lab">${lv.label}</div>
       <div class="tier ${lv.tier}">${lv.tier==='easy'?'Fácil':lv.tier==='med'?'Médio':'Difícil'}</div>`;
     if(unlocked) c.onclick=()=>{ sfx.click(); startLevel(n); };
@@ -2347,9 +2347,9 @@ const TUTORIAL = [
     <table class="ctl"><tr><th>lw</th><th>sw</th><th>tipo-R</th><th>beq</th><th>j</th></tr>
     <tr><td>12</td><td>11</td><td>8</td><td>7</td><td>4</td></tr></table>
     <p class="muted" style="margin-top:6px">O <b>período do uniciclo</b> = maior tempo = 12 ns (lw). No multiciclo ideal, cada instrução leva o seu próprio tempo.</p>`},
-  {e:'🏆', h:'Pronto para começar!', b:`
+  {e:'', h:'Pronto para começar!', b:`
     <p>Peça <b>dicas</b> a qualquer momento. Desbloqueie <b>conquistas</b> e suba os 10 níveis.</p>
-    <p>Seu progresso é salvo automaticamente neste navegador. Bons estudos! 🚀</p>`}
+    <p>Seu progresso é salvo automaticamente neste navegador. Bons estudos! </p>`}
 ];
 let tutIdx=0;
 function renderTutorial(){
@@ -2430,7 +2430,7 @@ function renderGlossary(){
   GLOSSARY.forEach(g=>{
     if(filter && !(g.term.toLowerCase().includes(filter)||g.def.toLowerCase().includes(filter))) return;
     if(g.cat!==lastCat){ html+=`<div class="gl-cat">${g.cat}</div>`; lastCat=g.cat; }
-    html+=`<div class="gl-item"><b>${g.term}</b><div class="gl-def">${g.def}</div><div class="gl-why">💡 ${g.why}</div></div>`;
+    html+=`<div class="gl-item"><b>${g.term}</b><div class="gl-def">${g.def}</div><div class="gl-why">${g.why}</div></div>`;
   });
   if(!html) html='<div class="muted" style="padding:20px;text-align:center;">Nenhum termo encontrado.</div>';
   body.innerHTML=html;
@@ -2450,7 +2450,7 @@ function wireConceptTerms(root){
       // mostra como toast flutuante perto do termo
       if(g){
         const tip=document.getElementById('tooltip');
-        tip.innerHTML=`<b>${g.term}</b><br>${g.def}<br><span style="color:var(--cyan)">💡 ${g.why}</span>`;
+        tip.innerHTML=`<b>${g.term}</b><br>${g.def}<br><span style="color:var(--cyan)">${g.why}</span>`;
         tip.style.display='block';
         const r=t.getBoundingClientRect();
         tip.style.left=Math.min(r.left+12,window.innerWidth-280)+'px';
@@ -2855,8 +2855,8 @@ function renderM5mc(q,body,act){
     opts.forEach((o,i)=>{ o.classList.remove('sel'); if(i===q.correct) o.classList.add('right'); else if(i===sel) o.classList.add('wrong'); });
     const ok=sel===q.correct;
     const fb=$('feedback');
-    if(ok){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-    else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; recordConceptError(q, q.options[sel], q.options[q.correct]); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+    if(ok){ fb.className='feedback ok show'; fb.innerHTML=`<b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
+    else{ fb.className='feedback err show'; fb.innerHTML=`<b>Incorreto.</b> ${q.explain}`; recordConceptError(q, q.options[sel], q.options[q.correct]); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
   };
   act.appendChild(verify);
 }
@@ -2873,8 +2873,8 @@ function renderM5tf(q,body,act){
       // marca a correta
       btns.querySelectorAll('.tf-btn').forEach(x=>{ if((x.dataset.v==='true')===q.correct) x.classList.add('right'); });
       const fb=$('feedback');
-      if(ok){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-      else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; recordConceptError(q, val?'Verdadeiro':'Falso', q.correct?'Verdadeiro':'Falso'); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+      if(ok){ fb.className='feedback ok show'; fb.innerHTML=`<b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
+      else{ fb.className='feedback err show'; fb.innerHTML=`<b>Incorreto.</b> ${q.explain}`; recordConceptError(q, val?'Verdadeiro':'Falso', q.correct?'Verdadeiro':'Falso'); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
     };
     btns.appendChild(b);
   });
@@ -2892,8 +2892,8 @@ function renderM5ar(q,body,act){
       b.classList.add(ok?'right':'wrong');
       row.querySelectorAll('.ar-btn').forEach(x=>{ if((x.dataset.v==='true')===q.correct) x.classList.add('right'); });
       const fb=$('feedback');
-      if(ok){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-      else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Incorreto.</b> ${q.explain}`; recordConceptError(q, val?'Verdadeiro':'Falso', q.correct?'Verdadeiro':'Falso'); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+      if(ok){ fb.className='feedback ok show'; fb.innerHTML=`<b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
+      else{ fb.className='feedback err show'; fb.innerHTML=`<b>Incorreto.</b> ${q.explain}`; recordConceptError(q, val?'Verdadeiro':'Falso', q.correct?'Verdadeiro':'Falso'); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
     };
     row.appendChild(b);
   });
@@ -2932,8 +2932,8 @@ function renderM5tbl(q,body,act){
       if(got===want){ td.classList.add('right'); } else { td.classList.add('wrong'); allOk=false; }
       sel.disabled=true;
     });
-    if(allOk){ fb.className='feedback ok show'; fb.innerHTML=`✅ <b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
-    else{ fb.className='feedback err show'; fb.innerHTML=`❌ <b>Alguns sinais errados.</b> ${q.explain}`; recordConceptError(q, 'tabela incompleta/incorreta', correctSummary(q)); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
+    if(allOk){ fb.className='feedback ok show'; fb.innerHTML=`<b>Correto!</b> ${q.explain}`; q.explainOK=q.explain; bumpMastery(q.topic,true); questionSolved(); }
+    else{ fb.className='feedback err show'; fb.innerHTML=`<b>Alguns sinais errados.</b> ${q.explain}`; recordConceptError(q, 'tabela incompleta/incorreta', correctSummary(q)); sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton(); }
   };
   act.appendChild(verify);
 }
@@ -2942,13 +2942,13 @@ function renderM5prog(q,body,act){
     const fb=$('feedback');
     if(ok){
       fb.className='feedback ok show';
-      fb.innerHTML=`✅ <b>Correto!</b> ${programExplain(q)}`;
+      fb.innerHTML=`<b>Correto!</b> ${programExplain(q)}`;
       q.explainOK=programExplain(q);
       bumpMastery(q.topic,true);
       questionSolved(60);
     } else {
       fb.className='feedback err show';
-      fb.innerHTML=`❌ <b>Revise a tabela.</b> ${programExplain(q)}`;
+      fb.innerHTML=`<b>Revise a tabela.</b> ${programExplain(q)}`;
       recordConceptError(q, 'tabela de frequência/CPI incorreta', correctSummary(q));
       sfx.err(); bumpMastery(q.topic,false); G.errInQ++; loseLife(); addWrongNextButton();
     }
@@ -2994,7 +2994,7 @@ function renderM5open(q,body,act){
     errBtn.onclick=()=>{
       recordConceptError(q, answer, q.modelAnswer);
       const fb=$('feedback'); fb.className='feedback err show';
-      fb.innerHTML=`📒 <b>Registrado no caderno.</b> ${q.shortExplain}`;
+      fb.innerHTML=`<b>Registrado no caderno.</b> ${q.shortExplain}`;
       sfx.err(); bumpMastery(q.topic,false); G.errInQ++; addWrongNextButton();
     };
     act.appendChild(okBtn); act.appendChild(errBtn);
@@ -3128,7 +3128,7 @@ function startSimTimer(){
   const upd=()=>{
     const m=Math.floor(SIM.timeLeft/60), s=SIM.timeLeft%60;
     const el=$('simTimer');
-    el.textContent=`⏱ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     el.classList.toggle('urgent', SIM.timeLeft<=60);
     if(SIM.timeLeft<=0){ clearInterval(SIM.timer); finishSim(); return; }
     SIM.timeLeft--;
@@ -3150,7 +3150,7 @@ function renderSimQuestion(){
 function nullSimQuestion(index){
   SIM.nullIndex = index===undefined ? SIM.idx : index;
   const fb=$('simFeedback');
-  if(fb){ fb.className='feedback hint show'; fb.innerHTML=`⚠️ Questão ${SIM.nullIndex+1} marcada para anulação. Você ainda pode respondê-la para estudar; a nota com anulação aparecerá no final.`; }
+  if(fb){ fb.className='feedback hint show'; fb.innerHTML=`Questão ${SIM.nullIndex+1} marcada para anulação. Você ainda pode respondê-la para estudar; a nota com anulação aparecerá no final.`; }
   return SIM.nullIndex;
 }
 function addSimNullButton(act){
@@ -3171,10 +3171,10 @@ function renderM5forSim(q,body,act){
     SIM.assistedAny=false;
     const fb=$('simFeedback');
     fb.className=ok?'feedback ok show':'feedback err show';
-    fb.innerHTML=(ok?'✅ <b>Correto.</b> ':'❌ <b>Incorreto.</b> ')+q.explain;
+    fb.innerHTML=(ok?'<b>Correto.</b> ':'<b>Incorreto.</b> ')+q.explain;
     act.innerHTML='';
     const nx=document.createElement('button'); nx.className='btn green';
-    nx.textContent=SIM.idx+1>=SIM.queue.length?'Ver resultado 📊':'Próxima →';
+    nx.textContent=SIM.idx+1>=SIM.queue.length?'Ver resultado ':'Próxima →';
     nx.onclick=()=>{ SIM.idx++; if(SIM.idx>=SIM.queue.length){ finishSim(); } else renderSimQuestion(); };
     act.appendChild(nx);
   };
@@ -3258,10 +3258,10 @@ function renderM3forSim(q,body,act){
     const parts=[]; for(const k in mix){ parts.push(`${mix[k]}%·${instrTime(k,t)}`); }
     const fb=$('simFeedback');
     fb.className=ok?'feedback ok show':'feedback err show';
-    fb.innerHTML=(ok?'✅ ':'❌ ')+`<b>Uniciclo=${per} ns · Média=${avg} ns · Speedup=${speed}×</b>`;
+    fb.innerHTML=(ok?'':'')+`<b>Uniciclo=${per} ns · Média=${avg} ns · Speedup=${speed}×</b>`;
     act.innerHTML='';
     const nx=document.createElement('button'); nx.className='btn green';
-    nx.textContent=SIM.idx+1>=SIM.queue.length?'Ver resultado 📊':'Próxima →';
+    nx.textContent=SIM.idx+1>=SIM.queue.length?'Ver resultado ':'Próxima →';
     nx.onclick=()=>{ SIM.idx++; if(SIM.idx>=SIM.queue.length) finishSim(); else renderSimQuestion(); };
     act.appendChild(nx);
   };
@@ -3269,7 +3269,7 @@ function renderM3forSim(q,body,act){
   addSimTeachBtn(q,act);
 }
 function addSimTeachBtn(q,act){
-  const t=document.createElement('button'); t.className='btn ghost small'; t.innerHTML='📖 Me ensina';
+  const t=document.createElement('button'); t.className='btn ghost small'; t.innerHTML='Me ensina';
   t.onclick=()=>{ SIM.assistedAny=true; sfx.click();
     const fb=$('simFeedback'); fb.className='feedback hint show';
     let exp=q.explain||'';
@@ -3279,7 +3279,7 @@ function addSimTeachBtn(q,act){
       for(const k in q.mix){ avg+=(q.mix[k]/100)*instrTime(k,t2); } avg=Math.round(avg*100)/100;
       const sp=Math.round((per/avg)*100)/100;
       exp=`Uniciclo = ${per} ns (lw). Média multiciclo = Σ(fração×tempo) = ${avg} ns. Speedup = ${per}/${avg} = ${sp}×.`; }
-    fb.innerHTML=`📖 ${exp}`;
+    fb.innerHTML=`${exp}`;
   };
   act.appendChild(t);
 }
@@ -3314,8 +3314,8 @@ function finishSim(){
   // renderiza resultado
   $('simGrade').textContent=gradeWithNull.toFixed(1);
   $('simGrade').className='sim-grade '+(gradeWithNull>=6?'pass':'fail');
-  $('simResTitle').textContent=gradeWithNull>=6?'Aprovado! 🎉':'Continue treinando 💪';
-  $('simResEmoji').textContent=gradeWithNull>=6?'🎉':'📊';
+  $('simResTitle').textContent=gradeWithNull>=6?'Aprovado! ':'Continue treinando ';
+  $('simResEmoji').textContent=gradeWithNull>=6?'':'';
   $('simResSub').textContent=`Sem anulação: ${grade.toFixed(1)} · Com anulação: ${gradeWithNull.toFixed(1)} · ${correctCount} de ${total} corretas · Anulada: ${SIM.nullIndex===null?'nenhuma':'questão '+(SIM.nullIndex+1)} · Melhor nota: ${save.simBest[examKey].toFixed(1)}`;
   $('simTopics').innerHTML=Object.keys(perTopic).map(k=>{
     const [c,tot]=perTopic[k]; const pct=tot?Math.round(c/tot*100):0;
@@ -3333,7 +3333,7 @@ function finishSim(){
     } else if(r.q.mode===3 && r.q.mix){ const t2=r.q.times; const per=periodUniciclo(t2); let avg=0;
       for(const k in r.q.mix){ avg+=(r.q.mix[k]/100)*instrTime(k,t2); } avg=Math.round(avg*100)/100;
       const sp=Math.round((per/avg)*100)/100; exp=`Uniciclo=${per} · Média=${avg} · Speedup=${sp}×`; }
-    return `<div class="gab-item"><div class="gab-q"><b>${i+1}.</b> [${r.q.topic||'—'}] <span class="${annulled?'':ok?'gab-ok':'gab-fail'}">${annulled?'⚠ Anulada':ok?'✓ Correto':'✗ '+(r.assisted?'(usou ajuda)':'Incorreto')}</span></div><div class="gab-exp">${exp}</div></div>`;
+    return `<div class="gab-item"><div class="gab-q"><b>${i+1}.</b> [${r.q.topic||'—'}] <span class="${annulled?'':ok?'gab-ok':'gab-fail'}">${annulled?'Anulada':ok?'✓ Correto':''+(r.assisted?'(usou ajuda)':'Incorreto')}</span></div><div class="gab-exp">${exp}</div></div>`;
   }).join('');
   showScreen('scr-sim-result');
 }
@@ -3367,7 +3367,7 @@ function showSimSetup(examId){
   const best=save.simBest[simSetupExamId]||0;
   const hist=save.simHistory[simSetupExamId]||[];
   $('simBestInfo').innerHTML=best>0
-    ?`🏆 Melhor nota: <b>${best.toFixed(1)}/10</b>${hist.length?` · Últimas: ${hist.map(h=>h.score.toFixed(1)).join(', ')}`:''}`
+    ?`Melhor nota: <b>${best.toFixed(1)}/10</b>${hist.length?` · Últimas: ${hist.map(h=>h.score.toFixed(1)).join(', ')}`:''}`
     :'Sem simulados ainda. Boa sorte no primeiro!';
   showScreen('scr-sim-setup');
 }
