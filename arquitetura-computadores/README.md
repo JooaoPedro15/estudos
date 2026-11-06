@@ -23,7 +23,8 @@ Hierarquia de memoria/Cache, ISA MIPS, Funcoes MIPS, Datapath e Controle,
 Tempos (caminho critico), Pipeline.
 
 **Arquivos do visual:** `design.css` (aparencia) e `content/visuals.js` (desenhos
-dos conteudos e o botao "Ver visualmente" das questoes).
+dos conteudos e o botao "Ver visualmente" das questoes). As questoes com valores
+sorteados das Provas 1 e 2 ficam em `content/geradores.js`.
 
 ## Onde encontrar
 
