@@ -553,33 +553,13 @@ table.ctl td.x{color:var(--muted);}
     </div>
   </section>
 
-    <div class="section-label">Outras formas de praticar</div>
-    <div class="tool-grid">
-      <button class="tool-card" id="btnLearn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>
-        <div class="tt">Academia</div>
-        <div class="td">Aprenda do zero, capítulo por capítulo</div>
-      </button>
-      <button class="tool-card" id="btnStart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h4v-4h4v-4h4v-4h4V5"/></svg>
-        <div class="tt">Modo Níveis</div>
-        <div class="td">10 fases, dificuldade crescente</div>
-      </button>
-      <button class="tool-card" id="btnFree">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h3.5L14 18h3.5M14 6h3.5L21 6M4 18h3.5L10 12M18 4l3 2-3 2M18 16l3 2-3 2"/></svg>
-        <div class="tt">Modo Livre</div>
-        <div class="td">Perguntas infinitas por prova, sem vidas</div>
-      </button>
-      <button class="tool-card" id="btnProvaInf">
-        <span style="font-family:var(--display);font-size:20px;color:var(--accent2);line-height:1;display:block;margin-bottom:8px;">∞</span>
-        <div class="tt">Prova Infinita</div>
-        <div class="td">Só questões fechadas, por prova, sem parar</div>
-      </button>
-      <button class="tool-card" id="btnTargeted">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-        <div class="tt">Praticar dificuldades</div>
-        <div class="td">Foca no que você mais erra</div>
-      </button>
+  <!-- ===================== SIMULADOS ===================== -->
+  <section class="screen" id="scr-exams">
+    <div class="page-head"><h1>Simulados</h1><p>10 questões com nota de 0 a 10 e gabarito comentado no final. Você escolhe se quer relógio ou não.</p></div>
+    <div class="prova-grid">
+      <div class="prova-card"><span class="tag">Prova 1</span><h3>CLA, ponto flutuante e desempenho</h3><span class="best" id="best-p1"></span><p></p><div class="row"><button class="btn" type="button" data-sim="p1">Fazer simulado</button></div></div>
+      <div class="prova-card"><span class="tag">Prova 2</span><h3>Vetores, deslocamento e pilha</h3><span class="best" id="best-p2"></span><p></p><div class="row"><button class="btn" type="button" data-sim="p2">Fazer simulado</button></div></div>
+      <div class="prova-card"><span class="tag">Prova 3</span><h3>Caminho de dados, controle e pipeline</h3><span class="best" id="best-p3"></span><p></p><div class="row"><button class="btn" type="button" data-sim="p3">Fazer simulado</button></div></div>
     </div>
     <div class="resume" style="margin-top:14px"><span><b>Simulado geral:</b> mistura as três provas.</span><button class="btn ghost small" id="btnSimulado" type="button">Fazer simulado geral</button></div>
   </section>
@@ -663,15 +643,14 @@ table.ctl td.x{color:var(--muted);}
     </div>
   </section>
 
-  <!-- ===================== MODO LIVRE / PROVA INFINITA — ESCOLHA DE CONTEÚDO ===================== -->
+  <!-- ===================== MODO LIVRE — ESCOLHA DE CONTEÚDO ===================== -->
   <section class="screen" id="scr-free-setup">
     <div class="panel center">
       <h2 id="freeSetupTitle">Modo Livre</h2>
-      <p class="muted" id="freeSetupSub">Escolha o conteúdo. Perguntas infinitas, sem vidas, valores sempre variando.</p>
+      <p class="muted" id="freeSetupSub">Questões sem fim, no seu ritmo. De qual prova?</p>
       <div class="exam-tabs" id="freeSetupTabs" style="justify-content:center"></div>
       <div class="actionsbar" style="justify-content:center;margin-top:14px">
         <button class="btn" id="freeSetupStart">Começar</button>
-        <button class="btn ghost" id="freeSetupBack">← Início</button>
       </div>
     </div>
   </section>
@@ -1339,13 +1318,6 @@ function startFree(examId){
   showScreen('scr-game');
   renderQuestion();
 }
-// ---- Prova Infinita: só questões fechadas, sem vidas ----
-function startProvaInfinita(examId){
-  G.free=true; G.mode='provaInfinita'; G.scopeExamId=examId||'all';
-  G.queue = buildProvaInfinitaQueue(G.scopeExamId); G.idx=0;
-  showScreen('scr-game');
-  renderQuestion();
-}
 let reviewExamFilter='all';
 function startReview(){
   G.free=true; G.mode='review';
@@ -1359,7 +1331,6 @@ function startTargetedPractice(){
   showScreen('scr-game');
   renderQuestion();
 }
-let freeSetupMode='free';
 let freeSetupExamId='all';
 const FREE_SETUP_TABS=[
   {id:'all', label:'Todo conteúdo'},
@@ -1367,19 +1338,14 @@ const FREE_SETUP_TABS=[
   {id:'p2', label:'Prova 2'},
   {id:'p3', label:'Prova 3'}
 ];
-function showFreeSetup(mode){
-  freeSetupMode=mode;
+function showFreeSetup(){
   const tabsWrap=$('freeSetupTabs');
   tabsWrap.innerHTML=FREE_SETUP_TABS.map(t=>
     `<button type="button" class="exam-tab${freeSetupExamId===t.id?' active':''}" data-exam="${t.id}">${t.label}</button>`
   ).join('');
   tabsWrap.querySelectorAll('.exam-tab').forEach(btn=>{
-    btn.onclick=()=>{ sfx.click(); freeSetupExamId=btn.dataset.exam; showFreeSetup(mode); };
+    btn.onclick=()=>{ sfx.click(); freeSetupExamId=btn.dataset.exam; showFreeSetup(); };
   });
-  $('freeSetupTitle').textContent = mode==='provaInfinita' ? 'Prova Infinita' : 'Modo Livre';
-  $('freeSetupSub').textContent = mode==='provaInfinita'
-    ? 'Só questões fechadas, sem parar. Escolha o conteúdo.'
-    : 'Perguntas infinitas, sem vidas, valores sempre variando. Escolha o conteúdo.';
   showScreen('scr-free-setup');
 }
 const REVIEW_EXAM_TABS=[
@@ -1473,7 +1439,9 @@ function renderQuestion(){
     act.appendChild(hintBtn);
   }
 
-  if(['free','review','targeted','provaInfinita'].includes(G.mode)){
+  mountQuestionVisual(q,body,act);
+
+  if(['free','review','targeted'].includes(G.mode)){
     const skipBtn=document.createElement('button');
     skipBtn.className='btn ghost small';
     skipBtn.textContent='Pular';
@@ -1519,7 +1487,7 @@ function syncSignalDiagram(holder){
 }
 
 function skipFreeQuestion(){
-  if(!['free','review','targeted','provaInfinita'].includes(G.mode)) return;
+  if(!['free','review','targeted'].includes(G.mode)) return;
   sfx.click();
   nextQuestion();
 }
@@ -1544,7 +1512,6 @@ function nextQuestion(){
   if(!G.free && G.idx>=G.queue.length){ winLevel(); return; }
   if(G.free && G.idx>=G.queue.length){
     if(G.mode==='free') G.queue = buildFreeQueue(Math.random,G.scopeExamId);
-    else if(G.mode==='provaInfinita') G.queue = buildProvaInfinitaQueue(G.scopeExamId);
     else G.queue = shuffle(G.queue);
     G.idx=0;
   }
@@ -2725,27 +2692,6 @@ function buildFreeQueue(r,examId){
   all.push(...seededShuffle(bankPool,r).slice(0, examId==='all'?18:bankPool.length));
   return seededShuffle(all,r);
 }
-// Prova Infinita: só questões fechadas (Modo 5), sem vidas, com o mesmo
-// escopo por prova do Modo Livre.
-function buildProvaInfinitaQueue(examId,r){
-  r=r||Math.random; examId=examId||'all';
-  const all=[];
-  if(examId==='all' || examId==='p3'){
-    for(let i=0;i<4;i++) all.push(geraQ5Random(r));
-    for(let i=0;i<3;i++) all.push(geraBenchmarkQ3(r));
-    for(let i=0;i<3;i++) all.push(geraTempoQ5(r));
-    for(let i=0;i<5;i++) all.push(geraProgramaQ5(r));
-  }
-  if(examId==='all' || examId==='p1'){
-    for(let i=0;i<6;i++) all.push(geraFloatCustomQ5(r));
-  }
-  const bankPool = examId==='all' ? REVIEW_BANK : REVIEW_BANK.filter(q=>{
-    const t=REVIEW_TOPICS.find(x=>x.id===q.category);
-    return t && t.examId===examId;
-  });
-  all.push(...seededShuffle(bankPool,r).slice(0, examId==='all'?18:bankPool.length));
-  return shuffle(all);
-}
 // Ponto flutuante customizado com bits/valores sempre diferentes (decodificação).
 function geraFloatCustomQ5(r){
   r=r||Math.random;
@@ -3554,14 +3500,11 @@ function boot(){
   }
   // Home
   $('btnStart').onclick=()=>{ sfx.click(); renderLevels(); showScreen('scr-levels'); };
-  $('btnFree').onclick=()=>{ sfx.click(); showFreeSetup('free'); };
-  $('btnProvaInf').onclick=()=>{ sfx.click(); showFreeSetup('provaInfinita'); };
+  $('btnFree').onclick=()=>{ sfx.click(); showFreeSetup(); };
   $('freeSetupStart').onclick=()=>{
     sfx.click();
-    if(freeSetupMode==='provaInfinita') startProvaInfinita(freeSetupExamId);
-    else startFree(freeSetupExamId);
+    startFree(freeSetupExamId);
   };
-  $('freeSetupBack').onclick=()=>{ sfx.click(); showScreen('scr-home'); };
   $('btnSimulado').onclick=()=>{ sfx.click(); showSimSetup(); };
   $('btnReview').onclick=()=>{ sfx.click(); renderReviewHub(); };
   $('btnTargeted').onclick=()=>{ sfx.click(); startTargetedPractice(); };
