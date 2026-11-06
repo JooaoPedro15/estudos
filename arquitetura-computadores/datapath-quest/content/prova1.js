@@ -6,10 +6,10 @@
    =========================================================================== */
 
 const CLA_SOMADOR_REVIEW = [
-  reviewMC({id:'rev_p1_cla_prop',category:'cla_somador',subtopic:'propagador',errorType:'CLA',quickRule:'Pi = Ai XOR Bi: propaga um carry que já existir.'},
+  reviewMC({id:'rev_p1_cla_prop',category:'cla_somador',subtopic:'propagador',errorType:'CLA',quickRule:'Pi = Ai OR Bi: propaga um carry que já existir.'},
     'No método de antecipação de carry (CLA), qual é a definição do bit propagador <b>Pi</b>?',
-    ['Pi = Ai XOR Bi','Pi = Ai AND Bi','Pi = Ai OR NOT Bi','Pi = NOT(Ai) AND NOT(Bi)'],0,
-    'O propagador indica que, se já existir um carry de entrada, ele passará adiante: Pi = Ai XOR Bi. Quando Pi=1, um carry de entrada vira carry de saída.'),
+    ['Pi = Ai OR Bi','Pi = Ai AND Bi','Pi = Ai OR NOT Bi','Pi = NOT(Ai) AND NOT(Bi)'],0,
+    'O propagador indica que, se já existir um carry de entrada, ele passará adiante: Pi = Ai OR Bi. Quando Pi=1, um carry de entrada vira carry de saída. É a definição usada na prova: em 92B9 + 7B3B, P = FBBB.'),
   reviewMC({id:'rev_p1_cla_gen',category:'cla_somador',subtopic:'gerador',errorType:'CLA',quickRule:'Gi = Ai AND Bi: gera carry sozinho, sem depender de Ci.'},
     'Qual é a definição do bit gerador <b>Gi</b> no CLA?',
     ['Gi = Ai AND Bi','Gi = Ai XOR Bi','Gi = Ai OR Bi','Gi = NOT(Ai XOR Bi)'],0,
