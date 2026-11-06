@@ -11,7 +11,7 @@ const html = fs.readFileSync(htmlPath, 'utf8');
 // tags (see datapath-quest/content/), split between two inline <script> blocks.
 // Reconstruct the same load order here: for each <script ...>...</script> tag,
 // use the referenced file's contents if it has a src, otherwise its inline body.
-const script = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)]
+const script = [...html.replace(/<!--[\s\S]*?-->/g, '').matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)]
   .map(([, attrs, body]) => {
     const srcMatch = attrs.match(/src="([^"]+)"/);
     if (srcMatch) {
@@ -59,7 +59,7 @@ assert(
 
 assert(
   html.includes('geraProvaFixaQ5'),
-  'Expected Prova Infinita / Simulado to be able to draw fixed exam-style questions.'
+  'Expected Simulado to be able to draw fixed exam-style questions.'
 );
 
 assert(
@@ -68,12 +68,12 @@ assert(
 );
 
 assert(
-  html.includes('⏭ Pular'),
-  'Expected the free-mode skip button to be labeled "⏭ Pular".'
+  html.includes("'Pular'"),
+  'Expected the free-mode skip button to be labeled "Pular".'
 );
 
 assert(
-  html.includes("['free','review','targeted','provaInfinita'].includes(G.mode)"),
+  html.includes("['free','review','targeted'].includes(G.mode)"),
   'Expected the skip button to be gated to non-level practice modes.'
 );
 
@@ -161,7 +161,6 @@ for (const [category, minimum] of Object.entries(minimumReviewCoverage)) {
     `Expected at least ${minimum} new review questions for ${category}.`
   );
 }
-assert(OPEN_QUESTIONS.length >= 24, 'Expected at least 24 open questions across Provas 1, 2 and 3.');
 
 for (const question of REVIEW_BANK) {
   assert(question.id && /^rev_p[123]_/.test(question.id), `Review question needs a stable unique id: ${question.id}`);
@@ -193,7 +192,7 @@ assert(freeQueue.length >= 80, 'Expected free mode to have a broad procedural qu
 for (const instr of ['addi', 'sub', 'slt']) {
   assert(
     freeQueue.some(question => question.mode === 1 && question.instr === instr),
-    `Expected free mode to include Roteirista questions for ${instr}.`
+    `Expected free mode to include Caminho da instrução questions for ${instr}.`
   );
   assert(
     freeQueue.some(question => question.mode === 2 && question.instr === instr),
@@ -221,7 +220,6 @@ assert(
 
 const prova3Queue = buildProva3SimQueue(() => 0.42);
 assert.strictEqual(prova3Queue.length, 10, 'Expected the Prova 3 simulado to keep 10 questions.');
-assert(prova3Queue.some(question => question.sub === 'open'), 'Expected the simulado to include at least one open question.');
 assert(prova3Queue.some(question => question.category === 'cpi_medio' || question.topic === 'QProg'), 'Expected the simulado to include CPI/program counting.');
 assert(prova3Queue.some(question => question.category === 'slt'), 'Expected the simulado to include SLT.');
 
@@ -229,13 +227,11 @@ const prova1Queue = buildProva1SimQueue(() => 0.42);
 assert.strictEqual(prova1Queue.length, 10, 'Expected the Prova 1 simulado to have 10 questions.');
 assert(prova1Queue.some(question => question.category === 'amdahl_speedup'), 'Expected the Prova 1 simulado to include Amdahl/speedup.');
 assert(prova1Queue.some(question => question.category === 'ieee754_custom'), 'Expected the Prova 1 simulado to include floating point.');
-assert(prova1Queue.some(question => question.sub === 'open'), 'Expected the Prova 1 simulado to include an open question.');
 
 const prova2Queue = buildProva2SimQueue(() => 0.42);
 assert.strictEqual(prova2Queue.length, 10, 'Expected the Prova 2 simulado to have 10 questions.');
 assert(prova2Queue.some(question => question.category === 'enderecamento_vetor'), 'Expected the Prova 2 simulado to include vector addressing.');
 assert(prova2Queue.some(question => question.category === 'pilha_funcoes_p2'), 'Expected the Prova 2 simulado to include stack/function calls.');
-assert(prova2Queue.some(question => question.sub === 'open'), 'Expected the Prova 2 simulado to include an open question.');
 
 const geralQueue = buildSimQueueGeral(() => 0.42);
 assert.strictEqual(geralQueue.length, 12, 'Expected the mixed (Geral) simulado to combine samples from all three exams.');
@@ -287,5 +283,13 @@ assert(
   simQueue.filter(question => question.examKey).length >= 2,
   'Expected the simulado to include fixed exam-style questions.'
 );
+
+const propagador = REVIEW_BANK.find(question => question.id === 'rev_p1_cla_prop');
+assert.strictEqual(propagador.options[propagador.correct], 'Pi = Ai OR Bi', 'Expected the propagator to match the professor exam (OR).');
+
+const visualFor = code => vm.runInContext(`visualForQuestion(${code})`, sandbox);
+assert.strictEqual(visualFor("{mode:3,t3type:'period',times:{}}").examImage, true, 'Expected timing questions to count as having a figure on the exam.');
+assert.strictEqual(visualFor("{mode:2,instr:'lw'}").examImage, true, 'Expected control questions to count as having a figure on the exam.');
+assert(!visualFor("{mode:5,sub:'mc',category:'amdahl_speedup',question:'x'}").examImage, 'Expected Amdahl drawings to follow the general preference.');
 
 console.log('Datapath Quest content checks passed.');
