@@ -112,7 +112,7 @@ simulacoes, visualizacoes e exercicios baseados no conteudo da disciplina.
 
 ### Execucao
 
-Abrir `mips-datapath-quest.html` no navegador.
+Abrir `index.html` no navegador.
 
 ### Documentacao
 

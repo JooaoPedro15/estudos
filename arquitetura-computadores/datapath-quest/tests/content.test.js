@@ -3,7 +3,7 @@ const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-const htmlPath = path.join(__dirname, '..', 'mips-datapath-quest.html');
+const htmlPath = path.join(__dirname, '..', 'index.html');
 const baseDir = path.dirname(htmlPath);
 const html = fs.readFileSync(htmlPath, 'utf8');
 
@@ -94,7 +94,7 @@ vm.runInContext(
   script.replace(/\nboot\(\);\s*$/, '') +
     '\n;globalThis.__dq = { PROVA_FIXED_Q5, LEVELS, qProva, geraProvaFixaQ5, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion: typeof skipFreeQuestion === "function" ? skipFreeQuestion : null, REVIEW_BANK: typeof REVIEW_BANK !== "undefined" ? REVIEW_BANK : null, REVIEW_TOPICS: typeof REVIEW_TOPICS !== "undefined" ? REVIEW_TOPICS : null, OPEN_QUESTIONS: typeof OPEN_QUESTIONS !== "undefined" ? OPEN_QUESTIONS : null, buildReviewQueue: typeof buildReviewQueue === "function" ? buildReviewQueue : null, buildTargetedPracticeQueue: typeof buildTargetedPracticeQueue === "function" ? buildTargetedPracticeQueue : null, recordConceptError: typeof recordConceptError === "function" ? recordConceptError : null, renderM5open: typeof renderM5open === "function" ? renderM5open : null, buildProva3SimQueue: typeof buildProva3SimQueue === "function" ? buildProva3SimQueue : null, buildProva1SimQueue: typeof buildProva1SimQueue === "function" ? buildProva1SimQueue : null, buildProva2SimQueue: typeof buildProva2SimQueue === "function" ? buildProva2SimQueue : null, buildSimQueueGeral: typeof buildSimQueueGeral === "function" ? buildSimQueueGeral : null, nullSimQuestion: typeof nullSimQuestion === "function" ? nullSimQuestion : null, buildFreeQueue: typeof buildFreeQueue === "function" ? buildFreeQueue : null, instructionLabel: typeof instructionLabel === "function" ? instructionLabel : null, NARR: typeof NARR !== "undefined" ? NARR : null, PATHS: typeof PATHS !== "undefined" ? PATHS : null };',
   sandbox,
-  { filename: 'mips-datapath-quest.html' }
+  { filename: 'index.html' }
 );
 
 const { PROVA_FIXED_Q5, LEVELS, qProva, buildSimQueue, SIGNAL_NAMES, CONTROL, SIG_INFO, SIG_WHY, skipFreeQuestion, REVIEW_BANK, REVIEW_TOPICS, OPEN_QUESTIONS, buildReviewQueue, buildTargetedPracticeQueue, recordConceptError, renderM5open, buildProva3SimQueue, buildProva1SimQueue, buildProva2SimQueue, buildSimQueueGeral, nullSimQuestion, buildFreeQueue, instructionLabel, NARR, PATHS } = sandbox.__dq;
