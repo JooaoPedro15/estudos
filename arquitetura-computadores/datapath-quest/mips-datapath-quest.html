@@ -796,6 +796,9 @@ const DEFAULT_SAVE = {
   achievements:[],     // ids desbloqueados
   muted:false,
   totalCorrect:0,
+  visual:true,         // "Ver visualmente" nas questoes
+  visualExam:true,     // idem, nas questoes que na prova vem com figura
+  last:null,           // ultima atividade, para o "continuar" do inicio
   learnMode:true,      // Modo Aprendiz: ensina antes de cobrar (ligado por padrão)
   signalAssistVisible:true, // Ajuda visual dos sinais no Modo 2
   lessonsDone:[],      // ids de capítulos da Academia concluídos
@@ -1062,7 +1065,14 @@ function buildDatapathSVG(opts){
     <path class="wire" d="M658 305 H760"/>
     <path class="wire" d="M880 305 H930 V300"/>
     <path class="wire" d="M952 290 V210 H300 V300"/>
-    <path class="wire" d="M600 133 H560 V110"/>
+    <path class="wire" d="M600 123 H320 V130 H300"/>
+    <path class="wire" d="M220 100 H289 V110"/>
+    <path class="wire" d="M278 135 H65 V250"/>
+    <path class="wire" d="M230 270 H245 V56 H420"/>
+    <path class="wire" d="M245 270 V408 H330"/>
+    <path class="wire" d="M560 408 H585 V135 H600"/>
+    <path class="wire" d="M658 320 H720 V380 H905 V320 H930"/>
+    <path class="wire ctl" d="M495 82 V240 H549 V275"/>
     <!-- unidades -->
     ${box('add4',150,78,70,44,'Soma +4')}
     ${box('pc',30,250,46,72,'PC')}
@@ -1472,6 +1482,42 @@ function renderQuestion(){
   }
 }
 
+// ---- Botao "Ver visualmente": mostra um desenho do enunciado, sem revelar a resposta ----
+function mountQuestionVisual(q,body,act,onlyExamImage){
+  $('tooltip').style.display='none'; // o bloco sob o mouse pode ter sido trocado com a questao
+  const vis=visualForQuestion(q);
+  if(!vis||(onlyExamImage&&!vis.examImage)) return;
+  // Questao que tem figura na prova guarda a escolha separada: comeca sempre com o desenho.
+  const pref=vis.examImage?'visualExam':'visual';
+  const box=document.createElement('div'); box.className='q-visual';
+  const cap=document.createElement('div'); cap.className='q-visual-cap'; cap.textContent=vis.caption||'';
+  const holder=document.createElement('div');
+  box.append(cap,holder);
+  const anchor=['.instr-box','.prompt','.tf-statement','.ar-statement','.program-card'].map(s=>body.querySelector(s)).find(Boolean);
+  if(anchor) anchor.after(box); else body.prepend(box);
+  let mounted=false;
+  const sync=()=>{
+    box.hidden=!save[pref];
+    if(save[pref] && !mounted){ mounted=true; vis.mount(holder); syncSignalDiagram(holder); wireTooltips(holder); }
+  };
+  const label=document.createElement('label'); label.className='vis-toggle';
+  label.title='Mostra um desenho do enunciado. Desligue para ver só o texto, como na prova.';
+  label.innerHTML=`<input type="checkbox" ${save[pref]?'checked':''}> Ver visualmente`;
+  label.querySelector('input').onchange=e=>{ save[pref]=e.target.checked; persist(); sync(); };
+  act.appendChild(label);
+  if(q.mode===2) body.addEventListener('click',()=>syncSignalDiagram(holder));
+  sync();
+}
+// Na questao de sinais, cada sinal ligado acende o bloco que ele controla.
+function syncSignalDiagram(holder){
+  if(holder.dataset.live!=='signals'||!G.m2state) return;
+  holder.querySelectorAll('.unit').forEach(g=>g.classList.remove('hl-pulse'));
+  SIGNAL_NAMES.forEach((nm,i)=>{
+    const v=G.m2state[i];
+    if(v===1||v==='1'||v==='01'||v==='10') (SIGNAL_UNITS[nm]||[]).forEach(k=>{ const u=holder.querySelector('#u-'+k); if(u) u.classList.add('hl-pulse'); });
+  });
+}
+
 function skipFreeQuestion(){
   if(!['free','review','targeted','provaInfinita'].includes(G.mode)) return;
   sfx.click();
@@ -1599,6 +1645,7 @@ function renderMode2(q, body, act){
     persist(); syncSignalAssist(); sfx.click();
   };
   const state = SIGNAL_NAMES.map(nm=>nm==='ALUOp'?'00':0);
+  G.m2state = state;
   const valText=(nm,v)=>`${v} → ${SIG_INFO[nm]['v'+v]}`;   // significado do valor atual
   const detailHTML=(nm,info)=> nm==='ALUOp'
     ? `<b>=00:</b> ${info.v00}<br><b>=01:</b> ${info.v01}<br><b>=10:</b> ${info.v10}`
@@ -3252,6 +3299,7 @@ function renderSimQuestion(){
   // dispatcha para o renderizador do modo (5 usa renderMode5 adaptado p/ simulado)
   if(q.mode===5){ renderM5forSim(q,body,act); }
   else if(q.mode===3){ renderM3forSim(q,body,act); }
+  mountQuestionVisual(q,body,act,true); // a figura que a prova traz tambem aparece no simulado
   addSimNullButton(act);
 }
 function nullSimQuestion(index){
