@@ -1315,6 +1315,7 @@ function startLevel(n){
 function startFree(examId){
   G.free=true; G.mode='free'; G.scopeExamId=examId||'all';
   save.last={type:'free',exam:G.scopeExamId}; persist();
+  G.base=0;
   G.queue = buildFreeQueue(Math.random,G.scopeExamId); G.idx=0;
   showScreen('scr-game');
   renderQuestion();
@@ -1413,7 +1414,9 @@ function renderQuestion(){
   $('modeChip').textContent = 'Modo '+q.mode;
   $('qTag').textContent = MODE_NAMES[q.mode];
   const progressLabel = G.mode==='review' ? 'Revisão' : G.mode==='targeted' ? 'Direcionada' : 'Livre';
-  $('qProgress').textContent = G.free ? `${progressLabel} · ${G.idx+1}/${G.queue.length}` : `${G.idx+1}/${G.queue.length}`;
+  // No Modo Livre as questoes nao acabam: mostrar um total daria a ideia errada de limite.
+  $('qProgress').textContent = G.mode==='free' ? `Questão ${(G.base||0)+G.idx+1}`
+    : G.free ? `${progressLabel} · ${G.idx+1}/${G.queue.length}` : `${G.idx+1}/${G.queue.length}`;
   $('feedback').className='feedback'; $('feedback').innerHTML='';
   refreshHUD();
   const body=$('qBody'), act=$('qActions');
@@ -1512,7 +1515,7 @@ function nextQuestion(){
   G.idx++;
   if(!G.free && G.idx>=G.queue.length){ winLevel(); return; }
   if(G.free && G.idx>=G.queue.length){
-    if(G.mode==='free') G.queue = buildFreeQueue(Math.random,G.scopeExamId);
+    if(G.mode==='free'){ G.base=(G.base||0)+G.queue.length; G.queue = buildFreeQueue(Math.random,G.scopeExamId); }
     else G.queue = shuffle(G.queue);
     G.idx=0;
   }
