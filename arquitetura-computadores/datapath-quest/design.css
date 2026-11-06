@@ -377,3 +377,8 @@ details.more summary{cursor:pointer;font-weight:600;font-size:15px;}
 .q-visual svg.datapath{max-width:640px;margin:0 auto;}
 
 @media(min-width:801px){.hero-scene .scene-svg{min-width:0;}}
+
+.mult-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.mult-col{display:flex;flex-direction:column;gap:4px;}
+.mult-box{border:1px solid var(--line2);background:#fff;border-radius:4px;padding:6px 8px;font-size:13.5px;text-align:center;}
+.mult-box.alu{background:var(--copper-tint);border-color:var(--copper);}

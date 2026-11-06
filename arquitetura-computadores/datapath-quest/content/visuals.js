@@ -179,7 +179,7 @@ const WIDGETS = {
     const draw=()=>{
       const idx=p.index, size=p.size;
       const start=p.quiz?0:Math.max(0,idx-3), end=start+6;
-      const cell=(i,off)=>`<div class="mem-cell${i===idx?' on':''}"><span class="mem-off mono">${off}</span><span class="mem-name mono">vet[${i}]</span></div>`;
+      const cell=(i,off)=>`<div class="mem-cell${i===idx?' on':''}"><span class="mem-off mono">${off}</span><span class="mem-name mono">${i===idx&&p.targetName?p.targetName:`vet[${i}]`}</span></div>`;
       let cells='';
       if(p.quiz){
         // Na questao mostra so o comeco do padrao: a conta do alvo fica para quem responde.
@@ -357,7 +357,7 @@ const WIDGETS = {
       const sq=c=>`<i class="sq ${c}"></i>`;
       const laps=Math.min(p.n,12);
       const body=Array.from({length:laps},()=>`<span class="lap">${sq('b').repeat(p.body)}</span>`).join('');
-      el.innerHTML=`<div class="loop-row"><div><div class="vis-kicker">Antes</div>${sq('a').repeat(p.before)}</div><div class="loop-body"><div class="vis-kicker">Dentro do loop, ${p.n} voltas</div><div class="laps">${body}${p.n>12?'<span class="mem-gap">…</span>':''}</div></div><div><div class="vis-kicker">Depois</div>${sq('c').repeat(p.after)}</div></div>
+      el.innerHTML=`<div class="loop-row"><div><div class="vis-kicker">Antes</div>${sq('a').repeat(p.before)}</div><div class="loop-body"><div class="vis-kicker">${p.hideVoltas?'Dentro do loop: quantas voltas?':`Dentro do loop, ${p.n} voltas`}</div><div class="laps">${body}${p.n>12?'<span class="mem-gap">…</span>':''}</div></div><div><div class="vis-kicker">Depois</div>${sq('c').repeat(p.after)}</div></div>
         <p class="vis-note">Cada quadradinho é uma instrução <b>executada</b>. A contagem dinâmica conta as execuções, não as linhas escritas.</p>
         ${p.quiz?'':`<div class="vis-eq mono">${p.before} + ${p.body} × ${p.n} + ${p.after} = <b>${p.before+p.body*p.n+p.after} instruções</b></div>
         <label class="vis-range">Voltas <input type="range" min="1" max="12" value="${p.n}"><b class="mono">${p.n}</b></label>`}`;
@@ -365,6 +365,12 @@ const WIDGETS = {
       if(r) r.oninput=()=>{ p.n=+r.value; draw(); el.querySelector('input[type=range]').focus(); };
     };
     draw();
+  },
+  // As tres versoes do multiplicador, como na figura da prova (sem os tamanhos)
+  mult(el){
+    const V=[['Versão 1',['Multiplicando','Multiplicador','ULA','Produto']],['Versão 2',['Multiplicando','Multiplicador','ULA','Produto']],['Versão 3',['Multiplicando','ULA','Produto']]];
+    el.innerHTML=`<div class="mult-grid">${V.map(v=>`<div class="mult-col"><div class="vis-kicker">${v[0]}</div>${v[1].map(b=>`<span class="mult-box${b==='ULA'?' alu':''}">${b}</span>`).join('')}</div>`).join('')}</div>
+      <p class="vis-note">Na versão 1 o multiplicando anda para a esquerda. Nas versões 2 e 3 quem anda é o produto.</p>`;
   },
   // Registradores por funcao
   regs(el){
@@ -433,6 +439,8 @@ function visualForQuestion(q){
   }});
   if(q.mode===2) return dp('Os blocos acendem conforme você liga os sinais.',el=>{ el.dataset.live='signals'; });
   if(q.mode===3) return dp('Tempo de cada bloco neste enunciado.',el=>{ if(q.times) addDelayBadges(el,q.times); });
+  if(q.noVisual) return null;
+  if(q.vis) return Object.assign(w(q.vis.name,q.vis.params,q.vis.caption),{examImage:!!q.vis.examImage});
   const t=questionText(q);
   const cat=q.category||'';
   if(q.sub==='prog'){
@@ -467,8 +475,9 @@ function visualForQuestion(q){
     const nth=t.match(/centésimo/i)?99:null;
     const last=t.match(/(\d+)\s+inteiros/);
     const index=ix?+ix[1]:nth!==null?nth:last?+last[1]-1:3;
+    const targetName=ix?null:nth!==null?'centésimo':last?'último':null;
     const base=(t.match(/\$[st]\d/)||['$s1'])[0];
-    return w('mem',{index,base},'O vetor na memória.');
+    return w('mem',{index,base,targetName},'O vetor na memória.');
   }
   if(cat==='pilha_funcoes_p2'||cat==='jal_jr_pilha'||q.topic==='QStack'){
     return w('calls',{chain:parseCalls(t)||['main','A','B']},'Quem chama quem.');

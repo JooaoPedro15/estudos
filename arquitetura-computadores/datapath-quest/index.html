@@ -1110,6 +1110,7 @@ function wireTooltips(root){
 <script src="content/prova2.js"></script>
 <script src="content/prova3.js"></script>
 <script src="content/index.js"></script>
+<script src="content/geradores.js"></script>
 <script src="content/visuals.js"></script>
 
 <script>
@@ -1314,8 +1315,8 @@ function startLevel(n){
 // ---- Modo Livre: fila aleatória infinita (turbinado com procedurais) ----
 function startFree(examId){
   G.free=true; G.mode='free'; G.scopeExamId=examId||'all';
-  save.last={type:'free',exam:G.scopeExamId}; persist();
   G.base=0;
+  save.last={type:'free',exam:G.scopeExamId}; persist();
   G.queue = buildFreeQueue(Math.random,G.scopeExamId); G.idx=0;
   showScreen('scr-game');
   renderQuestion();
@@ -2688,6 +2689,10 @@ function buildFreeQueue(r,examId){
   }
   if(examId==='all' || examId==='p1'){
     for(let i=0;i<10;i++) all.push(geraFloatCustomQ5(r));
+    all.push(...genRound(GEN_P1, examId==='all'?40:120, r));
+  }
+  if(examId==='all' || examId==='p2'){
+    all.push(...genRound(GEN_P2, examId==='all'?40:135, r));
   }
   const bankPool = examId==='all' ? REVIEW_BANK : REVIEW_BANK.filter(q=>{
     const t=REVIEW_TOPICS.find(x=>x.id===q.category);
@@ -2947,7 +2952,7 @@ function renderM5mc(q,body,act){
   let sel=-1, answered=false;
   q.options.forEach((opt,i)=>{
     const b=document.createElement('div'); b.className='mc-opt';
-    b.innerHTML=`<span class="mc-letter">${'ABCDE'[i]}</span><span>${opt}</span>`;
+    b.innerHTML=`<span class="mc-letter">${'ABCDEFGHIJ'[i]}</span><span>${opt}</span>`;
     b.onclick=()=>{ if(answered) return; sel=i; optsEl.querySelectorAll('.mc-opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); sfx.click(); };
     optsEl.appendChild(b);
   });
@@ -3313,7 +3318,7 @@ function renderM5forSim(q,body,act){
     let sel=-1, answered=false;
     q.options.forEach((opt,i)=>{
       const b=document.createElement('div'); b.className='mc-opt';
-      b.innerHTML=`<span class="mc-letter">${'ABCDE'[i]}</span><span>${opt}</span>`;
+      b.innerHTML=`<span class="mc-letter">${'ABCDEFGHIJ'[i]}</span><span>${opt}</span>`;
       b.onclick=()=>{ if(answered) return; sel=i; optsEl.querySelectorAll('.mc-opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); sfx.click(); };
       optsEl.appendChild(b);
     });
