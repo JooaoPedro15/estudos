@@ -22,6 +22,9 @@ progresso do aluno ao longo das atividades.
 Hierarquia de memoria/Cache, ISA MIPS, Funcoes MIPS, Datapath e Controle,
 Tempos (caminho critico), Pipeline.
 
+**Arquivos do visual:** `design.css` (aparencia) e `content/visuals.js` (desenhos
+dos conteudos e o botao "Ver visualmente" das questoes).
+
 ## Onde encontrar
 
 | Pasta | Conteudo |
