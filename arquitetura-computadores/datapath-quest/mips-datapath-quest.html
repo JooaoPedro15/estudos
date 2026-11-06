@@ -492,9 +492,9 @@ table.ctl td.x{color:var(--muted);}
     <div class="spacer"></div>
     <div class="hud">
       <div class="stat">Nível <b id="hudLevel">1</b></div>
-      <button class="iconbtn" id="learnToggle" title="Modo Aprendiz / Prova">🎓</button>
-      <button class="iconbtn" id="glBtn" title="Glossário de Conceitos">📖</button>
-      <button class="iconbtn" id="homeBtn" title="Início">🏠</button>
+      <button class="iconbtn" id="learnToggle" type="button"></button>
+      <button class="iconbtn" id="glBtn" type="button" title="Significado dos termos da matéria">Glossário</button>
+      <button class="iconbtn" id="homeBtn" type="button">Início</button>
     </div>
   </header>
 
@@ -836,7 +836,7 @@ function refreshHUD(){
     document.getElementById('best-'+id).textContent = best>0 ? `Melhor simulado: ${best.toFixed(1)}/10` : '';
   });
   const lt=document.getElementById('learnToggle');
-  if(lt){ lt.textContent = save.learnMode ? '🎓' : '📝'; lt.title = save.learnMode ? 'Modo Aprendiz (ensina) — clique p/ Modo Prova' : 'Modo Prova (só teste) — clique p/ Modo Aprendiz'; }
+  if(lt){ lt.textContent = save.learnMode ? 'Com explicação' : 'Só com dica'; lt.title = save.learnMode ? 'O botão Me ensina está disponível. Clique para deixar só uma dica por questão.' : 'Só uma dica por questão, como em prova. Clique para voltar a ter o botão Me ensina.'; }
 }
 
 /* ===========================================================================
@@ -1301,7 +1301,7 @@ const G = {                 // estado da partida em andamento
 };
 const $ = id => document.getElementById(id);
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
-const MODE_NAMES = {1:'🎬 Roteirista da Instrução',2:'🎛 Engenheiro de Controle',3:'⏱ Calculadora de Tempos',4:'🚉 Pipeline Master',5:'📝 Prova Fechada'};
+const MODE_NAMES = {1:'Caminho da instrução',2:'Sinais de controle',3:'Cálculo de tempo',4:'Fases do pipeline',5:'Questão de prova'};
 
 // ---- Iniciar um nível ----
 function startLevel(n){
@@ -1314,6 +1314,7 @@ function startLevel(n){
 // ---- Modo Livre: fila aleatória infinita (turbinado com procedurais) ----
 function startFree(examId){
   G.free=true; G.mode='free'; G.scopeExamId=examId||'all';
+  save.last={type:'free',exam:G.scopeExamId}; persist();
   G.queue = buildFreeQueue(Math.random,G.scopeExamId); G.idx=0;
   showScreen('scr-game');
   renderQuestion();
@@ -1333,10 +1334,10 @@ function startTargetedPractice(){
 }
 let freeSetupExamId='all';
 const FREE_SETUP_TABS=[
-  {id:'all', label:'Todo conteúdo'},
   {id:'p1', label:'Prova 1'},
   {id:'p2', label:'Prova 2'},
-  {id:'p3', label:'Prova 3'}
+  {id:'p3', label:'Prova 3'},
+  {id:'all', label:'Todo o conteúdo'}
 ];
 function showFreeSetup(){
   const tabsWrap=$('freeSetupTabs');
@@ -1541,7 +1542,7 @@ function winLevel(){
   showScreen('scr-result',{replace:true});
 }
 
-/* -------------------- MODO 1: Roteirista da Instrução -------------------- */
+/* -------------------- MODO 1: Caminho da instrução -------------------- */
 function renderMode1(q, body){
   const seq = PATHS[q.instr];
   body.innerHTML =
@@ -1772,7 +1773,7 @@ function failNum(msg){
   fb.innerHTML=`<b>Não foi dessa vez.</b> ${msg}`; sfx.err(); G.timeStreak=0; G.errInQ++; loseLife();
 }
 
-/* -------------------- MODO 4: Pipeline Master -------------------- */
+/* -------------------- MODO 4: Fases do pipeline -------------------- */
 function renderMode4(q, body, act){
   body.innerHTML=
     `<p class="prompt">Arraste/toque cada etiqueta de fase do pipeline e coloque sobre a <b>região correta</b> do datapath. Ordem: IF → ID → EX → MEM → WB.</p>
@@ -2198,7 +2199,7 @@ const LESSONS = [
         <li><b>MEM</b>: Memória de Dados</li>
         <li><b>WB</b>: MUX MemtoReg → escrita no registrador</li>
         </ul>
-        <div class="callout">Pronto! Agora pratique no <b>Pipeline Master</b> e nos outros modos. 🎮</div>`}
+        <div class="callout">Pronto! Agora pratique em <b>Fases do pipeline</b> e nos outros modos. </div>`}
     ]}
 ];
 
@@ -2443,14 +2444,14 @@ function renderLevels(){
 
 // ---- Tutorial (5 telas) ----
 const TUTORIAL = [
-  {e:'🧩', h:'Bem-vindo à Arquitetura 2', b:`
-    <p>Você vai dominar o <b>caminho de dados do MIPS uniciclo</b> praticando. São <b>4 modos</b> distribuídos em <b>10 níveis</b> de dificuldade crescente.</p>
+  {e:'', h:'Bem-vindo à Arquitetura 2', b:`
+    <p>Você vai dominar o <b>caminho de dados do MIPS uniciclo</b> praticando. São <b>4 tipos de atividade</b> distribuídos em <b>10 níveis</b> de dificuldade crescente.</p>
     <p class="muted">Erre à vontade — cada questão mostra a explicação na hora e você segue para a próxima.</p>`},
-  {e:'🎬', h:'Modo 1 — Roteirista & Modo 4 — Pipeline', b:`
-    <p><b>Roteirista:</b> clique nas unidades funcionais na <b>ordem</b> que a instrução percorre o datapath (PC → Mem. Instruções → Registradores → ULA → …).</p>
-    <p><b>Pipeline Master:</b> arraste as etiquetas <span class="mono">IF · ID · EX · MEM · WB</span> sobre as regiões certas do diagrama.</p>
+  {e:'', h:'Caminho da instrução e fases do pipeline', b:`
+    <p><b>Caminho da instrução:</b> clique nas unidades funcionais na <b>ordem</b> que a instrução percorre o datapath (PC → Mem. Instruções → Registradores → ULA → …).</p>
+    <p><b>Fases do pipeline:</b> arraste as etiquetas <span class="mono">IF · ID · EX · MEM · WB</span> sobre as regiões certas do diagrama.</p>
     <p class="muted">Passe o mouse/toque numa unidade para ver o que ela faz.</p>`},
-  {e:'🎛', h:'Modo 2 — Engenheiro de Controle', b:`
+  {e:'', h:'Sinais de controle', b:`
     <p>Para cada instrução, ajuste os <b>8 sinais de controle</b> corretos. Tabela-base:</p>
     <table class="ctl"><tr><th>Sinal</th><th>R</th><th>lw</th><th>sw</th><th>beq</th></tr>
     <tr><td>RegDst</td><td>1</td><td>0</td><td class="x">X</td><td class="x">X</td></tr>
@@ -2462,7 +2463,7 @@ const TUTORIAL = [
     <tr><td>Branch</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
     <tr><td>ALUOp</td><td>10</td><td>00</td><td>00</td><td>01</td></tr></table>
     <p class="muted" style="margin-top:6px">X = indiferente (não importa o valor). ALUOp: 00=soma, 01=subtrai/compara, 10=tipo-R usa funct.</p>`},
-  {e:'⏱', h:'Modo 3 — Calculadora de Tempos', b:`
+  {e:'', h:'Cálculo de tempo', b:`
     <p>Modelo de tempos: <span class="mono">Memória 4 ns · Registradores 1 ns · ULA 2 ns · Controle 1 ns · Somadores 1 ns</span>.</p>
     <p>Tempos por instrução (caminho crítico):</p>
     <table class="ctl"><tr><th>lw</th><th>sw</th><th>tipo-R</th><th>beq</th><th>j</th></tr>
@@ -3541,7 +3542,7 @@ function boot(){
   // HUD / topo
   $('learnToggle').onclick=()=>{
     save.learnMode=!save.learnMode; persist(); sfx.click();
-    toast(save.learnMode?'Modo Aprendiz':'Modo Prova',
+    toast(save.learnMode?'Com explicação':'Só com dica',
       save.learnMode?'Explicação completa disponível a qualquer momento.':'Uma dica por questão, como numa prova.');
     if(document.getElementById('scr-game').classList.contains('active')) renderQuestion();
   };
