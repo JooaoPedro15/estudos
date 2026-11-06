@@ -375,3 +375,5 @@ details.more summary{cursor:pointer;font-weight:600;font-size:15px;}
 
 .wire.ctl{stroke:var(--copper);stroke-dasharray:4 4;opacity:.7;}
 .q-visual svg.datapath{max-width:640px;margin:0 auto;}
+
+@media(min-width:801px){.hero-scene .scene-svg{min-width:0;}}
