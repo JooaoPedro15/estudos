@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <!-- Mesmo glifo do header (GrafosGlyph): triângulo de 3 vértices coloridos. -->
-  <rect width="64" height="64" rx="14" fill="#0a0b0f"/>
-  <path d="M20 46 27.5 19M44 46 36.5 19M22 51h20" stroke="#4a4f66" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="14" cy="51" r="8.5" fill="#35e0d0"/>
-  <circle cx="50" cy="51" r="8.5" fill="#6e7bff"/>
-  <circle cx="32" cy="12" r="8.5" fill="#ffb454"/>
+  <rect width="64" height="64" rx="14" fill="#2f49c5"/>
+  <path d="M20 46 27.5 19M44 46 36.5 19M22 51h20" stroke="#c9d1f5" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="14" cy="51" r="8.5" fill="#35d0c4"/>
+  <circle cx="50" cy="51" r="8.5" fill="#ffffff"/>
+  <circle cx="32" cy="12" r="8.5" fill="#ff8a5c"/>
 </svg>
