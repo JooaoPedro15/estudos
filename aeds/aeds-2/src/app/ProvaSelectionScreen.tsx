@@ -49,7 +49,7 @@ export function SectionPicker({ examTitle, onBack, onSelect }: SectionPickerProp
         </button>
         <button className="domain-button" onClick={() => onSelect('pratica')} type="button">
           <strong>Prova pratica</strong>
-          <span>Estilo BeeCrowd/Verde: programa completo, le entrada e imprime saida.</span>
+          <span>Estilo BeeCrowd/Local: programa completo, le entrada e imprime saida.</span>
         </button>
       </div>
     </div>

@@ -32,11 +32,11 @@ manipulacao de estruturas de dados.
 - Prova pratica da Prova 1 com 44 problemas REAIS de juiz online (beecrowd,
   LeetCode e Codewars): mesmo problema, mesmas restricoes, exemplos oficiais
   de entrada/saida e link para o original.
-- Corretor estilo Verde (botao `Rodar no corretor`): compila e executa o
+- Corretor estilo Local (botao `Rodar no corretor`): compila e executa o
   codigo com o JDK da maquina e da a nota em porcentagem da saida publica
   (exemplos oficiais) e da saida privada (casos extras gerados, com caso
   grande que pega algoritmo lento). Aceita so os metodos pedidos ou o
-  programa inteiro, como no Verde.
+  programa inteiro, como no Local.
 
 ## Requisitos
 
@@ -82,7 +82,7 @@ backend para executar Java.
 
 ```text
 aeds-2/
-  corretor/     Corretor estilo Verde (Node): monta, compila e roda o Java
+  corretor/     Corretor estilo Local (Node): monta, compila e roda o Java
   docs/         Documentacao de produto, arquitetura, interacoes e testes
   src/app/      Telas principais da experiencia
   src/content/  Dominios, questoes e treinos de codigo

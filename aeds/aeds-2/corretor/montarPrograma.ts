@@ -6,7 +6,7 @@
  *     "stub" de mesmo nome do esqueleto (metodo cujo corpo so tem
  *     comentario, tipo "// implementar"); metodos extras sao acrescentados
  *     no fim da classe.
- *  2. O programa/classe inteira (como se submete no Verde/beecrowd): se o
+ *  2. O programa/classe inteira (como se submete no Local/beecrowd): se o
  *     texto declara uma classe no nivel de cima, ele e usado no lugar do
  *     esqueleto.
  *

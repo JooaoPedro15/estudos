@@ -1,10 +1,10 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
-import { corretorVerde } from './corretor/plugin';
+import { corretorLocal } from './corretor/plugin';
 
 export default defineConfig({
-  plugins: [react(), corretorVerde()],
+  plugins: [react(), corretorLocal()],
   test: {
     environment: 'jsdom',
     globals: true,

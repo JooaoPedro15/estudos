@@ -1,5 +1,5 @@
 /**
- * Comparacao de saida no estilo Verde: linha a linha, e a nota do caso e a
+ * Comparacao de saida no estilo Local: linha a linha, e a nota do caso e a
  * porcentagem de linhas iguais. Linhas em branco no FIM da saida sao
  * ignoradas (todo juiz ignora a quebra de linha final), e "\r\n" do
  * Windows vira "\n".

@@ -43,7 +43,7 @@ src/
 | Modulo | Responsabilidade |
 | --- | --- |
 | `content/domains` | Catalogo dos 6 dominios: Doidona, TRIE, AVL, arvore normal, somatorios e ordenacao. |
-| `content/codeDrills` | Banco de treinos repetitivos de codigo inspirados na lista da prova 3. |
+| `content/codeDrills` | Conjunto de treinos repetitivos de codigo inspirados na lista da prova 3. |
 | `content/reavaliacaoBlueprint` | Simulado fixo com 6 questoes e macroformatos da reavaliacao. |
 | `content/reviewVariations` | Variacoes predefinidas para treinar erros parecidos. |
 | `engine/evaluator` | Avaliar escolha, rubrica, lacuna, blocos, correcao de linha e codigo curto. |

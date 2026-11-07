@@ -15,11 +15,11 @@ import { reavaliacaoBlueprint } from './reavaliacaoBlueprint';
  *
  * A prova tem 6 posicoes fixas; cada posicao cobra sempre o mesmo tipo de
  * conteudo e raciocinio. O simulado nao sorteia 6 questoes aleatorias: para
- * cada posicao existe um banco proprio (pool) e sorteamos UMA questao
- * compativel daquele banco. Os bancos sao disjuntos, entao nunca ha repeticao
+ * cada posicao existe um conjunto proprio (pool) e sorteamos UMA questao
+ * compativel daquele conjunto. Os conjuntos sao disjuntos, entao nunca ha repeticao
  * interna nem questao em posicao incompativel.
  *
- * Bancos reutilizados (sem alterar os originais):
+ * Conjuntos reutilizados (sem alterar os originais):
  * - Treino de Codigo   -> codeDrillCatalog (somatorio, ordenacao, doidona);
  * - Conceituais/Desenho -> conceptualDrawingCatalog (Lista 2);
  * - Simulado de referencia -> reavaliacaoBlueprint (1 questao guia por posicao).
@@ -88,7 +88,7 @@ type SimuladoCandidate = {
   toQuestion: (position: SimuladoPosition) => ExamQuestion;
 };
 
-// -- Adaptadores: convertem itens dos bancos em ExamQuestion sem muta-los. --
+// -- Adaptadores: convertem itens dos conjuntos em ExamQuestion sem muta-los. --
 
 function codeDrillCandidate(drill: CodeDrill): SimuladoCandidate {
   return {
@@ -148,7 +148,7 @@ function conceptualCandidate(question: ConceptualDrawingQuestion): SimuladoCandi
   };
 }
 
-// -- Selecao dos bancos de cada posicao (ids disjuntos). --
+// -- Selecao dos conjuntos de cada posicao (ids disjuntos). --
 
 function conceptualByNumbers(type: 'conceitual' | 'desenho', numbers: number[]): SimuladoCandidate[] {
   const ids = new Set(numbers.map((n) => `lista2-${type}-q${String(n).padStart(2, '0')}`));
@@ -173,7 +173,7 @@ function staticQuestionCandidate(index: number): SimuladoCandidate {
 }
 
 /**
- * Bancos por posicao. Cada questao aparece em UM unico banco, garantindo que
+ * Conjuntos por posicao. Cada questao aparece em UM unico conjunto, garantindo que
  * um mesmo item nunca caia em duas posicoes do mesmo simulado.
  */
 function poolForPosition(number: number): SimuladoCandidate[] {
@@ -206,7 +206,7 @@ function poolForPosition(number: number): SimuladoCandidate[] {
   }
 }
 
-/** Bancos por posicao, montados uma unica vez (sao estaticos). */
+/** Conjuntos por posicao, montados uma unica vez (sao estaticos). */
 const POSITION_POOLS: SimuladoCandidate[][] = SIMULADO_MODEL.map((position) => poolForPosition(position.number));
 
 function pickCandidate(pool: SimuladoCandidate[], rng: Rng, avoidId?: string): SimuladoCandidate {

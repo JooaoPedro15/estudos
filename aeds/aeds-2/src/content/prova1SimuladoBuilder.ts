@@ -15,7 +15,7 @@ import { seededRng } from './simuladoBuilder';
 
 /**
  * Gerador dinamico do simulado da Prova 1: 3 questoes, cada uma sorteada de
- * um banco proprio (posicao), imitando a variacao real da prova:
+ * um conjunto proprio (posicao), imitando a variacao real da prova:
  *
  * 1) Complexidade de codigo OU somatorio por inducao;
  * 2) Ordenacao, com moldura variavel (livre, entre 3 opcoes, ou especifica) —
@@ -241,7 +241,7 @@ const ORDENACAO_ESPECIFICA_SELECAO = ordenacaoQuestion(
 );
 
 // ---------------------------------------------------------------------
-// Bancos por posicao
+// Conjuntos por posicao
 // ---------------------------------------------------------------------
 
 const POSITION_1_POOL: Candidate[] = [

@@ -190,7 +190,7 @@ ${extra}`;
 }
 
 /** Driver generico dos problemas "Design" (duas linhas: chamadas e argumentos). */
-function driverDesign(classe: string, casos: string): string {
+function driverDeClasse(classe: string, casos: string): string {
   return driver(`    List<String> linhas = Leitura.linhas();
     String[] ops = Leitura.vetorTexto(linhas.get(0));
     List<String> argumentos = Leitura.argumentos(linhas.get(1));
@@ -239,7 +239,7 @@ export const driversPorDrill: Record<string, string> = {
   'code-prova1-pratica-lc-valid-parentheses': driver(`    Map<String, String> p = Leitura.parametros(Leitura.entrada());
     System.out.println(new Solution().isValid(Leitura.texto(p.get("s"))));`),
 
-  'code-prova1-pratica-lc-min-stack': driverDesign(
+  'code-prova1-pratica-lc-min-stack': driverDeClasse(
     'MinStack',
     `      if (op.equals("MinStack")) {
         obj = new MinStack();
@@ -257,7 +257,7 @@ export const driversPorDrill: Record<string, string> = {
       }`,
   ),
 
-  'code-prova1-pratica-lc-queue-using-stacks': driverDesign(
+  'code-prova1-pratica-lc-queue-using-stacks': driverDeClasse(
     'MyQueue',
     `      if (op.equals("MyQueue")) {
         obj = new MyQueue();
@@ -274,7 +274,7 @@ export const driversPorDrill: Record<string, string> = {
       }`,
   ),
 
-  'code-prova1-pratica-lc-circular-queue': driverDesign(
+  'code-prova1-pratica-lc-circular-queue': driverDeClasse(
     'MyCircularQueue',
     `      if (op.equals("MyCircularQueue")) {
         obj = new MyCircularQueue(a[0]);

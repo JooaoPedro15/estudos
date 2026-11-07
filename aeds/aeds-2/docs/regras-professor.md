@@ -2,7 +2,7 @@
 
 Fonte: regras oficiais de avaliacao de trabalhos/laboratorios da disciplina
 (fornecidas pelo usuario em 2026-09-05). Regras de ambiente de correcao
-(Linux, VIM, corretor Verde especifico) e de integridade academica (copia,
+(Linux, VIM, corretor Local especifico) e de integridade academica (copia,
 excecoes negociadas com o professor) ficam de fora daqui por serem so
 logistica de correcao, nao formato de codigo - nao se aplicam a exercicios
 gerados por este app.
@@ -33,5 +33,4 @@ respeitar:
   academica, nao formato de codigo).
 - Correcao no Linux dos laboratorios, uso do VIM, apresentacao ao vivo
   (logistica presencial da disciplina, nao existe neste app).
-- Corretor Verde e identificador de plagio especificos da PUC (este app nao
-  compila nem executa codigo de verdade, nao ha corretor tipo Verde aqui).
+- A correção oficial da disciplina não é reproduzida. O corretor local deste app compila Java apenas no servidor de desenvolvimento; o build estático usa a análise de fragmentos, que não comprova a correção do programa.

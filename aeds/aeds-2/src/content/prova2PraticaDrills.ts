@@ -1,7 +1,7 @@
 import type { CodeDrill, FunctionRequirement, FunctionStep, StructureVisual } from '../types/content';
 
 /**
- * Exercicios de prova pratica (estilo BeeCrowd/Verde) pra Prova 2: mesmo
+ * Exercicios de prova pratica (estilo BeeCrowd/Local) pra Prova 2: mesmo
  * escopo da prova teorica (matriz, arvore binaria basica u04-u05), so que
  * como programa completo com entrada/saida, em vez de um metodo isolado.
  * Igual a prova1PraticaDrills.ts, usa arrays/classes primitivas simples

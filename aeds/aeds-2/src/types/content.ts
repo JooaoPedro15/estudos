@@ -198,7 +198,7 @@ export type ExamQuestion = {
   id: string;
   number: number;
   domainId: DomainId;
-  /** Modulo especifico do banco de origem (lista, hash, avl...). */
+  /** Modulo especifico do conjunto de origem (lista, hash, avl...). */
   moduleId?: ContentModuleId;
   /** Tipo do exercicio para o caderno de erros (codigo/conceitual/desenho). */
   questionType?: ErrorType;

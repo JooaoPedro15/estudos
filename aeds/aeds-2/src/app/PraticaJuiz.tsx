@@ -1,12 +1,12 @@
 import { CircleCheck, CircleX, ExternalLink, LoaderCircle, Timer, TriangleAlert } from 'lucide-react';
 
 import type { JudgeProblemRef, ProblemSample } from '../types/content';
-import type { CasoVerde, GrupoVerde, ResultadoVerde } from '../types/verde';
+import type { CasoLocal, GrupoLocal, ResultadoLocal } from '../types/corretorLocal';
 
 /**
  * Pecas da tela de prova pratica que imitam o juiz: de onde vem o problema
  * (com link para o original), os exemplos oficiais em blocos de texto puro
- * (como no beecrowd) e o painel de correcao estilo Verde (compilacao,
+ * (como no beecrowd) e o painel de correcao estilo Local (compilacao,
  * saida publica e saida privada em porcentagem).
  */
 
@@ -56,7 +56,7 @@ export function ExemplosOficiais({ samples }: { samples: ProblemSample[] }) {
   );
 }
 
-const ROTULO_STATUS: Record<CasoVerde['status'], string> = {
+const ROTULO_STATUS: Record<CasoLocal['status'], string> = {
   correto: 'Correto',
   errado: 'Saida incorreta',
   'erro-execucao': 'Erro de execucao',
@@ -70,7 +70,7 @@ function nivel(porcentagem: number): 'ok' | 'parcial' | 'zero' {
   return porcentagem > 0 ? 'parcial' : 'zero';
 }
 
-function IconeStatus({ status }: { status: CasoVerde['status'] }) {
+function IconeStatus({ status }: { status: CasoLocal['status'] }) {
   if (status === 'correto') {
     return <CircleCheck aria-hidden="true" size={16} />;
   }
@@ -80,10 +80,10 @@ function IconeStatus({ status }: { status: CasoVerde['status'] }) {
   return <CircleX aria-hidden="true" size={16} />;
 }
 
-function Nota({ titulo, grupo }: { titulo: string; grupo: GrupoVerde }) {
+function Nota({ titulo, grupo }: { titulo: string; grupo: GrupoLocal }) {
   return (
-    <div className={`verde-score is-${nivel(grupo.porcentagem)}`}>
-      <span className="verde-score-title">{titulo}</span>
+    <div className={`local-score is-${nivel(grupo.porcentagem)}`}>
+      <span className="local-score-title">{titulo}</span>
       <strong>{grupo.totalCasos === 0 ? '—' : `${grupo.porcentagem}%`}</strong>
       <span>
         {grupo.casosCorretos}/{grupo.totalCasos} casos
@@ -92,21 +92,21 @@ function Nota({ titulo, grupo }: { titulo: string; grupo: GrupoVerde }) {
   );
 }
 
-function CasoPublico({ caso, indice }: { caso: CasoVerde; indice: number }) {
+function CasoPublico({ caso, indice }: { caso: CasoLocal; indice: number }) {
   return (
-    <details className={`verde-case is-${caso.status}`} open={caso.status !== 'correto'}>
+    <details className={`local-case is-${caso.status}`} open={caso.status !== 'correto'}>
       <summary>
         <IconeStatus status={caso.status} />
         <span>
           Caso publico {indice + 1}: {ROTULO_STATUS[caso.status]}
         </span>
-        <span className="verde-case-meta">
+        <span className="local-case-meta">
           {caso.porcentagem}% · {caso.tempoMs} ms
         </span>
       </summary>
-      {caso.dica && <p className="verde-hint">{caso.dica}</p>}
-      {caso.erro && <pre className="verde-error">{caso.erro}</pre>}
-      <div className="verde-io">
+      {caso.dica && <p className="local-hint">{caso.dica}</p>}
+      {caso.erro && <pre className="local-error">{caso.erro}</pre>}
+      <div className="local-io">
         <div>
           <span className="judge-sample-label">Entrada</span>
           <pre>{caso.entrada}</pre>
@@ -124,13 +124,13 @@ function CasoPublico({ caso, indice }: { caso: CasoVerde; indice: number }) {
   );
 }
 
-export type EstadoVerde = { carregando: boolean; resultado: ResultadoVerde | null };
+export type EstadoLocal = { carregando: boolean; resultado: ResultadoLocal | null };
 
-export function PainelVerde({ estado }: { estado: EstadoVerde }) {
+export function PainelLocal({ estado }: { estado: EstadoLocal }) {
   if (estado.carregando) {
     return (
-      <section className="verde-panel" aria-label="Corretor" aria-live="polite">
-        <p className="verde-loading">
+      <section className="local-panel" aria-label="Corretor" aria-live="polite">
+        <p className="local-loading">
           <LoaderCircle aria-hidden="true" className="spin" size={18} />
           Compilando e rodando os casos de teste...
         </p>
@@ -142,40 +142,40 @@ export function PainelVerde({ estado }: { estado: EstadoVerde }) {
     return null;
   }
   return (
-    <section className="verde-panel" aria-label="Corretor" aria-live="polite">
-      <h4>Corretor (estilo Verde)</h4>
+    <section className="local-panel" aria-label="Corretor" aria-live="polite">
+      <h4>Corretor (estilo Local)</h4>
       {resultado.status === 'indisponivel' && (
-        <p className="verde-warning">
+        <p className="local-warning">
           <TriangleAlert aria-hidden="true" size={18} />
           {resultado.mensagem}
         </p>
       )}
       {resultado.status === 'erro-compilacao' && (
         <>
-          <p className="verde-compile is-error">
+          <p className="local-compile is-error">
             <CircleX aria-hidden="true" size={18} />
             Erro de compilacao
           </p>
-          <pre className="verde-error">{resultado.mensagem}</pre>
+          <pre className="local-error">{resultado.mensagem}</pre>
         </>
       )}
       {resultado.status === 'executado' && (
         <>
-          <p className="verde-compile">
+          <p className="local-compile">
             <CircleCheck aria-hidden="true" size={18} />
             Compilou · limite local {(resultado.limiteMs / 1000).toFixed(1)}s por caso
           </p>
-          <div className="verde-scores">
+          <div className="local-scores">
             <Nota grupo={resultado.publica} titulo="Saida publica" />
             <Nota grupo={resultado.privada} titulo="Saida privada" />
           </div>
-          <div className="verde-cases">
+          <div className="local-cases">
             {resultado.publica.casos.map((caso, indice) => (
               <CasoPublico caso={caso} indice={indice} key={`pub-${indice}`} />
             ))}
           </div>
           {resultado.privada.casos.length > 0 && (
-            <ul className="verde-private" aria-label="Casos privados">
+            <ul className="local-private" aria-label="Casos privados">
               {resultado.privada.casos.map((caso, indice) => (
                 <li className={`is-${caso.status}`} key={`pri-${indice}`} title={caso.erro ?? ROTULO_STATUS[caso.status]}>
                   <IconeStatus status={caso.status} />

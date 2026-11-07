@@ -49,7 +49,7 @@ export function answerCurrentPracticeStep(
   session: PracticeSession,
   answer: StepAnswer,
   random: () => number = Math.random,
-  /** Correcao feita fora do avaliador de fragmentos (ex.: o corretor Verde, que compila e executa). */
+  /** Correcao feita fora do avaliador de fragmentos (ex.: o corretor Local, que compila e executa). */
   externalResult?: StepResult,
 ): PracticeSession {
   const drill = getCurrentPracticeDrill(drills, session);

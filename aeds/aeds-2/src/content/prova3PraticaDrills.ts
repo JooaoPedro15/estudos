@@ -1,7 +1,7 @@
 import type { CodeDrill, FunctionRequirement, FunctionStep, StructureVisual } from '../types/content';
 
 /**
- * Exercicios de prova pratica (estilo BeeCrowd/Verde) pra Prova 3: mesmo
+ * Exercicios de prova pratica (estilo BeeCrowd/Local) pra Prova 3: mesmo
  * escopo da prova teorica (AVL, hash, TRIE — u06-u08), so que como programa
  * completo com entrada/saida, em vez de um metodo isolado. Igual as outras
  * pratica*, usa arrays/classes primitivas simples, sem as classes oficiais

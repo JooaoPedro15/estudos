@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 
 import { compararSaidas, linhasDaSaida, porcentagem } from './comparar';
 
-describe('comparacao de saida estilo Verde', () => {
+describe('comparacao de saida estilo Local', () => {
   test('ignora \\r\\n do Windows e linhas em branco no fim', () => {
     expect(linhasDaSaida('a\r\nb\r\n\r\n')).toEqual(['a', 'b']);
     expect(compararSaidas('1\n2\n', '1\r\n2', 'estrito')).toEqual({ linhasCertas: 2, totalLinhas: 2, soEspacos: false });

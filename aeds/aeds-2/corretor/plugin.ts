@@ -5,8 +5,8 @@ import { corrigir } from './corrigir';
 import type { DrillCorrigivel, ResultadoCorrecao } from './tipos';
 
 /**
- * Plugin do Vite que pluga o corretor estilo Verde no servidor de
- * desenvolvimento: POST /api/verde/rodar { drillId, codigo }.
+ * Plugin do Vite que pluga o corretor estilo Local no servidor de
+ * desenvolvimento: POST /api/local/rodar { drillId, codigo }.
  *
  * O catalogo de exercicios e carregado com ssrLoadModule (o mesmo codigo
  * que o navegador usa, sem duplicar nada) a cada requisicao — editar um
@@ -53,12 +53,12 @@ function responder(res: ServerResponse, status: number, corpo: ResultadoCorrecao
   res.end(JSON.stringify(corpo));
 }
 
-export function corretorVerde(): Plugin {
+export function corretorLocal(): Plugin {
   return {
-    name: 'aeds2-corretor-verde',
+    name: 'aeds2-corretor-local',
     apply: 'serve',
     configureServer(server) {
-      server.middlewares.use('/api/verde/rodar', (req, res) => {
+      server.middlewares.use('/api/local/rodar', (req, res) => {
         if (req.method !== 'POST') {
           responder(res, 405, { status: 'indisponivel', mensagem: 'Use POST.' });
           return;

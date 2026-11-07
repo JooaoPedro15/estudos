@@ -39,7 +39,7 @@ test('as questoes variam entre simulados diferentes', () => {
     signatures.add(buildSimulado({ rng: seededRng(seed) }).questions.map((q) => q.id).join('|'));
   }
 
-  // Com bancos de varias questoes por posicao, seeds diferentes produzem
+  // Com conjuntos de varias questoes por posicao, seeds diferentes produzem
   // combinacoes diferentes na esmagadora maioria dos casos.
   expect(signatures.size).toBeGreaterThan(20);
 });

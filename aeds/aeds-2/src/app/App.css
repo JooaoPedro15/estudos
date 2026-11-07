@@ -1584,7 +1584,7 @@ h1 {
   font-size: 1.05em;
 }
 
-/* ---------- Prova pratica: juiz de origem, exemplos oficiais e corretor Verde ---------- */
+/* ---------- Prova pratica: juiz de origem, exemplos oficiais e corretor Local ---------- */
 
 .judge-header {
   display: flex;
@@ -1671,14 +1671,14 @@ h1 {
 }
 
 .judge-sample,
-.verde-io {
+.local-io {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
 /* Entrada em cima; esperada x obtida lado a lado embaixo. */
-.verde-io > :first-child {
+.local-io > :first-child {
   grid-column: 1 / -1;
 }
 
@@ -1693,8 +1693,8 @@ h1 {
 }
 
 .judge-sample pre,
-.verde-io pre,
-.verde-error {
+.local-io pre,
+.local-error {
   max-height: 260px;
   margin: 0;
   padding: var(--space-3);
@@ -1709,11 +1709,11 @@ h1 {
   border-radius: var(--radius-sm);
 }
 
-.verde-actions {
+.local-actions {
   margin-top: var(--space-2);
 }
 
-.verde-panel {
+.local-panel {
   display: grid;
   gap: var(--space-3);
   margin-top: var(--space-4);
@@ -1723,13 +1723,13 @@ h1 {
   border-radius: var(--radius-md);
 }
 
-.verde-panel h4 {
+.local-panel h4 {
   margin: 0;
 }
 
-.verde-loading,
-.verde-warning,
-.verde-compile {
+.local-loading,
+.local-warning,
+.local-compile {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -1737,104 +1737,104 @@ h1 {
   font-weight: 700;
 }
 
-.verde-loading {
+.local-loading {
   color: var(--ink-soft);
 }
 
-.verde-warning {
+.local-warning {
   color: var(--warning-ink);
 }
 
-.verde-compile {
+.local-compile {
   color: var(--success-ink);
 }
 
-.verde-compile.is-error {
+.local-compile.is-error {
   color: var(--danger-ink);
 }
 
-.verde-error {
+.local-error {
   color: var(--danger-ink);
   white-space: pre-wrap;
 }
 
-.verde-hint {
+.local-hint {
   margin: 0;
   color: var(--warning-ink);
   font-size: var(--text-sm);
 }
 
 .spin {
-  animation: verde-spin 0.9s linear infinite;
+  animation: local-spin 0.9s linear infinite;
 }
 
-@keyframes verde-spin {
+@keyframes local-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.verde-scores {
+.local-scores {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
-.verde-score {
+.local-score {
   display: grid;
   gap: 2px;
   padding: var(--space-3);
   border-radius: var(--radius-md);
 }
 
-.verde-score strong {
+.local-score strong {
   font-size: var(--text-2xl);
   line-height: 1.1;
 }
 
-.verde-score-title {
+.local-score-title {
   font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.verde-score.is-ok {
+.local-score.is-ok {
   color: var(--success-ink);
   background: var(--success-soft);
   border: 1px solid var(--success);
 }
 
-.verde-score.is-parcial {
+.local-score.is-parcial {
   color: var(--warning-ink);
   background: var(--warning-soft);
   border: 1px solid var(--warning);
 }
 
-.verde-score.is-zero {
+.local-score.is-zero {
   color: var(--danger-ink);
   background: var(--danger-soft);
   border: 1px solid var(--danger);
 }
 
-.verde-cases {
+.local-cases {
   display: grid;
   gap: var(--space-2);
 }
 
-.verde-case {
+.local-case {
   padding: var(--space-2) var(--space-3);
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
 
-.verde-case[open] {
+.local-case[open] {
   display: grid;
   gap: var(--space-2);
 }
 
-.verde-case summary {
+.local-case summary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1843,30 +1843,30 @@ h1 {
   cursor: pointer;
 }
 
-.verde-case.is-correto summary,
-.verde-private .is-correto {
+.local-case.is-correto summary,
+.local-private .is-correto {
   color: var(--success-ink);
 }
 
-.verde-case.is-errado summary,
-.verde-case.is-erro-execucao summary,
-.verde-private .is-errado,
-.verde-private .is-erro-execucao {
+.local-case.is-errado summary,
+.local-case.is-erro-execucao summary,
+.local-private .is-errado,
+.local-private .is-erro-execucao {
   color: var(--danger-ink);
 }
 
-.verde-case.is-tempo-excedido summary,
-.verde-private .is-tempo-excedido {
+.local-case.is-tempo-excedido summary,
+.local-private .is-tempo-excedido {
   color: var(--warning-ink);
 }
 
-.verde-case-meta {
+.local-case-meta {
   margin-left: auto;
   color: var(--ink-muted);
   font-weight: 400;
 }
 
-.verde-private {
+.local-private {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -1875,7 +1875,7 @@ h1 {
   list-style: none;
 }
 
-.verde-private li {
+.local-private li {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1889,7 +1889,7 @@ h1 {
 
 @media (max-width: 780px) {
   .judge-sample,
-  .verde-io {
+  .local-io {
     grid-template-columns: minmax(0, 1fr);
   }
 

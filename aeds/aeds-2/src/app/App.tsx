@@ -61,7 +61,7 @@ import {
   type ConceptualAttempt,
   type ConceptualPracticeSession,
 } from '../engine/lista2Practice';
-import { resultadoDoVerde, rodarNoCorretor } from '../engine/verde';
+import { resultadoDoLocal, rodarNoCorretor } from '../engine/corretorLocal';
 import { clearSavedGame, loadSavedGame, saveGame, type SavedGameState } from '../persistence/save';
 import type {
   BlocksStep,
@@ -81,7 +81,7 @@ import type { ActiveMode } from './appTypes';
 import { CategoryBar } from './CategoryBar';
 const PreparacaoScreen = lazy(() => import('./PreparacaoScreen').then(module => ({ default: module.PreparacaoScreen })));
 import { DashboardScreen } from './DashboardScreen';
-import { CabecalhoJuiz, ExemplosOficiais, PainelVerde, type EstadoVerde } from './PraticaJuiz';
+import { CabecalhoJuiz, ExemplosOficiais, PainelLocal, type EstadoLocal } from './PraticaJuiz';
 import { ExploreScreen } from './ExploreScreen';
 import { Formula, MathText } from './MathText';
 import {
@@ -295,8 +295,8 @@ export function App() {
   const [choiceAnswer, setChoiceAnswer] = useState('');
   const [conceptualChoiceAnswer, setConceptualChoiceAnswer] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
-  /** Ultima correcao do corretor Verde (prova pratica), amarrada ao drill que foi rodado. */
-  const [verde, setVerde] = useState<(EstadoVerde & { drillId: string }) | null>(null);
+  /** Ultima correcao do corretor Local (prova pratica), amarrada ao drill que foi rodado. */
+  const [local, setLocal] = useState<(EstadoLocal & { drillId: string }) | null>(null);
   const [blockOrder, setBlockOrder] = useState<string[]>([]);
   const [fixLineIndex, setFixLineIndex] = useState<number | null>(null);
   const [fixId, setFixId] = useState('');
@@ -428,15 +428,15 @@ export function App() {
     setGame((currentGame) => ({ ...currentGame, session: nextSession, notebook: nextNotebook }));
   }
 
-  /** Compila e roda o codigo do aluno no corretor estilo Verde (sem registrar acerto/erro). */
-  async function runVerde() {
+  /** Compila e roda o codigo do aluno no corretor estilo Local (sem registrar acerto/erro). */
+  async function runLocal() {
     if (!currentPracticeDrill) {
       return null;
     }
     const drillId = currentPracticeDrill.id;
-    setVerde({ drillId, carregando: true, resultado: null });
+    setLocal({ drillId, carregando: true, resultado: null });
     const resultado = await rodarNoCorretor(drillId, textAnswer);
-    setVerde({ drillId, carregando: false, resultado });
+    setLocal({ drillId, carregando: false, resultado });
     return resultado;
   }
 
@@ -450,9 +450,9 @@ export function App() {
     // avaliador de fragmentos de sempre.
     let externalResult;
     if (isPraticaMode && currentPracticeDrill.samples?.length) {
-      const resultado = await runVerde();
+      const resultado = await runLocal();
       if (resultado && resultado.status !== 'indisponivel') {
-        externalResult = resultadoDoVerde(resultado, currentPracticeDrill.step);
+        externalResult = resultadoDoLocal(resultado, currentPracticeDrill.step);
       }
     }
 
@@ -947,11 +947,11 @@ export function App() {
                   onSubmit={submitAnswer}
                   onText={setTextAnswer}
                   onToggleTeaching={() => setShowTeaching((value) => !value)}
-                  onRunVerde={() => void runVerde()}
+                  onRunLocal={() => void runLocal()}
                   practiceSession={practiceSession}
                   showTeaching={showTeaching}
                   textAnswer={textAnswer}
-                  verdeState={verde && verde.drillId === currentPracticeDrill?.id ? verde : null}
+                  localState={local && local.drillId === currentPracticeDrill?.id ? local : null}
                 />
               )
             ) : teoricaMode === null ? (
@@ -1629,9 +1629,9 @@ type PracticeExperienceProps = {
   onStartMarathon: () => void;
   onToggleTeaching: () => void;
   showTeaching: boolean;
-  /** Corretor Verde: so na prova pratica, para drills com casos de teste. */
-  verdeState?: EstadoVerde | null;
-  onRunVerde?: () => void;
+  /** Corretor Local: so na prova pratica, para drills com casos de teste. */
+  localState?: EstadoLocal | null;
+  onRunLocal?: () => void;
 };
 
 function PracticeExperience({
@@ -1658,8 +1658,8 @@ function PracticeExperience({
   practiceSession,
   showTeaching,
   textAnswer,
-  verdeState,
-  onRunVerde,
+  localState,
+  onRunLocal,
 }: PracticeExperienceProps) {
   if (practiceSession.completed || !currentPracticeDrill) {
     return (
@@ -1747,7 +1747,7 @@ function PracticeExperience({
               onText={onText}
               placeholder={
                 currentPracticeDrill.samples
-                  ? 'Escreva so os metodos pedidos, ou o programa inteiro (como no Verde)'
+                  ? 'Escreva so os metodos pedidos, ou o programa inteiro (como no Local)'
                   : undefined
               }
               step={currentPracticeDrill.step}
@@ -1759,7 +1759,7 @@ function PracticeExperience({
             <button
               aria-label="Responder: verificar resposta"
               className="primary-button"
-              disabled={!answer || verdeState?.carregando}
+              disabled={!answer || localState?.carregando}
               onClick={onSubmit}
               type="button"
             >
@@ -1776,12 +1776,12 @@ function PracticeExperience({
             </button>
           </div>
 
-          {onRunVerde && currentPracticeDrill.samples && (
-            <div className="action-row verde-actions">
+          {onRunLocal && currentPracticeDrill.samples && (
+            <div className="action-row local-actions">
               <button
                 className="ghost-button"
-                disabled={!textAnswer.trim() || verdeState?.carregando}
-                onClick={onRunVerde}
+                disabled={!textAnswer.trim() || localState?.carregando}
+                onClick={onRunLocal}
                 type="button"
               >
                 <Play aria-hidden="true" size={18} />
@@ -1794,7 +1794,7 @@ function PracticeExperience({
             </div>
           )}
 
-          {verdeState && <PainelVerde estado={verdeState} />}
+          {localState && <PainelLocal estado={localState} />}
 
           {showTeaching && <TeachingBox step={currentPracticeDrill.step} />}
 

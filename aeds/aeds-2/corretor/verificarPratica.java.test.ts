@@ -255,7 +255,7 @@ static boolean vemAntes(int a, int b) {
     }
   });
 
-  test('programa inteiro (como no Verde) tambem e aceito', async () => {
+  test('programa inteiro (como no Local) tambem e aceito', async () => {
     const programa = `import java.util.*;
 public class Main {
   public static void main(String[] args) {

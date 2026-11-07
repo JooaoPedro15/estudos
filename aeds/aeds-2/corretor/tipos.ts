@@ -1,8 +1,8 @@
 /**
- * Tipos do corretor estilo Verde. O corretor roda no Node (plugin do Vite),
+ * Tipos do corretor estilo Local. O corretor roda no Node (plugin do Vite),
  * entao nao importa nada de src/ (projeto TypeScript separado): o drill
  * chega aqui so com os campos que a correcao usa. O formato do resultado e
- * espelhado em src/types/verde.ts (lado do navegador) — mantenha os dois
+ * espelhado em src/types/corretorLocal.ts (lado do navegador) — mantenha os dois
  * em sincronia.
  */
 
@@ -23,7 +23,7 @@ export type CasoResultado = {
   /** Porcentagem de linhas da saida que bateram com a esperada (0 a 100). */
   porcentagem: number;
   tempoMs: number;
-  /** So nos casos publicos (os privados ficam escondidos, como no Verde). */
+  /** So nos casos publicos (os privados ficam escondidos, como no Local). */
   entrada?: string;
   esperado?: string;
   obtido?: string;

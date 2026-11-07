@@ -4,12 +4,12 @@ import { prova1PraticaOrdenacaoBuscaCatalog } from './prova1PraticaOrdenacaoBusc
 import { prova1PraticaPilhaFilaCatalog } from './prova1PraticaPilhaFila';
 
 /**
- * Exercicios de prova pratica (estilo beecrowd/Verde) da Prova 1: mesmo
+ * Exercicios de prova pratica (estilo beecrowd/Local) da Prova 1: mesmo
  * escopo da prova teorica (u00-u04: complexidade, recursividade, lista,
  * fila, pilha, matriz, ordenacao e busca), so que como programa completo
  * com entrada/saida.
  *
- * TODOS sao problemas reais de juiz online — beecrowd (o banco da prova
+ * TODOS sao problemas reais de juiz online — beecrowd (o conjunto da prova
  * pratica e parecido com o dele), LeetCode e Codewars:
  *  - mesmo problema e mesmas restricoes; o texto e uma reescrita fiel em
  *    portugues, e o original fica no link de `judge`;
@@ -19,7 +19,7 @@ import { prova1PraticaPilhaFilaCatalog } from './prova1PraticaPilhaFila';
  *    de tempo (por isso ha quicksort/mergesort/counting sort onde um
  *    Theta(n^2) estouraria).
  *
- * O corretor estilo Verde (pasta `corretor/`, botao "Rodar") compila e
+ * O corretor estilo Local (pasta `corretor/`, botao "Rodar") compila e
  * executa o codigo do aluno contra os exemplos (saida publica) e contra
  * casos extras gerados (saida privada), cuja resposta esperada vem da
  * solucao modelo. `npm run verificar:pratica` garante que toda solucao

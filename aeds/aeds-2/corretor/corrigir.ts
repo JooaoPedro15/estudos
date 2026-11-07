@@ -11,7 +11,7 @@ import { gerarEntradasPrivadas, VERSAO_GERADORES } from './testesPrivados';
 import type { CasoResultado, CasoTeste, DrillCorrigivel, GrupoResultado, ResultadoCorrecao } from './tipos';
 
 /**
- * Corretor estilo Verde: compila o codigo do aluno e roda contra
+ * Corretor estilo Local: compila o codigo do aluno e roda contra
  *  - a saida PUBLICA: os exemplos oficiais do problema (o aluno ve tudo);
  *  - a saida PRIVADA: casos gerados em testesPrivados.ts, com a resposta
  *    esperada calculada rodando a solucao modelo (o aluno so ve a nota).

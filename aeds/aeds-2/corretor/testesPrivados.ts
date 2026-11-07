@@ -1,6 +1,6 @@
 /**
- * Entradas dos casos PRIVADOS de cada exercicio pratico (o "pri.in" do
- * Verde). Sao geradas de forma deterministica (semente = id do drill), ate
+ * Entradas dos casos PRIVADOS de cada exercicio pratico (o entrada adicional do
+ * Local). Sao geradas de forma deterministica (semente = id do drill), ate
  * a solucao modelo, e respeitam as restricoes do enunciado original. A
  * saida esperada NAO fica aqui: o corretor roda a solucao modelo nessas
  * entradas (ver corrigir.ts).

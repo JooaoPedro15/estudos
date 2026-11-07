@@ -28,7 +28,7 @@ Primeira versao funcional concluida em `aeds/aeds-2`.
 
 ## Etapa 2.5: Treino continuo de codigo
 
-- [x] Adicionar banco de treinos inspirado na lista da prova 3.
+- [x] Adicionar conjunto de treinos inspirado na lista da prova 3.
 - [x] Criar sessao rapida para 2 questoes.
 - [x] Criar modo maratona para varias questoes.
 - [x] Alternar entre repeticao e modificacao logica.
