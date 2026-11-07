@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, Clock3, Compass, FileCode2, Target } from
 import { getExam, type ExamId } from '../content/examCatalog';
 import { chanceTema, faixaChance, perfis, planos, praticaPreparacao, relatoP2, simuladosPreparacao, type Nivel, type Professor, type QuestaoPreparacao, type Tema, type Turno } from '../content/preparacao/catalogo';
 import operacoesP2 from '../content/preparacao/operacoesP2.md?raw';
+import { avaliarPrevisao } from '../engine/backtestPreparacao';
 import { carregarPreparacao, preparacaoKey } from '../persistence/preparacao';
 import { StudyText } from './StudyText';
 import './preparacao.css';
@@ -16,7 +17,7 @@ function topicOf(q:QuestaoPreparacao):string {
   if(q.topic) return q.topic;
   if(/parcial|heap|inserção estável/i.test(q.title)) return 'parcial';
   if(/treesort/i.test(q.title)) return 'treesort';
-  if(/agenda|matriz|dicionário|listas|tolista|diag/i.test(q.title)) return 'hibrida';
+  if(/agenda|matriz|dicionário|listas|árvore.*lista|tolista|diag/i.test(q.title)) return 'hibrida';
   if(/lista/i.test(q.title)) return 'lista';
   return 'arvore';
 }
@@ -73,6 +74,7 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
   const [record,setRecord]=useState(carregarPreparacao);
   const [saveError,setSaveError]=useState(false);
   const plan=planos[scope];
+  const backtest=avaliarPrevisao(plan.topics.map(t=>({chance:chanceTema(t,turn),resultado:record.actual[`${turn}-${t.id}`]})));
   useEffect(()=>{
     const timer=setTimeout(()=>{
       try { localStorage.setItem(preparacaoKey,JSON.stringify(record)); setSaveError(false); } catch { setSaveError(true); }
@@ -87,7 +89,7 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
     const selectedTopic=planos[scope].topics.find(t=>t.id===topic);
     if(!filtered.length && selectedTopic && section==='teorica') return [{
       id:`oficina-${topic}-${level}`,title:`Oficina: ${selectedTopic.title}`,topic:selectedTopic.id,
-      body:`Considere as estruturas fornecidas no código de referência. Implemente e justifique: ${selectedTopic.operation} Use um exemplo com estrutura vazia, um elemento e um elemento ausente. Preserve a assinatura do método correspondente.`,
+      body:selectedTopic.id==='treesort'?'Considere uma ABP de inteiros com No { int elemento; No esq, dir; }. Implemente public int[] sort(int[] array): insira os elementos em uma árvore inicialmente vazia e devolva um novo vetor em ordem crescente por caminhamento central. Repetidos devem ir para a direita. Para [14, 6, 14, 3], o resultado deve ser [3, 6, 14, 14]. Analise o pior caso de construção sem balanceamento.':selectedTopic.id==='lista'?'Considere Celula { int elemento; Celula prox; } e Lista { Celula primeiro, ultimo; }, com célula cabeça. Implemente void inverter() usando três referências, sem criar novas células. Preserve a cabeça e atualize ultimo. Para [9, 4, 2], o resultado deve ser [2, 4, 9]. Teste lista vazia e unitária e apresente Θ.':`Implemente e justifique a operação ${selectedTopic.operation} Considere os atributos indicados no enunciado do tema e verifique vazio, único e ausente.`,
       sources:selectedTopic.sources,answer:`Invariante a conferir: ${selectedTopic.trap} A referência testada abaixo contém os métodos e os casos de borda; selecione a operação correspondente.`,
     }];
     return filtered;
@@ -161,7 +163,7 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
       <div className="study-section-title"><div><p className="app-kicker">06 / Previsão × realidade</p><h2>O que caiu em 04/11.</h2></div></div>
       <p className="study-note">Registro inicial: lembrança parcial do aluno em 07/11/2026, sobre a manhã; uma descrição inclui relato de colegas. Não equivale ao enunciado nem confirma a versão da tarde. Use os campos abaixo para registrar evidência adicional.</p>
       {relatoP2.map(item=><article className="study-review-card" key={item.id}><h3>{item.title}</h3><p>{item.text}</p><strong>{item.result}</strong></article>)}
-      <article className="study-review-card"><h3>Completar o confronto · {turn==='manha'?'Manhã':'Tarde'}</h3><p>Marque “não caiu” apenas quando souber a prova inteira. Informação ausente não conta como erro da previsão.</p>{plan.topics.map(t=><label className="study-actual" key={t.id}><span>{t.title} <Badge value={chanceTema(t,turn)}/></span><select value={record.actual[`${turn}-${t.id}`]??''} onChange={e=>setRecord(r=>({...r,actual:{...r.actual,[`${turn}-${t.id}`]:e.target.value}}))}><option value="">Ainda não confirmado</option><option value="sim">Caiu · confirmado por mim</option><option value="nao">Não caiu · conferi a prova</option><option value="parcial">Relato parcial</option></select></label>)}<label className="study-draft-label" htmlFor="actual-notes">Detalhes e origem da informação</label><textarea id="actual-notes" value={record.notes} onChange={e=>setRecord(r=>({...r,notes:e.target.value}))}/><p>Os percentuais anteriores ficam preservados para evitar ajustar a previsão depois do resultado. P3 e reavaliação usam o relato como reforço qualitativo: buscar por um atributo que não ordena a árvore exige caminhamento. Uma prova lembrada parcialmente não sustenta novas porcentagens.</p></article>
+      <article className="study-review-card"><h3>Completar o confronto · {turn==='manha'?'Manhã':'Tarde'}</h3><p>Marque “não caiu” apenas quando souber a prova inteira. Informação ausente não conta como erro da previsão.</p>{plan.topics.map(t=><label className="study-actual" key={t.id}><span>{t.title} <Badge value={chanceTema(t,turn)}/></span><select value={record.actual[`${turn}-${t.id}`]??''} onChange={e=>setRecord(r=>({...r,actual:{...r.actual,[`${turn}-${t.id}`]:e.target.value}}))}><option value="">Ainda não confirmado</option><option value="sim">Caiu · confirmado por mim</option><option value="nao">Não caiu · conferi a prova</option><option value="parcial">Relato parcial</option></select></label>)}<p aria-live="polite"><strong>{backtest.confirmados}/{backtest.total} temas confirmados.</strong> {backtest.brier===null?'Sem dados completos para calcular erro de previsão.':`Erro quadrático médio (Brier) sobre os temas confirmados: ${backtest.brier.toFixed(3)}. Mais perto de 0 é melhor. Este resultado parcial não mede acerto de operações nem calibração estatística.`}</p><label className="study-draft-label" htmlFor="actual-notes">Detalhes e origem da informação</label><textarea id="actual-notes" value={record.notes} onChange={e=>setRecord(r=>({...r,notes:e.target.value}))}/><p>Os percentuais anteriores ficam preservados para evitar ajustar a previsão depois do resultado. P3 e reavaliação usam o relato como reforço qualitativo: buscar por um atributo que não ordena a árvore exige caminhamento. Uma prova lembrada parcialmente não sustenta novas porcentagens.</p></article>
     </>}
   </div>;
 }
