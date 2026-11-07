@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { link } from '../app/router';
 import { modulo, questoesDoModulo } from '../content';
 import type { Modulo, ModuloId, Questao } from '../content/types';
+import { ArteModulo } from '../components/ArteModulo';
 import { Blocos, Fontes } from '../components/Blocos';
 import { Formula, RichText } from '../components/RichText';
 import { dominio } from '../state/game';
@@ -180,6 +181,9 @@ export function ModuloScreen({ id, aba }: { id: ModuloId; aba?: string }) {
         <ArrowLeft size={16} aria-hidden="true" /> Início
       </a>
       <header className="modulo-topo">
+        <div className="modulo-arte">
+          <ArteModulo id={m.id} />
+        </div>
         <p className="modulo-num">Módulo {m.ordem} de 7</p>
         <h1>{m.titulo}</h1>
         <p className="modulo-desc">{m.descricao}</p>

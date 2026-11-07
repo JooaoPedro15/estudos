@@ -5,6 +5,8 @@ import { link } from '../app/router';
 import { DATA_PROVA, MODULOS, questoesDoModulo } from '../content';
 import type { Modulo, ModuloId } from '../content/types';
 import { corClasse, pureza } from '../components/SkTree';
+import { ArteModulo } from '../components/ArteModulo';
+import { CenaInicio } from '../components/CenaInicio';
 import { diaLocal, dominio, type Dominio } from '../state/game';
 import { useEstudo } from '../state/EstudoContext';
 
@@ -63,6 +65,7 @@ function NoModulo({ m, d }: { m: Modulo; d: Dominio }) {
   const estilo = { '--no-cor': corClasse(classe), '--no-alfa': d.tentativas ? alfa * 0.55 : 0 } as CSSProperties;
   return (
     <a href={link(`/modulo/${m.id}`)} className="no-home" style={estilo}>
+      <ArteModulo id={m.id} />
       <span className="no-home-titulo">
         <span className="no-home-num">{String(m.ordem).padStart(2, '0')}</span>
         {m.curto}
@@ -95,25 +98,42 @@ export function Home() {
 
   return (
     <div className="home">
-      <section className="hero" aria-labelledby="titulo-home">
-        <div className="hero-texto">
-          <h1 id="titulo-home">Primeira prova de Inteligência Artificial</h1>
-          <p className="hero-sub">Profa. Cristiane Neri Nobre, PUC Minas. Segunda-feira, 05/10/2026.</p>
-          <Contagem agora={agora} />
-        </div>
-        <div className="hero-resumo">
-          <p>
-            <strong>{total.acertadas}</strong> de {total.questoes} questões acertadas
-          </p>
-          <p>
-            <strong>{erros}</strong> no caderno de erros
-          </p>
-          {proximo && (
-            <a className="btn btn-primario" href={link(`/modulo/${proximo.id}`)}>
-              Continuar: {proximo.curto}
+      <section className="hero-novo" aria-labelledby="titulo-home">
+        <div>
+          <p className="olho">Inteligência Artificial · P1 · Profa. Cristiane Neri Nobre</p>
+          <h1 id="titulo-home">
+            Veja a árvore <span className="sim">decidir</span>. Depois, <span className="nao">acerte a prova</span>.
+          </h1>
+          <p className="hero-sub">Mexa nos atributos do aluno e acompanhe o caminho até a folha. Resumos, exemplos resolvidos e {total.questoes} questões corrigidas na hora.</p>
+          <div className="hero-numeros">
+            <span className="hero-numero">
+              <strong>{total.acertadas}<small style={{ fontSize: '0.9rem', color: 'var(--ink-3)' }}>/{total.questoes}</small></strong>
+              <span>questões acertadas</span>
+            </span>
+            <span className="hero-numero">
+              <strong>{erros}</strong>
+              <span>no caderno de erros</span>
+            </span>
+          </div>
+          <div className="hero-acoes">
+            {proximo ? (
+              <a className="btn btn-primario" href={link(`/modulo/${proximo.id}`)}>
+                Continuar: {proximo.curto}
+              </a>
+            ) : (
+              <a className="btn btn-primario" href={link('/treino/misto')}>
+                Treino misto
+              </a>
+            )}
+            <a className="btn" href={link('/simulado')}>
+              Simulado 2025
             </a>
-          )}
+          </div>
+          <div className="contagem-pequena">
+            <Contagem agora={agora} />
+          </div>
         </div>
+        <CenaInicio />
       </section>
 
       <section aria-labelledby="titulo-plano" className="secao-home">
