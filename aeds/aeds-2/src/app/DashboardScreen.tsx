@@ -5,7 +5,10 @@ import { examCatalog } from '../content/examCatalog';
 import { getConceptualDrawingModules, getQuestionsForConceptualDrawingModule } from '../content/lista2Questions';
 import { structureCatalog } from '../viz/structureOps';
 import type { ErrorRecord } from '../types/progress';
+import { CategoryArt } from './CategoryArt';
+import { HeroOrdenacao } from './HeroOrdenacao';
 import { NotebookPanel } from './NotebookPanel';
+import './inicio.css';
 import type { ActiveMode } from './appTypes';
 
 type DashboardScreenProps = {
@@ -81,28 +84,32 @@ export function DashboardScreen({
 
   return (
     <div className="dashboard">
-      <div className="dash-top">
+      <section className="dash-hero">
         <div>
           <p className="app-kicker">AEDS II · PUC Minas</p>
-          <h1>Sala de estudo</h1>
+          <h1>
+            Veja o <em>vetor</em> se ordenar. Depois, <span>escreva o código da prova.</span>
+          </h1>
+          <p className="lead">Cada passo do algoritmo com a linha do código marcada e a conta de comparações e movimentações, do jeito que a prova cobra.</p>
+          <div className="stat-strip">
+            <div className="stat-tile">
+              <strong>
+                <Trophy aria-hidden="true" size={15} /> {score}/{maxScore}
+              </strong>
+              <span>pontos no simulado atual ({progressPercent}%)</span>
+            </div>
+            <div className="stat-tile is-success">
+              <strong>{masteredCount}</strong>
+              <span>dominios dominados</span>
+            </div>
+            <div className="stat-tile is-warning">
+              <strong>{priorityErrors.length}</strong>
+              <span>erros ativos</span>
+            </div>
+          </div>
         </div>
-        <div className="stat-strip">
-          <div className="stat-tile">
-            <strong>
-              <Trophy aria-hidden="true" size={15} /> {score}/{maxScore}
-            </strong>
-            <span>pontos no simulado atual ({progressPercent}%)</span>
-          </div>
-          <div className="stat-tile is-success">
-            <strong>{masteredCount}</strong>
-            <span>dominios dominados</span>
-          </div>
-          <div className="stat-tile is-warning">
-            <strong>{priorityErrors.length}</strong>
-            <span>erros ativos</span>
-          </div>
-        </div>
-      </div>
+        <HeroOrdenacao />
+      </section>
 
       <div className="cat-grid">
         {cards.map((card) => (
@@ -114,7 +121,9 @@ export function DashboardScreen({
             style={{ '--cat-color': card.color } as React.CSSProperties}
             type="button"
           >
-            <span className="cat-icon">{card.icon}</span>
+            <span className="cat-cover">
+              <CategoryArt mode={card.mode} />
+            </span>
             <h3>{card.title}</h3>
             <p>{card.description}</p>
             <div className="cat-meta">
