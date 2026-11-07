@@ -105,7 +105,7 @@ Pilha flexível (empilhar/desempilhar no topo) e fila flexível (inserir no fim,
 11. **P3/P4** Quick e Heap parciais e o **custo** de cada parcial.
 12. **O4** intercalar (base de L15, `toLista` e Mergesort).
 
-Por que é suficiente: toda questão das 5 P2 analisadas e das 18 simuladas é **uma composição** desses 12 movimentos.
+Cobertura da análise anterior: quatro edições completas e um fragmento sugerem que estes movimentos formam uma base útil. Não garantem cobertura de qualquer operação futura nem substituem a leitura do enunciado.
 - `diagUnificada` = andar na matriz + L2 em lista dupla.
 - `toLista` = A25 + O4.
 - `meiose` = L2 durante o percurso.

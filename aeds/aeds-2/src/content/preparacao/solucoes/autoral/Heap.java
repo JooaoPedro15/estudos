@@ -1,4 +1,4 @@
-/** Heap parcial de expedições: Θ(n log(k+1) + k log(k+1)). */
+/** Heap parcial de expedições: O(n log(k+1) + k log(k+1)). */
 public class Heap {
   static class Expedicao {
     int prioridade, codigo;

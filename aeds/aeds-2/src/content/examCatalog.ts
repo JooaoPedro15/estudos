@@ -46,8 +46,8 @@ export const examCatalog: ExamCatalogEntry[] = [
     id: 'p2',
     title: 'Prova 2',
     shortTitle: 'P2',
-    description: 'Estruturas flexiveis/encadeadas e arvore binaria basica (u04-u05).',
-    moduleIds: ['lista', 'fila', 'pilha', 'matriz', 'arvore'],
+    description: 'Estruturas flexíveis, ABP e híbridas (u04-u05), com ordenação parcial e em listas (u03).',
+    moduleIds: ['lista', 'fila', 'pilha', 'matriz', 'arvore', 'ordenacao', 'ordenacao-insercao', 'ordenacao-selecao'],
     materialsRefs: ['aeds/materiais-privados/Provas2'],
   },
   {
