@@ -10,14 +10,14 @@ test('prioriza pendências e restaura checklist, rascunho e autoavaliação',asy
   const props={scope:'p1' as const,onBack:vi.fn(),onLegacy:vi.fn()};
   const view=render(<PreparacaoScreen {...props}/>);
   await user.click(screen.getAllByRole('checkbox')[0]);
-  await user.click(screen.getByRole('button',{name:'Treinar',exact:true}));
+  await user.click(screen.getByRole('button',{name:'Treinar'}));
   await user.type(screen.getByRole('textbox'),'minha tentativa');
   await user.click(screen.getByText('Mostrar / esconder gabarito'));
   await user.selectOptions(screen.getByLabelText('Como foi a tentativa?'),'revisar');
   await waitFor(()=>expect(JSON.parse(localStorage.getItem(preparacaoKey)!).drafts['p1-p1-soma']).toBe('minha tentativa'));
   view.unmount(); render(<PreparacaoScreen {...props}/>);
   expect(screen.getAllByRole('checkbox').some(check=>(check as HTMLInputElement).checked)).toBe(true);
-  await user.click(screen.getByRole('button',{name:'Revisão',exact:true}));
+  await user.click(screen.getByRole('button',{name:'Revisão'}));
   await user.click(screen.getAllByText('Laços em uma oficina')[0]);
   expect(screen.getByDisplayValue('minha tentativa')).toBeInTheDocument();
 });
@@ -38,7 +38,7 @@ test('tema com poucos simulados sempre oferece oficina e a prática tem entrada 
   const card=screen.getByRole('heading',{name:'TreeSort como variação'}).closest('article')!;
   await user.click(within(card).getByRole('button',{name:'Treinar este tema'}));
   expect(screen.getByRole('heading',{name:'Oficina: TreeSort como variação'})).toBeInTheDocument();
-  await user.click(screen.getByRole('button',{name:'Prática',exact:true}));
+  await user.click(screen.getByRole('button',{name:'Prática'}));
   expect(screen.getByRole('heading',{name:'Sensores em uma ABP · C'})).toBeInTheDocument();
   expect(screen.getByText(/n=0 resulta em 0/)).toBeInTheDocument();
 });

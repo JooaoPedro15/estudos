@@ -1,7 +1,16 @@
 """Compila e executa exemplos didáticos isoladamente, sem gravar builds no projeto."""
 from pathlib import Path
-import subprocess, tempfile, json, sys
+import subprocess, tempfile, json, sys, os, shutil
 raiz=Path(__file__).resolve().parents[1]
+candidatos=[Path(os.environ.get('JAVA_HOME','/caminho-inexistente'))/'bin/javac',
+ Path(shutil.which('javac') or '/caminho-inexistente'),
+ Path('/opt/homebrew/opt/openjdk@21/bin/javac'),Path('/usr/local/opt/openjdk@21/bin/javac')]
+javac=None
+for candidato in candidatos:
+ if candidato.is_file() and subprocess.run([str(candidato),'-version'],capture_output=True).returncode==0:
+  javac=candidato; break
+if javac is None: sys.exit('JDK ausente: configure JAVA_HOME ou adicione javac e java ao PATH.')
+java=javac.parent/'java'
 resultados=[]
 casos={
  'Reservas.java': [('3\n51 2\n82 1\n63 2\n', '82 51 63\n'), ('0\n1\n19 -2\n','\n19\n'), ('','')],
@@ -13,8 +22,8 @@ with tempfile.TemporaryDirectory(prefix='aeds-validacao-') as temp:
   if p.suffix not in ('.java','.c'): continue
   pasta=Path(temp)/str(index); pasta.mkdir()
   if p.suffix=='.java':
-   comp=['javac','-encoding','UTF-8','-d',str(pasta),str(p)]
-   run=['java','-cp',str(pasta),p.stem]
+   comp=[str(javac),'-encoding','UTF-8','-d',str(pasta),str(p)]
+   run=[str(java),'-cp',str(pasta),p.stem]
   else:
    comp=['cc','-std=c99','-Wall','-Wextra',str(p),'-lm','-o',str(pasta/'programa')]
    run=[str(pasta/'programa')]

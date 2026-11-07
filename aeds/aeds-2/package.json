@@ -9,6 +9,7 @@
     "test": "vitest run --pool=vmThreads",
     "test:watch": "vitest",
     "lint": "tsc -b --noEmit",
+    "verificar:preparacao": "python3 scripts/verificar-preparacao.py",
     "verificar:pratica": "vitest run --config corretor/vitest.java.config.ts"
   },
   "dependencies": {
