@@ -1,0 +1,89 @@
+/* ---- Página inicial: herói com a cena do algoritmo ---- */
+.home-hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 2.5rem; align-items: center; }
+.home-hero h1 { font-size: clamp(2rem, 4.4vw, 3rem); line-height: 1.06; letter-spacing: -.028em; font-weight: 700; color: var(--color-text-primary); }
+.home-hero h1 em { font-style: normal; color: var(--color-accent); }
+.home-hero h1 span { color: var(--color-amber); }
+.home-hero .lead { margin-top: 1rem; font-size: 1.08rem; color: var(--color-text-secondary); max-width: 34ch; }
+.home-hero .eyebrow { font-family: var(--font-mono); font-size: .78rem; color: var(--color-amber); letter-spacing: .04em; margin-bottom: .9rem; display: inline-flex; align-items: center; gap: .5rem; }
+.home-hero .eyebrow::before { content: ''; width: 18px; height: 2px; background: currentColor; }
+.home-hero .cta { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.6rem; }
+@media (max-width: 900px) { .home-hero { grid-template-columns: 1fr; gap: 1.6rem; } }
+
+.hero-scene { background: var(--color-bg-raised); border: 1px solid var(--color-border); border-radius: 1.1rem; box-shadow: var(--shadow-raised); overflow: hidden; }
+.hs-tabs { display: flex; gap: .25rem; padding: .55rem; border-bottom: 1px solid var(--color-border-soft); background: var(--color-bg-elevated); overflow-x: auto; }
+.hs-tabs button { flex-shrink: 0; padding: .4rem .8rem; border-radius: .55rem; font-size: .82rem; font-weight: 500; color: var(--color-text-secondary); cursor: pointer; transition: background .15s, color .15s; }
+.hs-tabs button:hover { background: var(--color-bg-elevated-2); color: var(--color-text-primary); }
+.hs-tabs button.on { background: var(--color-accent); color: #fff; }
+.hs-svg { display: block; width: 100%; height: auto; padding: .4rem .6rem 0; background-image: radial-gradient(#161a2b12 1px, transparent 1.2px); background-size: 16px 16px; }
+.hs-edge { stroke: var(--color-edge); stroke-width: 2; transition: stroke .35s, stroke-width .35s; }
+.hs-edge.tree { stroke: var(--color-accent); stroke-width: 4.5; stroke-linecap: round; }
+.hs-edge.probe { stroke: var(--color-amber); stroke-width: 5; }
+.hs-wbox { fill: var(--color-bg-raised); stroke: var(--color-border); transition: stroke .3s; }
+.hs-wbox.tree { stroke: var(--color-accent); }
+.hs-w { font: 600 11px var(--font-mono); fill: var(--color-text-secondary); }
+.hs-v { cursor: pointer; }
+.hs-v:focus-visible { outline: none; }
+.hs-v:focus-visible .hs-disc { stroke: var(--color-accent); stroke-width: 3.5; }
+.hs-disc { fill: #fff; stroke: var(--color-vertex-border); stroke-width: 2; transition: fill .35s, stroke .35s; }
+.hs-v:hover .hs-disc { stroke: var(--color-accent); }
+.hs-name { font: 600 14px var(--font-sans); fill: var(--color-text-primary); pointer-events: none; transition: fill .35s; }
+.hs-v.frontier .hs-disc { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-dasharray: 4 3; }
+.hs-v.done .hs-disc { fill: var(--color-cyan); stroke: var(--color-cyan); }
+.hs-v.done .hs-name, .hs-v.current .hs-name { fill: #fff; }
+.hs-v.current .hs-disc { fill: var(--color-amber); stroke: var(--color-amber); }
+.hs-ring { fill: none; stroke: var(--color-amber); stroke-width: 2; opacity: .5; transform-box: fill-box; transform-origin: center; animation: hs-ring 1.6s ease-out infinite; }
+@keyframes hs-ring { from { transform: scale(.75); opacity: .7; } to { transform: scale(1.25); opacity: 0; } }
+.hs-src { font: 600 10px var(--font-mono); fill: var(--color-amber); letter-spacing: .04em; text-transform: uppercase; pointer-events: none; }
+.hs-lab { fill: var(--color-text-primary); }
+.hs-labt { font: 600 11.5px var(--font-mono); fill: #fff; }
+.hs-foot { padding: .8rem 1rem .9rem; border-top: 1px solid var(--color-border-soft); }
+.hs-cap { min-height: 3.1em; font-size: .93rem; line-height: 1.55; color: var(--color-text-primary); }
+.hs-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin-top: .6rem; }
+.hs-aux { font-size: .8rem; color: var(--color-text-secondary); }
+.hs-aux code { font-family: var(--font-mono); background: var(--color-bg-elevated-2); padding: .15rem .45rem; border-radius: .35rem; color: var(--color-text-primary); }
+.hs-ctl { display: flex; align-items: center; gap: .35rem; }
+.hs-ctl button { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: .55rem; border: 1px solid var(--color-border); background: var(--color-bg-raised); color: var(--color-text-secondary); cursor: pointer; }
+.hs-ctl button:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.hs-ctl button.main { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+.hs-count { font: 500 .75rem var(--font-mono); color: var(--color-text-tertiary); min-width: 2.6rem; text-align: right; }
+.hs-hint { margin-top: .45rem; font-size: .74rem; color: var(--color-text-tertiary); }
+@media (prefers-reduced-motion: reduce) { .hs-ring { animation: none; } }
+
+/* ---- Legenda de cores ---- */
+.hs-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: 1.4rem; font-size: .8rem; color: var(--color-text-secondary); }
+.hs-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.hs-legend i { width: .7rem; height: .7rem; border-radius: 50%; }
+
+/* ---- Cards com capa desenhada ---- */
+.art-card { display: flex; flex-direction: column; height: 100%; background: var(--color-bg-raised); border: 1px solid var(--color-border); border-radius: 1rem; overflow: hidden; box-shadow: var(--shadow-card); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.art-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-raised); border-color: var(--color-accent); }
+.art-card .cover { display: flex; align-items: center; justify-content: center; padding: .9rem; background: var(--color-bg-elevated); border-bottom: 1px solid var(--color-border-soft); background-image: radial-gradient(#161a2b10 1px, transparent 1.2px); background-size: 12px 12px; }
+.art-card .body { display: flex; flex-direction: column; gap: .35rem; padding: .95rem 1.1rem 1.1rem; flex: 1; }
+
+.module-art { width: 100%; max-width: 150px; height: auto; overflow: visible; }
+.ma-e { stroke: var(--color-edge); stroke-width: 2.2; stroke-linecap: round; fill: none; transition: stroke .25s; }
+.ma-e.tree { stroke: var(--color-accent); stroke-width: 3.2; }
+.ma-e.hot { stroke: var(--color-amber); stroke-width: 3; }
+.ma-e.dash { stroke-dasharray: 3 4; }
+.ma-head { fill: var(--color-text-tertiary); }
+.ma-v { fill: #fff; stroke: var(--color-vertex-border); stroke-width: 2; transition: fill .25s, stroke .25s; }
+.ma-v.ok { fill: var(--color-cyan); stroke: var(--color-cyan); }
+.ma-v.acc { fill: var(--color-accent); stroke: var(--color-accent); }
+.ma-v.hot { fill: var(--color-amber); stroke: var(--color-amber); }
+.ma-t { font: 600 11px var(--font-sans); fill: var(--color-text-primary); }
+.ma-t.small { font: 500 8.5px var(--font-mono); fill: var(--color-text-tertiary); }
+.ma-t.inv { fill: #fff; }
+.ma-t.big { font-size: 22px; fill: var(--color-text-secondary); }
+.ma-t.hotT { fill: var(--color-amber); font-weight: 600; }
+.ma-cell { fill: #fff; stroke: var(--color-border-strong); }
+.ma-cell.on { fill: var(--color-accent); stroke: var(--color-accent); }
+.ma-cell.acc, .ma-cell.hot { fill: var(--color-amber); stroke: var(--color-amber); }
+.ma-blob { stroke-width: 1.5; stroke-dasharray: 4 3; }
+.ma-blob.ok { fill: var(--color-cyan-soft); stroke: var(--color-cyan); }
+.ma-blob.acc { fill: var(--color-accent-soft); stroke: var(--color-accent); }
+.ma-blob.hot { fill: var(--color-amber-soft); stroke: var(--color-amber); }
+.ma-trail { fill: none; stroke: var(--color-amber); stroke-width: 6; stroke-linejoin: round; opacity: .22; stroke-dasharray: 280; stroke-dashoffset: 280; }
+.art-card:hover .ma-trail { animation: ma-draw 1.4s ease forwards; }
+.art-card:hover .ma-e.tree { stroke: var(--color-amber); }
+@keyframes ma-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .art-card, .art-card:hover { transform: none; } .ma-trail { stroke-dashoffset: 0; } }

@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { modulesForExam } from '@/content/modules';
 import { useActiveExam } from '@/store/activeExam';
 import { topicsForModule } from '@/content/topics';
-import { Card, ExamLikelihoodBadge, IconChip } from '@/components/ui';
-import { moduleIcon } from './moduleIcons';
+import { ExamLikelihoodBadge } from '@/components/ui';
+import '@/features/home/home.css';
+import { ModuleArt } from './ModuleArt';
 import type { ExamLikelihood } from '@/content/types';
 
 const LIKELIHOOD_RANK: Record<ExamLikelihood, number> = { low: 0, medium: 1, high: 2 };
@@ -38,11 +39,12 @@ export function ModuleListPage() {
               transition={{ duration: 0.35, delay: 0.06 * i }}
             >
               <Link to={`/modulos/${module.id}`} className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)] rounded-2xl">
-                <Card interactive padding="lg" className="flex h-full flex-col gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <IconChip icon={moduleIcon(module.icon)} tone="accent" size="lg" />
-                    <ExamLikelihoodBadge level={moduleLikelihood(module.id)} />
+                <div className="art-card">
+                  <div className="cover relative">
+                    <ModuleArt moduleId={module.id} />
+                    <ExamLikelihoodBadge level={moduleLikelihood(module.id)} className="absolute right-3 top-3" />
                   </div>
+                  <div className="body">
                   <div className="flex flex-col gap-1.5">
                     <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
                       {isReview ? `Revisão da ${module.exam} (cai, a prova é cumulativa)` : `Módulo ${module.order.toString().padStart(2, '0')}`}
@@ -53,7 +55,8 @@ export function ModuleListPage() {
                   <span className="mt-auto text-xs text-[var(--color-text-tertiary)]">
                     {topicCount} tópico{topicCount !== 1 ? 's' : ''}
                   </span>
-                </Card>
+                  </div>
+                </div>
               </Link>
             </motion.div>
           );

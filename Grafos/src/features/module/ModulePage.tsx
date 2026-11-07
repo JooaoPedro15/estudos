@@ -3,8 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, CircleHelp } from 'lucide-react';
 import { getModule } from '@/content/modules';
 import { topicsForModule } from '@/content/topics';
-import { Button, Card, ExamLikelihoodBadge, IconChip } from '@/components/ui';
-import { moduleIcon } from './moduleIcons';
+import { Button, Card, ExamLikelihoodBadge } from '@/components/ui';
+import { ModuleArt } from './ModuleArt';
+import '@/features/home/home.css';
 
 function teaser(text: string, maxLength = 140): string {
   if (text.length <= maxLength) return text;
@@ -36,8 +37,10 @@ export function ModulePage() {
         <Link to="/modulos" className="inline-flex w-fit items-center gap-1 text-xs font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
           <ArrowLeft size={13} /> Todos os módulos
         </Link>
-        <div className="flex items-center gap-3">
-          <IconChip icon={moduleIcon(module.icon)} tone="accent" size="lg" />
+        <div className="flex items-center gap-4">
+          <span className="flex h-20 w-28 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-raised)] p-2 shadow-[var(--shadow-card)]">
+            <ModuleArt moduleId={module.id} />
+          </span>
           <div className="flex flex-col gap-1">
             <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
               Módulo {module.order.toString().padStart(2, '0')}

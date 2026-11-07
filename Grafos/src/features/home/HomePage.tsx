@@ -9,6 +9,9 @@ import { modulesForExam } from '@/content/modules';
 import { useActiveExam } from '@/store/activeExam';
 import { topicsForModule, getTopic } from '@/content/topics';
 import { loadProgress, topicMasteryPercent } from '@/store/progress';
+import { ModuleArt } from '@/features/module/ModuleArt';
+import { HeroScene } from './HeroScene';
+import './home.css';
 
 interface QuickAction {
   icon: LucideIcon;
@@ -57,7 +60,7 @@ function QuickActionCard({ action, index, exam }: { action: QuickAction; index: 
         whileTap={{ scale: 0.98 }}
         className={clsx(
           'flex h-full flex-col items-start gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-raised)] p-5 text-left shadow-[var(--shadow-card)]',
-          'transition-[border-color,box-shadow] duration-200 ease-out hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-glow-accent)]',
+          'transition-[border-color,box-shadow] duration-200 ease-out hover:border-[var(--color-accent)] hover:shadow-[var(--shadow-raised)]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]',
         )}
       >
@@ -71,28 +74,23 @@ function QuickActionCard({ action, index, exam }: { action: QuickAction; index: 
   );
 }
 
-function ModuleRow({ moduleId, title, percent, examLikelihood, index }: { moduleId: string; title: string; percent: number; examLikelihood: ExamLikelihood; index: number }) {
+function ModuleCard({ moduleId, order, title, percent, examLikelihood, index }: { moduleId: string; order: number; title: string; percent: number; examLikelihood: ExamLikelihood; index: number }) {
   return (
-    <Link to={`/modulos/${moduleId}`} className="block">
-      <motion.div
-        initial={{ opacity: 0, x: -8 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, delay: 0.05 * index }}
-        className={clsx(
-          'flex w-full flex-col gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-raised)] p-4 text-left shadow-[var(--shadow-card)]',
-          'transition-[border-color,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-raised)]',
-          'sm:flex-row sm:items-center sm:justify-between',
-        )}
-      >
-        <div className="flex min-w-0 flex-col gap-2">
-          <p className="text-sm font-medium text-[var(--color-text-primary)]">{title}</p>
-          <div className="w-56 max-w-full">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 * index }} className="h-full">
+      <Link to={`/modulos/${moduleId}`} className="art-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]">
+        <div className="cover"><ModuleArt moduleId={moduleId} /></div>
+        <div className="body">
+          <div className="flex items-center justify-between gap-2">
+            <span className="mono text-xs text-[var(--color-amber)]">{String(order).padStart(2, '0')}</span>
+            <ExamLikelihoodBadge level={examLikelihood} className="shrink-0" />
+          </div>
+          <p className="font-semibold leading-snug text-[var(--color-text-primary)]">{title}</p>
+          <div className="mt-auto pt-2">
             <ProgressBar value={percent} size="sm" label={`Progresso de ${title}`} />
           </div>
         </div>
-        <ExamLikelihoodBadge level={examLikelihood} className="shrink-0" />
-      </motion.div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -113,23 +111,28 @@ export function HomePage() {
   const continuePercent = lastTopic ? topicMasteryPercent(progress?.topicStats[lastTopic.id]) : 0;
 
   return (
-    <div className="flex flex-col gap-10">
-      <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-col gap-1.5">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Grafos</h1>
-        <p className="text-[var(--color-text-secondary)]">Preparação para {exam} — Teoria dos Grafos, Prof. Silvio Jamil.</p>
-      </motion.header>
-
-      {exam === 'P2' && (
-        <Link to="/prova2" className="block">
-          <div className="flex flex-col gap-2 rounded-2xl border border-[var(--color-accent)] bg-[var(--color-accent-soft)] p-5 transition-colors hover:bg-[var(--color-accent)]/25 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-lg font-semibold text-[var(--color-text-primary)]">Estudo P2</span>
-              <span className="text-sm text-[var(--color-text-secondary)]">O roteiro de cada dia até a prova, as 9 provas antigas e o que mais cai.</span>
-            </div>
-            <span className="text-sm font-medium text-[var(--color-accent-strong)]">Abrir roteiro →</span>
+    <div className="flex flex-col gap-12">
+      <section className="home-hero">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <p className="eyebrow">Teoria dos Grafos · {exam} · Prof. Silvio Jamil</p>
+          <h1>
+            Veja o <em>algoritmo</em> andar no grafo. Depois, <span>resolva a prova.</span>
+          </h1>
+          <p className="lead">Aulas com animação passo a passo, laboratório para desenhar seus grafos e questões no formato das provas antigas.</p>
+          <div className="cta">
+            <Button size="lg" onClick={() => navigate(exam === 'P2' ? '/prova2' : `/modulos/${modules[0].id}`)}>{exam === 'P2' ? 'Abrir roteiro da P2' : 'Começar pelo módulo 1'}</Button>
+            <Button size="lg" variant="secondary" onClick={() => navigate('/playground')}>Desenhar um grafo</Button>
           </div>
-        </Link>
-      )}
+          <div className="hs-legend" aria-hidden="true">
+            <span><i style={{ background: 'var(--color-amber)' }} />vértice atual</span>
+            <span><i style={{ background: 'var(--color-cyan)' }} />já fechado</span>
+            <span><i style={{ background: 'var(--color-accent)' }} />aresta escolhida</span>
+          </div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.08 }}>
+          <HeroScene />
+        </motion.div>
+      </section>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
         <Card padding="lg" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -153,25 +156,29 @@ export function HomePage() {
         </Card>
       </motion.div>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ações rápidas">
+      <section className="flex flex-col gap-4" aria-label="Formas de estudar">
+        <h2 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">Formas de estudar</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {QUICK_ACTIONS.map((action, i) => (
           <QuickActionCard key={action.title} action={action} index={i} exam={exam} />
         ))}
+        </div>
       </section>
 
       <section id="modulos" className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Módulos da P1</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">Módulos da {exam}</h2>
           <Link to="/modulos" className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
             ver todos
           </Link>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {modules.map((m, i) => (
-            <ModuleRow
+            <ModuleCard
               key={m.id}
               moduleId={m.id}
-              title={`${String(m.order).padStart(2, '0')} — ${m.title}`}
+              order={m.order}
+              title={m.title}
               percent={moduleProgressPercent(m.id, progress)}
               examLikelihood={moduleExamLikelihood(m.id)}
               index={i}
