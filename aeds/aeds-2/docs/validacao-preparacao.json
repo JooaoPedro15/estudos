@@ -1,0 +1,154 @@
+[
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Anos.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Estruturas.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Fundamentos.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Heap.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Hibrida.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Parcial.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Parcial.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Prefixos.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Reservas.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Sensores.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-dificil/Q1_Dicionario.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-dificil/Q2_SimetricasJava.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-dificil/Q2_simetricas.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-dificil/Q3_ToLista.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-facil/Q1_Agenda.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-facil/Q2_EspelharJava.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-facil/Q2_espelhar.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-facil/Q3_SelecaoParcial.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-media/Q1_MatrizDeLista.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-media/Q1_matriz_lista.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-media/Q2_RemoverFolhasJava.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-media/Q2_removerFolhas.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/manha-media/Q3_QuicksortParcial.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/c/arvore_ops.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/c/lista_dupla_circular.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/c/lista_ops.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/java/ArvoreOps.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/java/HibridasOps.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/java/ListaOps.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/matriz/java/OrdenacaoOps.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-dificil/Q2_DiagUnificada.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-dificil/Q2_diag_unificada.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-dificil/Q3_AncestraisJava.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-dificil/Q3_ancestrais.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-facil/Q2_ArvoreAlunos.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-facil/Q3_listaOrdenada.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-media/Q2_TreeSort.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/tarde-media/Q3_AgendaRemover.java",
+    "resultado": "aprovado"
+  }
+]
