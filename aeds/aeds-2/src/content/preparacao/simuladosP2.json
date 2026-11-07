@@ -1,0 +1,200 @@
+[
+  {
+    "id": "manha-dificil",
+    "exam": "p2",
+    "turn": "manha",
+    "level": "dificil",
+    "questions": [
+      {
+        "id": "manha-dificil-1",
+        "title": "1 (5 pontos) — Dicionário em árvore de listas, inserção ordenada (Java)",
+        "body": "Considere uma estrutura de dados do tipo **árvore de listas**, utilizada para armazenar palavras de um dicionário. Os nós da árvore armazenam a letra inicial, enquanto as palavras completas são mantidas nas listas correspondentes, **em ordem alfabética**.\n\nImplemente, em Java, o método `public void inserir(String palavra)` para inserir uma palavra no Dicionário. Diferentemente da versão vista em sala, o método **não** deve pressupor que o nó da letra inicial já exista na árvore: caso não exista, ele deve ser criado, sabendo que a árvore de letras é uma árvore binária de pesquisa. A inserção na lista deve ser feita de forma **ordenada**, isto é, a lista deve permanecer em ordem alfabética após a inserção, e a referência `ultimo` deve continuar correta. Na sua solução, considere o código fornecido e assuma que a lista encadeada **possui célula cabeça**. Apresente, em função de θ, a complexidade do seu método no melhor e no pior caso, em função do número de letras (no máximo 26) e do tamanho m da lista do nó.\n\n```java\nclass Celula { String palavra; Celula prox;\n               Celula(String p) { palavra = p; prox = null; } }\nclass No     { char letra; No esq, dir; Celula primeiro, ultimo;\n               No(char c) { letra = c; primeiro = ultimo = new Celula(null); } }\nclass Dicionario {\n   private No raiz;\n   public void inserir(String palavra) {\n      // IMPLEMENTAR\n   }\n}\n```",
+        "sources": [
+          "manha-dificil/Q1_Dicionario.java"
+        ]
+      },
+      {
+        "id": "manha-dificil-2",
+        "title": "2 (5 pontos) — Árvores simétricas e cópia espelhada (Java e C)",
+        "body": "Duas árvores binárias são **simétricas** quando uma é a imagem espelhada da outra: a subárvore da esquerda de uma é igual à subárvore da direita da outra, com os mesmos elementos, e vice-versa. Considere os códigos abaixo.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   static boolean simetricas(No a, No b) { /* IMPLEMENTAR */ }\n   static No clonarEspelhado(No i)       { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* novoNo(int elemento);        // já implementada\nbool simetricas(No* a, No* b);   // IMPLEMENTAR\nNo* clonarEspelhado(No* i);      // IMPLEMENTAR\n```\n\n**(a)** (2 pts) Implemente, em Java, `simetricas`, que retorna `true` se `b` for a imagem espelhada de `a`, e `clonarEspelhado`, que cria e retorna uma **nova** árvore que é o espelho de `i`, sem alterar a original.\n**(b)** (2 pts) Implemente as mesmas duas funções em C, alocando os novos nós com `novoNo` (o Walisson codou no aulão em C).\n**(c)** (1 pt) Apresente a complexidade de cada função em função de θ. Que valor `simetricas(r, clonarEspelhado(r))` retorna para qualquer árvore `r`? Justifique.",
+        "sources": [
+          "manha-dificil/Q2_SimetricasJava.java",
+          "manha-dificil/Q2_simetricas.c"
+        ]
+      },
+      {
+        "id": "manha-dificil-3",
+        "title": "3 (5 pontos) — Árvore − lista → lista ordenada (Java)",
+        "body": "Faça o método em Java `Celula toLista(No raiz, Celula proibidos)`, que recebe a referência `raiz` de uma árvore binária de pesquisa com n elementos distintos, cujos nós são do tipo `No`, e a referência da célula cabeça de uma lista simplesmente encadeada `proibidos`, ordenada de forma crescente, com m elementos. O método deve criar uma lista simplesmente encadeada contendo todos os elementos da árvore que **não** pertencem à lista `proibidos` e retornar a referência da **célula cabeça** da lista criada. Ao final, os elementos da lista devem estar **ordenados** de forma crescente, e a solução deve ter custo **Θ(n + m)**. Considere o código básico apresentado abaixo e justifique (i) a estratégia utilizada para garantir que os elementos da lista estejam ordenados e (ii) por que a complexidade é Θ(n + m).\n\n```java\nclass No      { int elemento; No esq, dir; }\nclass Celula  { int elemento; Celula prox; Celula(int x) { elemento = x; } }\nCelula toLista(No raiz, Celula proibidos) {\n   // IMPLEMENTAR\n}\n```",
+        "sources": [
+          "manha-dificil/Q3_ToLista.java"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "manha-facil",
+    "exam": "p2",
+    "turn": "manha",
+    "level": "facil",
+    "questions": [
+      {
+        "id": "manha-facil-1",
+        "title": "1 (5 pontos) — Árvore de listas (Java)",
+        "body": "Considere uma estrutura de dados do tipo **árvore de listas**, conforme ilustrado na figura a seguir, utilizada para armazenar os contatos de uma agenda. Os nós da árvore armazenam a letra inicial, enquanto os contatos são mantidos nas listas correspondentes àquela letra.\n\nImplemente, em Java, o método `public int contarContatos(char letra)`, que retorna a quantidade de contatos cujo nome começa com a letra recebida como parâmetro. Caso a letra não exista na árvore, o método deve retornar 0. Na sua solução, considere o código fornecido, assuma que **todas as listas possuem célula cabeça** e crie os métodos auxiliares que julgar necessários. Apresente, em função de θ, a complexidade do seu método no melhor e no pior caso, considerando a árvore de letras balanceada e n contatos.\n\n```java\nclass Contato { String nome, telefone; int cpf; }\nclass Celula  { Contato contato; Celula prox;\n                Celula(Contato c) { contato = c; prox = null; } }\nclass No      { char letra; No esq, dir; Celula primeiro, ultimo;\n                No(char letra) { this.letra = letra; primeiro = ultimo = new Celula(null); } }\nclass Agenda {\n   private No raiz;\n   public int contarContatos(char letra) {\n      // IMPLEMENTAR\n   }\n}\n```\n\n```\n                 (M)── Maria ─ Mário\n               /     \\\n           (F)         (T)── Tânia ─ Téo ─ Tiago\n          /   \\       /   \\\n        (C)   (I)   (P)   (W)── Wagner\n         └── Caio ─ Clara\n```",
+        "sources": [
+          "manha-facil/Q1_Agenda.java"
+        ]
+      },
+      {
+        "id": "manha-facil-2",
+        "title": "2 (5 pontos) — Espelhar árvore (Java e C)",
+        "body": "Considere uma árvore binária de pesquisa sem elementos repetidos, cujos nós são do tipo `No`, conforme os códigos abaixo. Deseja-se transformar a árvore em sua **imagem espelhada**, isto é, trocar a subárvore da esquerda com a da direita em todos os nós.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void inserir(int x) { /* já implementado (ABP sem repetidos) */ }\n   public void espelhar() { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* raiz;\nvoid inserir(int x);               // já implementada\nvoid espelhar(No* i) {\n   // IMPLEMENTAR\n}\n```\n\n**(a)** (2 pts) Implemente, em Java, o método `public void espelhar()`, seguindo o padrão de método público que chama um método privado recursivo.\n**(b)** (2 pts) Implemente a mesma operação em C, com a assinatura `void espelhar(No* i)` (o Walisson codou no aulão em C).\n**(c)** (1 pt) Desenhe a árvore resultante da inserção de 10, 5, 15, 2, 7 e 20, antes e depois de espelhar, e diga o que o caminhamento central imprime em cada caso, justificando. Apresente a complexidade da operação em função de θ.",
+        "sources": [
+          "manha-facil/Q2_EspelharJava.java",
+          "manha-facil/Q2_espelhar.c"
+        ]
+      },
+      {
+        "id": "manha-facil-3",
+        "title": "3 (5 pontos) — Seleção parcial (Java)",
+        "body": "Considere o algoritmo de ordenação por **Seleção** visto em sala de aula e a classe abaixo. Implemente, em Java, o método `void selecaoParcial(int k)`, alterando o mínimo possível o algoritmo original, de forma que, ao final, as k primeiras posições do array contenham os k menores elementos em ordem crescente. Em seguida, apresente o número de comparações C(n) e de movimentações M(n) do seu método em função de n e k, e a sua ordem de complexidade.\n\n```java\nclass Ordenacao {\n   int[] array; int n;\n   void swap(int i, int j) { int tmp = array[i]; array[i] = array[j]; array[j] = tmp; }\n   void selecaoParcial(int k) {\n      // IMPLEMENTAR\n   }\n}\n```",
+        "sources": [
+          "manha-facil/Q3_SelecaoParcial.java"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "manha-media",
+    "exam": "p2",
+    "turn": "manha",
+    "level": "media",
+    "questions": [
+      {
+        "id": "manha-media-1",
+        "title": "1 (5 pontos) — Matriz de listas (C)",
+        "body": "Considere uma matriz flexível com l linhas e c colunas em que cada célula, do tipo `CelulaMat`, aponta para uma lista simplesmente encadeada **com célula cabeça**, conforme ilustrado na figura a seguir. As células da matriz estão ligadas pelos ponteiros `esq`, `dir`, `sup` e `inf`, e o ponteiro `inicio` aponta para a célula (0, 0).\n\nImplemente, em C, as funções `int inserir(MatrizDeLista* m, int i, int j, int x)`, que insere x no **fim** da lista da célula (i, j) e retorna 0 caso a posição seja inválida (1 caso contrário), e `bool pesquisar(MatrizDeLista* m, int x)`, que retorna `true` se x estiver em **alguma** lista da matriz, interrompendo a busca assim que o elemento for encontrado. Não utilize índices para percorrer a matriz. Apresente, em função de θ, a complexidade de cada função em termos de l, c e n (total de elementos armazenados).\n\n```c\ntypedef struct CelulaLista { int elemento; struct CelulaLista* prox; } CelulaLista;\ntypedef struct CelulaMat {\n   struct CelulaMat *esq, *dir, *inf, *sup;\n   CelulaLista *primeiro, *ultimo;      // primeiro = célula cabeça\n} CelulaMat;\ntypedef struct MatrizDeLista { CelulaMat* inicio; int linhas, colunas; } MatrizDeLista;\nCelulaLista* novaCelulaLista(int x);   // já implementada\nint inserir(MatrizDeLista* m, int i, int j, int x);   // IMPLEMENTAR\nbool pesquisar(MatrizDeLista* m, int x);              // IMPLEMENTAR\n```\n\n```\n inicio\n   ↓\n [a00]→[a01]→[a02]        cada aij aponta para a sua lista:  [cabeça]→ 5 → 8 → 13\n   ↓      ↓      ↓\n [a10]→[a11]→[a12]\n```",
+        "sources": [
+          "manha-media/Q1_matriz_lista.c",
+          "manha-media/Q1_MatrizDeLista.java"
+        ]
+      },
+      {
+        "id": "manha-media-2",
+        "title": "2 (5 pontos) — Remover folhas (Java e C)",
+        "body": "Considere uma árvore binária de pesquisa cujos nós são do tipo `No`, conforme os códigos abaixo. Deseja-se remover **todas as folhas da árvore original**: os nós que se tornarem folhas depois da remoção devem permanecer na árvore.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void removerFolhas() { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* raiz;\nvoid removerFolhas(No** i) {\n   // IMPLEMENTAR: chamada removerFolhas(&raiz)\n}\n```\n\n**(a)** (2 pts) Implemente, em Java, o método `public void removerFolhas()`. Lembre que, em Java, o método recursivo privado deve **retornar o nó** para que o pai seja atualizado.\n**(b)** (2 pts) Implemente, em C, a função `void removerFolhas(No** i)`, liberando a memória das folhas removidas (o Walisson codou no aulão em C).\n**(c)** (1 pt) Explique por que, em C, o parâmetro precisa ser `No**` e o que aconteceria se fosse `No*`. Desenhe a árvore resultante, para a árvore criada com a inserção de 10, 5, 15, 2, 7 e 20.",
+        "sources": [
+          "manha-media/Q2_removerFolhas.c",
+          "manha-media/Q2_RemoverFolhasJava.java"
+        ]
+      },
+      {
+        "id": "manha-media-3",
+        "title": "3 (5 pontos) — Quicksort parcial (Java)",
+        "body": "Considere o algoritmo **Quicksort** visto em sala de aula, com o pivô escolhido no meio do intervalo. Implemente, em Java, o método `void quicksortParcial(int esq, int dir, int k)`, que altera o Quicksort de forma que, ao final, `array[0..k-1]` contenha os k menores elementos em ordem crescente, evitando ordenar partes do array que não interferem nesse resultado. Em seguida, explique por que a segunda chamada recursiva só deve acontecer quando `i < k` e apresente a complexidade esperada e a de pior caso do seu método.\n\n```java\nclass Ordenacao {\n   int[] array; int n;\n   void swap(int i, int j) { int t = array[i]; array[i] = array[j]; array[j] = t; }\n   void quicksortParcial(int esq, int dir, int k) { /* IMPLEMENTAR */ }\n}\n```",
+        "sources": [
+          "manha-media/Q3_QuicksortParcial.java"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tarde-dificil",
+    "exam": "p2",
+    "turn": "tarde",
+    "level": "dificil",
+    "questions": [
+      {
+        "id": "tarde-dificil-1",
+        "title": "1 (5 pontos) — Heap parcial: expedições de observação",
+        "body": "Considere um vetor de registros de expedições, com prioridade inteira e código inteiro. Implemente Heap parcial, mantendo nas k primeiras posições as k expedições de maior prioridade, com código crescente como desempate. Os códigos são distintos e 0 ≤ k ≤ n. Não ordene o vetor inteiro como atalho. Na sua solução, considere o registro Expedicao { prioridade, codigo } e apresente a complexidade do algoritmo. Para a versão estável, registros equivalentes preservam a ordem de entrada. Exemplo autoral: (8, 41), (12, 73), (12, 25), (4, 16), k=2 → (12, 25), (12, 73).",
+        "sources": [
+          "autoral/Heap.java"
+        ]
+      },
+      {
+        "id": "tarde-dificil-2",
+        "title": "2 (5 pontos) — Diagonal unificada da matriz de listas (C)",
+        "body": "Considere uma matriz flexível quadrada com l linhas e l colunas, em que cada célula, do tipo `CelulaMatriz`, aponta para uma lista simplesmente encadeada **com célula cabeça** (o ponteiro `inicio` de cada célula da matriz aponta para a cabeça e `fim` para a última célula da lista). As células da matriz estão ligadas pelos ponteiros `esq`, `dir`, `sup` e `inf`.\n\nImplemente, em C, a função `CelulaDupla* diagUnificada(Matriz* m)`, que constrói uma **lista duplamente encadeada** contendo todos os elementos das listas da **diagonal principal**, concatenadas na ordem a₀₀, a₁₁, a₂₂, …, **sem** as células cabeça, e retorna o ponteiro para a primeira célula da lista criada (ou `NULL`, caso as listas da diagonal estejam vazias). Os ponteiros `prox` e `ant` de todas as células devem estar corretos. Apresente, em função de θ, o custo da sua solução em termos de l e de d (total de elementos na diagonal).\n\n```c\ntypedef struct Celula { int elemento; struct Celula* prox; } Celula;\ntypedef struct CelulaMatriz {\n   struct CelulaMatriz *esq, *dir, *inf, *sup;\n   Celula *inicio, *fim;                  // inicio = célula cabeça\n} CelulaMatriz;\ntypedef struct CelulaDupla { int elemento; struct CelulaDupla *prox, *ant; } CelulaDupla;\ntypedef struct Matriz { CelulaMatriz* inicio; int linha, coluna; } Matriz;\nCelulaDupla* novaCelulaDupla(int x);       // já implementada\nCelulaDupla* diagUnificada(Matriz* m);     // IMPLEMENTAR\n```",
+        "sources": [
+          "tarde-dificil/Q2_DiagUnificada.java",
+          "tarde-dificil/Q2_diag_unificada.c"
+        ]
+      },
+      {
+        "id": "tarde-dificil-3",
+        "title": "3 (5 pontos) — ABP: ancestrais e nós com um filho (Java)",
+        "body": "Considere uma árvore binária de pesquisa sem elementos repetidos, cujos nós são do tipo `No`, conforme o código abaixo. Implemente, em Java, o método `public int contarUmFilho()`, que retorna a quantidade de nós que possuem **exatamente um** filho, e o método `public boolean mostrarAncestrais(int x)`, que imprime **x e seus ancestrais, de x até a raiz**, e retorna `false`, sem imprimir nada, caso x não esteja na árvore. Por exemplo, para a árvore criada com a inserção de 10, 5, 15, 2, 7 e 20 e x = 7, o método imprime `7 5 10`. Dica: imprima **na volta** da recursão. Apresente a complexidade do segundo método no caso de uma árvore degenerada.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void inserir(int x) { /* já implementado */ }\n   public int contarUmFilho() { /* IMPLEMENTAR */ }\n   public boolean mostrarAncestrais(int x) { /* IMPLEMENTAR */ }\n}\n```",
+        "sources": [
+          "tarde-dificil/Q3_AncestraisJava.java",
+          "tarde-dificil/Q3_ancestrais.c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tarde-facil",
+    "exam": "p2",
+    "turn": "tarde",
+    "level": "facil",
+    "questions": [
+      {
+        "id": "tarde-facil-1",
+        "title": "1 (5 pontos) — Inserção estável: expedições de observação",
+        "body": "Considere um vetor de registros de expedições, com prioridade inteira e código inteiro. Implemente Inserção estável, mantendo nas k primeiras posições as k expedições de maior prioridade, com código crescente como desempate. Os códigos são distintos e 0 ≤ k ≤ n. Não ordene o vetor inteiro como atalho. Na sua solução, considere o registro Expedicao { prioridade, codigo } e apresente a complexidade do algoritmo. Para a versão estável, registros equivalentes preservam a ordem de entrada. Exemplo autoral: (8, 41), (12, 73), (12, 25), (4, 16), k=2 → (12, 25), (12, 73).",
+        "sources": [
+          "autoral/Parcial.java"
+        ]
+      },
+      {
+        "id": "tarde-facil-2",
+        "title": "2 (5 pontos) — ABP de alunos (Java)",
+        "body": "Considere uma árvore binária de pesquisa que armazena alunos, cuja chave é a **matrícula**, conforme o código abaixo. Implemente, em Java, os métodos `public int contarNosComDoisFilhos()`, que retorna a quantidade de nós que possuem os dois filhos, e `public void mostrarCentral()`, que imprime as matrículas em ordem crescente. Os dois métodos devem seguir o padrão de método público que chama um método privado recursivo passando a raiz. Por fim, para as matrículas inseridas na ordem 50, 30, 70, 20, 40, 60, 80, apresente o valor retornado pelo primeiro método e a saída do segundo.\n\n```java\nclass Aluno { int matricula; String nome; }\nclass No    { Aluno aluno; No esq, dir; No(Aluno a) { aluno = a; } }\nclass ArvoreAlunos {\n   private No raiz;                       // chave = matricula\n   public void inserir(Aluno a) { /* já implementado */ }\n   public int contarNosComDoisFilhos() { /* IMPLEMENTAR */ }\n   public void mostrarCentral() { /* IMPLEMENTAR */ }\n}\n```",
+        "sources": [
+          "tarde-facil/Q2_ArvoreAlunos.java"
+        ]
+      },
+      {
+        "id": "tarde-facil-3",
+        "title": "3 (5 pontos) — Lista ordenada em C",
+        "body": "Considere uma lista simplesmente encadeada **com célula cabeça**, implementada em C com os ponteiros globais `primeiro` e `ultimo`, cujos elementos devem ser mantidos em **ordem crescente**. Implemente, em C, a função `void inserirOrdenado(int x)`, que insere x mantendo a ordem da lista, e a função `int removerValor(int x)`, que remove a primeira ocorrência de x, **liberando a memória** da célula removida e mantendo o ponteiro `ultimo` correto, e retorna 1 se removeu ou 0 se x não estiver na lista. Apresente a complexidade das duas funções no melhor e no pior caso.\n\n```c\ntypedef struct Celula { int elemento; struct Celula* prox; } Celula;\nCelula* primeiro;   // célula cabeça\nCelula* ultimo;\nCelula* novaCelula(int x);   // já implementada\nvoid inserirOrdenado(int x); // IMPLEMENTAR\nint removerValor(int x);     // IMPLEMENTAR\n```",
+        "sources": [
+          "tarde-facil/Q3_listaOrdenada.c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tarde-media",
+    "exam": "p2",
+    "turn": "tarde",
+    "level": "media",
+    "questions": [
+      {
+        "id": "tarde-media-1",
+        "title": "1 (5 pontos) — Quick parcial: expedições de observação",
+        "body": "Considere um vetor de registros de expedições, com prioridade inteira e código inteiro. Implemente Quick parcial, mantendo nas k primeiras posições as k expedições de maior prioridade, com código crescente como desempate. Os códigos são distintos e 0 ≤ k ≤ n. Não ordene o vetor inteiro como atalho. Na sua solução, considere o registro Expedicao { prioridade, codigo } e apresente a complexidade do algoritmo. Para a versão estável, registros equivalentes preservam a ordem de entrada. Exemplo autoral: (8, 41), (12, 73), (12, 25), (4, 16), k=2 → (12, 25), (12, 73).",
+        "sources": [
+          "autoral/Parcial.c"
+        ]
+      },
+      {
+        "id": "tarde-media-2",
+        "title": "2 (5 pontos) — TreeSort (Java)",
+        "body": "O **TreeSort** é um algoritmo de ordenação que insere todos os elementos de um array em uma árvore binária de pesquisa e, em seguida, utiliza um caminhamento para obtê-los em ordem. Considere o código abaixo e implemente, em Java, o método `public int[] sort(int[] array)`, que retorna um **novo** array com os elementos de `array` em ordem crescente. Observe que o array **pode conter elementos repetidos**, que não podem ser perdidos. Faça a análise de complexidade do seu método, em número de comparações, no melhor e no pior caso, e indique qual entrada gera o pior caso.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass TreeSort {\n   private No raiz; private int n;\n   public int[] sort(int[] array) { /* IMPLEMENTAR */ }\n}\n```",
+        "sources": [
+          "tarde-media/Q2_TreeSort.java"
+        ]
+      },
+      {
+        "id": "tarde-media-3",
+        "title": "3 (5 pontos) — Agenda: remover contato e pesquisar por CPF (Java)",
+        "body": "Considere a estrutura de dados do tipo **árvore de listas** vista em sala de aula para representar uma Agenda: os nós da árvore armazenam a letra inicial, e cada nó possui uma lista de contatos **com célula cabeça**, conforme o código abaixo.\n\nImplemente, em Java, o método `public boolean remover(String nome)`, que remove o contato com o nome recebido da lista do nó correspondente à sua letra inicial, mantendo a referência `ultimo` correta, e retorna `false` caso o contato não exista. Implemente também o método `public Contato pesquisarPorCpf(int cpf)`, que retorna o contato com o CPF recebido ou `null`, lembrando que o CPF **não** é a chave da árvore; a busca deve ser interrompida assim que o contato for encontrado. Compare, em função de θ, o custo dos dois métodos.\n\n```java\nclass Contato { String nome; int cpf; }\nclass Celula  { Contato contato; Celula prox; Celula(Contato c) { contato = c; } }\nclass No      { char letra; No esq, dir; Celula primeiro, ultimo;\n                No(char c) { letra = c; primeiro = ultimo = new Celula(null); } }\nclass Agenda { private No raiz;\n   public boolean remover(String nome) { /* IMPLEMENTAR */ }\n   public Contato pesquisarPorCpf(int cpf) { /* IMPLEMENTAR */ } }\n```",
+        "sources": [
+          "tarde-media/Q3_AgendaRemover.java"
+        ]
+      }
+    ]
+  }
+]
