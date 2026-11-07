@@ -318,9 +318,10 @@ export function App() {
         if (!drill.source.endsWith('-pratica')) {
           return false;
         }
+        if (provaScope && provaScope !== 'reav') return drill.source === `prova${provaScope.slice(1)}-pratica`;
         return !provaScopeModuleIds || provaScopeModuleIds.includes(drill.moduleId ?? drill.domainId);
       }),
-    [provaScopeModuleIds],
+    [provaScope, provaScopeModuleIds],
   );
   const oldExamDrills = useMemo(() => (provaScope ? getOldExamDrills(provaScope) : []), [provaScope]);
   const practiceDrills = isPraticaMode
@@ -329,7 +330,9 @@ export function App() {
       ? oldExamDrills
       : getDrillsForModule(practiceModuleId ?? 'all', provaScopeModuleIds);
   const practiceSession =
-    game.practiceSession ?? createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
+    game.practiceSession && practiceSessionMatchesDrills(game.practiceSession, practiceDrills)
+      ? game.practiceSession
+      : createPracticeSession(practiceDrills, { mode: 'quick', targetCount: 2 });
   const currentPracticeDrill = getCurrentPracticeDrill(practiceDrills, practiceSession);
   const lista2QuestionType: ConceptualDrawingType = activeMode === 'drawing' ? 'desenho' : 'conceitual';
   const lista2ModuleId = activeMode === 'drawing' ? drawingModuleId : conceptualModuleId;

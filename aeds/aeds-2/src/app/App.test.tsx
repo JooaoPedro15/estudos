@@ -267,3 +267,14 @@ test('mostra explicacao linha a linha quando a pessoa pede ensino', async () => 
   expect(within(teaching).getByText(/private int contar/)).toBeInTheDocument();
   expect(within(teaching).getByText(/Subarvore vazia/)).toBeInTheDocument();
 });
+
+test('abre a preparação e retorna ao treino prático da avaliação escolhida', async () => {
+  const user=userEvent.setup(); render(<App/>);
+  await user.click(screen.getByRole('button',{name:'Preparar Prova 2'}));
+  expect(await screen.findByRole('heading',{name:/Treine com direção/})).toBeInTheDocument();
+  await user.click(screen.getByRole('button',{name:'Treinar'}));
+  await user.click(screen.getByRole('button',{name:'Prática'}));
+  await user.click(screen.getByRole('button',{name:'Abrir treino guiado existente'}));
+  expect(screen.getAllByText(/Prova 2: prova pratica/).length).toBeGreaterThan(0);
+  expect(screen.getByText('Pratica: soma da diagonal principal')).toBeInTheDocument();
+});
