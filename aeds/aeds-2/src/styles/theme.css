@@ -15,69 +15,73 @@
   --text-xl: 1.35rem;
   --text-2xl: 1.75rem;
 
-  /* Superfícies — tema escuro, tipo ferramenta de dev */
-  --bg: #0a0d13;
-  --bg-soft: #0d1119;
-  --surface: #10141c;
-  --surface-2: #161b25;
-  --surface-3: #1c2230;
-  --border: #242b3a;
-  --border-strong: #343e52;
+  /* Superfícies — caderno quadriculado claro */
+  --bg: #f5f3ee;
+  --bg-soft: #efece4;
+  --surface: #ffffff;
+  --surface-2: #faf8f4;
+  --surface-3: #f0ede6;
+  --border: #e3dfd5;
+  --border-strong: #cbc5b7;
 
   /* Texto */
-  --ink: #e8ebf2;
-  --ink-soft: #b6bccb;
-  --ink-muted: #7d8598;
-  --ink-faint: #545d70;
+  --ink: #1d1f26;
+  --ink-soft: #3f4350;
+  --ink-muted: #6a6f7c;
+  --ink-faint: #9a9ea8;
 
-  /* Marca — laranja-âmbar, nada de roxo-indigo generico */
-  --primary: #ff8a5c;
-  --primary-strong: #ff6a38;
-  --primary-soft: rgb(255 138 92 / 14%);
-  --primary-ink: #ffb495;
-  --accent: #62c1ff;
-  --accent-soft: rgb(98 193 255 / 12%);
-  --accent-ink: #8fd2ff;
+  /* Marca — terracota (ação) e azul de caneta (apoio) */
+  --primary: #c2410c;
+  --primary-strong: #a33509;
+  --primary-soft: rgb(194 65 12 / 10%);
+  --primary-ink: #a33509;
+  --accent: #1d6fb8;
+  --accent-soft: rgb(29 111 184 / 10%);
+  --accent-ink: #175c99;
 
   /* Semânticas */
-  --success: #35d399;
-  --success-soft: rgb(53 211 153 / 14%);
-  --success-ink: #35d399;
-  --danger: #fb4d6f;
-  --danger-soft: rgb(251 77 111 / 14%);
-  --danger-ink: #fb4d6f;
-  --warning: #f2b134;
-  --warning-soft: rgb(242 177 52 / 14%);
-  --warning-ink: #f2b134;
-  --info: #62c1ff;
-  --info-soft: rgb(98 193 255 / 12%);
+  --success: #138a5a;
+  --success-soft: rgb(19 138 90 / 11%);
+  --success-ink: #0f7049;
+  --danger: #d1335a;
+  --danger-soft: rgb(209 51 90 / 10%);
+  --danger-ink: #b0254a;
+  --warning: #b97400;
+  --warning-soft: rgb(205 135 10 / 13%);
+  --warning-ink: #8f5a00;
+  --info: #1d6fb8;
+  --info-soft: rgb(29 111 184 / 10%);
 
-  /* Canvas escuro das visualizações */
-  --viz-bg: #0c1018;
-  --viz-bg-2: #060810;
-  --viz-grid: rgb(148 163 184 / 8%);
-  --viz-node-fill: #131a2a;
-  --viz-node-stroke: #33415c;
-  --viz-node-text: #e6edf7;
-  --viz-edge: #33415c;
-  --viz-label: #8aa0be;
+  /* Canvas das visualizações: papel quadriculado */
+  --viz-bg: #fdfcf9;
+  --viz-bg-2: #f6f3ec;
+  --viz-grid: rgb(29 111 184 / 9%);
+  --viz-node-fill: #ffffff;
+  --viz-node-stroke: #8d95a5;
+  --viz-node-text: #1d1f26;
+  --viz-edge: #a1a8b5;
+  --viz-label: #5d6576;
+
+  /* Blocos de código continuam escuros, como no editor */
+  --code-bg: #1e2230;
+  --code-border: #2c3244;
 
   /* Estados dos nós (visualizações) */
-  --state-active: #818cf8;
-  --state-compare: #fbbf24;
-  --state-found: #34d399;
-  --state-inserted: #22d3ee;
-  --state-removed: #fb7185;
-  --state-visited: #a78bfa;
-  --state-error: #f87171;
+  --state-active: #4f46e5;
+  --state-compare: #d97706;
+  --state-found: #059669;
+  --state-inserted: #0891b2;
+  --state-removed: #e11d48;
+  --state-visited: #7c3aed;
+  --state-error: #dc2626;
 
   /* Cores por domínio */
-  --domain-doidona: #b17bff;
-  --domain-trie: #2dd4bf;
-  --domain-avl: #7c93ff;
-  --domain-arvore: #4ade80;
-  --domain-somatorio: #f2b134;
-  --domain-ordenacao: #fb6a91;
+  --domain-doidona: #8b4fd8;
+  --domain-trie: #0d9488;
+  --domain-avl: #4f63d8;
+  --domain-arvore: #16a34a;
+  --domain-somatorio: #c98a04;
+  --domain-ordenacao: #db2f6f;
 
   /* Geometria */
   --radius-sm: 8px;
@@ -86,10 +90,10 @@
   --radius-full: 999px;
 
   /* Sombras */
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 20%), 0 2px 8px rgb(0 0 0 / 16%);
-  --shadow-md: 0 2px 4px rgb(0 0 0 / 20%), 0 10px 24px rgb(0 0 0 / 24%);
-  --shadow-lg: 0 4px 8px rgb(0 0 0 / 24%), 0 18px 44px rgb(0 0 0 / 32%);
-  --shadow-primary: 0 6px 18px rgb(255 138 92 / 22%);
+  --shadow-sm: 0 1px 2px rgb(29 31 38 / 5%), 0 2px 8px rgb(29 31 38 / 5%);
+  --shadow-md: 0 2px 4px rgb(29 31 38 / 5%), 0 10px 24px -6px rgb(29 31 38 / 12%);
+  --shadow-lg: 0 4px 8px rgb(29 31 38 / 6%), 0 18px 44px -10px rgb(29 31 38 / 18%);
+  --shadow-primary: 0 4px 14px -4px rgb(194 65 12 / 40%);
 
   /* Espaçamento */
   --space-1: 4px;
@@ -107,7 +111,7 @@
   --dur-slow: 420ms;
 
   /* Foco */
-  --focus-ring: 0 0 0 3px rgb(255 138 92 / 35%);
+  --focus-ring: 0 0 0 3px rgb(194 65 12 / 30%);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -18,10 +18,13 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(1000px 480px at 85% -10%, rgb(255 138 92 / 7%), transparent 60%),
-    radial-gradient(800px 420px at -10% 20%, rgb(98 193 255 / 6%), transparent 60%),
-    var(--bg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1000px 480px at 85% -10%, rgb(194 65 12 / 6%), transparent 60%),
+    radial-gradient(800px 420px at -10% 20%, rgb(29 111 184 / 5%), transparent 60%),
+    linear-gradient(rgb(29 111 184 / 4.5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(29 111 184 / 4.5%) 1px, transparent 1px);
+  background-size: auto, auto, 28px 28px, 28px 28px;
   background-attachment: fixed;
 }
 
@@ -248,7 +251,7 @@ h1 {
   gap: var(--space-2);
   padding: var(--space-5);
   text-align: left;
-  background: linear-gradient(160deg, rgb(255 255 255 / 2.5%), transparent 40%), var(--surface);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -529,10 +532,10 @@ h1 {
   gap: var(--space-4);
   min-width: 0;
   padding: var(--space-4);
-  background: linear-gradient(155deg, rgb(255 255 255 / 3%), transparent 32%), var(--surface-2);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+  box-shadow: none;
 }
 
 .exercise-answer {
@@ -576,8 +579,8 @@ h1 {
   padding: var(--space-4);
   overflow: auto;
   color: #dbe4f0;
-  background: var(--viz-bg-2);
-  border: 1px solid rgb(70 98 138 / 40%);
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
   border-radius: var(--radius-md);
 }
 
