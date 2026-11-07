@@ -52,7 +52,7 @@ test('renderiza a dashboard inicial da AEDS II', () => {
   render(<App />);
 
   expect(screen.getByRole('main')).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Sala de estudo' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /Menos dúvida no estudo/ })).toBeInTheDocument();
   expect(screen.getByText('AEDS II · PUC Minas')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Provas' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Conceitual' })).toBeInTheDocument();

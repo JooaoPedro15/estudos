@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import {
   BookOpenCheck,
   CheckCircle2,
@@ -79,6 +79,7 @@ import type { ErrorRecord, StepAttempt } from '../types/progress';
 import { StaticStructureCard, StructureVizCard } from '../viz/StructureViz';
 import type { ActiveMode } from './appTypes';
 import { CategoryBar } from './CategoryBar';
+const PreparacaoScreen = lazy(() => import('./PreparacaoScreen').then(module => ({ default: module.PreparacaoScreen })));
 import { DashboardScreen } from './DashboardScreen';
 import { CabecalhoJuiz, ExemplosOficiais, PainelVerde, type EstadoVerde } from './PraticaJuiz';
 import { ExploreScreen } from './ExploreScreen';
@@ -275,7 +276,8 @@ export function App() {
   const [initialState] = useState(loadInitialState);
   const [game, setGame] = useState<SavedGameState>(initialState.game);
   /** Dashboard = tela inicial (ponto de entrada unico); focused = dentro de uma categoria. */
-  const [view, setView] = useState<'dashboard' | 'focused'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'focused' | 'plan'>('dashboard');
+  const [planScope, setPlanScope] = useState<ExamId>('p3');
   const [activeMode, setActiveMode] = useState<ActiveMode>('exam');
   const [practiceModuleId, setPracticeModuleId] = useState<PracticeModuleId | null>(initialState.practiceModuleId);
   /** Prova escolhida (Prova 1/2/3/Reavaliacao); null = ainda nao escolheu, mostra o seletor. */
@@ -848,12 +850,18 @@ export function App() {
 
   return (
     <main className="app-shell">
-      {view === 'dashboard' ? (
+      {view === 'plan' ? <Suspense fallback={<p role="status">Abrindo preparação…</p>}><PreparacaoScreen key={planScope} scope={planScope} onBack={goHome} onLegacy={(pratica)=>{
+        selectProvaScope(planScope);
+        selectProvaSection(pratica && planScope!=='reav'?'pratica':'teorica');
+        if(!pratica || planScope==='reav') selectTeoricaMode('treinar');
+        setView('focused');
+      }}/></Suspense> : view === 'dashboard' ? (
         <DashboardScreen
           masteredCount={masteredCount}
           maxScore={game.session.maxScore}
           onPractice={practiceError}
           onSelectCategory={openCategory}
+          onSelectPlan={(scope)=>{setPlanScope(scope);setView('plan');}}
           priorityErrors={priorityErrors}
           score={game.session.score}
         />

@@ -1,7 +1,7 @@
 import { BookOpenCheck, ClipboardList, Shapes, Trophy } from 'lucide-react';
 
 import { codeDrillCatalog } from '../content/codeDrills';
-import { examCatalog } from '../content/examCatalog';
+import { examCatalog, type ExamId } from '../content/examCatalog';
 import { getConceptualDrawingModules, getQuestionsForConceptualDrawingModule } from '../content/lista2Questions';
 import { structureCatalog } from '../viz/structureOps';
 import type { ErrorRecord } from '../types/progress';
@@ -9,6 +9,7 @@ import { CategoryArt } from './CategoryArt';
 import { HeroOrdenacao } from './HeroOrdenacao';
 import { NotebookPanel } from './NotebookPanel';
 import './inicio.css';
+import './preparacao.css';
 import type { ActiveMode } from './appTypes';
 
 type DashboardScreenProps = {
@@ -17,6 +18,7 @@ type DashboardScreenProps = {
   masteredCount: number;
   priorityErrors: ErrorRecord[];
   onSelectCategory: (mode: ActiveMode) => void;
+  onSelectPlan: (exam: ExamId) => void;
   onPractice: (record: ErrorRecord) => void;
 };
 
@@ -38,6 +40,7 @@ export function DashboardScreen({
   maxScore,
   onPractice,
   onSelectCategory,
+  onSelectPlan,
   priorityErrors,
   score,
 }: DashboardScreenProps) {
@@ -88,9 +91,9 @@ export function DashboardScreen({
         <div>
           <p className="app-kicker">AEDS II · PUC Minas</p>
           <h1>
-            Veja o <em>vetor</em> se ordenar. Depois, <span>escreva o código da prova.</span>
+            Menos dúvida no estudo.<br/><span>Mais prática para a prova.</span>
           </h1>
-          <p className="lead">Cada passo do algoritmo com a linha do código marcada e a conta de comparações e movimentações, do jeito que a prova cobra.</p>
+          <p className="lead">Escolha sua avaliação, veja o que o histórico pede e treine uma questão por vez. O que você errar vira sua próxima revisão.</p>
           <div className="stat-strip">
             <div className="stat-tile">
               <strong>
@@ -111,6 +114,10 @@ export function DashboardScreen({
         <HeroOrdenacao />
       </section>
 
+      <section className="exam-plan-entry" aria-labelledby="plan-entry-title">
+        <div className="exam-plan-heading"><h2 id="plan-entry-title">Qual é a sua próxima avaliação?</h2><p>Prioridades, exercícios e simulados em um só lugar.</p></div>
+        <div className="exam-plan-cards">{examCatalog.map((exam,i)=><button type="button" key={exam.id} onClick={()=>onSelectPlan(exam.id)} aria-label={`Preparar ${exam.title}`}><span className="plan-number">{String(i+1).padStart(2,'0')} / PLANO DE ESTUDO</span><strong>{exam.title}</strong><p>{exam.id==='p2'?'Previsão anterior e relato do que caiu.':exam.id==='p3'?'AVL, TRIE, hash e estruturas híbridas.':exam.id==='p1'?'Análise, somatórios e estruturas lineares.':'Revisão cumulativa pelos erros e pelo histórico.'}</p><span className="plan-go">Abrir preparação →</span></button>)}</div>
+      </section>
       <div className="cat-grid">
         {cards.map((card) => (
           <button
