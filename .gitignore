@@ -135,3 +135,6 @@ aeds/materiais-privados/
 *.server.pid
 *.server-info
 .events
+
+# Site unico montado por `npm run build` na raiz
+/site/

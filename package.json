@@ -1,0 +1,9 @@
+{
+  "name": "estudos-interativos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/montar-site.mjs",
+    "preview": "node scripts/servir-site.mjs"
+  }
+}
