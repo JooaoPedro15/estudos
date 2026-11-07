@@ -1,0 +1,630 @@
+{
+  "data": "2026-11-07",
+  "arquivos_textuais_verificados": 942,
+  "arquivos_com_ocorrencias_no_modulo": 0,
+  "identificadores_numericos_no_conteudo_novo": 0,
+  "ocorrencias_fora_do_modulo": [
+    {
+      "arquivo": "Grafos/api/README.md",
+      "linhas": [
+        20,
+        24
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/docs/exam-pattern-draft.md",
+      "linhas": [
+        62,
+        83
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/docs/exam-pattern.md",
+      "linhas": [
+        62,
+        83
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/definitions/closed.ts",
+      "linhas": [
+        7
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/definitions/definitions.test.ts",
+      "linhas": [
+        6,
+        9
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/definitions/open.ts",
+      "linhas": [
+        12
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/examFamilies.ts",
+      "linhas": [
+        6
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/lessons/logic.ts",
+      "linhas": [
+        96
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/lessons/p2-arvores.ts",
+      "linhas": [
+        168
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/lessons/p2-caminhos.ts",
+      "linhas": [
+        115
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/questions/10-p2.ts",
+      "linhas": [
+        5
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/questions/graphs.ts",
+      "linhas": [
+        4
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/questions/pickers-p2.test.ts",
+      "linhas": [
+        34
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/questions/pickers.test.ts",
+      "linhas": [
+        6,
+        259
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/content/types.ts",
+      "linhas": [
+        292
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/features/exam/ExamListPage.tsx",
+      "linhas": [
+        82
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/features/exam/ExamSimulator.tsx",
+      "linhas": [
+        113
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "Grafos/src/index.css",
+      "linhas": [
+        5
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/content/factories.js",
+      "linhas": [
+        6,
+        10,
+        82
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/content/index.js",
+      "linhas": [
+        3,
+        28
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/content/prova1.js",
+      "linhas": [
+        3,
+        149
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/content/prova2.js",
+      "linhas": [
+        3,
+        150
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/content/prova3.js",
+      "linhas": [
+        3,
+        14,
+        22,
+        25,
+        27,
+        90,
+        116,
+        176
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/content/visuals.js",
+      "linhas": [
+        30,
+        43,
+        55,
+        66
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/design.css",
+      "linhas": [
+        4
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/datapath-quest/index.html",
+      "linhas": [
+        27,
+        864,
+        932,
+        934,
+        951,
+        991,
+        1061,
+        1097,
+        1098,
+        1105,
+        1257,
+        1258,
+        1264,
+        1699,
+        1766,
+        1825,
+        1897,
+        1905,
+        1913,
+        1921,
+        1929,
+        1939,
+        1950,
+        1959,
+        1967,
+        2064,
+        2096,
+        2103,
+        2201,
+        2321,
+        2497,
+        2510,
+        2899,
+        3355
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.after-task-2.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1054,
+        1175,
+        1247,
+        1255,
+        1266,
+        1275,
+        1344,
+        1375,
+        1382,
+        1478,
+        1581
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.after-task-3.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1112,
+        1233,
+        1305,
+        1313,
+        1324,
+        1333,
+        1402,
+        1433,
+        1440,
+        1536,
+        1639
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.after-task-4.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1174,
+        1295,
+        1367,
+        1375,
+        1386,
+        1395,
+        1464,
+        1495,
+        1502,
+        1598,
+        1701
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.after-task-5-fixes.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1284,
+        1405,
+        1482,
+        1490,
+        1501,
+        1510,
+        1579,
+        1610,
+        1617,
+        1713,
+        1816
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.after-task-5.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1257,
+        1378,
+        1455,
+        1463,
+        1474,
+        1483,
+        1552,
+        1583,
+        1590,
+        1686,
+        1789
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.after-task-6.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1284,
+        1405,
+        1695,
+        1703,
+        1714,
+        1723,
+        1800,
+        1831,
+        1838,
+        1934,
+        2037
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.baseline.html",
+      "linhas": [
+        21,
+        533,
+        585,
+        587,
+        600,
+        629,
+        692,
+        728,
+        756,
+        1014,
+        1135,
+        1207,
+        1215,
+        1226,
+        1235,
+        1304,
+        1335,
+        1342,
+        1438,
+        1541
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.before-task-2.html",
+      "linhas": [
+        21,
+        533,
+        585,
+        587,
+        600,
+        629,
+        692,
+        728,
+        756,
+        1014,
+        1135,
+        1207,
+        1215,
+        1226,
+        1235,
+        1304,
+        1335,
+        1342,
+        1438,
+        1541
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.before-task-3.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1054,
+        1175,
+        1247,
+        1255,
+        1266,
+        1275,
+        1344,
+        1375,
+        1382,
+        1478,
+        1581
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.before-task-4.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1112,
+        1233,
+        1305,
+        1313,
+        1324,
+        1333,
+        1402,
+        1433,
+        1440,
+        1536,
+        1639
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.before-task-5-fixes.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1257,
+        1378,
+        1455,
+        1463,
+        1474,
+        1483,
+        1552,
+        1583,
+        1590,
+        1686,
+        1789
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.before-task-5.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1174,
+        1295,
+        1367,
+        1375,
+        1386,
+        1395,
+        1464,
+        1495,
+        1502,
+        1598,
+        1701
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/checkpoints/mips-datapath-quest.before-task-6.html",
+      "linhas": [
+        21,
+        573,
+        625,
+        627,
+        640,
+        669,
+        732,
+        768,
+        796,
+        1284,
+        1405,
+        1482,
+        1490,
+        1501,
+        1510,
+        1579,
+        1610,
+        1617,
+        1713,
+        1816
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "arquitetura-computadores/work/mips-datapath-quest.extracted.js",
+      "linhas": [
+        75,
+        127,
+        129,
+        142,
+        171,
+        234,
+        270,
+        298,
+        786,
+        907,
+        1197,
+        1205,
+        1216,
+        1225,
+        1302,
+        1333,
+        1340,
+        1436,
+        1539
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "ia/ia-p1/src/components/Diagrama.tsx",
+      "linhas": [
+        486
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "ia/ia-p1/src/content/modulos/intro.ts",
+      "linhas": [
+        57,
+        58,
+        219
+      ],
+      "inalterado_desde_inicio": true
+    },
+    {
+      "arquivo": "portal/index.html",
+      "linhas": [
+        15
+      ],
+      "inalterado_desde_inicio": true
+    }
+  ],
+  "observacao": "Busca literal; ocorrências fora do módulo são anteriores e não foram alteradas."
+}
