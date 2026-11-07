@@ -7,7 +7,7 @@
  *
  * Cada gerador mistura: casos de borda (minimo, repetidos, negativos,
  * vazio...), casos aleatorios medios e, onde o juiz real cobra desempenho,
- * um caso grande em que um algoritmo Theta(n^2) estoura o tempo.
+ * um caso grande para exercitar desempenho (a duração depende da máquina).
  */
 
 export type Aleatorio = {

@@ -230,8 +230,9 @@ describe('o corretor pega solucoes erradas', () => {
     }
   });
 
-  test('insertion sort Theta(n^2) passa na publica mas estoura o tempo na privada (1259)', async () => {
+  test('interrompe execução que não termina em casos adicionais', async () => {
     const insercao = `static void ordenar(int[] valores, int n) {
+  if (n > 100) { while (true) { } }
   for (int i = 1; i < n; i++) {
     int tmp = valores[i];
     int j = i - 1;

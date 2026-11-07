@@ -34,8 +34,8 @@ manipulacao de estruturas de dados.
   de entrada/saida e link para o original.
 - Corretor estilo Local (botao `Rodar no corretor`): compila e executa o
   codigo com o JDK da maquina e da a nota em porcentagem da saida publica
-  (exemplos oficiais) e da saida privada (casos extras gerados, com caso
-  grande que pega algoritmo lento). Aceita so os metodos pedidos ou o
+  (exemplos oficiais) e da saida privada (casos extras gerados, com casos
+  grandes para exercitar desempenho; o tempo depende da máquina). Aceita so os metodos pedidos ou o
   programa inteiro, como no Local.
 
 ## Requisitos
