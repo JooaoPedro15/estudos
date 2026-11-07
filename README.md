@@ -27,6 +27,29 @@ propria pasta, dependencias, testes e comandos.
     docs/                       Docs de escopo/estilo especificas do modulo
 ```
 
+## Site unico
+
+Todos os modulos sao publicados juntos num site so, com uma pagina inicial
+([`portal/`](portal/)) para escolher a materia:
+
+| Caminho | Modulo |
+| --- | --- |
+| `/` | Pagina inicial |
+| `/arquitetura/` | Arquitetura de Computadores II |
+| `/grafos/` | Teoria dos Grafos |
+| `/aeds/` | AEDS II |
+| `/ia/` | Inteligencia Artificial |
+
+```bash
+npm run build    # compila os modulos e monta tudo em site/
+npm run preview  # serve site/ em http://localhost:4173
+```
+
+O script fica em [`scripts/montar-site.mjs`](scripts/montar-site.mjs). A
+hospedagem usa `vercel.json` (Vercel) ou `netlify.toml` (Netlify): os dois
+rodam `npm run build` e publicam `site/`. O corretor Java do AEDS so existe no
+`npm run dev` do proprio modulo; no site publicado a tela avisa isso.
+
 ## Modulos principais
 
 | Modulo | Materia | Estado | Pasta |
