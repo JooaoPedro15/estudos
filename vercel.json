@@ -3,6 +3,8 @@
   "buildCommand": "npm run build",
   "installCommand": "true",
   "outputDirectory": "site",
-  "trailingSlash": true,
-  "rewrites": [{ "source": "/grafos/:caminho*", "destination": "/grafos/index.html" }]
+  "redirects": [
+    { "source": "/:modulo(arquitetura|grafos|aeds|ia)", "destination": "/:modulo/", "permanent": true }
+  ],
+  "rewrites": [{ "source": "/grafos/(.*)", "destination": "/grafos/index.html" }]
 }
