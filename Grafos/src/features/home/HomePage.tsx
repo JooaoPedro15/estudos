@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import clsx from 'clsx';
 import { Zap, BookOpen, FileText, Target, Dumbbell, Brain, Flame, type LucideIcon } from 'lucide-react';
-import type { ExamId, ExamLikelihood, ProgressState } from '@/content/types';
+import type { ExamScope, ExamLikelihood, ProgressState } from '@/content/types';
 import { Button, Card, ExamLikelihoodBadge, IconChip, type IconChipTone, ProgressBar } from '@/components/ui';
 import { modulesForExam } from '@/content/modules';
 import { useActiveExam } from '@/store/activeExam';
@@ -18,15 +18,15 @@ interface QuickAction {
   tone: IconChipTone;
   title: string;
   /** Texto fixo ou um por prova, quando a ação muda de sentido entre P1 e P2. */
-  description: string | Record<ExamId, string>;
+  description: string | Record<ExamScope, string>;
   href: string;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
   { icon: Zap, tone: 'amber', title: 'Revisão de 5 min', description: 'Sessão curta com 3-7 atividades rápidas.', href: '/estudar/rapido' },
   { icon: BookOpen, tone: 'accent', title: 'Sessão de estudo', description: 'Aprofunde tópicos, do zero, com teoria e exemplos.', href: '/estudar/sessao' },
-  { icon: FileText, tone: 'cyan', title: 'Provas reais e simulados', description: { P1: 'As 8 provas antigas literais (2022/1–2026/1) + simulados montados. Abertas, com resposta-modelo.', P2: 'Simulados da P2 no formato da prova antiga: modelar o problema e executar o algoritmo passo a passo.' }, href: '/simulado' },
-  { icon: Flame, tone: 'danger', title: 'Treino de prova', description: { P1: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', P2: 'Questões no formato de prova: AGM, caminhos mínimos e euleriano, com resposta-modelo.' }, href: '/estudar/prova' },
+  { icon: FileText, tone: 'cyan', title: 'Provas reais e simulados', description: { all: 'Provas e questões da P1 e da P2 para estudar todo o conteúdo.', P1: 'As 8 provas antigas literais (2022/1–2026/1) + simulados montados. Abertas, com resposta-modelo.', P2: 'Simulados da P2 no formato da prova antiga: modelar o problema e executar o algoritmo passo a passo.' }, href: '/simulado' },
+  { icon: Flame, tone: 'danger', title: 'Treino de prova', description: { all: 'Provas e questões da P1 e da P2 para estudar todo o conteúdo.', P1: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', P2: 'Questões no formato de prova: AGM, caminhos mínimos e euleriano, com resposta-modelo.' }, href: '/estudar/prova' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
   { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
   { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: 'Definições literais dos slides: abertas (escreve de memória e compara) e fechadas (múltipla escolha e V/F). Por módulo ou matéria inteira.', href: '/estudar/conceitos' },
@@ -49,7 +49,7 @@ function moduleProgressPercent(moduleId: string, state: ProgressState | null): n
   return Math.round(total / topics.length);
 }
 
-function QuickActionCard({ action, index, exam }: { action: QuickAction; index: number; exam: ExamId }) {
+function QuickActionCard({ action, index, exam }: { action: QuickAction; index: number; exam: ExamScope }) {
   return (
     <Link to={action.href} className="block h-full">
       <motion.div
@@ -114,13 +114,13 @@ export function HomePage() {
     <div className="flex flex-col gap-12">
       <section className="home-hero">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <p className="eyebrow">Teoria dos Grafos · {exam} · Prof. Silvio Jamil</p>
+          <p className="eyebrow">Teoria dos Grafos · {exam === 'all' ? 'Todo o conteúdo' : exam} · Prof. Silvio Jamil</p>
           <h1>
             Veja o <em>algoritmo</em> andar no grafo. Depois, <span>resolva a prova.</span>
           </h1>
           <p className="lead">Aulas com animação passo a passo, laboratório para desenhar seus grafos e questões no formato das provas antigas.</p>
           <div className="cta">
-            <Button size="lg" onClick={() => navigate(exam === 'P2' ? '/prova2' : `/modulos/${modules[0].id}`)}>{exam === 'P2' ? 'Abrir roteiro da P2' : 'Começar pelo módulo 1'}</Button>
+            <Button size="lg" onClick={() => navigate('/prioridades')}>Ver prioridades de estudo</Button>
             <Button size="lg" variant="secondary" onClick={() => navigate('/playground')}>Desenhar um grafo</Button>
           </div>
           <div className="hs-legend" aria-hidden="true">
@@ -130,7 +130,7 @@ export function HomePage() {
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.08 }}>
-          <HeroScene />
+          <HeroScene key={exam} exam={exam} />
         </motion.div>
       </section>
 
@@ -167,7 +167,7 @@ export function HomePage() {
 
       <section id="modulos" className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">Módulos da {exam}</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">{exam === 'all' ? 'Todos os módulos' : `Módulos da ${exam}`}</h2>
           <Link to="/modulos" className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
             ver todos
           </Link>

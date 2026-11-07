@@ -23,13 +23,13 @@ export function ModuleListPage() {
   return (
     <div className="flex flex-col gap-8">
       <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-col gap-1.5">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Módulos da {exam}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">{exam === 'all' ? 'Todos os módulos' : `Módulos da ${exam}`}</h1>
         <p className="text-[var(--color-text-secondary)]">Escolha um módulo para ver os tópicos e começar a estudar.</p>
       </motion.header>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {modules.map((module, i) => {
-          const isReview = module.exam !== exam;
+          const isReview = exam !== 'all' && module.exam !== exam;
           const topicCount = topicsForModule(module.id).length;
           return (
             <motion.div
@@ -47,7 +47,7 @@ export function ModuleListPage() {
                   <div className="body">
                   <div className="flex flex-col gap-1.5">
                     <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
-                      {isReview ? `Revisão da ${module.exam} (cai, a prova é cumulativa)` : `Módulo ${module.order.toString().padStart(2, '0')}`}
+                      {isReview ? `Revisão da ${module.exam} (cai, a prova é cumulativa)` : `${module.exam} · Módulo ${module.order.toString().padStart(2, '0')}`}
                     </span>
                     <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{module.title}</h2>
                     <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{module.description}</p>

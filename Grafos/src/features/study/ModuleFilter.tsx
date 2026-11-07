@@ -67,7 +67,7 @@ export function ModuleFilter({ value, onChange, tone, disabled }: { value: strin
       disabled={disabled}
       value={value}
       onChange={onChange}
-      options={[{ id: ALL_MODULES, label: `Matéria inteira (${exam})` }, ...modulesForExam(exam).map((m) => ({ id: m.id, label: m.shortTitle }))]}
+      options={[{ id: ALL_MODULES, label: exam === 'all' ? 'Todo o conteúdo' : `Matéria inteira (${exam})` }, ...modulesForExam(exam).map((m) => ({ id: m.id, label: m.shortTitle }))]}
     />
   );
 }

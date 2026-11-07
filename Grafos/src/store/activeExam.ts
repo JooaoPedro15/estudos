@@ -1,28 +1,29 @@
 import { useSyncExternalStore } from 'react';
-import type { ExamId } from '@/content/types';
+import type { ExamScope } from '@/content/types';
 
-// Prova ativa (P1 ou P2): decide quais módulos, sessões e simulados o app
+// Conteúdo ativo (tudo, P1 ou P2): decide quais módulos, sessões e simulados o app
 // mostra. Fica no localStorage — é conveniência de quem está estudando, não
 // dado que precise sobreviver a limpar o navegador.
 
 const KEY = 'graphlab:active-exam';
 const listeners = new Set<() => void>();
 
-function read(): ExamId {
+function read(): ExamScope {
   try {
-    return localStorage.getItem(KEY) === 'P1' ? 'P1' : 'P2';
+    const saved = localStorage.getItem(KEY);
+    return saved === 'P1' || saved === 'P2' || saved === 'all' ? saved : 'all';
   } catch {
-    return 'P2';
+    return 'all';
   }
 }
 
-let current: ExamId = read();
+let current: ExamScope = read();
 
-export function getActiveExam(): ExamId {
+export function getActiveExam(): ExamScope {
   return current;
 }
 
-export function setActiveExam(exam: ExamId): void {
+export function setActiveExam(exam: ExamScope): void {
   current = exam;
   try {
     localStorage.setItem(KEY, exam);
@@ -37,6 +38,6 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
-export function useActiveExam(): ExamId {
+export function useActiveExam(): ExamScope {
   return useSyncExternalStore(subscribe, getActiveExam, getActiveExam);
 }

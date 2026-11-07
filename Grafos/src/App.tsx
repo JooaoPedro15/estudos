@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { HomePage } from '@/features/home/HomePage';
 import { ModuleListPage } from '@/features/module/ModuleListPage';
@@ -14,16 +14,16 @@ import { QuestionPage } from '@/features/study/QuestionPage';
 import { ExamListPage } from '@/features/exam/ExamListPage';
 import { ExamSimulator } from '@/features/exam/ExamSimulator';
 import { ProgressPage } from '@/features/progress/ProgressPage';
-import { FinalReviewPage } from '@/features/review/FinalReviewPage';
 import { GraphPlayground } from '@/features/playground/GraphPlayground';
-import { Prova2Page } from '@/features/prova2/Prova2Page';
+import { StudyPrioritiesPage } from '@/features/priorities/StudyPrioritiesPage';
 
 function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/prova2" element={<Prova2Page />} />
+        <Route path="/prioridades" element={<StudyPrioritiesPage />} />
+        <Route path="/prova2" element={<Navigate to="/prioridades" replace />} />
         <Route path="/modulos" element={<ModuleListPage />} />
         <Route path="/modulos/:moduleId" element={<ModulePage />} />
         <Route path="/modulos/:moduleId/:topicId" element={<ConceptLessonPage />} />
@@ -37,7 +37,7 @@ function App() {
         <Route path="/simulado" element={<ExamListPage />} />
         <Route path="/simulado/:examId" element={<ExamSimulator />} />
         <Route path="/progresso" element={<ProgressPage />} />
-        <Route path="/revisao-final" element={<FinalReviewPage />} />
+        <Route path="/revisao-final" element={<Navigate to="/" replace />} />
         <Route path="/playground" element={<GraphPlayground />} />
       </Route>
     </Routes>

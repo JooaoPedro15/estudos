@@ -1,4 +1,4 @@
-import type { ExamId } from './types';
+import type { ExamId, ExamScope } from './types';
 
 /**
  * Famílias de questão que se repetem nas provas antigas do Prof. Silvio
@@ -26,8 +26,8 @@ export interface ExamFamily {
 export const TOTAL_EXAMS = 8;
 
 /** Provas antigas do Prof. Silvio analisadas: 8 da P1 e 9 da P2. */
-export function totalExamsFor(exam: ExamId): number {
-  return exam === 'P2' ? 9 : TOTAL_EXAMS;
+export function totalExamsFor(exam: ExamScope): number {
+  return exam === 'all' ? TOTAL_EXAMS + 9 : exam === 'P2' ? 9 : TOTAL_EXAMS;
 }
 
 export const examFamilies: ExamFamily[] = [
@@ -218,11 +218,13 @@ function examsOf(appearances: string[]): Set<string> {
 }
 
 /** Onde a família caiu nas provas de `exam`. */
-export function appearancesFor(f: ExamFamily, exam: ExamId): string[] {
+export function appearancesFor(f: ExamFamily, exam: ExamScope): string[] {
+  if (exam === 'all') return [...f.appearances.map((a) => `${f.exam ?? 'P1'} ${a}`), ...(f.alsoP2 ?? []).map((a) => `P2 ${a}`)];
   return exam === 'P2' && f.exam !== 'P2' ? (f.alsoP2 ?? []) : f.appearances;
 }
 
-export function examFamilyWeight(f: ExamFamily, exam: ExamId = f.exam ?? 'P1'): number {
+export function examFamilyWeight(f: ExamFamily, exam: ExamScope = f.exam ?? 'P1'): number {
+  if (exam === 'all') return 1 + examsOf(appearancesFor(f, exam)).size;
   // P2: toda família entra no sorteio (peso 1) e ganha +1 por prova em que caiu.
   if (exam === 'P2') return 1 + examsOf(appearancesFor(f, 'P2')).size;
   return f.appearances.length * (f.scopeUncertain ? 0.5 : 1);
@@ -243,6 +245,6 @@ export function familiesUsingConcept(definitionId: string): ExamFamily[] {
   return examFamilies.filter((f) => f.concepts.includes(definitionId)).sort((a, b) => examFamilyWeight(b) - examFamilyWeight(a));
 }
 
-export function examFamiliesFor(exam: ExamId): ExamFamily[] {
-  return examFamilies.filter((f) => (f.exam ?? 'P1') === exam || (exam === 'P2' && (f.alsoP2?.length ?? 0) > 0));
+export function examFamiliesFor(exam: ExamScope): ExamFamily[] {
+  return examFamilies.filter((f) => exam === 'all' || (f.exam ?? 'P1') === exam || (exam === 'P2' && (f.alsoP2?.length ?? 0) > 0));
 }

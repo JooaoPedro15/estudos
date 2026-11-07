@@ -54,6 +54,7 @@ export interface GraphData {
 
 /** Prova a que o conteúdo pertence (o app mostra uma de cada vez). */
 export type ExamId = 'P1' | 'P2';
+export type ExamScope = ExamId | 'all';
 
 export interface Module {
   id: string;

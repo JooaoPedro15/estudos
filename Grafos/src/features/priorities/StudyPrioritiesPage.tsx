@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import clsx from 'clsx';
-import { ArrowRight, Brain, CalendarDays, FileText, Flame, FlaskConical, TriangleAlert } from 'lucide-react';
+import { ArrowRight, Brain, FileText, Flame, FlaskConical, TriangleAlert } from 'lucide-react';
 import type { ProgressState } from '@/content/types';
-import { P2_PLAN, daysUntilP2, localIsoDate, type PlanDay } from '@/content/p2Plan';
+import { P2_PRIORITIES, type StudyPriority } from '@/content/studyPriorities';
 import { getTopic } from '@/content/topics';
-import { appearancesFor, examFamiliesFor, examFamilyWeight } from '@/content/examFamilies';
+import { appearancesFor, examFamiliesFor, totalExamsFor } from '@/content/examFamilies';
 import { realExams } from '@/content/exams';
 import { loadProgress, topicMasteryPercent } from '@/store/progress';
-import { setActiveExam } from '@/store/activeExam';
+import { useActiveExam } from '@/store/activeExam';
 import { Card, ProgressBar } from '@/components/ui';
 
 const TOOLS = [
@@ -18,21 +17,12 @@ const TOOLS = [
   { icon: Brain, title: 'Decorar conceitos', text: 'Definições para escrever de memória.', href: '/estudar/conceitos' },
 ];
 
-function DayCard({ day, state, progress }: { day: PlanDay; state: 'past' | 'today' | 'future'; progress: ProgressState | null }) {
-  const [, dayNumber] = day.date.slice(5).split('-');
+function PriorityCard({ day, index, progress }: { day: StudyPriority; index: number; progress: ProgressState | null }) {
   return (
     <div
-      className={clsx(
-        'relative flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:gap-5 sm:p-5',
-        state === 'today' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)] bg-[var(--color-bg-raised)]',
-        state === 'past' && 'opacity-60',
-      )}
+      className="relative flex flex-col gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-raised)] p-4 sm:flex-row sm:gap-5 sm:p-5"
     >
-      <div className="flex shrink-0 items-baseline gap-2 sm:w-14 sm:flex-col sm:items-center sm:gap-0">
-        <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">{day.weekday}</span>
-        <span className="text-2xl font-semibold text-[var(--color-text-primary)]">{dayNumber}</span>
-        {state === 'today' && <span className="rounded-full bg-[var(--color-accent)] px-2 py-0.5 text-[10px] font-semibold text-white sm:mt-1">HOJE</span>}
-      </div>
+      <span className="mono text-2xl font-semibold text-[var(--color-accent)]">{String(index + 1).padStart(2, '0')}</span>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h3 className="text-base font-semibold text-[var(--color-text-primary)]">{day.title}</h3>
@@ -67,49 +57,51 @@ function DayCard({ day, state, progress }: { day: PlanDay; state: 'past' | 'toda
   );
 }
 
-/** Ponto de entrada da Prova 2: o roteiro até a prova, as provas antigas e o que mais cai. Rota: /prova2 */
-export function Prova2Page() {
+/** Prioridades de estudo, frequência nas provas e atalhos para praticar. */
+export function StudyPrioritiesPage() {
+  const exam = useActiveExam();
   const [progress, setProgress] = useState<ProgressState | null>(null);
-  useEffect(() => {
-    // Quem entra aqui está estudando a P2: o resto do app acompanha.
-    setActiveExam('P2');
-    loadProgress().then(setProgress);
-  }, []);
+  useEffect(() => { loadProgress().then(setProgress); }, []);
 
-  const days = daysUntilP2();
-  const today = localIsoDate();
-  const families = examFamiliesFor('P2')
-    .map((f) => ({ f, count: new Set(appearancesFor(f, 'P2').map((a) => a.split('-Q')[0])).size, weight: examFamilyWeight(f, 'P2') }))
+  const families = examFamiliesFor(exam)
+    .map((f) => ({ f, count: new Set(appearancesFor(f, exam).map((a) => a.split('-Q')[0])).size }))
     .filter((x) => x.count > 0)
     .sort((a, b) => b.count - a.count);
   const maxCount = Math.max(1, ...families.map((x) => x.count));
-  const exams = realExams.filter((e) => e.prova === 'P2');
+  const exams = realExams.filter((e) => exam === 'all' || (e.prova ?? 'P1') === exam);
 
   return (
     <div className="flex flex-col gap-10">
       <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1.5">
-          <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Estudo P2</h1>
-          <p className="max-w-2xl text-[var(--color-text-secondary)]">Tudo para a Prova 2 de Grafos em um lugar: o que estudar em cada dia, as provas antigas e o que mais cai. A prova é cumulativa.</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-raised)] px-4 py-3">
-          <CalendarDays size={20} className="text-[var(--color-accent-strong)]" />
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-[var(--color-text-primary)]">{days > 1 ? `Faltam ${days} dias` : days === 1 ? 'É amanhã' : days === 0 ? 'É hoje' : 'Prova realizada'}</span>
-            <span className="text-xs text-[var(--color-text-tertiary)]">Quarta, 11/11/2026</span>
-          </div>
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Prioridades de estudo</h1>
+          <p className="max-w-2xl text-[var(--color-text-secondary)]">{exam === 'all' ? 'P1 e P2' : exam}: veja o que mais apareceu nas provas antigas e escolha por onde começar. Organize seu ritmo, sem datas ou prazo fixo.</p>
         </div>
       </motion.header>
 
-      <section aria-labelledby="roteiro" className="flex flex-col gap-3">
-        <h2 id="roteiro" className="text-lg font-semibold text-[var(--color-text-primary)]">
-          Roteiro até a prova
-        </h2>
-        <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">Ordem pela frequência nas 9 provas do Prof. Silvio. Mostra prioridade, não garante o que vai cair. A barra de cada tópico é o seu acerto nas questões.</p>
-        {P2_PLAN.map((day) => (
-          <DayCard key={day.date} day={day} progress={progress} state={day.date === today ? 'today' : day.date < today ? 'past' : 'future'} />
-        ))}
+      <section aria-labelledby="mais-cai" className="flex flex-col gap-3">
+        <h2 id="mais-cai" className="text-lg font-semibold text-[var(--color-text-primary)]">O que mais cai</h2>
+        <p className="text-xs text-[var(--color-text-tertiary)]">Ordem pela frequência nas {totalExamsFor(exam)} provas do Prof. Silvio analisadas. Isso orienta o estudo, sem garantir o que vai cair. Clique em um assunto para treinar.</p>
+        <Card padding="md" className="flex flex-col gap-1">
+          {families.map(({ f, count }, index) => (
+            <Link key={f.id} to={`/estudar/prova?familia=${f.id}`} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-lg px-2 py-2 transition-colors hover:bg-[var(--color-bg-elevated)] sm:grid-cols-[minmax(0,1fr)_160px_auto]">
+              <span className="text-sm text-[var(--color-text-primary)]"><span className="mono mr-2 text-[var(--color-accent)]">{String(index + 1).padStart(2, '0')}</span>{f.title}</span>
+              <span className="order-3 col-span-2 h-1.5 overflow-hidden rounded-full bg-[var(--color-bg-elevated-2)] sm:order-none sm:col-span-1">
+                <span className="block h-full rounded-full bg-[var(--color-accent)]" style={{ width: `${(count / maxCount) * 100}%` }} />
+              </span>
+              <span className="mono text-xs text-[var(--color-text-tertiary)]">{count} prova{count > 1 ? 's' : ''}</span>
+            </Link>
+          ))}
+        </Card>
       </section>
+
+      {exam !== 'P1' && (
+        <section aria-labelledby="prioridades-p2" className="flex flex-col gap-3">
+          <h2 id="prioridades-p2" className="text-lg font-semibold text-[var(--color-text-primary)]">Sugestão de sequência para a P2</h2>
+          <p className="text-xs text-[var(--color-text-tertiary)]">A P2 é cumulativa. Use esta sequência como apoio e ajuste conforme suas dificuldades. As barras mostram seu acerto nos tópicos.</p>
+          {P2_PRIORITIES.map((priority, index) => <PriorityCard key={priority.title} day={priority} index={index} progress={progress} />)}
+        </section>
+      )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {TOOLS.map((tool) => (
@@ -122,23 +114,6 @@ export function Prova2Page() {
           </Link>
         ))}
       </div>
-
-      <section aria-labelledby="mais-cai" className="flex flex-col gap-3">
-        <h2 id="mais-cai" className="text-lg font-semibold text-[var(--color-text-primary)]">
-          O que mais cai
-        </h2>
-        <Card padding="md" className="flex flex-col gap-1">
-          {families.map(({ f, count }) => (
-            <Link key={f.id} to={`/estudar/prova?familia=${f.id}`} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-lg px-2 py-2 transition-colors hover:bg-[var(--color-bg-elevated)] sm:grid-cols-[minmax(0,1fr)_160px_auto]">
-              <span className="text-sm text-[var(--color-text-primary)]">{f.title}</span>
-              <span className="order-3 col-span-2 h-1.5 overflow-hidden rounded-full bg-[var(--color-bg-elevated-2)] sm:order-none sm:col-span-1">
-                <span className="block h-full rounded-full bg-[var(--color-accent)]" style={{ width: `${(count / maxCount) * 100}%` }} />
-              </span>
-              <span className="mono text-xs text-[var(--color-text-tertiary)]">{count} prova{count > 1 ? 's' : ''}</span>
-            </Link>
-          ))}
-        </Card>
-      </section>
 
       <section aria-labelledby="provas" className="flex flex-col gap-3">
         <h2 id="provas" className="text-lg font-semibold text-[var(--color-text-primary)]">
@@ -160,7 +135,7 @@ export function Prova2Page() {
         </div>
       </section>
 
-      <section aria-labelledby="confirmar" className="flex flex-col gap-3">
+      {exam !== 'P1' && <section aria-labelledby="confirmar" className="flex flex-col gap-3">
         <h2 id="confirmar" className="flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
           <TriangleAlert size={18} className="text-[var(--color-amber)]" /> Vale confirmar com o professor
         </h2>
@@ -170,7 +145,7 @@ export function Prova2Page() {
           <li>Gabarito de 2024/1: Q3 item 3 parece verdadeiro e Q7 item 4 parece falso.</li>
           <li>Nulidade no slide 11: o slide imprime e − n − k, mas o exemplo só fecha com e − n + k.</li>
         </ul>
-      </section>
+      </section>}
     </div>
   );
 }

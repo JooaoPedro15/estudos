@@ -1,4 +1,4 @@
-import type { ExamId, Module } from './types';
+import type { ExamScope, Module } from './types';
 
 export const modules: Module[] = [
   {
@@ -119,12 +119,13 @@ export const modules: Module[] = [
   },
 ];
 
-export function modulesForExam(exam: ExamId): Module[] {
+export function modulesForExam(exam: ExamScope): Module[] {
+  if (exam === 'all') return [...modulesForExam('P1'), ...modules.filter((m) => m.exam === 'P2').sort((a, b) => a.order - b.order)];
   // Matéria nova da prova primeiro; depois a revisão que vem de outras provas.
   return [...modules.filter((m) => m.exam === exam).sort((a, b) => a.order - b.order), ...modules.filter((m) => m.alsoIn?.includes(exam))];
 }
 
-export function topicIdsForExam(exam: ExamId): string[] {
+export function topicIdsForExam(exam: ExamScope): string[] {
   return modulesForExam(exam).flatMap((m) => m.topicIds);
 }
 

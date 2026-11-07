@@ -106,7 +106,7 @@ export function PracticeSession() {
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
         Sem simulado, sem tempo fixo — questões da matéria inteira ou de um módulo (ponderadas pelos seus pontos fracos e pela chance de
-        cair na P1), uma atrás da outra. Saia quando quiser.
+        cair na prova), uma atrás da outra. Saia quando quiser.
       </p>
 
       <ModuleFilter value={moduleId} onChange={changeModule} tone="success" />

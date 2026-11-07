@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import type { ExamScope } from '@/content/types';
 import { Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 
 /* Cena da página inicial: um grafo pequeno onde o algoritmo escolhido anda
@@ -43,10 +44,11 @@ interface Step {
   aux: string;
 }
 
-type AlgoId = 'bfs' | 'dijkstra' | 'prim';
+type AlgoId = 'dfs' | 'bfs' | 'dijkstra' | 'prim';
 
 const ALGOS: { id: AlgoId; label: string; auxName: string }[] = [
   { id: 'bfs', label: 'Busca em largura', auxName: 'Fila' },
+  { id: 'dfs', label: 'Busca em profundidade', auxName: 'Pilha de chamadas' },
   { id: 'dijkstra', label: 'Dijkstra', auxName: 'Distâncias' },
   { id: 'prim', label: 'Prim (AGM)', auxName: 'Peso da árvore' },
 ];
@@ -85,6 +87,31 @@ function bfs(s: VId): Step[] {
     });
   }
   steps.push({ done: [...done], frontier: [], tree: [...tree], labels: { ...level }, caption: 'Fila vazia. As arestas azuis formam a árvore de busca; o número é a distância em arestas.', aux: 'vazia' });
+  return steps;
+}
+
+function dfs(s: VId): Step[] {
+  const steps: Step[] = [];
+  const seen = new Set<VId>();
+  const done: VId[] = [];
+  const stack: VId[] = [];
+  const tree: string[] = [];
+  const labels: Partial<Record<VId, string>> = {};
+  const visit = (v: VId) => {
+    seen.add(v);
+    stack.push(v);
+    labels[v] = String(seen.size);
+    steps.push({ current: v, done: [...done], frontier: [...stack], tree: [...tree], labels: { ...labels }, caption: `Visita ${v}. A busca aprofunda por um vizinho ainda não descoberto.`, aux: stack.join(' → ') });
+    for (const { to, e } of neighbors(v)) {
+      if (seen.has(to)) continue;
+      tree.push(e.id);
+      visit(to);
+    }
+    stack.pop();
+    done.push(v);
+    steps.push({ current: stack.at(-1), done: [...done], frontier: [...stack], tree: [...tree], labels: { ...labels }, caption: `Termina ${v}: todos os vizinhos foram descobertos.${stack.length ? ` Retorna a ${stack.at(-1)}.` : ' A busca terminou.'}`, aux: stack.join(' → ') || 'vazia' });
+  };
+  visit(s);
   return steps;
 }
 
@@ -154,14 +181,14 @@ function prim(s: VId): Step[] {
   return steps;
 }
 
-const RUN: Record<AlgoId, (s: VId) => Step[]> = { bfs, dijkstra, prim };
+const RUN: Record<AlgoId, (s: VId) => Step[]> = { bfs, dfs, dijkstra, prim };
 
-export function HeroScene() {
-  const [algo, setAlgo] = useState<AlgoId>('dijkstra');
+export function HeroScene({ exam }: { exam: ExamScope }) {
+  const algorithms = ALGOS.filter((a) => exam === 'all' || (exam === 'P1' ? a.id === 'bfs' || a.id === 'dfs' : a.id === 'dijkstra' || a.id === 'prim'));
+  const [algo, setAlgo] = useState<AlgoId>(exam === 'P1' ? 'bfs' : 'dijkstra');
   const [source, setSource] = useState<VId>('A');
   const [i, setI] = useState(0);
-  const reduce = useRef(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-  const [playing, setPlaying] = useState(!reduce.current);
+  const [playing, setPlaying] = useState(() => !(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches));
   const steps = useMemo(() => RUN[algo](source), [algo, source]);
   const step = steps[Math.min(i, steps.length - 1)];
 
@@ -178,7 +205,7 @@ export function HeroScene() {
   return (
     <div className="hero-scene">
       <div className="hs-tabs" role="tablist" aria-label="Algoritmo">
-        {ALGOS.map((a) => (
+        {algorithms.map((a) => (
           <button key={a.id} role="tab" aria-selected={algo === a.id} className={clsx(algo === a.id && 'on')} onClick={() => choose(a.id)}>
             {a.label}
           </button>
@@ -190,7 +217,7 @@ export function HeroScene() {
           const [x2, y2] = POS[e.v];
           const inTree = step.tree.includes(e.id);
           const probe = step.probe === e.id;
-          const showW = algo !== 'bfs';
+          const showW = algo === 'dijkstra' || algo === 'prim';
           return (
             <g key={e.id}>
               <line x1={x1} y1={y1} x2={x2} y2={y2} className={clsx('hs-edge', inTree && 'tree', probe && 'probe')} />

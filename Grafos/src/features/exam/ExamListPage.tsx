@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { exams as allExams, realExams as allRealExams } from '@/content/exams';
 import { useActiveExam } from '@/store/activeExam';
-import type { ExamId } from '@/content/types';
+import type { ExamScope } from '@/content/types';
 import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
 
@@ -32,7 +32,8 @@ function ExamCard({ exam }: { exam: Exam }) {
   );
 }
 
-const REAL_EXAMS_TEXT: Record<ExamId, { title: string; description: string }> = {
+const REAL_EXAMS_TEXT: Record<ExamScope, { title: string; description: string }> = {
+  all: { title: 'Provas reais — P1 e P2', description: 'Todas as provas antigas disponíveis, com enunciados e respostas-modelo.' },
   P1: {
     title: 'Provas reais — 2022/1 a 2026/1',
     description: 'As 8 provas do Prof. Silvio Jamil, questão por questão, com o enunciado literal (matrizes, listas e grafos transcritos dos PDFs).',
@@ -47,8 +48,8 @@ const REAL_EXAMS_TEXT: Record<ExamId, { title: string; description: string }> = 
 /** Lista as provas reais (literais) e os simulados montados da prova ativa — cada um leva ao simulador em `/simulado/:examId`. */
 export function ExamListPage() {
   const active = useActiveExam();
-  const exams = allExams.filter((e) => (e.prova ?? 'P1') === active);
-  const realExams = allRealExams.filter((e) => (e.prova ?? 'P1') === active);
+  const exams = allExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
+  const realExams = allRealExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-1.5">

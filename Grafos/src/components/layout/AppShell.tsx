@@ -1,6 +1,6 @@
 import { Outlet, Link } from 'react-router-dom';
 import clsx from 'clsx';
-import type { ExamId } from '@/content/types';
+import type { ExamScope } from '@/content/types';
 import { setActiveExam, useActiveExam } from '@/store/activeExam';
 
 interface NavItem {
@@ -9,13 +9,12 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Estudo P2', href: '/prova2' },
+  { label: 'Prioridades', href: '/prioridades' },
   { label: 'Início', href: '/' },
   { label: 'Módulos', href: '/modulos' },
   { label: 'Laboratório', href: '/playground' },
   { label: 'Simulado', href: '/simulado' },
   { label: 'Progresso', href: '/progresso' },
-  { label: 'Revisão Final', href: '/revisao-final' },
 ];
 
 function GrafosGlyph() {
@@ -29,13 +28,13 @@ function GrafosGlyph() {
   );
 }
 
-const EXAMS: ExamId[] = ['P1', 'P2'];
+const EXAMS: ExamScope[] = ['all', 'P1', 'P2'];
 
-/** Troca a prova ativa: o app inteiro passa a mostrar só os módulos e simulados dela. */
+/** Filtra módulos, sessões e simulados por prova ou mostra todo o conteúdo. */
 function ExamSwitch() {
   const active = useActiveExam();
   return (
-    <div role="group" aria-label="Prova" className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-0.5">
+    <div role="group" aria-label="Conteúdo" className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-0.5">
       {EXAMS.map((exam) => (
         <button
           key={exam}
@@ -47,11 +46,16 @@ function ExamSwitch() {
             active === exam ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]',
           )}
         >
-          {exam}
+          {exam === 'all' ? 'Todo o conteúdo' : exam}
         </button>
       ))}
     </div>
   );
+}
+
+function ExamContent() {
+  const exam = useActiveExam();
+  return <Outlet key={exam} />;
 }
 
 /** Layout raiz: topo fixo com wordmark + seletor de prova + navegação, área de conteúdo com largura máxima. */
@@ -87,7 +91,7 @@ export function AppShell() {
         </div>
       </header>
       <main id="conteudo-principal" className="mx-auto max-w-6xl px-6 py-10">
-        <Outlet />
+        <ExamContent />
       </main>
     </div>
   );
