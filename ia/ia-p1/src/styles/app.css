@@ -71,7 +71,7 @@ code {
 
 strong {
   font-weight: 700;
-  color: #fff;
+  color: var(--ink);
 }
 
 :focus-visible {
@@ -119,7 +119,7 @@ strong {
   top: 0;
   z-index: 40;
   height: var(--header-h);
-  background: rgb(18 24 38 / 88%);
+  background: rgb(246 244 250 / 88%);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
@@ -195,8 +195,8 @@ strong {
 
 .nav-item[aria-current='page'] {
   background: var(--surface-2);
-  color: #fff;
-  box-shadow: inset 0 -2px 0 var(--sim);
+  color: var(--marca-ink);
+  box-shadow: inset 0 -2px 0 var(--marca);
 }
 
 .contador {
@@ -222,7 +222,7 @@ strong {
   padding-bottom: env(safe-area-inset-bottom);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: rgb(21 28 44 / 96%);
+  background: rgb(255 255 255 / 96%);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
 }
@@ -314,13 +314,13 @@ strong {
 }
 
 .btn-primario {
-  background: var(--sim);
-  border-color: var(--sim);
-  color: #07121d;
+  background: var(--marca);
+  border-color: var(--marca);
+  color: #fff;
 }
 
 .btn-primario:hover:not(:disabled) {
-  background: #5aaeea;
+  background: var(--marca-forte);
 }
 
 .btn-pequeno {
@@ -400,7 +400,7 @@ strong {
 .chip[aria-pressed='true'] {
   background: var(--sim-soft);
   border-color: var(--sim-line);
-  color: #fff;
+  color: var(--sim-ink);
 }
 
 .chip:has(input:focus-visible) {
@@ -425,7 +425,7 @@ strong {
 }
 
 .selo-media {
-  border-color: rgb(242 193 78 / 45%);
+  border-color: rgb(185 130 0 / 40%);
   color: var(--xp);
 }
 
@@ -565,7 +565,7 @@ strong {
   line-height: 1.1;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
-  color: #fff;
+  color: var(--ink);
 }
 
 .contagem-nome {
@@ -649,7 +649,7 @@ strong {
 
 .plano-tag {
   font-size: var(--text-xs);
-  color: #07121d;
+  color: #fff;
   background: var(--sim);
   padding: 0 8px;
   border-radius: var(--radius-full);
@@ -814,7 +814,7 @@ strong {
   overflow-x: auto;
   margin: 0 -16px 22px;
   padding: 8px 16px;
-  background: rgb(18 24 38 / 92%);
+  background: rgb(246 244 250 / 92%);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
   scrollbar-width: none;
@@ -1126,7 +1126,7 @@ tbody tr:last-child td {
   height: 26px;
   border-radius: 50%;
   background: var(--sim);
-  color: #07121d;
+  color: #fff;
   font-size: var(--text-sm);
 }
 
@@ -1355,7 +1355,7 @@ tbody tr:last-child td {
 .opcao-marcada .opcao-letra {
   background: var(--sim);
   border-color: var(--sim);
-  color: #07121d;
+  color: #fff;
 }
 
 .opcao-certa {
@@ -1366,7 +1366,7 @@ tbody tr:last-child td {
 .opcao-certa .opcao-letra {
   background: var(--sim);
   border-color: var(--sim);
-  color: #07121d;
+  color: #fff;
 }
 
 .opcao-errada {
@@ -1378,7 +1378,7 @@ tbody tr:last-child td {
 .opcao-errada .opcao-letra {
   background: var(--nao);
   border-color: var(--nao);
-  color: #1d1208;
+  color: #fff;
 }
 
 .opcoes:disabled .opcao {
@@ -1611,7 +1611,7 @@ tbody tr:last-child td {
   gap: 10px;
   margin: 0 -16px 12px;
   padding: 10px 16px;
-  background: rgb(18 24 38 / 94%);
+  background: rgb(246 244 250 / 94%);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
   font-size: var(--text-sm);
@@ -1856,7 +1856,7 @@ tbody tr:last-child td {
   margin: 0;
   font-family: var(--font-mono);
   font-size: 1.15rem;
-  color: #fff;
+  color: var(--ink);
 }
 
 .resultados .vencedor {
@@ -1973,7 +1973,7 @@ tbody tr:last-child td {
 
 .sk-teste {
   font-weight: 700;
-  fill: #fff;
+  fill: var(--ink);
 }
 
 .sk-aresta {
@@ -2027,22 +2027,22 @@ tbody tr:last-child td {
 }
 
 .dg-sim {
-  fill: rgb(57 157 229 / 26%);
+  fill: rgb(43 128 198 / 22%);
   stroke: var(--sim);
 }
 
 .dg-sim-leve {
-  fill: rgb(57 157 229 / 10%);
+  fill: rgb(43 128 198 / 9%);
   stroke: var(--sim-line);
 }
 
 .dg-nao {
-  fill: rgb(229 129 57 / 26%);
+  fill: rgb(214 106 38 / 22%);
   stroke: var(--nao);
 }
 
 .dg-xp {
-  fill: rgb(242 193 78 / 22%);
+  fill: rgb(222 165 30 / 22%);
   stroke: var(--xp);
 }
 
@@ -2224,7 +2224,7 @@ input {
 }
 
 .btn-ensine:hover:not(:disabled) {
-  background: rgb(57 157 229 / 24%);
+  background: rgb(43 128 198 / 18%);
 }
 
 .ensine-painel {
