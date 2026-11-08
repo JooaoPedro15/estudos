@@ -1,5 +1,5 @@
 /**
- * Manha-media Q1: matriz flexivel em que cada celula aponta para uma lista COM cabeca.
+ * Exercício Q1: matriz flexivel em que cada celula aponta para uma lista COM cabeca.
  * inserir(i, j, x): vai ate a celula (i, j) e insere no fim da lista.
  * pesquisar(x): varre toda a matriz e, em cada celula, a sua lista; para ao achar.
  */

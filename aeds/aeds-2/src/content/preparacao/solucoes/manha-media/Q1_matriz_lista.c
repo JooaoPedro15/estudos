@@ -1,4 +1,4 @@
-/* Manha-media Q1 (versao C): matriz flexivel em que cada celula aponta para uma lista COM cabeca.
+/* Exercício Q1 (versao C): matriz flexivel em que cada celula aponta para uma lista COM cabeca.
    inserir(i, j, x): vai ate a celula (i, j) e insere no fim da lista; pesquisar(x): para ao achar.
    A versao Java esta em Q1_MatrizDeLista.java. */
 #include <stdio.h>

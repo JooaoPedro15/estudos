@@ -1,5 +1,5 @@
 /**
- * Tarde-media Q3: Agenda (arvore de listas com cabeca): remover(nome) e pesquisarPorCpf(cpf).
+ * Exercício Q3: Agenda (arvore de listas com cabeca): remover(nome) e pesquisarPorCpf(cpf).
  */
 class Contato {
    String nome; int cpf;

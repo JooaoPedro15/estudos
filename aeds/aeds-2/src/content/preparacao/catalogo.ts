@@ -1,75 +1,66 @@
 import type { ExamId } from '../examCatalog';
 import p2 from './simuladosP2.json';
 
-export type Turno = 'manha' | 'tarde';
 export type Nivel = 'facil' | 'media' | 'dificil';
-export type Professor = 'todos' | 'max' | 'walisson' | 'naisses';
 export type Tema = {
-  id: string; title: string; chance: [number, number] | null;
-  forms: { title: string; chance: [number | null, number | null] | null }[];
+  id: string; title: string;
+  forms: { title: string }[];
   evidence: string; operation: string; trap: string; sources: string[];
 };
-export type QuestaoPreparacao = { id: string; title: string; body: string; sources: string[]; answer?: string; topic?: string };
-export type SimuladoPreparacao = { id: string; exam: ExamId; turn: Turno; level: Nivel; questions: QuestaoPreparacao[] };
+export type QuestaoPreparacao = { id: string; title: string; body: string; sources: string[]; answer?: string; topic?: string; base?: string };
+export type SimuladoPreparacao = { id: string; exam: ExamId; title: string; level: Nivel; questions: QuestaoPreparacao[] };
 export type Plano = { scope: string; status: string; history: string[]; missing: string[]; topics: Tema[] };
-const forma = (title: string, chance: [number | null,number | null] | null = null) => ({title,chance});
+const forma = (title: string) => ({title});
 export const planos: Record<ExamId, Plano> = {
   p1: {
     scope: 'Fundamentos de análise, somatórios, estruturas sequenciais e ordenação (u00–u03). Flexíveis (u04) permanecem como revisão complementar até confirmação da turma.',
     status: 'Histórico disponível · escopo atual a confirmar',
-    history: ['Uma edição fotografada, em duas páginas: análise por blocos com melhor/pior caso; perturbação e indução; métodos novos em fila circular.', 'As fotos não identificam semestre, turno ou autoria. Não há base para diferenciar a cobrança de manhã e tarde.', 'A pasta reservada à P1 de 2026/2 está vazia. A prova de 2019/2 é uma referência adicional de análise, sem equivalência garantida ao formato atual.'],
-    missing: ['P1 de 2026/2 e orientações atuais de escopo.', 'Metadados das fotos: semestre, turno e professor.', 'Regras atuais da prática: linguagem por questão, restrições e rubrica.'],
+    history: ['Uma edição fotografada, em duas páginas: análise por blocos com melhor/pior caso; perturbação e indução; métodos novos em fila circular.', 'As fotos não identificam o semestre. O roteiro reúne o conteúdo disponível para toda a turma.', 'A pasta reservada à P1 de 2026/2 está vazia. A prova de 2019/2 é uma referência adicional de análise, sem equivalência garantida ao formato atual.'],
+    missing: ['P1 de 2026/2 e orientações atuais de escopo.', 'Semestre e edição das fotos.', 'Regras atuais da prática: linguagem por questão, restrições e rubrica.'],
     topics: [
-      { id:'analise',title:'Contar antes de classificar',chance:null,forms:[forma('Laços dependentes e ramificações'),forma('Somatório, fechamento e indução')],evidence:'As questões 1 e 2 da edição fotografada cobram essa sequência. Frequência observada não é probabilidade de uma prova futura.',operation:'Identificar operação relevante → escrever Σ → fechar → justificar Θ.',trap:'Somar custos de ramos mutuamente exclusivos ou trocar O por Θ sem limite inferior.',sources:['autoral/Fundamentos.java'] },
-      { id:'fila',title:'Fila circular e invariantes',chance:null,forms:[forma('Desfazer inserção'),forma('Percurso inverso recursivo')],evidence:'Questão 3 da edição fotografada; código oficial de fila sequencial.',operation:'Atualizar último com módulo e preservar primeiro; distinguir cheia e vazia.',trap:'Fazer (ultimo - 1) % tamanho em Java: o resto pode ser negativo.',sources:['autoral/Fundamentos.java'] },
-      { id:'ordenacao',title:'Ordenação e critérios',chance:null,forms:[forma('Inserção estável'),forma('Comparador e desempates')],evidence:'u03 e treinos de ordenação da disciplina; sinal de conteúdo, sem comprovação de frequência nesta avaliação.',operation:'Adaptar a comparação mantendo o algoritmo solicitado.',trap:'Trocar o algoritmo pedido por uma ordenação pronta.',sources:['autoral/Fundamentos.java'] },
+      { id:'analise',title:'Contar antes de classificar',forms:[forma('Laços dependentes e ramificações'),forma('Somatório, fechamento e indução')],evidence:'As questões 1 e 2 da edição fotografada cobram essa sequência. Frequência observada não é probabilidade de uma prova futura.',operation:'Identificar operação relevante → escrever Σ → fechar → justificar Θ.',trap:'Somar custos de ramos mutuamente exclusivos ou trocar O por Θ sem limite inferior.',sources:['autoral/Fundamentos.java'] },
+      { id:'fila',title:'Fila circular e invariantes',forms:[forma('Desfazer inserção'),forma('Percurso inverso recursivo')],evidence:'Questão 3 da edição fotografada; código oficial de fila sequencial.',operation:'Atualizar último com módulo e preservar primeiro; distinguir cheia e vazia.',trap:'Fazer (ultimo - 1) % tamanho em Java: o resto pode ser negativo.',sources:['autoral/Fundamentos.java'] },
+      { id:'ordenacao',title:'Ordenação e critérios',forms:[forma('Inserção estável'),forma('Comparador e desempates')],evidence:'u03 e treinos de ordenação da disciplina; sinal de conteúdo, sem comprovação de frequência nesta avaliação.',operation:'Adaptar a comparação mantendo o algoritmo solicitado.',trap:'Trocar o algoritmo pedido por uma ordenação pronta.',sources:['autoral/Fundamentos.java'] },
     ],
   },
   p2: {
     scope:'Estruturas flexíveis (u04), ABP e híbridas (u05), além de ordenação parcial e ordenação em listas (u03). Remoção genérica em ABP fora do escopo de 2026/2; removerFolhas e liberar permanecem dentro.',
-    status:'Teórica aplicada em 04/11/2026 · confronto parcial disponível',
+    status:'Teórica aplicada em 04/11/2026 · registro de conteúdo disponível',
     history:['A análise anterior reúne quatro P2 completas e um fragmento de 2026/1. A amostra contém árvore em Java e questões em C sobre listas/ordenação em lista; não são cinco edições igualmente completas.', 'Formato observado: implementação com código-base, eventualmente figura, e complexidade em Θ. Pratique no papel: o editor aqui é um rascunho.', 'Backtest anterior: ao ocultar uma edição, a análise relatou acerto das três famílias de estrutura, mas apenas 1,5/3 operações exatas. É um teste retrospectivo pequeno, sem validação estatística independente.'],
-    missing:['Foto/enunciado da P2 de 04/11 para confirmar parâmetros e critérios.', 'Detalhes da inserção por nível: escolha de posição, níveis válidos e tratamento de nível ocupado.', 'Versão da tarde e confirmação de se o Quicksort era completo ou parcial.'],
+    missing:['Foto/enunciado da P2 de 04/11 para confirmar parâmetros e critérios.', 'Detalhes da inserção por nível: escolha de posição, níveis válidos e tratamento de nível ocupado.', 'Enunciados completos e confirmação de se o Quicksort era completo ou parcial.'],
     topics:[
-      { id:'arvore',title:'Árvore por caminhamento',chance:[90,85],forms:[forma('Árvore em C',[40,35]),forma('Contar, somar ou altura',[20,null]),forma('Espelhar (forma específica)',[15,null])],evidence:'Histórico de P2, TP4 e aulão de 30/10. Árvore em C foi reduzida para ~40% na manhã: o aulão aponta para C, enquanto o histórico favorece Java.',operation:'Público → privado recursivo; tratar vazio; percorrer conforme a chave.',trap:'Buscar por nome em árvore ordenada por ano: é preciso visitar os dois ramos.',sources:['autoral/Anos.java','matriz/java/ArvoreOps.java','matriz/c/arvore_ops.c'] },
-      { id:'hibrida',title:'Estruturas híbridas',chance:[75,60],forms:[forma('Árvore de listas',[40,null]),forma('Matriz de listas',[35,null])],evidence:'As quatro P2 completas da análise anterior usam híbridas. Aulão e slides T6 reforçam composição de estruturas. Percentuais são julgamento da análise de 03/11, não frequência convertida diretamente.',operation:'Separar a busca no primeiro nível do percurso na estrutura interna.',trap:'Multiplicar custos de buscas sequenciais; ignorar cabeça ou pré-condição de nó existente.',sources:['matriz/java/HibridasOps.java','autoral/Anos.java'] },
-      { id:'parcial',title:'Ordenação parcial',chance:[75,85],forms:[forma('Quick parcial',[35,40]),forma('Heap parcial',[25,30]),forma('Seleção/Inserção parcial',[15,20])],evidence:'TP4 de 27/10 e slides atualizados; treinos e prática da disciplina. O relato da P2 confirma Quicksort, mas não confirma a modalidade parcial.',operation:'Limitar trabalho ao prefixo k e formalizar todos os desempates.',trap:'Afirmar Θ(n log n) para qualquer entrada de Quicksort ou esquecer k=0 e k=n.',sources:['autoral/Parcial.java','autoral/Parcial.c','autoral/Heap.java'] },
-      { id:'lista',title:'Lista encadeada e ponteiros',chance:[60,50],forms:[forma('Lista em C',[35,30]),forma('Inserir, remover e inverter')],evidence:'Slides T5, questões históricas de meiose e ordenação em lista dupla circular; aulão de estruturas híbridas.',operation:'Pular cabeça, manter último e salvar o próximo antes de alterar vínculos.',trap:'Perder a referência do restante da lista ou deixar ultimo apontando para célula removida.',sources:['matriz/java/ListaOps.java','matriz/c/lista_ops.c','matriz/c/lista_dupla_circular.c'] },
-      { id:'treesort',title:'TreeSort como variação',chance:[20,35],forms:[forma('Inserção + percurso central',[20,35])],evidence:'Slides T4, exercício 7 e código oficial. O sinal oral da tarde foi relatado pelo aluno; não é uma fala verificada.',operation:'Inserir todos os elementos e fazer percurso central; definir repetidos.',trap:'Garantir Θ(n log n) em ABP sem balanceamento: pior caso Θ(n²).',sources:['tarde-media/Q2_TreeSort.java'] },
+      { id:'arvore',title:'Árvore por caminhamento',forms:[forma('Árvore em C'),forma('Contar, somar ou altura'),forma('Espelhar (forma específica)')],evidence:'Histórico da P2, TP4 e aulão de 30/10: pratique a manipulação de árvores em Java e C, com atenção a referências e caminhamentos.',operation:'Público → privado recursivo; tratar vazio; percorrer conforme a chave.',trap:'Buscar por nome em árvore ordenada por ano: é preciso visitar os dois ramos.',sources:['autoral/Anos.java','matriz/java/ArvoreOps.java','matriz/c/arvore_ops.c'] },
+      { id:'hibrida',title:'Estruturas híbridas',forms:[forma('Árvore de listas'),forma('Matriz de listas')],evidence:'As quatro P2 completas da análise anterior usam híbridas. Aulão e slides T6 reforçam composição de estruturas.',operation:'Separar a busca no primeiro nível do percurso na estrutura interna.',trap:'Multiplicar custos de buscas sequenciais; ignorar cabeça ou pré-condição de nó existente.',sources:['matriz/java/HibridasOps.java','autoral/Anos.java'] },
+      { id:'parcial',title:'Ordenação parcial',forms:[forma('Quick parcial'),forma('Heap parcial'),forma('Seleção/Inserção parcial')],evidence:'TP4 de 27/10 e slides atualizados; treinos e prática da disciplina. O relato da P2 confirma Quicksort, mas não confirma a modalidade parcial.',operation:'Limitar trabalho ao prefixo k e formalizar todos os desempates.',trap:'Afirmar Θ(n log n) para qualquer entrada de Quicksort ou esquecer k=0 e k=n.',sources:['autoral/Parcial.java','autoral/Parcial.c','autoral/Heap.java'] },
+      { id:'lista',title:'Lista encadeada e ponteiros',forms:[forma('Lista em C'),forma('Inserir, remover e inverter')],evidence:'Slides T5, questões históricas de meiose e ordenação em lista dupla circular; aulão de estruturas híbridas.',operation:'Pular cabeça, manter último e salvar o próximo antes de alterar vínculos.',trap:'Perder a referência do restante da lista ou deixar ultimo apontando para célula removida.',sources:['matriz/java/ListaOps.java','matriz/c/lista_ops.c','matriz/c/lista_dupla_circular.c'] },
+      { id:'treesort',title:'TreeSort como variação',forms:[forma('Inserção + percurso central')],evidence:'Slides T4, exercício 7 e código oficial: inserção em ABP seguida de percurso central.',operation:'Inserir todos os elementos e fazer percurso central; definir repetidos.',trap:'Garantir Θ(n log n) em ABP sem balanceamento: pior caso Θ(n²).',sources:['tarde-media/Q2_TreeSort.java'] },
     ],
   },
   p3:{
     scope:'Balanceamento (AVL, alvinegra e 2-3-4), hash e TRIE/PATRICIA (u06–u08), com estruturas híbridas. Base histórica; orientações de 2026/2 ainda não recebidas.',
     status:'Preparação pelo histórico · orientações ainda não disponíveis',
-    history:['Duas edições fotografadas: ambas trazem método em árvore e pesquisa híbrida. Uma inclui TRIE invertida e V/F; a outra pede contagem de nós balanceados e palavras com prefixo.', 'A lista de preparação para a P3 reforça composições de estruturas. Ela amplia o repertório, mas não prova frequência nem autoria.', 'Não há prova identificada por turno/professor nem amostra independente suficiente para um backtest confiável. Não transportamos percentuais da P2 para esta avaliação.'],
-    missing:['Orientações de 2026/2, quando forem divulgadas.', 'Semestre, turno e autoria das duas edições.', 'Formato e regras atuais da prática.'],
+    history:['Duas edições fotografadas: ambas trazem método em árvore e pesquisa híbrida. Uma inclui TRIE invertida e V/F; a outra pede contagem de nós balanceados e palavras com prefixo.', 'A lista de preparação para a P3 reforça composições de estruturas. Ela amplia o repertório, mas não prova frequência nem autoria.', 'O roteiro reúne as formas presentes no histórico e na lista: implemente métodos, simule as estruturas e justifique a complexidade.'],
+    missing:['Orientações de 2026/2, quando forem divulgadas.', 'Semestre das duas edições.', 'Formato e regras atuais da prática.'],
     topics:[
-      {id:'avl',title:'AVL: altura e equilíbrio',chance:null,forms:[forma('Contar nós balanceados com nivel pronto'),forma('Rotação e atualização de alturas')],evidence:'Duas edições fotografadas incluem métodos de árvore; uma pede explicitamente uso do atributo nivel.',operation:'Separar altura armazenada de altura calculada; validar fator em cada nó.',trap:'Testar só a raiz ou somar recálculos de altura desnecessários.',sources:['autoral/Estruturas.java']},
-      {id:'trie',title:'TRIE: percursos e prefixos',chance:null,forms:[forma('Percorrer subárvore de prefixo'),forma('Criar TRIE com palavras invertidas')],evidence:'Uma forma em cada edição fotografada e conteúdo de u08.',operation:'Descer pelo prefixo e percorrer todos os finais de palavra na subárvore.',trap:'Confundir folha com fimPalavra: uma palavra pode ser prefixo de outra.',sources:['autoral/Estruturas.java']},
-      {id:'hash',title:'Hash e estruturas híbridas',chance:null,forms:[forma('Pesquisa T1 → reserva → árvore/lista'),forma('V/F sobre colisão e pior caso')],evidence:'Pesquisa em híbrida nas duas edições; lista da P3 e u07.',operation:'Aplicar cada função de distribuição e percorrer somente a reserva correta.',trap:'Prometer custo constante no pior caso ou usar valor zero como posição vazia.',sources:['autoral/Hibrida.java']},
+      {id:'avl',title:'AVL: altura e equilíbrio',forms:[forma('Contar nós balanceados com nivel pronto'),forma('Rotação e atualização de alturas')],evidence:'Duas edições fotografadas incluem métodos de árvore; uma pede explicitamente uso do atributo nivel.',operation:'Separar altura armazenada de altura calculada; validar fator em cada nó.',trap:'Testar só a raiz ou somar recálculos de altura desnecessários.',sources:['autoral/Estruturas.java']},
+      {id:'trie',title:'TRIE: percursos e prefixos',forms:[forma('Percorrer subárvore de prefixo'),forma('Criar TRIE com palavras invertidas')],evidence:'Uma forma em cada edição fotografada e conteúdo de u08.',operation:'Descer pelo prefixo e percorrer todos os finais de palavra na subárvore.',trap:'Confundir folha com fimPalavra: uma palavra pode ser prefixo de outra.',sources:['autoral/Estruturas.java']},
+      {id:'hash',title:'Hash e estruturas híbridas',forms:[forma('Pesquisa T1 → reserva → árvore/lista'),forma('V/F sobre colisão e pior caso')],evidence:'Pesquisa em híbrida nas duas edições; lista da P3 e u07.',operation:'Aplicar cada função de distribuição e percorrer somente a reserva correta.',trap:'Prometer custo constante no pior caso ou usar valor zero como posição vazia.',sources:['autoral/Hibrida.java']},
     ],
   },
   reav:{
     scope:'Revisão cumulativa de u00–u08 pelo histórico: análise, simulação de balanceamento, ordenação e implementação em estrutura composta. Escopo atual não divulgado.',
     status:'Revisão cumulativa · orientações ainda não disponíveis',
-    history:['Uma edição principal e uma segunda incompleta. A principal reúne seis macroformatos: somatório/indução; simulação de árvores; V/F; adaptação da inserção; melhor/pior caso; pesquisa híbrida.', 'A edição incompleta é evidência secundária; não contamos páginas como provas independentes.', 'As fotos não permitem atribuir diferenças de turno ou professor. Os simulados autorais compartilham a mesma matriz para manhã e tarde.'],
-    missing:['Orientações atuais e confirmação do caráter cumulativo.', 'Edição completa da segunda reavaliação.', 'Metadados de turno, semestre e professor.'],
+    history:['Uma edição principal e uma segunda incompleta. A principal reúne seis macroformatos: somatório/indução; simulação de árvores; V/F; adaptação da inserção; melhor/pior caso; pesquisa híbrida.', 'A edição incompleta é evidência secundária; não contamos páginas como provas independentes.', 'O roteiro é único e cumulativo: pratique as operações de todas as avaliações.'],
+    missing:['Orientações atuais e confirmação do caráter cumulativo.', 'Edição completa da segunda reavaliação.', 'Semestre e edição das fotos.'],
     topics:[
-      {id:'analise',title:'Somatórios e casos',chance:null,forms:[forma('Fechamento + indução'),forma('Contagem por ramo')],evidence:'Questões 1 e 5 da edição principal.',operation:'Contar a operação pedida e provar o fechamento por indução.',trap:'Contar o corpo inteiro quando se pedem apenas multiplicações.',sources:['autoral/Fundamentos.java']},
-      {id:'avl',title:'Balanceamento no papel',chance:null,forms:[forma('Simular inserções'),forma('Provar/refutar invariantes')],evidence:'Questões 2 e 3: AVL, alvinegra e 2-3-4.',operation:'Desenhar após cada inserção; distinguir rotação de fragmentação.',trap:'Afirmar que ascensão e descida sempre produzem árvore idêntica.',sources:['autoral/Estruturas.java']},
-      {id:'ordenacao',title:'Adaptar ordenação',chance:null,forms:[forma('Ordenação por grupos e valor'),forma('Análise de estabilidade e custo')],evidence:'Questão 4 da edição principal adapta inserção por paridade.',operation:'Criar a relação de ordem e preservar o laço da inserção.',trap:'Comparar só o grupo, esquecendo a ordem dentro de cada grupo.',sources:['autoral/Fundamentos.java']},
-      {id:'hash',title:'Pesquisar na estrutura composta',chance:null,forms:[forma('Hash + árvore/lista'),forma('Chave diferente do campo consultado')],evidence:'Questão 6 da edição principal e material de revisão de híbridas.',operation:'Desenhar a rota da busca e justificar o custo de cada nível.',trap:'Assumir que toda árvore permite busca binária por qualquer atributo.',sources:['autoral/Hibrida.java','autoral/Anos.java']},
+      {id:'analise',title:'Somatórios e casos',forms:[forma('Fechamento + indução'),forma('Contagem por ramo')],evidence:'Questões 1 e 5 da edição principal.',operation:'Contar a operação pedida e provar o fechamento por indução.',trap:'Contar o corpo inteiro quando se pedem apenas multiplicações.',sources:['autoral/Fundamentos.java']},
+      {id:'avl',title:'Balanceamento no papel',forms:[forma('Simular inserções'),forma('Provar/refutar invariantes')],evidence:'Questões 2 e 3: AVL, alvinegra e 2-3-4.',operation:'Desenhar após cada inserção; distinguir rotação de fragmentação.',trap:'Afirmar que ascensão e descida sempre produzem árvore idêntica.',sources:['autoral/Estruturas.java']},
+      {id:'ordenacao',title:'Adaptar ordenação',forms:[forma('Ordenação por grupos e valor'),forma('Análise de estabilidade e custo')],evidence:'Questão 4 da edição principal adapta inserção por paridade.',operation:'Criar a relação de ordem e preservar o laço da inserção.',trap:'Comparar só o grupo, esquecendo a ordem dentro de cada grupo.',sources:['autoral/Fundamentos.java']},
+      {id:'hash',title:'Pesquisar na estrutura composta',forms:[forma('Hash + árvore/lista'),forma('Chave diferente do campo consultado')],evidence:'Questão 6 da edição principal e material de revisão de híbridas.',operation:'Desenhar a rota da busca e justificar o custo de cada nível.',trap:'Assumir que toda árvore permite busca binária por qualquer atributo.',sources:['autoral/Hibrida.java','autoral/Anos.java']},
     ],
   },
 };
 
-export const perfis = {
-  max:{name:'Max do Val Machado',turn:'manha' as Turno,text:'O material oficial favorece nomes em português, célula cabeça e método público com auxiliar recursivo. Associação de questões antigas ao professor é inferência de estilo, não autoria comprovada.'},
-  walisson:{name:'Walisson Ferreira de Carvalho',turn:'manha' as Turno,text:'Na P2, o aulão trabalhou árvores em C, memória e No**. Espelhar, simétricas e removerFolhas têm suporte nessa aula. Não há evidência específica suficiente para prever seu formato de P1/P3/reavaliação.'},
-  naisses:{name:'Naísses Zóia Lima',turn:'tarde' as Turno,text:'Para a P2, TPs e aulão reforçam ordenação parcial, critérios de desempate e estruturas híbridas. Esse perfil não estabelece autoria das fotos nem percentuais exclusivos para P1/P3/reavaliação.'},
-};
-export function chanceTema(tema: Tema, turno: Turno) { return tema.chance?.[turno==='manha'?0:1] ?? null; }
-export function faixaChance(value: number | null) { return value===null?'pendente':value>=70?'alta':value>=40?'media':'baixa'; }
 
 const q = (id:string,title:string,body:string,sources:string[],answer:string,topic:string):QuestaoPreparacao => ({id,title,body,sources,answer,topic});
 const fundamentos='autoral/Fundamentos.java', estruturas='autoral/Estruturas.java', hibrida='autoral/Hibrida.java';
@@ -115,13 +106,14 @@ for (const level of ['facil','media','dificil'] as Nivel[]) {
 }
 export const simuladosPreparacao:SimuladoPreparacao[] = [
   ...(p2 as SimuladoPreparacao[]),
-  ...(['p1','p3','reav'] as const).flatMap(exam=>(['manha','tarde'] as Turno[]).flatMap(turn=>(['facil','media','dificil'] as Nivel[]).map(level=>({id:`${exam}-${turn}-${level}`,exam,turn,level,questions:questoes[exam][level]})))),
+  ...(['p1','p3','reav'] as const).flatMap(exam=>(['facil','media','dificil'] as Nivel[]).map(level=>({id:`${exam}-${level}`,title:'Simulado',exam,level,questions:questoes[exam][level]}))),
 ];
 
 export const relatoP2 = [
-  {id:'arvore',title:'Árvore em C com inserção por nível',text:'Lembrança do aluno em 07/11/2026: recebia o número e o nível de inserção. Regras de posição e tratamento de ocupação não confirmadas.',result:'Família e linguagem compatíveis; operação específica não prevista.'},
-  {id:'parcial',title:'Quicksort',text:'Lembrança do aluno em 07/11/2026. Não está confirmado se era parcial, sobre vetor ou lista.',result:'Família de ordenação compatível; modalidade parcial ainda não avaliável.'},
-  {id:'hibrida',title:'Árvore de árvores: buscar por outro campo',text:'Relato aproximado: primeiro nível buscava por ano; segundo nível também organizado por ano, mas consulta por nome exigia caminhamento. Parte foi descrita ao aluno por colegas.',result:'Família híbrida compatível; forma e operação exatas ainda precisam do enunciado.'},
+  {id:'espelho',title:'Espelhamento não foi cobrado',text:'Atualização do aluno em 08/11/2026: não houve questão de espelhamento nessa avaliação.',result:'O exercício permanece como prática de recursão e referências, sem indicação de probabilidade de cobrança.'},
+  {id:'arvore',title:'Árvore em C com inserção por nível',text:'Lembrança do aluno em 07/11/2026: recebia o número e o nível de inserção. Regras de posição e tratamento de ocupação não confirmadas.',result:'Treinar passagem de referências em C; a regra exata de inserção depende do enunciado.'},
+  {id:'parcial',title:'Quicksort',text:'Lembrança do aluno em 07/11/2026. Não está confirmado se era parcial, sobre vetor ou lista.',result:'Revisar partição e recursão; a modalidade precisa ser confirmada no enunciado.'},
+  {id:'hibrida',title:'Árvore de árvores: buscar por outro campo',text:'Relato aproximado: primeiro nível buscava por ano; segundo nível também organizado por ano, mas consulta por nome exigia caminhamento. Parte foi descrita ao aluno por colegas.',result:'Se o campo consultado não organiza a árvore, a busca pode exigir percorrer os dois ramos.'},
 ];
 
 export const praticaPreparacao:Record<ExamId,QuestaoPreparacao[]> = {
@@ -130,3 +122,17 @@ export const praticaPreparacao:Record<ExamId,QuestaoPreparacao[]> = {
   p3:[q('pratica-prefixos','Catálogo de expedições · Java','Processe lotes até EOF. Leia n e q (0 ≤ n,q ≤ 500), n palavras de a a z e q prefixos não vazios. Construa uma TRIE e imprima quantas palavras distintas começam por cada prefixo, uma resposta por linha. Palavras podem ser prefixos de outras; repetições não aumentam a contagem.\n\nEntrada:\n```text\n4 3\nlu lua luz sol\nlu x sol\n```\nSaída:\n```text\n3\n0\n1\n```',['autoral/Prefixos.java'],'Contar fimPalavra, não folhas. Prefixo ausente resulta em 0. Custo de consulta Θ(p+26v), sendo v os nós visitados após o prefixo. Reiniciar a raiz a cada lote.','trie')],
   reav:[],
 };
+
+/** Reúne os exercícios de todas as versões sem restringir a turma. */
+export function getQuestoesPreparacao(exam:ExamId):QuestaoPreparacao[] {
+  const all=simuladosPreparacao.filter(s=>s.exam===exam).flatMap(s=>s.questions);
+  return [...new Map(all.map(question=>[question.id,question])).values()];
+}
+export function assuntoQuestao(question:QuestaoPreparacao):string {
+  if(question.topic) return question.topic;
+  if(/parcial|heap|inserção estável/i.test(question.title)) return 'parcial';
+  if(/treesort/i.test(question.title)) return 'treesort';
+  if(/agenda|matriz|dicionário|listas|árvore.*lista|tolista|diag/i.test(question.title)) return 'hibrida';
+  if(/lista/i.test(question.title)) return 'lista';
+  return 'arvore';
+}

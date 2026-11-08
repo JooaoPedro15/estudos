@@ -8,7 +8,7 @@ repositorio.
 
 ## Preparação por avaliação
 
-A tela inicial tem planos diretos para P1, P2, P3 e reavaliação, com prioridades, filtros, simulados, rascunhos salvos e revisão. A P2 preserva as estimativas anteriores à prova e registra o relato parcial de 04/11. As outras avaliações indicam os limites da evidência disponível.
+A tela inicial tem planos diretos para P1, P2, P3 e reavaliação, com conteúdos, filtros por assunto e nível, simulados, rascunhos salvos e revisão. A preparação reúne o conteúdo de toda a turma, sem probabilidades ou separação por docente. A P2 registra o relato parcial de 04/11. As avaliações indicam os limites da evidência disponível.
 
 [Escopo, mudanças, validação e pendências](docs/preparacao-avaliacoes.md).
 

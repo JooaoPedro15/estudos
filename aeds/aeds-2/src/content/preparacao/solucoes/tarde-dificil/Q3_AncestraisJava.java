@@ -1,5 +1,5 @@
 /**
- * Tarde-dificil Q3 (versao Java): contarUmFilho() e mostrarAncestrais(x),
+ * Exercício Q3 (versao Java): contarUmFilho() e mostrarAncestrais(x),
  * que imprime x e os ancestrais, de x ate a raiz. A versao em C (API new_*) esta em Q3_ancestrais.c.
  */
 class No {

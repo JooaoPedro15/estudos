@@ -1,4 +1,4 @@
-/* Manha-dificil Q2: simetricas(a, b) e clonarEspelhado(i). */
+/* Exercício Q2: simetricas(a, b) e clonarEspelhado(i). */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

@@ -1,5 +1,5 @@
 /**
- * Tarde-dificil Q2 (= P2-B Q3): diagUnificada() concatena as listas da diagonal principal
+ * Exercício Q2 (= P2-B Q3): diagUnificada() concatena as listas da diagonal principal
  * numa lista DUPLA, sem as cabecas. Andar na diagonal = dir e depois inf.
  */
 class Celula {

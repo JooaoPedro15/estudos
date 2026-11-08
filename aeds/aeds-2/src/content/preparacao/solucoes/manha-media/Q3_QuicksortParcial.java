@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Manha-media Q3: Quicksort parcial (pivo no meio). Ao final, array[0..k-1] = k menores, em ordem.
+ * Exercício Q3: Quicksort parcial (pivo no meio). Ao final, array[0..k-1] = k menores, em ordem.
  */
 class Ordenacao {
    int[] array; int n;

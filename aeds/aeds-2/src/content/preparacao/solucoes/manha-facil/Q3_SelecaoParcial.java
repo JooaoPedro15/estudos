@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Manha-facil Q3: Selecao parcial (os k menores, em ordem, em array[0..k-1]).
+ * Exercício Q3: Selecao parcial (os k menores, em ordem, em array[0..k-1]).
  * Mudanca minima: o laco externo vai ate k em vez de n - 1.
  */
 class Ordenacao {

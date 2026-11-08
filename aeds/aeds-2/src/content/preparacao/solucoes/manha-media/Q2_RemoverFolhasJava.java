@@ -1,7 +1,7 @@
 /**
- * Manha-media Q2 (versao Java): remover todas as folhas da arvore ORIGINAL.
+ * Exercício Q2 (versao Java): remover todas as folhas da arvore ORIGINAL.
  * Em Java nao existe No**: o metodo RETORNA o novo no e o pai reatribui (i.esq = removerFolhas(i.esq)).
- * A versao em C com No** (o Walisson codou no aulao em C) esta em Q2_removerFolhas.c.
+ * A versao em C com No** (a versão em C foi trabalhada no aulão) esta em Q2_removerFolhas.c.
  */
 class No {
    int elemento; No esq, dir;

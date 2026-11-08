@@ -1,4 +1,4 @@
-/* Manha-facil Q2: espelhar a arvore (troca esq/dir em todos os nos). */
+/* Exercício Q2: espelhar a arvore (troca esq/dir em todos os nos). */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

@@ -1,4 +1,4 @@
-/* Manha-media Q2: removerFolhas(No** i) - remove e libera as folhas da arvore ORIGINAL. */
+/* Exercício Q2: removerFolhas(No** i) - remove e libera as folhas da arvore ORIGINAL. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

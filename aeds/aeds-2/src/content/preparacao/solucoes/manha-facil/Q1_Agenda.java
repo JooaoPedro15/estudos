@@ -1,5 +1,5 @@
 /**
- * Manha-facil Q1: contarContatos(char letra) na Agenda (arvore de listas com celula cabeca).
+ * Exercício Q1: contarContatos(char letra) na Agenda (arvore de listas com celula cabeca).
  * Ideia: 1o nivel = pesquisa na ABP de letras; 2o nivel = percorrer a lista do no encontrado.
  */
 class Contato {

@@ -27,7 +27,7 @@ import type { VizEdge, VizFrame, VizNode, VizNodeState, VizPointer, VizScene, Vi
 
 /* =====================================================================
    Operações interativas com ESTADO PERSISTENTE.
-   O código exibido segue os fontes oficiais da matéria (Max do Val):
+   O código exibido segue os fontes oficiais da matéria (material oficial):
    pilha/fila/lista sequenciais e flexíveis, hashDiretoReserva,
    ArvoreBinaria, AVL (balancear) e ArvoreTrie.
    ===================================================================== */
@@ -381,7 +381,7 @@ function queuePeek(previous: QueueState): OpResult {
 }
 
 /* =====================================================================
-   FILA CIRCULAR — código do Fila.java (Max)
+   FILA CIRCULAR — código do Fila.java (material oficial)
    ===================================================================== */
 
 type RingState = { slots: Array<Cell | null>; primeiro: number; ultimo: number; seq: number };
@@ -1076,7 +1076,7 @@ function listLinRemove(previous: ListLinState, raw: string): OpResult {
 }
 
 /* =====================================================================
-   TABELA HASH COM ÁREA DE RESERVA — hashDiretoReserva/Hash.java (Max)
+   TABELA HASH COM ÁREA DE RESERVA — hashDiretoReserva/Hash.java (material oficial)
    ===================================================================== */
 
 type HashState = { main: Array<Cell | null>; reserva: Array<Cell & { homePos: number }>; seq: number };
@@ -1334,7 +1334,7 @@ function hashRemove(previous: HashState, raw: string): OpResult {
 }
 
 /* =====================================================================
-   ABB — ArvoreBinaria.java (Max)
+   ABB — ArvoreBinaria.java (material oficial)
    ===================================================================== */
 
 type BstNode = { key: number; left?: BstNode; right?: BstNode };
@@ -1674,7 +1674,7 @@ function bstWalk(previous: BstState): OpResult {
 }
 
 /* =====================================================================
-   AVL — AVL.java (Max): inserir devolve balancear(i)
+   AVL — AVL.java (material oficial): inserir devolve balancear(i)
    ===================================================================== */
 
 type AvlState = { root: AvlNode | null };
@@ -1807,7 +1807,7 @@ function avlSearch(previous: AvlState, raw: string): OpResult {
 }
 
 /* =====================================================================
-   TRIE — ArvoreTrie.java (Max): folha marca fim; prefixo conflita
+   TRIE — ArvoreTrie.java (material oficial): folha marca fim; prefixo conflita
    ===================================================================== */
 
 type TrieState = { words: string[] };
@@ -1997,7 +1997,7 @@ function trieOp(previous: TrieState, opId: 'inserir' | 'buscar', raw: string): O
       continue;
     }
 
-    // inserir com filho existente: regras do Max.
+    // inserir com filho existente: regras do material oficial.
     if (!child.folha && !last) {
       marks[child.id] = 'compare';
       push(`'${char}' já existe e não é folha → continua descendo.`, 9, [{ name: 'i', value: `${i}` }]);
@@ -2452,7 +2452,7 @@ export const structureCatalog: StructureEntry[] = [
   {
     id: 'lista-linear',
     name: 'Lista linear',
-    blurb: 'Sequencial: array + n. ListaOrdenada.java (Max).',
+    blurb: 'Sequencial: array + n. ListaOrdenada.java (material oficial).',
     initial: initialListLin,
     empty: () => ({ values: [], seq: 0 }) satisfies ListLinState,
     preview: (state, opId) => {

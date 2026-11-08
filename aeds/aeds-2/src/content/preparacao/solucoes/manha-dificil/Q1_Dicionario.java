@@ -1,5 +1,5 @@
 /**
- * Manha-dificil Q1: Dicionario em arvore de listas. inserir(palavra) SEM pre-condicao:
+ * Exercício Q1: Dicionario em arvore de listas. inserir(palavra) SEM pre-condicao:
  * cria o no da letra se faltar (inserir/pesquisar juntos, como o inserir2 do aulao)
  * e insere a palavra ORDENADA na lista com cabeca do no, mantendo ultimo correto.
  */

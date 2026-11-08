@@ -1,5 +1,5 @@
 /**
- * Tarde-facil Q2: ABP de alunos (chave = matricula): contar nos com dois filhos e mostrar em ordem.
+ * Exercício Q2: ABP de alunos (chave = matricula): contar nos com dois filhos e mostrar em ordem.
  */
 class Aluno {
    int matricula; String nome;

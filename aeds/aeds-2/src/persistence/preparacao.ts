@@ -11,6 +11,13 @@ export function carregarPreparacao():RegistroPreparacao {
           (empty[key] as Record<string,unknown>)[name]=value;
       }
     }
+    for(const key of Object.keys(empty.actual)) {
+      if(!/^(manha|tarde)-/.test(key)) continue;
+      const topic=key.replace(/^(manha|tarde)-/,'');
+      if(Object.prototype.hasOwnProperty.call(v.actual,topic)) continue;
+      const values=[empty.actual[`manha-${topic}`],empty.actual[`tarde-${topic}`]].filter(Boolean);
+      if(values.length) empty.actual[topic]=new Set(values).size>1?'parcial':values[0];
+    }
     if(typeof v.notes==='string') empty.notes=v.notes;
   } catch { /* Progresso inválido ou armazenamento indisponível: iniciar uma sessão utilizável. */ }
   return empty;

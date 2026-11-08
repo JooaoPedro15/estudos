@@ -1,4 +1,4 @@
-/* Tarde-dificil Q3: ABP em C com a API da pratica da tarde (new_*):
+/* Exercício Q3: ABP em C com a API da prática da disciplina (new_*):
    contar_um_filho e mostrar_ancestrais (imprime x e os ancestrais, de x ate a raiz). */
 #include <stdio.h>
 #include <stdlib.h>

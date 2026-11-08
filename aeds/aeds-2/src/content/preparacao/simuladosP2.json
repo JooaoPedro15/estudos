@@ -2,7 +2,6 @@
   {
     "id": "manha-dificil",
     "exam": "p2",
-    "turn": "manha",
     "level": "dificil",
     "questions": [
       {
@@ -17,7 +16,7 @@
       {
         "id": "manha-dificil-2",
         "title": "2 (5 pontos) — Árvores simétricas e cópia espelhada (Java e C)",
-        "body": "Duas árvores binárias são **simétricas** quando uma é a imagem espelhada da outra: a subárvore da esquerda de uma é igual à subárvore da direita da outra, com os mesmos elementos, e vice-versa. Considere os códigos abaixo.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   static boolean simetricas(No a, No b) { /* IMPLEMENTAR */ }\n   static No clonarEspelhado(No i)       { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* novoNo(int elemento);        // já implementada\nbool simetricas(No* a, No* b);   // IMPLEMENTAR\nNo* clonarEspelhado(No* i);      // IMPLEMENTAR\n```\n\n**(a)** (2 pts) Implemente, em Java, `simetricas`, que retorna `true` se `b` for a imagem espelhada de `a`, e `clonarEspelhado`, que cria e retorna uma **nova** árvore que é o espelho de `i`, sem alterar a original.\n**(b)** (2 pts) Implemente as mesmas duas funções em C, alocando os novos nós com `novoNo` (o Walisson codou no aulão em C).\n**(c)** (1 pt) Apresente a complexidade de cada função em função de θ. Que valor `simetricas(r, clonarEspelhado(r))` retorna para qualquer árvore `r`? Justifique.",
+        "body": "Duas árvores binárias são **simétricas** quando uma é a imagem espelhada da outra: a subárvore da esquerda de uma é igual à subárvore da direita da outra, com os mesmos elementos, e vice-versa. Considere os códigos abaixo.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   static boolean simetricas(No a, No b) { /* IMPLEMENTAR */ }\n   static No clonarEspelhado(No i)       { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* novoNo(int elemento);        // já implementada\nbool simetricas(No* a, No* b);   // IMPLEMENTAR\nNo* clonarEspelhado(No* i);      // IMPLEMENTAR\n```\n\n**(a)** (2 pts) Implemente, em Java, `simetricas`, que retorna `true` se `b` for a imagem espelhada de `a`, e `clonarEspelhado`, que cria e retorna uma **nova** árvore que é o espelho de `i`, sem alterar a original.\n**(b)** (2 pts) Implemente as mesmas duas funções em C, alocando os novos nós com `novoNo`.\n**(c)** (1 pt) Apresente a complexidade de cada função em função de θ. Que valor `simetricas(r, clonarEspelhado(r))` retorna para qualquer árvore `r`? Justifique.",
         "sources": [
           "manha-dificil/Q2_SimetricasJava.java",
           "manha-dificil/Q2_simetricas.c"
@@ -33,12 +32,12 @@
         ],
         "answer": "Percorra a ABP em ordem central e avance monotonicamente na lista de exclusão ordenada. Acrescente ao resultado somente valores não excluídos. Evite reiniciar a pesquisa da lista para cada nó. Sob as pré-condições de ordenação do enunciado, Θ(n+m) tempo, além da lista criada e da pilha recursiva."
       }
-    ]
+    ],
+    "title": "Simulado 1"
   },
   {
     "id": "manha-facil",
     "exam": "p2",
-    "turn": "manha",
     "level": "facil",
     "questions": [
       {
@@ -53,7 +52,7 @@
       {
         "id": "manha-facil-2",
         "title": "2 (5 pontos) — Espelhar árvore (Java e C)",
-        "body": "Considere uma árvore binária de pesquisa sem elementos repetidos, cujos nós são do tipo `No`, conforme os códigos abaixo. Deseja-se transformar a árvore em sua **imagem espelhada**, isto é, trocar a subárvore da esquerda com a da direita em todos os nós.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void inserir(int x) { /* já implementado (ABP sem repetidos) */ }\n   public void espelhar() { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* raiz;\nvoid inserir(int x);               // já implementada\nvoid espelhar(No* i) {\n   // IMPLEMENTAR\n}\n```\n\n**(a)** (2 pts) Implemente, em Java, o método `public void espelhar()`, seguindo o padrão de método público que chama um método privado recursivo.\n**(b)** (2 pts) Implemente a mesma operação em C, com a assinatura `void espelhar(No* i)` (o Walisson codou no aulão em C).\n**(c)** (1 pt) Desenhe a árvore resultante da inserção de 10, 5, 15, 2, 7 e 20, antes e depois de espelhar, e diga o que o caminhamento central imprime em cada caso, justificando. Apresente a complexidade da operação em função de θ.",
+        "body": "Considere uma árvore binária de pesquisa sem elementos repetidos, cujos nós são do tipo `No`, conforme os códigos abaixo. Deseja-se transformar a árvore em sua **imagem espelhada**, isto é, trocar a subárvore da esquerda com a da direita em todos os nós.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void inserir(int x) { /* já implementado (ABP sem repetidos) */ }\n   public void espelhar() { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* raiz;\nvoid inserir(int x);               // já implementada\nvoid espelhar(No* i) {\n   // IMPLEMENTAR\n}\n```\n\n**(a)** (2 pts) Implemente, em Java, o método `public void espelhar()`, seguindo o padrão de método público que chama um método privado recursivo.\n**(b)** (2 pts) Implemente a mesma operação em C, com a assinatura `void espelhar(No* i)`.\n**(c)** (1 pt) Desenhe a árvore resultante da inserção de 10, 5, 15, 2, 7 e 20, antes e depois de espelhar, e diga o que o caminhamento central imprime em cada caso, justificando. Apresente a complexidade da operação em função de θ.",
         "sources": [
           "manha-facil/Q2_EspelharJava.java",
           "manha-facil/Q2_espelhar.c"
@@ -69,12 +68,12 @@
         ],
         "answer": "Para i de 0 até k-1, selecione o mínimo do sufixo i..n-1 e troque para i. C(n,k)=kn-k(k+1)/2, M(n,k)=3k com troca incondicional. Para 1≤k≤n, Θ(nk); k=0 custa Θ(1). A posição k-1 também precisa ser escolhida."
       }
-    ]
+    ],
+    "title": "Simulado 1"
   },
   {
     "id": "manha-media",
     "exam": "p2",
-    "turn": "manha",
     "level": "media",
     "questions": [
       {
@@ -90,7 +89,7 @@
       {
         "id": "manha-media-2",
         "title": "2 (5 pontos) — Remover folhas (Java e C)",
-        "body": "Considere uma árvore binária de pesquisa cujos nós são do tipo `No`, conforme os códigos abaixo. Deseja-se remover **todas as folhas da árvore original**: os nós que se tornarem folhas depois da remoção devem permanecer na árvore.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void removerFolhas() { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* raiz;\nvoid removerFolhas(No** i) {\n   // IMPLEMENTAR: chamada removerFolhas(&raiz)\n}\n```\n\n**(a)** (2 pts) Implemente, em Java, o método `public void removerFolhas()`. Lembre que, em Java, o método recursivo privado deve **retornar o nó** para que o pai seja atualizado.\n**(b)** (2 pts) Implemente, em C, a função `void removerFolhas(No** i)`, liberando a memória das folhas removidas (o Walisson codou no aulão em C).\n**(c)** (1 pt) Explique por que, em C, o parâmetro precisa ser `No**` e o que aconteceria se fosse `No*`. Desenhe a árvore resultante, para a árvore criada com a inserção de 10, 5, 15, 2, 7 e 20.",
+        "body": "Considere uma árvore binária de pesquisa cujos nós são do tipo `No`, conforme os códigos abaixo. Deseja-se remover **todas as folhas da árvore original**: os nós que se tornarem folhas depois da remoção devem permanecer na árvore.\n\n```java\nclass No { int elemento; No esq, dir; No(int x) { elemento = x; } }\nclass ArvoreBinaria {\n   private No raiz;\n   public void removerFolhas() { /* IMPLEMENTAR */ }\n}\n```\n\n```c\ntypedef struct No { int elemento; struct No *esq, *dir; } No;\nNo* raiz;\nvoid removerFolhas(No** i) {\n   // IMPLEMENTAR: chamada removerFolhas(&raiz)\n}\n```\n\n**(a)** (2 pts) Implemente, em Java, o método `public void removerFolhas()`. Lembre que, em Java, o método recursivo privado deve **retornar o nó** para que o pai seja atualizado.\n**(b)** (2 pts) Implemente, em C, a função `void removerFolhas(No** i)`, liberando a memória das folhas removidas.\n**(c)** (1 pt) Explique por que, em C, o parâmetro precisa ser `No**` e o que aconteceria se fosse `No*`. Desenhe a árvore resultante, para a árvore criada com a inserção de 10, 5, 15, 2, 7 e 20.",
         "sources": [
           "manha-media/Q2_removerFolhas.c",
           "manha-media/Q2_RemoverFolhasJava.java"
@@ -106,12 +105,12 @@
         ],
         "answer": "Faça a partição normalmente e recorra à direita somente se a faixa intercepta as k primeiras posições. O prefixo deve ficar ordenado e conter os k menores; não basta selecionar k elementos sem ordená-los. Melhorias dependem de pivô e distribuição; o pior caso do Quick continua podendo ser Θ(n²). Teste k=0, k=1, k=n e repetidos."
       }
-    ]
+    ],
+    "title": "Simulado 1"
   },
   {
     "id": "tarde-dificil",
     "exam": "p2",
-    "turn": "tarde",
     "level": "dificil",
     "questions": [
       {
@@ -143,12 +142,12 @@
         ],
         "answer": "Na busca do alvo pela chave, os ancestrais ficam no caminho da recursão. Se a ordem pedida é do pai para a raiz, imprima na volta e somente depois de confirmar o encontro. Para contar nós com exatamente um filho, use a exclusividade entre esq==null e dir==null e visite ambos os lados: Θ(n)."
       }
-    ]
+    ],
+    "title": "Simulado 2"
   },
   {
     "id": "tarde-facil",
     "exam": "p2",
-    "turn": "tarde",
     "level": "facil",
     "questions": [
       {
@@ -178,12 +177,12 @@
         ],
         "answer": "Comece na célula cabeça e encontre o predecessor do ponto de inserção. Faça nova.prox=ant.prox e ant.prox=nova; se ant era ultimo, atualize ultimo. Em C, confira malloc e não perca referências. Busca/inserção ordenada em lista custa Θ(n) no pior caso."
       }
-    ]
+    ],
+    "title": "Simulado 2"
   },
   {
     "id": "tarde-media",
     "exam": "p2",
-    "turn": "tarde",
     "level": "media",
     "questions": [
       {
@@ -213,6 +212,7 @@
         ],
         "answer": "Se a consulta é por nome, use a letra para localizar a lista. Para CPF sem índice próprio, percorra os nós externos e as listas. Ao remover, guarde o predecessor e atualize ultimo quando necessário. Busca por CPF ausente tem pior caso linear no total de contatos, somado à navegação pelos nós externos."
       }
-    ]
+    ],
+    "title": "Simulado 2"
   }
 ]

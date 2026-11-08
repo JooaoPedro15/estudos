@@ -1,4 +1,4 @@
-/* Tarde-facil Q3: lista simples COM cabeca em C: inserirOrdenado e removerValor (com free). */
+/* Exercício Q3: lista simples COM cabeca em C: inserirOrdenado e removerValor (com free). */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

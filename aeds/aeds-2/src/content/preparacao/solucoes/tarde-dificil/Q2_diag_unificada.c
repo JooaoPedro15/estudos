@@ -1,4 +1,4 @@
-/* Tarde-dificil Q2 (versao C, = P2-B Q3): diagUnificada concatena as listas da diagonal principal
+/* Exercício Q2 (versao C, = P2-B Q3): diagUnificada concatena as listas da diagonal principal
    numa lista DUPLA, sem as cabecas. Andar na diagonal = dir e depois inf. Versao Java: Q2_DiagUnificada.java. */
 #include <stdio.h>
 #include <stdlib.h>

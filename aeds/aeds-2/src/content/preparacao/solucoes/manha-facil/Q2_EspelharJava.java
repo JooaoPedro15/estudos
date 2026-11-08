@@ -1,6 +1,6 @@
 /**
- * Manha-facil Q2 (versao Java): espelhar a ABP, trocando esq e dir em todos os nos.
- * A versao em C (o Walisson codou no aulao em C) esta em Q2_espelhar.c.
+ * Exercício Q2 (versao Java): espelhar a ABP, trocando esq e dir em todos os nos.
+ * A versao em C (a versão em C foi trabalhada no aulão) esta em Q2_espelhar.c.
  */
 class No {
    int elemento; No esq, dir;
@@ -26,7 +26,7 @@ class ArvoreBinaria {
    }
 
    // ===================== RESPOSTA DA QUESTAO =====================
-   /** Publico chama o privado recursivo passando a raiz (padrao do Max). */
+   /** Publico chama o privado recursivo passando a raiz (padrão do material oficial). */
    public void espelhar() { espelhar(raiz); }
 
    /** Troca os campos do proprio no: a referencia guardada no pai nao muda, entao nao precisa retornar No. */

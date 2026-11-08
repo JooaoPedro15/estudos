@@ -1,5 +1,5 @@
 /**
- * Manha-dificil Q3: toLista(raiz, proibidos) em Theta(n + m).
+ * Exercício Q3: toLista(raiz, proibidos) em Theta(n + m).
  * Estrategia: caminhamento CENTRAL (sai em ordem crescente) + um ponteiro que anda na lista
  * ordenada de proibidos, igual a intercalacao do Mergesort: o ponteiro nunca volta.
  */

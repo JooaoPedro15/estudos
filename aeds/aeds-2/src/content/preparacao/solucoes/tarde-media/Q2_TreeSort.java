@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Tarde-media Q2: TreeSort. Insere todos numa ABP (repetidos vao para a DIREITA)
+ * Exercício Q2: TreeSort. Insere todos numa ABP (repetidos vao para a DIREITA)
  * e o caminhamento CENTRAL preenche o array em ordem.
  */
 class No {

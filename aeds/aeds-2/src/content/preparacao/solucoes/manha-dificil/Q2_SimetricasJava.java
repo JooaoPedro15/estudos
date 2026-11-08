@@ -1,6 +1,6 @@
 /**
- * Manha-dificil Q2 (versao Java): simetricas(a, b) e clonarEspelhado(i).
- * A versao em C (o Walisson codou no aulao em C) esta em Q2_simetricas.c.
+ * Exercício Q2 (versao Java): simetricas(a, b) e clonarEspelhado(i).
+ * A versao em C (a versão em C foi trabalhada no aulão) esta em Q2_simetricas.c.
  */
 class No {
    int elemento; No esq, dir;

@@ -21,15 +21,18 @@ test('prioriza pendências e restaura checklist, rascunho e autoavaliação',asy
   await user.click(screen.getAllByText('Laços em uma oficina')[0]);
   expect(screen.getByDisplayValue('minha tentativa')).toBeInTheDocument();
 });
-test('altera estimativas por turno e preserva o relato como parcial',async()=>{
+test('reúne os conteúdos e mantém o registro da prova sem previsão ou filtros de turma',async()=>{
   const user=userEvent.setup(); render(<PreparacaoScreen scope="p2" onBack={vi.fn()} onLegacy={vi.fn()}/>);
-  expect(screen.getByText('~90% · alta')).toBeInTheDocument();
-  await user.selectOptions(screen.getByLabelText('Turno'),'tarde');
-  expect(screen.queryByText('~90% · alta')).not.toBeInTheDocument();
-  expect(screen.getAllByText('~85% · alta').length).toBeGreaterThan(0);
+  expect(screen.queryByLabelText('Turno')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Professor')).not.toBeInTheDocument();
+  expect(document.body.textContent).not.toMatch(/~\d+%/);
+  await user.click(screen.getByRole('button',{name:'Treinar'}));
+  expect(screen.getByRole('status')).toHaveTextContent('18 exercícios');
+  expect(screen.getByLabelText('Nível')).toHaveValue('todos');
   await user.click(screen.getByRole('button',{name:'O que caiu'}));
   expect(screen.getByText(/Lembrança do aluno.*nível de inserção/)).toBeInTheDocument();
-  const label=screen.getByText('Completar o confronto · Tarde').closest('article')!;
+  expect(screen.getByRole('heading',{name:'Espelhamento não foi cobrado'})).toBeInTheDocument();
+  const label=screen.getByText('Completar registro').closest('article')!;
   await user.selectOptions(within(label).getAllByRole('combobox')[0],'parcial');
   expect(within(label).getAllByRole('combobox')[0]).toHaveValue('parcial');
 });
@@ -37,7 +40,7 @@ test('tema com poucos simulados sempre oferece oficina e a prática tem entrada 
   const user=userEvent.setup(); render(<PreparacaoScreen scope="p2" onBack={vi.fn()} onLegacy={vi.fn()}/>);
   const card=screen.getByRole('heading',{name:'TreeSort como variação'}).closest('article')!;
   await user.click(within(card).getByRole('button',{name:'Treinar este tema'}));
-  expect(screen.getByRole('heading',{name:'Oficina: TreeSort como variação'})).toBeInTheDocument();
+  expect(screen.getByRole('heading',{name:/TreeSort \(Java\)/})).toBeInTheDocument();
   await user.click(screen.getByRole('button',{name:'Prática'}));
   expect(screen.getByRole('heading',{name:'Sensores em uma ABP · C'})).toBeInTheDocument();
   expect(screen.getByText(/n=0 resulta em 0/)).toBeInTheDocument();
