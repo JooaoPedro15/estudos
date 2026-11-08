@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Clock3, Compass, FileCode2, Target } from 'lucide-react';
 import { getExam, type ExamId } from '../content/examCatalog';
 import { assuntoQuestao, getQuestoesPreparacao, planos, praticaPreparacao, relatoP2, simuladosPreparacao, type Nivel, type QuestaoPreparacao, type Tema } from '../content/preparacao/catalogo';
+import { codigoBaseQuestao } from '../content/preparacao/codigoBase';
+import { analises,matrizOperacoes } from '../content/preparacao/analises';
 import operacoesP2 from '../content/preparacao/operacoesP2.md?raw';
 import { carregarPreparacao, preparacaoKey } from '../persistence/preparacao';
 import { StudyText } from './StudyText';
@@ -15,24 +17,12 @@ const tabs:{id:Tab;label:string}[]=[{id:'plano',label:'Seu plano'},{id:'treino',
 function Files({paths}:{paths:string[]}) {
   return <>{paths.map(path=><details className="study-source" key={path}><summary><FileCode2 size={15} aria-hidden="true"/> Código testado · {path.split('/').pop()}</summary><pre><code>{sourceText(path)??'Arquivo indisponível.'}</code></pre></details>)}</>;
 }
-function codeBase(question:QuestaoPreparacao):string | null {
-  if(question.base) return question.base;
-  if(question.id.startsWith('pratica-')) return null;
-  const topic=assuntoQuestao(question);
-  if(question.sources.includes('autoral/Fundamentos.java')) {
-    if(topic==='analise') return 'static long contar(int n) {\n  long resp = 0;\n  for (int i = 1; i <= n; i++)\n    for (int j = 0; j < i; j++) resp++;\n  return resp;\n}';
-    if(topic==='fila') return 'class Fila {\n  int[] array; int primeiro, ultimo;\n  Fila(int capacidade) { array = new int[capacidade + 1]; }\n  // primeiro aponta para o primeiro elemento; ultimo para a próxima posição livre.\n  int desfazer() { /* implemente */ }\n  int[] inverso() { /* implemente */ }\n}';
-    return 'class Ordenacao {\n  // Implemente inserção por paridade e valor, sem ordenação pronta.\n  static void ordenar(int[] array) { /* implemente */ }\n}';
-  }
-  if(question.sources.includes('autoral/Estruturas.java')) return topic==='trie' ? 'class Letra { Letra[] prox = new Letra[26]; boolean fimPalavra; }\nclass Estruturas {\n  Letra inicio = new Letra();\n  void inserir(String s) { /* já implementado */ }\n  int contarPrefixo(String s) { /* implemente */ }\n  Estruturas invertida() { /* implemente */ }\n}' : 'class No { int elemento, nivel; No esq, dir; }\nclass Estruturas {\n  No raiz;\n  int contarBalanceados() { /* implemente */ }\n  static int altura(No i) { /* implemente */ }\n  static No direita(No i) { /* implemente */ }\n}';
-  if(question.sources.includes('autoral/Hibrida.java')) return 'class No { int elemento; No esq, dir; }\nclass Celula { int elemento; Celula prox; }\nclass Posicao { int elemento; boolean ocupado; No raiz; Celula primeiro; }\nclass Hibrida {\n  Posicao[] tabela; // cinco posições inicializadas; listas com cabeça\n  int hash(int x) { /* índice de 0 a 4, inclusive para negativos */ }\n  boolean pesquisar(int x) { /* implemente */ }\n}';
-  return null;
-}
+
 function Question({question,draft,onDraft,result,onResult}:{question:QuestaoPreparacao;draft:string;onDraft:(v:string)=>void;result:string;onResult:(v:string)=>void}) {
   return <article className="study-question">
-    <div className="study-question-head"><span className="app-kicker">Exercício autoral · {question.sources.some(p=>p.endsWith('.c'))?'Java / C conforme enunciado':'Java / análise'}</span></div>
+    <div className="study-question-head"><span className="app-kicker">Exercício autoral · {question.sources.some(p=>p.endsWith('.c'))?(question.sources.some(p=>p.endsWith('.java'))?'Java e C':'C / análise'):question.sources.length?'Java / análise':'Análise e simulação'}</span></div>
     <h3>{question.title}</h3>
-    <StudyText text={question.body}/>{codeBase(question)&&<><h4>Código-base</h4><pre><code>{codeBase(question)}</code></pre></>}
+    <StudyText text={question.body}/>{codigoBaseQuestao(question)&&<><h4>Código-base</h4><pre><code>{codigoBaseQuestao(question)}</code></pre></>}
     <label className="study-draft-label" htmlFor={`draft-${question.id}`}>Sua tentativa <span>salva neste navegador</span></label>
     <textarea id={`draft-${question.id}`} value={draft} onChange={e=>onDraft(e.target.value)} placeholder="Escreva o método, desenhe o percurso em texto e justifique a complexidade…" spellCheck={false}/>
     <details className="study-answer"><summary>Mostrar / esconder gabarito</summary>
@@ -65,9 +55,8 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
   const simulado=sims.find(s=>s.id===simuladoId)??sims[0];
   const questions=useMemo(()=>{
     const all=section==='pratica'?praticaPreparacao[scope]:getQuestoesPreparacao(scope);
-    const levelIds=new Set(simuladosPreparacao.filter(s=>s.exam===scope&&(level==='todos'||s.level===level)).flatMap(s=>s.questions.map(q=>q.id)));
     const unique=[...new Map(all.map(q=>[q.id,q])).values()];
-    const filtered=unique.filter(q=>(section==='pratica'||level==='todos'||levelIds.has(q.id))&&(!topic||assuntoQuestao(q)===topic));
+    const filtered=unique.filter(q=>(section==='pratica'||level==='todos'||q.level===level)&&(!topic||assuntoQuestao(q)===topic));
     const selectedTopic=planos[scope].topics.find(t=>t.id===topic);
     if(!filtered.length && selectedTopic && section==='teorica') return [{
       id:`oficina-${topic}-${level}`,title:`Oficina: ${selectedTopic.title}`,topic:selectedTopic.id,
@@ -113,7 +102,7 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
       <div className="study-switch" aria-label="Modalidade"><button type="button" aria-pressed={section==='teorica'} onClick={()=>{setSection('teorica');setTopic(null);setSelected(null);}}>Teórica</button><button type="button" aria-pressed={section==='pratica'} onClick={()=>{setSection('pratica');setTopic(null);setSelected(null);}}>Prática</button></div>
       {topic&&<button type="button" className="study-back" onClick={()=>setTopic(null)}>Limpar filtro de tema: {plan.topics.find(t=>t.id===topic)?.title}</button>}
       {section==='pratica'&&<div className="study-note"><strong>Treinos autorais de entrada e saída.</strong> O corretor local da área guiada compara saída e casos adicionais. A nota oficial, os limites e a inspeção do algoritmo dependem das regras da turma, ainda não confirmadas. No site estático, não há execução de Java/C. {scope==='reav'?'Não há confirmação de uma prática de reavaliação. Use as práticas das P1, P2 e P3 como revisão.':'Confira: EOF, múltiplos casos, espaços, empate e algoritmo exigido. Não imprima mensagens de depuração.'}</div>}
-      {questions.length>0?<><p className="study-exercise-count" role="status">{questions.length} exercícios disponíveis neste filtro</p><div className="study-training-layout"><nav aria-label="Questões disponíveis" className="study-question-nav">{questions.map((q,i)=><button type="button" key={q.id} aria-current={question?.id===q.id?'true':undefined} onClick={()=>setSelected(q.id)}><span>{String(i+1).padStart(2,'0')}</span>{q.title}</button>)}</nav><div>{question&&renderQuestion(question)}</div></div></>:<p className="study-note">Não há questões para este conjunto de filtros. Experimente outro nível ou limpe o filtro do tema.</p>}
+      {questions.length>0?<><p className="study-exercise-count" role="status">{questions.length} {questions.length===1?'exercício disponível':'exercícios disponíveis'} neste filtro</p><div className="study-training-layout"><nav aria-label="Questões disponíveis" className="study-question-nav">{questions.map((q,i)=><button type="button" key={q.id} aria-current={question?.id===q.id?'true':undefined} onClick={()=>setSelected(q.id)}><span>{String(i+1).padStart(2,'0')}</span>{q.title}</button>)}</nav><div>{question&&renderQuestion(question)}</div></div></>:<p className="study-note">Não há questões para este conjunto de filtros. Experimente outro nível ou limpe o filtro do tema.</p>}
     </>}
     {tab==='simulados'&&<>
       <div className="study-section-title"><div><p className="app-kicker">03 / Ensaio de prova</p><h2>{getExam(scope).shortTitle} · {niveis[level==='todos'?'facil':level]}</h2></div><span>{scope==='reav'?'6 questões · 120 min sugeridos':'3 questões · 100 min sugeridos'}</span></div>
@@ -124,7 +113,7 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
       <div className="study-section-title"><div><p className="app-kicker">04 / Revisão rápida</p><h2>Saiba explicar sem consultar.</h2></div></div>
       {plan.topics.map(t=><article className="study-review-card" key={t.id}><label><input type="checkbox" checked={Boolean(record.checks[`${scope}-${t.id}`])} onChange={e=>setRecord(r=>({...r,checks:{...r.checks,[`${scope}-${t.id}`]:e.target.checked}}))}/><strong>{t.title}</strong></label><p>{t.operation}</p><p><strong>Erro a evitar:</strong> {t.trap}</p><Files paths={t.sources}/><button type="button" className="study-back" onClick={()=>train(t)}>Tentar de novo →</button></article>)}
       <h3>Tentativas para refazer</h3>{Object.entries(record.results).filter(([key,value])=>key.startsWith(scope+'-')&&value==='revisar').length===0?<p>Nenhuma tentativa marcada para refazer.</p>:Object.entries(record.results).filter(([key,value])=>key.startsWith(scope+'-')&&value==='revisar').map(([key])=>{
-        const found=[...simuladosPreparacao.filter(s=>s.exam===scope).flatMap(s=>s.questions),...praticaPreparacao[scope]].find(q=>`${scope}-${q.id}`===key);
+        const found=[...getQuestoesPreparacao(scope),...praticaPreparacao[scope]].find(q=>`${scope}-${q.id}`===key);
         if(!found) return null;
         return <details className="study-review-card" key={key}><summary>{found.title}</summary>{renderQuestion(found)}</details>;
       })}
@@ -133,7 +122,9 @@ export function PreparacaoScreen({scope,onBack,onLegacy}:{scope:ExamId;onBack:()
       <div className="study-section-title"><div><p className="app-kicker">05 / Evidências e limites</p><h2>O que sustenta este plano.</h2></div></div>
       <article className="study-review-card"><h3>Escopo</h3><p>{plan.scope}</p><h3>Histórico de cobrança</h3><ul>{plan.history.map(h=><li key={h}>{h}</li>)}</ul><h3>O que falta confirmar</h3><ul>{plan.missing.map(m=><li key={m}>{m}</li>)}</ul></article>
       <article className="study-review-card"><h3>Como os exercícios foram escolhidos</h3><p>O roteiro reúne operações das provas antigas, das listas e do código de referência. As questões combinam implementação, simulação e justificativa de complexidade. As orientações atuais ainda não disponíveis estão indicadas acima.</p></article>
-      <h3>Matriz de operações</h3>{scope==='p2'?<StudyText text={operacoesP2}/>:<div className="study-table-wrap"><table><thead><tr><th>Tema</th><th>Operação</th><th>Fonte e limite</th></tr></thead><tbody>{plan.topics.map(t=><tr key={t.id}><td>{t.title}</td><td>{t.operation}</td><td>{t.evidence}</td></tr>)}</tbody></table></div>}
+      {analises[scope]&&<details className="study-review-card"><summary>Análise completa dos materiais e da cobrança</summary><StudyText text={analises[scope]!}/></details>}
+      <details className="study-review-card"><summary>Matriz de operações · {getQuestoesPreparacao(scope).length} exercícios</summary><div className="study-table-wrap"><table><thead><tr><th>Operação e conteúdo</th><th>O que reaproveitar</th><th>O que muda</th><th>Evidência</th><th>Exercício independente</th></tr></thead><tbody>{matrizOperacoes(scope).map(row=><tr key={row.question.id}><td><strong>{row.question.title}</strong><br/>{row.tema}</td><td>{row.esqueleto}</td><td>{row.transferencia}</td><td>{row.evidencia}</td><td><button type="button" className="study-back" onClick={()=>{setSection('teorica');setLevel('todos');setTopic(assuntoQuestao(row.question));setSelected(row.question.id);setTab('treino');}}>Resolver exercício →</button></td></tr>)}</tbody></table></div></details>
+      <h3>Referência de operações</h3>{scope==='p2'?<StudyText text={operacoesP2}/>:<div className="study-table-wrap"><table><thead><tr><th>Tema</th><th>Operação</th><th>Fonte e limite</th></tr></thead><tbody>{plan.topics.map(t=><tr key={t.id}><td>{t.title}</td><td>{t.operation}</td><td>{t.evidence}</td></tr>)}</tbody></table></div>}
     </>}
     {tab==='pos'&&scope==='p2'&&<>
       <div className="study-section-title"><div><p className="app-kicker">06 / Registro da avaliação</p><h2>O que caiu em 04/11.</h2></div></div>

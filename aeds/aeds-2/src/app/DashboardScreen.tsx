@@ -115,8 +115,8 @@ export function DashboardScreen({
       </section>
 
       <section className="exam-plan-entry" aria-labelledby="plan-entry-title">
-        <div className="exam-plan-heading"><h2 id="plan-entry-title">Qual é a sua próxima avaliação?</h2><p>Prioridades, exercícios e simulados em um só lugar.</p></div>
-        <div className="exam-plan-cards">{examCatalog.map((exam,i)=><button type="button" key={exam.id} onClick={()=>onSelectPlan(exam.id)} aria-label={`Preparar ${exam.title}`}><span className="plan-number">{String(i+1).padStart(2,'0')} / PLANO DE ESTUDO</span><strong>{exam.title}</strong><p>{exam.id==='p2'?'Previsão anterior e relato do que caiu.':exam.id==='p3'?'AVL, TRIE, hash e estruturas híbridas.':exam.id==='p1'?'Análise, somatórios e estruturas lineares.':'Revisão cumulativa pelos erros e pelo histórico.'}</p><span className="plan-go">Abrir preparação →</span></button>)}</div>
+        <div className="exam-plan-heading"><h2 id="plan-entry-title">Qual é a sua próxima avaliação?</h2><p>Conteúdos, exercícios e simulados em um só lugar.</p></div>
+        <div className="exam-plan-cards">{examCatalog.map((exam,i)=><button type="button" key={exam.id} onClick={()=>onSelectPlan(exam.id)} aria-label={`Preparar ${exam.title}`}><span className="plan-number">{String(i+1).padStart(2,'0')} / PLANO DE ESTUDO</span><strong>{exam.title}</strong><p>{exam.id==='p2'?'Conteúdos e registro do que caiu.':exam.id==='p3'?'Balanceamento, hash, TRIE e híbridas.':exam.id==='p1'?'Análise, somatórios e estruturas lineares.':'Revisão cumulativa pelos erros e pelo histórico.'}</p><span className="plan-go">Abrir preparação →</span></button>)}</div>
       </section>
       <div className="cat-grid">
         {cards.map((card) => (

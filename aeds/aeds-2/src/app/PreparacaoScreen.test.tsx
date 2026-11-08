@@ -27,7 +27,7 @@ test('reúne os conteúdos e mantém o registro da prova sem previsão ou filtro
   expect(screen.queryByLabelText('Professor')).not.toBeInTheDocument();
   expect(document.body.textContent).not.toMatch(/~\d+%/);
   await user.click(screen.getByRole('button',{name:'Treinar'}));
-  expect(screen.getByRole('status')).toHaveTextContent('18 exercícios');
+  expect(screen.getByRole('status')).toHaveTextContent('21 exercícios');
   expect(screen.getByLabelText('Nível')).toHaveValue('todos');
   await user.click(screen.getByRole('button',{name:'O que caiu'}));
   expect(screen.getByText(/Lembrança do aluno.*nível de inserção/)).toBeInTheDocument();
@@ -44,4 +44,29 @@ test('tema com poucos simulados sempre oferece oficina e a prática tem entrada 
   await user.click(screen.getByRole('button',{name:'Prática'}));
   expect(screen.getByRole('heading',{name:'Sensores em uma ABP · C'})).toBeInTheDocument();
   expect(screen.getByText(/n=0 resulta em 0/)).toBeInTheDocument();
+});
+
+test('P3 mostra todos os assuntos e filtra a matriz ampliada por tema e nível',async()=>{
+  const user=userEvent.setup();render(<PreparacaoScreen scope="p3" onBack={vi.fn()} onLegacy={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Treinar'}));
+  expect(screen.getByRole('status')).toHaveTextContent('39 exercícios');
+  await user.selectOptions(screen.getByLabelText('Assunto'),'arvore234');
+  expect(screen.getByRole('status')).toHaveTextContent('5 exercícios');
+  await user.selectOptions(screen.getByLabelText('Nível'),'dificil');
+  expect(screen.getByRole('status')).toHaveTextContent('1 exercício');
+  expect(screen.getByRole('heading',{name:'Folhas em um único nível'})).toBeInTheDocument();
+  await user.click(screen.getByRole('button',{name:'Evidências'}));
+  await user.click(screen.getByText('Análise completa dos materiais e da cobrança'));
+  expect(screen.getByRole('link',{name:'TRIE da USP'})).toHaveAttribute('href','https://www.ime.usp.br/~cris/mac0323/slides/aula18.pdf');
+});
+
+test('a matriz abre diretamente o exercício correspondente, inclusive fora do simulado',async()=>{
+  const user=userEvent.setup();render(<PreparacaoScreen scope="p3" onBack={vi.fn()} onLegacy={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Evidências'}));
+  await user.click(screen.getByText('Matriz de operações · 39 exercícios'));
+  const row=screen.getByText('Conferir o segmento inteiro').closest('tr')!;
+  await user.click(within(row).getByRole('button',{name:'Resolver exercício →'}));
+  expect(screen.getByRole('heading',{name:'Conferir o segmento inteiro'})).toBeInTheDocument();
+  expect(screen.getByLabelText('Nível')).toHaveValue('todos');
+  expect(screen.getByLabelText('Assunto')).toHaveValue('patricia');
 });

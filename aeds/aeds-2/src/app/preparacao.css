@@ -102,3 +102,7 @@
 @media(prefers-reduced-motion:reduce) { .exam-plan-cards button {transition:none;} }
 
 .study-topic-count,.study-exercise-count { color:var(--ink-muted); font-size:.8rem; }
+
+.study-question-nav { max-height:70vh; overflow:auto; position:sticky; top:16px; overscroll-behavior:contain; scrollbar-width:thin; }
+.study-prose a { color:var(--accent-ink); text-underline-offset:3px; }
+@media(max-width:640px) { .study-question-nav { max-height:none; position:static; overflow-x:auto; } }
