@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
 function inline(text: string):ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part,index)=>
-    part.startsWith('**') ? <strong key={index}>{part.slice(2,-2)}</strong> : part.startsWith('`') ? <code key={index}>{part.slice(1,-1)}</code> : part);
+  return text.split(/(\[[^\]]+\]\(https:\/\/[^)]+\)|\*\*[^*]+\*\*|`[^`]+`)/g).map((part,index)=>
+    part.startsWith('[') && /^\[[^\]]+\]\(https:\/\/[^)]+\)$/.test(part) ? <a key={index} href={part.slice(part.indexOf('](')+2,-1)} target="_blank" rel="noreferrer">{part.slice(1,part.indexOf(']('))}</a> : part.startsWith('**') ? <strong key={index}>{part.slice(2,-2)}</strong> : part.startsWith('`') ? <code key={index}>{part.slice(1,-1)}</code> : part);
 }
 /** Renderiza texto didático sem interpretar HTML nem executar conteúdo dos exemplos. */
 export function StudyText({text}:{text:string}) {
