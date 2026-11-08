@@ -30,3 +30,8 @@ test('P3 nao repete nenhum modulo de P1 ou P2', () => {
 test('getExam lanca erro para id desconhecido', () => {
   expect(() => getExam('p4' as ExamId)).toThrow();
 });
+
+test('P1 mantém apenas os módulos de ordenação básica da orientação atual',()=>{
+  expect(getExam('p1').moduleIds).toEqual(expect.arrayContaining(['ordenacao-bolha','ordenacao-insercao','ordenacao-selecao']));
+  for(const id of ['ordenacao','ordenacao-shell','ordenacao-counting','ordenacao-bucket','ordenacao-radix']) expect(getExam('p1').moduleIds).not.toContain(id);
+});

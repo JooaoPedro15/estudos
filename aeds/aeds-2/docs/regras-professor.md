@@ -34,3 +34,10 @@ respeitar:
 - Correcao no Linux dos laboratorios, uso do VIM, apresentacao ao vivo
   (logistica presencial da disciplina, nao existe neste app).
 - A correção oficial da disciplina não é reproduzida. O corretor local deste app compila Java apenas no servidor de desenvolvimento; o build estático usa a análise de fragmentos, que não comprova a correção do programa.
+
+
+## Atualização das fontes em 08/11/2026
+
+O TP2 de 2026/2 amplia explicitamente a API de String em relação à regra básica acima: compareTo, equals, split e format, além de conversões para tipos primitivos. Em C, também lista operações adicionais de string.h e stdio.h. Essas permissões são do TP: a regra do enunciado da avaliação continua prevalecendo. Os exercícios autorais declaram a variante e usam operações básicas quando possível.
+
+Para o roteiro atual da P1, a orientação do aluno em 08/11 separa bolha, seleção e inserção. Quick, Merge e Heap ficam na P2. Formas históricas mais amplas não alteram automaticamente esse escopo.
