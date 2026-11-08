@@ -1,5 +1,6 @@
 import type { ExamId } from '../examCatalog';
 import p2 from './simuladosP2.json';
+import { ampliadosP1,ampliadosP2,ampliadosP3,revisaoHeap } from './exerciciosAmpliados';
 
 export type Nivel = 'facil' | 'media' | 'dificil';
 export type Tema = {
@@ -7,20 +8,22 @@ export type Tema = {
   forms: { title: string }[];
   evidence: string; operation: string; trap: string; sources: string[];
 };
-export type QuestaoPreparacao = { id: string; title: string; body: string; sources: string[]; answer?: string; topic?: string; base?: string };
+export type QuestaoPreparacao = { id: string; title: string; body: string; sources: string[]; answer?: string; topic?: string; base?: string; level?: Nivel };
 export type SimuladoPreparacao = { id: string; exam: ExamId; title: string; level: Nivel; questions: QuestaoPreparacao[] };
 export type Plano = { scope: string; status: string; history: string[]; missing: string[]; topics: Tema[] };
 const forma = (title: string) => ({title});
 export const planos: Record<ExamId, Plano> = {
   p1: {
-    scope: 'Fundamentos de análise, somatórios, estruturas sequenciais e ordenação (u00–u03). Flexíveis (u04) permanecem como revisão complementar até confirmação da turma.',
-    status: 'Histórico disponível · escopo atual a confirmar',
+    scope: 'Complexidade e somatórios; bolha, seleção e inserção; estruturas lineares e recursão. Conforme orientação do aluno em 08/11/2026, a primeira questão é de complexidade; Quick, Merge e Heap ficam na P2.',
+    status: 'Análise, ordenação básica e estruturas lineares',
     history: ['Uma edição fotografada, em duas páginas: análise por blocos com melhor/pior caso; perturbação e indução; métodos novos em fila circular.', 'As fotos não identificam o semestre. O roteiro reúne o conteúdo disponível para toda a turma.', 'A pasta reservada à P1 de 2026/2 está vazia. A prova de 2019/2 é uma referência adicional de análise, sem equivalência garantida ao formato atual.'],
-    missing: ['P1 de 2026/2 e orientações atuais de escopo.', 'Semestre e edição das fotos.', 'Regras atuais da prática: linguagem por questão, restrições e rubrica.'],
+    missing: ['Enunciado e gabarito da P1 de 2026/2 para conferir as regras exatas.', 'Semestre e edição das fotos.', 'Regras atuais da prática: linguagem por questão, restrições e rubrica.'],
     topics: [
       { id:'analise',title:'Contar antes de classificar',forms:[forma('Laços dependentes e ramificações'),forma('Somatório, fechamento e indução')],evidence:'As questões 1 e 2 da edição fotografada cobram essa sequência. Frequência observada não é probabilidade de uma prova futura.',operation:'Identificar operação relevante → escrever Σ → fechar → justificar Θ.',trap:'Somar custos de ramos mutuamente exclusivos ou trocar O por Θ sem limite inferior.',sources:['autoral/Fundamentos.java'] },
       { id:'fila',title:'Fila circular e invariantes',forms:[forma('Desfazer inserção'),forma('Percurso inverso recursivo')],evidence:'Questão 3 da edição fotografada; código oficial de fila sequencial.',operation:'Atualizar último com módulo e preservar primeiro; distinguir cheia e vazia.',trap:'Fazer (ultimo - 1) % tamanho em Java: o resto pode ser negativo.',sources:['autoral/Fundamentos.java'] },
-      { id:'ordenacao',title:'Ordenação e critérios',forms:[forma('Inserção estável'),forma('Comparador e desempates')],evidence:'u03 e treinos de ordenação da disciplina; sinal de conteúdo, sem comprovação de frequência nesta avaliação.',operation:'Adaptar a comparação mantendo o algoritmo solicitado.',trap:'Trocar o algoritmo pedido por uma ordenação pronta.',sources:['autoral/Fundamentos.java'] },
+      { id:'ordenacao',title:'Bolha, seleção e inserção',forms:[forma('Inserção estável'),forma('Comparador e desempates')],evidence:'Orientação atual do aluno em 08/11/2026: bolha, seleção e inserção na P1. TP2 e código oficial oferecem as implementações de referência.',operation:'Adaptar a comparação mantendo o algoritmo solicitado.',trap:'Trocar o algoritmo pedido por uma ordenação pronta.',sources:['autoral/Fundamentos.java'] },
+      {id:'recursividade',title:'Recursão e comparação de strings',forms:[forma('Caso base e avanço'),forma('Comparador lexicográfico')],evidence:'P1 de 2019/2 inclui comparador recursivo; o plano de ensino e TP1 tratam recursividade.',operation:'Definir caso base, avanço e composição do retorno; tratar prefixos de strings.',trap:'Ler charAt após o fim da string ou comparar só o comprimento.',sources:['autoral/FundamentosMais.java']},
+      {id:'busca',title:'Busca em vetor ordenado',forms:[forma('Limites da pesquisa binária')],evidence:'u01 e TP2 incluem pesquisa; é aplicação dos invariantes e análise logarítmica.',operation:'Manter intervalo e excluir corretamente a posição já examinada.',trap:'Não avançar o limite ou usar busca binária em dados não ordenados.',sources:['autoral/FundamentosMais.java']},
     ],
   },
   p2: {
@@ -34,6 +37,7 @@ export const planos: Record<ExamId, Plano> = {
       { id:'parcial',title:'Ordenação parcial',forms:[forma('Quick parcial'),forma('Heap parcial'),forma('Seleção/Inserção parcial')],evidence:'TP4 de 27/10 e slides atualizados; treinos e prática da disciplina. O relato da P2 confirma Quicksort, mas não confirma a modalidade parcial.',operation:'Limitar trabalho ao prefixo k e formalizar todos os desempates.',trap:'Afirmar Θ(n log n) para qualquer entrada de Quicksort ou esquecer k=0 e k=n.',sources:['autoral/Parcial.java','autoral/Parcial.c','autoral/Heap.java'] },
       { id:'lista',title:'Lista encadeada e ponteiros',forms:[forma('Lista em C'),forma('Inserir, remover e inverter')],evidence:'Slides T5, questões históricas de meiose e ordenação em lista dupla circular; aulão de estruturas híbridas.',operation:'Pular cabeça, manter último e salvar o próximo antes de alterar vínculos.',trap:'Perder a referência do restante da lista ou deixar ultimo apontando para célula removida.',sources:['matriz/java/ListaOps.java','matriz/c/lista_ops.c','matriz/c/lista_dupla_circular.c'] },
       { id:'treesort',title:'TreeSort como variação',forms:[forma('Inserção + percurso central')],evidence:'Slides T4, exercício 7 e código oficial: inserção em ABP seguida de percurso central.',operation:'Inserir todos os elementos e fazer percurso central; definir repetidos.',trap:'Garantir Θ(n log n) em ABP sem balanceamento: pior caso Θ(n²).',sources:['tarde-media/Q2_TreeSort.java'] },
+      {id:'ordenacao-completa',title:'Quick, Merge e Heap completos',forms:[forma('Partição'),forma('Intercalação'),forma('Construção e reconstrução de heap')],evidence:'Orientação do aluno em 08/11/2026; TP3 e u03 ensinam os três algoritmos na preparação da P2.',operation:'Preservar o invariante de cada algoritmo e distinguir completo de parcial.',trap:'Trocar o algoritmo pedido ou omitir a dependência de k nas versões parciais.',sources:['matriz/java/OrdenacaoOps.java']},
     ],
   },
   p3:{
@@ -44,7 +48,11 @@ export const planos: Record<ExamId, Plano> = {
     topics:[
       {id:'avl',title:'AVL: altura e equilíbrio',forms:[forma('Contar nós balanceados com nivel pronto'),forma('Rotação e atualização de alturas')],evidence:'Duas edições fotografadas incluem métodos de árvore; uma pede explicitamente uso do atributo nivel.',operation:'Separar altura armazenada de altura calculada; validar fator em cada nó.',trap:'Testar só a raiz ou somar recálculos de altura desnecessários.',sources:['autoral/Estruturas.java']},
       {id:'trie',title:'TRIE: percursos e prefixos',forms:[forma('Percorrer subárvore de prefixo'),forma('Criar TRIE com palavras invertidas')],evidence:'Uma forma em cada edição fotografada e conteúdo de u08.',operation:'Descer pelo prefixo e percorrer todos os finais de palavra na subárvore.',trap:'Confundir folha com fimPalavra: uma palavra pode ser prefixo de outra.',sources:['autoral/Estruturas.java']},
-      {id:'hash',title:'Hash e estruturas híbridas',forms:[forma('Pesquisa T1 → reserva → árvore/lista'),forma('V/F sobre colisão e pior caso')],evidence:'Pesquisa em híbrida nas duas edições; lista da P3 e u07.',operation:'Aplicar cada função de distribuição e percorrer somente a reserva correta.',trap:'Prometer custo constante no pior caso ou usar valor zero como posição vazia.',sources:['autoral/Hibrida.java']},
+      {id:'hash',title:'Hash: reserva, rehash e colisões',forms:[forma('Pesquisa T1 → reserva → árvore/lista'),forma('V/F sobre colisão e pior caso')],evidence:'Pesquisa em híbrida nas duas edições; lista da P3 e u07.',operation:'Aplicar cada função de distribuição e percorrer somente a reserva correta.',trap:'Prometer custo constante no pior caso ou usar valor zero como posição vazia.',sources:['autoral/Hibrida.java']},
+      {id:'alvinegra',title:'Alvinegra: cores e caminhos',forms:[forma('Contar cores'),forma('Validar altura negra'),forma('Fragmentar por troca de cores')],evidence:'V/F da P3 edição A; lista P3 e TP4 com bicolor em C.',operation:'Declarar a convenção de cor e verificar invariantes em todos os caminhos.',trap:'Confundir contar todos os nós pretos com contar pretos em cada caminho.',sources:['autoral/Cores234.java']},
+      {id:'arvore234',title:'Árvore 2-3-4: chaves e fragmentação',forms:[forma('Pesquisar entre chaves'),forma('Contar folhas e 4-nós'),forma('Dividir raiz cheia')],evidence:'P3 edição A e questões de balanceamento da lista e da reavaliação.',operation:'Preservar intervalos das chaves e distribuir os filhos válidos ao fragmentar.',trap:'Confundir três chaves com três nós ou perder subárvores na divisão.',sources:['autoral/Cores234.java']},
+      {id:'patricia',title:'PATRICIA: intervalos e compressão',forms:[forma('Casar segmentos completos'),forma('Contar caracteres dos rótulos'),forma('Detectar compressão pendente')],evidence:'u08 e lista P3. O código oficial usa rótulos por índices i,j,k.',operation:'Comparar todos os caracteres do intervalo e respeitar o marcador de fim.',trap:'Aceitar uma consulta que termina no meio do rótulo ou apagar uma fronteira de palavra.',sources:['autoral/IndicesTexto.java']},
+      {id:'hibrida',title:'Híbridas: uma consulta, várias camadas',forms:[forma('Hash com rehash e reserva'),forma('Consulta por campo sem índice')],evidence:'Uma questão híbrida em cada edição fotografada da P3; lista P3 e código de referência.',operation:'Seguir a rota da chave; percorrer quando a consulta recebe outro campo.',trap:'Aplicar a ordenação por código para procurar nome.',sources:['autoral/HibridaCamadas.java']},
     ],
   },
   reav:{
@@ -104,10 +112,33 @@ const questoes:Record<Exclude<ExamId,'p2'>,Record<Nivel,QuestaoPreparacao[]>> = 
 for (const level of ['facil','media','dificil'] as Nivel[]) {
   questoes.reav[level]=[...questoes.p1[level],...questoes.p3[level]].map((question,index)=>({...question,id:`reav-${level}-${index}`,title:`${index+1}. ${question.title}`}));
 }
-export const simuladosPreparacao:SimuladoPreparacao[] = [
-  ...(p2 as SimuladoPreparacao[]),
-  ...(['p1','p3','reav'] as const).flatMap(exam=>(['facil','media','dificil'] as Nivel[]).map(level=>({id:`${exam}-${level}`,title:'Simulado',exam,level,questions:questoes[exam][level]}))),
+const temasReav=[...planos.reav.topics.filter(t=>['analise','ordenacao'].includes(t.id)),...planos.p1.topics.filter(t=>['fila','recursividade','busca'].includes(t.id)),...planos.p3.topics,...planos.p2.topics.filter(t=>['arvore','lista','parcial','treesort','ordenacao-completa'].includes(t.id))];
+planos.reav.topics=[...new Map(temasReav.map(t=>[t.id,t])).values()];
+const extras={p1:ampliadosP1,p2:ampliadosP2,p3:ampliadosP3,reav:[
+  ...[...ampliadosP1,...ampliadosP2,...ampliadosP3].map(q=>({...q,id:`reav-${q.id}`})),...revisaoHeap,
+  ...p2.flatMap(sim=>sim.questions.map(q=>({...q,id:`reav-p2-${q.id}`,level:sim.level as Nivel}))),
+]};
+export function getQuestoesPreparacao(exam:ExamId):QuestaoPreparacao[] {
+  const original:QuestaoPreparacao[]=exam==='p2'
+    ? p2.flatMap(sim=>sim.questions.map(q=>({...q,level:sim.level as Nivel})))
+    : Object.entries(questoes[exam]).flatMap(([level,qs])=>qs.map(q=>({...q,level:level as Nivel})));
+  return [...new Map([...original,...extras[exam]].map(q=>[q.id,q])).values()];
+}
+function selecionar(exam:ExamId,ids:string[]):QuestaoPreparacao[] {
+  return ids.map(id=>{const q=getQuestoesPreparacao(exam).find(q=>q.id===id);if(!q)throw new Error(`Exercício ausente: ${id}`);return q;});
+}
+const composicoes:{exam:ExamId;level:Nivel;versions:string[][]}[]=[
+  {exam:'p1',level:'facil',versions:[['p1-soma','p1-selecao-conta','p1-deque-fim-c'],['p1-impares','p1-estavel','p1-deque-fim-c']]},
+  {exam:'p1',level:'media',versions:[['p1-inducao','p1-insercao-trace','p1-deque-inicio-c'],['p1-dobros','p1-selecao-conta','p1-deque-inicio-c']]},
+  {exam:'p1',level:'dificil',versions:[['p1-refutar','p1-bolha-ultima','p1-deque-inicio-c'],['p1-casos','p1-paridade','p1-deque-fim-c']]},
+  {exam:'p3',level:'facil',versions:[['p3-recalcular','p3-trie-exata','p3-hash-inserir-c'],['p3-234-busca','p3-cor-contar','p3-hash-inserir-c']]},
+  {exam:'p3',level:'media',versions:[['p3-trie-listar','p3-rotacao-dupla','p3-hash-rehash-c'],['p3-hibrida-codigo','p3-patricia-pesquisa','p3-hash-rehash-c']]},
+  {exam:'p3',level:'dificil',versions:[['p3-cor-altura','p3-trie-uniao','p3-hash-contrato-c'],['p3-234-profundidade','p3-hibrida-nome','p3-hash-contrato-c']]},
+  {exam:'reav',level:'facil',versions:[['reav-p1-impares','reav-p3-recalcular','reav-p3-trie-exata','reav-p1-selecao-conta','reav-p3-hash-inserir-c','reav-p3-hibrida-rota'],['reav-p1-impares','reav-p3-234-busca','reav-p3-cor-contar','reav-p1-insercao-trace','reav-p1-deque-fim-c','reav-p3-hibrida-rota']]},
+  {exam:'reav',level:'media',versions:[['reav-p1-dobros','reav-p3-rotacao-dupla','reav-p3-trie-listar','reav-p1-insercao-trace','reav-p3-hash-rehash-c','reav-p3-hibrida-codigo'],['reav-p1-dobros','reav-p3-cor-dividir','reav-p3-patricia-pesquisa','reav-p1-selecao-conta','reav-p1-deque-inicio-c','reav-p2-arvore-outro-campo']]},
+  {exam:'reav',level:'dificil',versions:[['reav-p1-dobros','reav-p3-avl-inserir','reav-p3-cor-altura','reav-p1-bolha-ultima','reav-p3-hash-contrato-c','reav-p3-hibrida-nome'],['reav-p1-impares','reav-p3-234-profundidade','reav-p3-trie-uniao','reav-p2-merge-completo','reav-p3-hash-contrato-c','reav-p2-arvore-outro-campo']]},
 ];
+export const simuladosPreparacao:SimuladoPreparacao[]=[...(p2 as SimuladoPreparacao[]),...composicoes.flatMap(c=>c.versions.map((ids,i)=>({id:`${c.exam}-${c.level}-${i+1}`,exam:c.exam,level:c.level,title:`Simulado ${i+1}`,questions:selecionar(c.exam,ids)})))];
 
 export const relatoP2 = [
   {id:'espelho',title:'Espelhamento não foi cobrado',text:'Atualização do aluno em 08/11/2026: não houve questão de espelhamento nessa avaliação.',result:'O exercício permanece como prática de recursão e referências, sem indicação de probabilidade de cobrança.'},
@@ -123,11 +154,6 @@ export const praticaPreparacao:Record<ExamId,QuestaoPreparacao[]> = {
   reav:[],
 };
 
-/** Reúne os exercícios de todas as versões sem restringir a turma. */
-export function getQuestoesPreparacao(exam:ExamId):QuestaoPreparacao[] {
-  const all=simuladosPreparacao.filter(s=>s.exam===exam).flatMap(s=>s.questions);
-  return [...new Map(all.map(question=>[question.id,question])).values()];
-}
 export function assuntoQuestao(question:QuestaoPreparacao):string {
   if(question.topic) return question.topic;
   if(/parcial|heap|inserção estável/i.test(question.title)) return 'parcial';
