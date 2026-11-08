@@ -4,6 +4,14 @@
     "resultado": "aprovado"
   },
   {
+    "arquivo": "src/content/preparacao/solucoes/autoral/AvlRevisao.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Cores234.java",
+    "resultado": "aprovado"
+  },
+  {
     "arquivo": "src/content/preparacao/solucoes/autoral/Estruturas.java",
     "resultado": "aprovado"
   },
@@ -12,11 +20,27 @@
     "resultado": "aprovado"
   },
   {
+    "arquivo": "src/content/preparacao/solucoes/autoral/FundamentosMais.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/HashTreino.c",
+    "resultado": "aprovado"
+  },
+  {
     "arquivo": "src/content/preparacao/solucoes/autoral/Heap.java",
     "resultado": "aprovado"
   },
   {
     "arquivo": "src/content/preparacao/solucoes/autoral/Hibrida.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/HibridaCamadas.java",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/IndicesTexto.java",
     "resultado": "aprovado"
   },
   {
@@ -37,6 +61,10 @@
   },
   {
     "arquivo": "src/content/preparacao/solucoes/autoral/Sensores.c",
+    "resultado": "aprovado"
+  },
+  {
+    "arquivo": "src/content/preparacao/solucoes/autoral/Sequenciais.c",
     "resultado": "aprovado"
   },
   {
