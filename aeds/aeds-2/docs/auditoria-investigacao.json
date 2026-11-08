@@ -1,0 +1,15 @@
+{
+  "data": "2026-11-08",
+  "escopo": "Preparação por avaliação e entrega independente",
+  "restricoes": "Originais, dados restritos e identificadores externos mantidos fora do repositório.",
+  "ocorrencias_restritas": 0,
+  "testes_modulo": 161,
+  "programas_repositorio": 45,
+  "programas_entrega": 37,
+  "build_integrado": "aprovado",
+  "conferencia_visual": "P3: catálogo, filtro por assunto e resolução",
+  "limites": [
+    "P3 e reavaliação sem orientações atuais confirmadas",
+    "Comparação retrospectiva manual, sem validade de previsão temporal"
+  ]
+}

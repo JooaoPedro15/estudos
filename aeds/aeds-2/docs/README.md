@@ -6,6 +6,7 @@ Esta pasta guarda a documentacao de produto e engenharia do modulo interativo.
 
 | Arquivo | Conteudo |
 | --- | --- |
+| `preparacao-avaliacoes.md` | Preparação atual, investigação, exercícios e limites das evidências. |
 | `product-spec.md` | Objetivo, usuario, problema, escopo e criterios de sucesso. |
 | `reavaliacao-format.md` | Como o modulo deve imitar o formato observado nas reavaliacoes. |
 | `game-mechanics.md` | Experiencia de aprendizagem, campanha, oficina, simulado e progressao. |
