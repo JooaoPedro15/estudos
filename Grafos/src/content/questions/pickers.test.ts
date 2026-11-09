@@ -134,6 +134,33 @@ describe('pickNextDefinition', () => {
 });
 
 describe('treino de prova', () => {
+  it('cada enunciado elegível existe nos formatos aberto e fechado', async () => {
+    const { examDrillQuestions, isClosedQuestion, isOpenExamQuestion } = await import('./index');
+    const eligible = questions.filter((q) => q.examFamily && (isClosedQuestion(q) || isOpenExamQuestion(q)));
+    for (const q of eligible) {
+      const versions = examDrillQuestions.filter((variant) => (variant.examDrillOriginalId ?? variant.id) === q.id);
+      expect(versions, q.id).toHaveLength(2);
+      expect(versions.some(isClosedQuestion), q.id).toBe(true);
+      expect(versions.some(isOpenExamQuestion), q.id).toBe(true);
+      expect(versions.every((variant) => variant.examFamily === q.examFamily), q.id).toBe(true);
+      const open = versions.find(isOpenExamQuestion)!;
+      if (open.type === 'PROOF_OR_JUSTIFICATION') expect(open.examAnswer, q.id).toBeTruthy();
+    }
+    expect(new Set(examDrillQuestions.map((q) => q.id)).size).toBe(examDrillQuestions.length);
+  });
+
+  it('na P2, questões de semestres diferentes têm prioridade maior que várias subquestões de uma prova', async () => {
+    const { examFamilies, examFamilyExamCount, examFamilyWeight } = await import('@/content/examFamilies');
+    const agm = examFamilies.find((f) => f.id === 'p2-agm')!;
+    const prim = examFamilies.find((f) => f.id === 'p2-prim-forcado')!;
+    const linha = examFamilies.find((f) => f.id === 'p2-linha')!;
+    expect(examFamilyExamCount(agm, 'P2')).toBe(4);
+    expect(examFamilyExamCount(prim, 'P2')).toBe(3);
+    expect(examFamilyExamCount(linha, 'P2')).toBe(1);
+    expect(examFamilyWeight(agm, 'P2')).toBeGreaterThan(examFamilyWeight(prim, 'P2'));
+    expect(examFamilyWeight(prim, 'P2')).toBeGreaterThan(examFamilyWeight(linha, 'P2'));
+  });
+
   it('toda questão de treino aponta para uma família registrada e toda família tem questão', async () => {
     const { examFamilies } = await import('@/content/examFamilies');
     const ids = new Set(examFamilies.map((f) => f.id));

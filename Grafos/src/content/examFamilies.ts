@@ -223,10 +223,19 @@ export function appearancesFor(f: ExamFamily, exam: ExamScope): string[] {
   return exam === 'P2' && f.exam !== 'P2' ? (f.alsoP2 ?? []) : f.appearances;
 }
 
+/** Número de provas distintas em que a família apareceu. */
+export function examFamilyExamCount(f: ExamFamily, exam: ExamScope): number {
+  return examsOf(appearancesFor(f, exam)).size;
+}
+
 export function examFamilyWeight(f: ExamFamily, exam: ExamScope = f.exam ?? 'P1'): number {
   if (exam === 'all') return 1 + examsOf(appearancesFor(f, exam)).size;
-  // P2: toda família entra no sorteio (peso 1) e ganha +1 por prova em que caiu.
-  if (exam === 'P2') return 1 + examsOf(appearancesFor(f, 'P2')).size;
+  // P2: reforça famílias repetidas em provas distintas, sem contar várias
+  // subquestões de uma mesma prova como repetições independentes.
+  if (exam === 'P2') {
+    const repeats = examFamilyExamCount(f, 'P2');
+    return 1 + repeats * repeats;
+  }
   return f.appearances.length * (f.scopeUncertain ? 0.5 : 1);
 }
 
@@ -234,7 +243,9 @@ export function examFamilyWeight(f: ExamFamily, exam: ExamScope = f.exam ?? 'P1'
 export function conceptExamWeights(): Map<string, number> {
   const m = new Map<string, number>();
   for (const f of examFamilies) {
-    const w = examFamilyWeight(f);
+    // A prioridade extra da P2 vale para o Treino de prova, não para a
+    // classificação geral das definições.
+    const w = f.exam === 'P2' ? 1 + examFamilyExamCount(f, 'P2') : examFamilyWeight(f);
     for (const c of f.concepts) m.set(c, (m.get(c) ?? 0) + w);
   }
   return m;

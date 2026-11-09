@@ -155,6 +155,8 @@ export interface QuestionMeta {
   definitionId?: string;
   /** Família de questão de prova a que pertence (ver content/examFamilies.ts) — usada pelo "Treino de prova" para sortear por frequência nas provas antigas. */
   examFamily?: string;
+  /** Id da questão original quando o Treino de prova mostra a mesma questão no outro formato. */
+  examDrillOriginalId?: string;
   /** Resolução passo a passo com desenho (substitui `solution` na exibição do "Me ensine" quando presente). */
   walkthrough?: WalkthroughStep[];
   /** "Em outros casos, faça assim": a regra que generaliza a resolução. */

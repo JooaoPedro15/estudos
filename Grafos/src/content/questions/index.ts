@@ -16,6 +16,7 @@ import { closedDefinitionQuestions, definitionQuestions, isDefinitionFamily, isD
 import { conceptExamWeights, examFamilies, examFamiliesFor, examFamilyWeight } from '@/content/examFamilies';
 import { getActiveExam } from '@/store/activeExam';
 import { EXAM_ANSWERS } from '@/content/examAnswers';
+import { buildExamDrillVariants } from './examDrillVariants';
 
 export const questions: Question[] = [
   ...fundamentosQuestions,
@@ -297,6 +298,9 @@ export function isOpenExamQuestion(q: Question): boolean {
   return q.type === 'PROOF_OR_JUSTIFICATION' || q.type === 'SHORT_ANSWER' || q.type === 'NUMBER_INPUT';
 }
 
+/** Questões de prova com uma versão aberta e uma fechada para cada enunciado. */
+export const examDrillQuestions = buildExamDrillVariants(questions);
+
 /**
  * Próxima questão do Treino de prova. Sorteia a família pelo peso (nº de
  * provas em que caiu) e depois uma questão dela. `familyIds` restringe o
@@ -305,16 +309,14 @@ export function isOpenExamQuestion(q: Question): boolean {
  * mas se as famílias escolhidas só tiverem um dos tipos, sai desse tipo.
  */
 export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttempt[], kind: ExamDrillKind = 'closed', familyIds?: string[]): Question | undefined {
-  const excluded = new Set(excludeIds);
+  const excluded = new Set(excludeIds.map((id) => examDrillQuestions.find((q) => q.id === id)?.examDrillOriginalId ?? id));
   // Sem escolha explícita: todas as famílias da prova ativa (P1 ou P2).
   const allowed = new Set(familyIds && familyIds.length > 0 ? familyIds : examFamiliesFor(getActiveExam()).map((f) => f.id));
   const inScope = (q: Question) => Boolean(q.examFamily) && allowed.has(q.examFamily!);
-  const hasOpen = questions.some((q) => inScope(q) && isOpenExamQuestion(q));
-  const hasClosed = questions.some((q) => inScope(q) && isClosedQuestion(q));
-  const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : !hasClosed ? true : !hasOpen ? false : Math.random() < 0.5;
+  const wantOpen = kind === 'open' ? true : kind === 'closed' ? false : Math.random() < 0.5;
   const accept = (q: Question) => (wantOpen ? isOpenExamQuestion(q) : isClosedQuestion(q));
   const byFamily = new Map<string, Question[]>();
-  for (const q of questions) {
+  for (const q of examDrillQuestions) {
     if (!inScope(q) || !accept(q)) continue;
     const list = byFamily.get(q.examFamily!) ?? [];
     list.push(q);
@@ -325,7 +327,7 @@ export function pickNextExamDrill(excludeIds: string[], attempts: QuestionAttemp
   const family = weightedPick(families, (f) => examFamilyWeight(f, activeExam));
   if (!family) return undefined;
   const all = byFamily.get(family.id)!;
-  let pool = all.filter((q) => !excluded.has(q.id));
+  let pool = all.filter((q) => !excluded.has(q.examDrillOriginalId ?? q.id));
   if (pool.length === 0) pool = all;
   const last = lastAttemptByQuestion(attempts);
   const now = Date.now();

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { ExerciseRenderer, type ExerciseResult } from '@/engine/ExerciseRenderer';
-import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, questions, type ExamDrillKind } from '@/content/questions';
-import { appearancesFor, examFamiliesFor, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
+import { examDrillQuestions, isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, type ExamDrillKind } from '@/content/questions';
+import { examFamilyExamCount, examFamiliesFor, examFamilyWeight, totalExamsFor } from '@/content/examFamilies';
 import { useActiveExam } from '@/store/activeExam';
 import type { Question, QuestionAttempt } from '@/content/types';
 import { addStudySeconds, loadProgress, recordAttempt } from '@/store/progress';
@@ -12,8 +12,8 @@ import { ExamRelevance } from './ExamRelevance';
 import { ChipGroup } from './ModuleFilter';
 
 const RECENT_LIMIT = 12;
-const QUESTIONS_PER_FAMILY = new Map(examFamiliesFor('P1').concat(examFamiliesFor('P2')).map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isExamDrillQuestion(q)).length]));
-const OPEN_PER_FAMILY = new Map(examFamiliesFor('P1').concat(examFamiliesFor('P2')).map((f) => [f.id, questions.filter((q) => q.examFamily === f.id && isOpenExamQuestion(q)).length]));
+const QUESTIONS_PER_FAMILY = new Map(examFamiliesFor('P1').concat(examFamiliesFor('P2')).map((f) => [f.id, examDrillQuestions.filter((q) => q.examFamily === f.id && isExamDrillQuestion(q)).length]));
+const OPEN_PER_FAMILY = new Map(examFamiliesFor('P1').concat(examFamiliesFor('P2')).map((f) => [f.id, examDrillQuestions.filter((q) => q.examFamily === f.id && isOpenExamQuestion(q)).length]));
 const KIND_OPTIONS: { id: ExamDrillKind; label: string }[] = [
   { id: 'closed', label: 'Fechadas (marco)' },
   { id: 'open', label: 'Abertas (escrevo)' },
@@ -131,10 +131,10 @@ export function ExamDrillSession() {
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
         {exam === 'P2'
-          ? 'Questões no formato de prova, com peso pelas 9 provas de P2 do Prof. Silvio, incluindo o que vem da P1 (a prova é cumulativa). O que caiu em mais provas aparece mais vezes.'
+          ? 'Questões no formato de prova, com peso pelas 9 provas de P2 do Prof. Silvio, incluindo o que vem da P1 (a prova é cumulativa). Questões repetidas em mais provas aparecem com mais frequência.'
           : `Só o que caiu nas ${TOTAL_EXAMS} provas antigas do professor — a pergunta da prova e variantes com números trocados. O que caiu em mais provas aparece mais vezes.`}{' '}
-        Fechadas: marcar, ordenar passos, clicar no grafo. Abertas: as dissertativas como na prova — você escreve e depois compara com a
-        resposta-modelo. Sem fim: saia quando quiser.
+        Cada enunciado aparece nos dois formatos. Fechadas: marque a resposta. Abertas: escreva e compare com a resposta-modelo.
+        Sem fim: saia quando quiser.
       </p>
 
       <ChipGroup label="Tipo de questão" tone="danger" value={kind} onChange={(id) => changeKind(id as ExamDrillKind)} options={KIND_OPTIONS} />
@@ -178,7 +178,7 @@ export function ExamDrillSession() {
               >
                 <span className="flex w-4 shrink-0 items-center justify-center pt-0.5 text-[var(--color-danger)]">{selected ? <Check size={14} /> : null}</span>
                 <span className="mono w-11 shrink-0 text-[var(--color-danger)]">
-                  {appearancesFor(f, exam).length}x
+                  {examFamilyExamCount(f, exam)}x
                   {f.scopeUncertain ? '*' : ''}
                 </span>
                 <span className="mono w-10 shrink-0 text-[var(--color-text-tertiary)]">{Math.round((examFamilyWeight(f, exam) / TOTAL_WEIGHT) * 100)}%</span>
@@ -210,7 +210,7 @@ export function ExamDrillSession() {
           <ExerciseRenderer key={`${question.id}-${answered}`} question={question} onComplete={handleComplete} />
         ) : loaded ? (
           <p className="text-sm text-[var(--color-text-secondary)]">
-            As famílias escolhidas não têm questão {kind === 'open' ? 'aberta' : 'fechada'}. Troque o tipo de questão ou marque outra família.
+            As famílias escolhidas não têm questões disponíveis. Marque outra família.
           </p>
         ) : (
           <p className="text-sm text-[var(--color-text-secondary)]">Carregando…</p>
