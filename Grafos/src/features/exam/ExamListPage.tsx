@@ -5,6 +5,7 @@ import type { ExamScope } from '@/content/types';
 import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
 import { codePuzzles } from '@/content/codePuzzles';
+import { dueCodeIds, loadCodeMemory } from '@/store/codeMemory';
 
 function ExamCard({ exam }: { exam: Exam }) {
   return (
@@ -50,6 +51,7 @@ const REAL_EXAMS_TEXT: Record<ExamScope, { title: string; description: string }>
 /** Mostra os simulados sorteados da P2 em destaque e as provas reais da seleção ativa. */
 export function ExamListPage() {
   const active = useActiveExam();
+  const dueCount = dueCodeIds(loadCodeMemory()).length;
   const p2Exams = allExams.filter((e) => e.prova === 'P2');
   const p1Exams = allExams.filter((e) => e.prova !== 'P2');
   const realExams = allRealExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
@@ -58,7 +60,7 @@ export function ExamListPage() {
       <header className="flex flex-col gap-1.5">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Provas e simulados</h1>
         <p className="max-w-2xl text-[var(--color-text-secondary)]">
-          Sorteie um simulado da P2 e escolha como responder: aberto, como na prova, ou fechado, montando os pseudocódigos em quebra-código.
+          Sorteie um simulado da P2 e escolha como responder: aberto, como na prova, ou com memorização progressiva dos códigos e perguntas de múltipla escolha.
         </p>
       </header>
 
@@ -85,6 +87,16 @@ export function ExamListPage() {
             </div>
             <p className="mono text-xs text-[var(--color-text-tertiary)]">{codePuzzles.length} desafios · correção imediata · sem cronômetro</p>
             <Link to="/simulado/codigo" className="mt-auto"><Button fullWidth>Montar os códigos</Button></Link>
+          </Card>
+          <Card padding="lg" className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Revisão de códigos da P2</h2>
+                <Badge tone="amber">{dueCount} para revisar</Badge>
+              </div>
+              <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">Retome os trechos já praticados quando chegar a hora. Acertos avançam de ordenar linhas para preencher lacunas e escrever sem pistas.</p>
+            </div>
+            <Link to="/simulado/revisao" className="mt-auto"><Button fullWidth>Revisar códigos</Button></Link>
           </Card>
         </div>
       </section>

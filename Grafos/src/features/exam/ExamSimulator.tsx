@@ -309,7 +309,7 @@ function IntroScreen({
         </label>
         <label className={clsx('flex items-start gap-3 rounded-lg border p-3 text-sm', closedTaskCount > 0 && 'cursor-pointer', format === 'closed' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)]')}>
           <input type="radio" name="exam-format" checked={format === 'closed'} disabled={closedTaskCount === 0} onChange={() => onFormatChange('closed')} className="mt-0.5 accent-[var(--color-accent)]" />
-          <span><strong className="block text-[var(--color-text-primary)]">Fechado, com quebra-código</strong><span className="text-[var(--color-text-secondary)]">{closedTaskCount > 0 ? `Monte ${codeTaskCount} trecho(s) de código e responda ${closedTaskCount - codeTaskCount} questão(ões) de modelagem, justificativa ou exemplo. Você pode mostrar a resposta a qualquer momento.` : 'Este sorteio não tem itens fechados cadastrados.'}</span></span>
+          <span><strong className="block text-[var(--color-text-primary)]">Memorização progressiva</strong><span className="text-[var(--color-text-secondary)]">{closedTaskCount > 0 ? `${codeTaskCount} trecho(s) de código: primeiro ordenar, depois completar lacunas e por fim escrever de memória. Mais ${closedTaskCount - codeTaskCount} questão(ões) de modelagem, justificativa ou exemplo. A etapa fica salva; você pode mostrar a resposta a qualquer momento.` : 'Este sorteio não tem itens fechados cadastrados.'}</span></span>
         </label>
       </fieldset>}
       <label className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)]">

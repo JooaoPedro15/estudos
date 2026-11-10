@@ -5,8 +5,10 @@ import { buildClosedExamTasks, type ClosedExamTask, type ExamQuestionItem } from
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { Badge, Button, Card } from '@/components/ui';
 import { ExamAnswerPanel } from '@/engine/ExamAnswerPanel';
+import { dueCodeIds, hiddenLineIndices, loadCodeMemory, normalizeCodeLine, recordCodeAttempt, saveCodeMemory, type MemoryStage } from '@/store/codeMemory';
 
-type CheckState = 'editing' | 'wrong' | 'correct' | 'revealed';
+type CheckState = 'editing' | 'wrong' | 'correct' | 'revealed' | 'selfCheck';
+const stageNames = ['Ordenar linhas', 'Completar lacunas', 'Escrever sem pistas'] as const;
 
 function shuffle<T>(items: T[]): T[] {
   const out = [...items];
@@ -24,33 +26,47 @@ function initialBank(task: ClosedExamTask | undefined): number[] {
   return task?.kind === 'code' ? shuffle(task.lines.map((_, index) => index)) : [];
 }
 
-export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEnabled }: {
+export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEnabled, onlyDue = false }: {
   examTitle: string;
   items: ExamQuestionItem[];
   elapsedSeconds: number;
   timerEnabled: boolean;
+  onlyDue?: boolean;
 }) {
-  const allTasks = useMemo(() => buildClosedExamTasks(items), [items]);
+  const allTasks = useMemo(() => {
+    const tasks = buildClosedExamTasks(items);
+    if (!onlyDue) return tasks;
+    const due = new Set(dueCodeIds(loadCodeMemory()));
+    return tasks.filter((task) => task.kind === 'code' && due.has(task.id));
+  }, [items, onlyDue]);
+  const [memory, setMemory] = useState(loadCodeMemory);
   const [round, setRound] = useState(allTasks);
   const [index, setIndex] = useState(0);
   const [bank, setBank] = useState(() => initialBank(allTasks[0]));
   const [selected, setSelected] = useState<number[]>([]);
   const [choice, setChoice] = useState<string | null>(null);
+  const [stage, setStage] = useState<MemoryStage>(() => allTasks[0] ? memory[allTasks[0].id]?.stage ?? 0 : 0);
+  const [typedLines, setTypedLines] = useState<Record<number, string>>({});
+  const [freeCode, setFreeCode] = useState('');
   const [state, setState] = useState<CheckState>('editing');
   const [hadError, setHadError] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [hint, setHint] = useState('');
   const [firstTry, setFirstTry] = useState(0);
   const [review, setReview] = useState<string[]>([]);
+  const [promoted, setPromoted] = useState<string[]>([]);
 
   const task = round[index];
   const codeCount = allTasks.filter((item) => item.kind === 'code').length;
   const choiceCount = allTasks.length - codeCount;
 
-  function resetFor(next: ClosedExamTask) {
+  function resetFor(next: ClosedExamTask, currentMemory = memory) {
     setBank(initialBank(next));
     setSelected([]);
     setChoice(null);
+    setStage(currentMemory[next.id]?.stage ?? 0);
+    setTypedLines({});
+    setFreeCode('');
     setState('editing');
     setHadError(false);
     setFeedback('');
@@ -60,13 +76,23 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
 
   function next() {
     if (!task) return;
-    if (state === 'correct' && !hadError) setFirstTry((count) => count + 1);
-    if (task.kind === 'code' && (hadError || state === 'revealed')) {
+    const cleanSuccess = state === 'correct' && !hadError;
+    if (cleanSuccess) setFirstTry((count) => count + 1);
+    let currentMemory = memory;
+    if (task.kind === 'code') {
+      currentMemory = recordCodeAttempt(memory, task.id, cleanSuccess);
+      setMemory(currentMemory);
+      saveCodeMemory(currentMemory);
+      if (cleanSuccess && currentMemory[task.id].stage > stage) {
+        setPromoted((before) => before.includes(task.id) ? before : [...before, task.id]);
+      }
+    }
+    if (!cleanSuccess) {
       setReview((before) => before.includes(task.id) ? before : [...before, task.id]);
     }
     const nextIndex = index + 1;
     setIndex(nextIndex);
-    if (round[nextIndex]) resetFor(round[nextIndex]);
+    if (round[nextIndex]) resetFor(round[nextIndex], currentMemory);
     else window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -84,6 +110,29 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       }
       return;
     }
+    if (stage === 1) {
+      const missing = hiddenLineIndices(task.lines.length);
+      if (missing.some((position) => !typedLines[position]?.trim())) {
+        setFeedback('Preencha todas as linhas ocultas antes de conferir.');
+        return;
+      }
+      const firstWrong = missing.find((position) => normalizeCodeLine(typedLines[position]) !== normalizeCodeLine(task.lines[position]));
+      if (firstWrong !== undefined) {
+        setState('wrong'); setHadError(true);
+        setFeedback(`Confira a linha ${firstWrong + 1}. Você pode ajustar e tentar novamente.`);
+        setHint(`No gabarito: ${task.lines[firstWrong]}`);
+      } else {
+        setState('correct'); setHint('');
+        setFeedback(hadError ? 'Agora está certo. Este trecho ficará para revisão.' : 'Lacunas corretas de primeira! Na próxima vez, escreva sem pistas.');
+      }
+      return;
+    }
+    if (stage === 2) {
+      if (!freeCode.trim()) { setFeedback('Escreva o trecho antes de conferir.'); return; }
+      setState('selfCheck');
+      setFeedback('Compare com a resposta-modelo. Considere a lógica, não apenas espaços ou nomes de variáveis.');
+      return;
+    }
     if (selected.length !== task.lines.length) {
       setFeedback('Coloque todas as linhas antes de conferir.');
       return;
@@ -92,7 +141,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     if (firstWrong === -1) {
       setState('correct');
       setHint('');
-      setFeedback(hadError ? 'Agora está certo. Você poderá revisar esse trecho ao final.' : 'Código correto de primeira!');
+      setFeedback(hadError ? 'Agora está certo. Você poderá revisar esse trecho ao final.' : 'Código correto de primeira! Na próxima vez, complete lacunas.');
     } else {
       const right = selected.filter((line, position) => line === position).length;
       setState('wrong');
@@ -103,6 +152,17 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
 
   function showHint() {
     if (task?.kind !== 'code') return;
+    if (stage === 2) {
+      setHint(`Primeira linha: ${task.lines[0]}`);
+      setHadError(true);
+      return;
+    }
+    if (stage === 1) {
+      const position = hiddenLineIndices(task.lines.length).find((index) => !typedLines[index]?.trim()) ?? hiddenLineIndices(task.lines.length)[0];
+      setHint(`Linha ${position + 1}: ${task.lines[position]}`);
+      setHadError(true);
+      return;
+    }
     const wrong = selected.findIndex((line, position) => line !== position);
     const position = wrong >= 0 ? wrong : selected.length;
     if (position >= task.lines.length) {
@@ -122,12 +182,19 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
 
   if (!task) {
     const reviewTasks = allTasks.filter((item) => review.includes(item.id));
+    const promotedTasks = allTasks.filter((item) => promoted.includes(item.id) && !review.includes(item.id));
+    if (onlyDue && round.length === 0) return <Card padding="lg" className="mx-auto max-w-2xl space-y-4">
+      <Badge tone="success">Revisão em dia</Badge>
+      <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">Nenhum código venceu hoje</h1>
+      <p className="text-sm text-[var(--color-text-secondary)]">Faça um simulado P2 no modo de memorização para iniciar ou continue treinando questões novas.</p>
+      <Link to="/simulado"><Button>Voltar aos simulados</Button></Link>
+    </Card>;
     return (
       <Card padding="lg" className="mx-auto max-w-2xl space-y-5">
         <Badge tone="success">Rodada concluída</Badge>
         <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">{examTitle} — fechado</h1>
         <p className="text-[var(--color-text-secondary)]">
-          {firstTry} de {round.length} desafios corretos de primeira. {reviewTasks.length} trecho(s) de código para revisar.
+          {firstTry} de {round.length} desafios corretos de primeira. {reviewTasks.length} desafio(s) para revisar.
         </p>
         <div className="flex flex-wrap gap-2">
           {reviewTasks.length > 0 && <Button onClick={() => {
@@ -136,14 +203,21 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
             setFirstTry(0);
             setReview([]);
             resetFor(reviewTasks[0]);
-          }}>Repetir códigos errados</Button>}
+          }}>Repetir erros agora</Button>}
+          {promotedTasks.length > 0 && <Button variant="secondary" onClick={() => {
+            setRound(promotedTasks);
+            setIndex(0);
+            setFirstTry(0);
+            setPromoted([]);
+            resetFor(promotedTasks[0]);
+          }}>Treinar próxima etapa ({promotedTasks.length})</Button>}
           <Link to="/simulado"><Button variant="secondary">Sortear outro simulado</Button></Link>
         </div>
       </Card>
     );
   }
 
-  const locked = state === 'correct' || state === 'revealed' || (task.kind === 'choice' && state === 'wrong');
+  const locked = state === 'correct' || state === 'revealed' || state === 'selfCheck' || (task.kind === 'choice' && state === 'wrong');
   const available = task.kind === 'code' ? bank.filter((line) => !selected.includes(line)) : [];
 
   function addLine(line: number) {
@@ -182,14 +256,15 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
           <Badge tone={task.kind === 'code' ? 'success' : 'amber'}>{task.kind === 'code' ? 'Montar código' : task.dimension}</Badge>
           <span>Questão {task.questionNumber} · peso original {task.weightPercent}%</span>
           {task.kind === 'code' && <span>Código {task.blockNumber}{task.codeName ? ` · ${task.codeName}` : ''} · parte {task.partNumber}/{task.partCount}</span>}
+          {task.kind === 'code' && <Badge tone="amber">Etapa {stage + 1}/3 · {stageNames[stage]}</Badge>}
         </div>
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">{task.question.prompt}</p>
         {task.question.displayGraphs && <GraphVisualizer graph={task.question.displayGraphs.a} interactive={false} showWeights height={230} />}
         {task.kind === 'code' && task.previousLine && <p className="rounded-lg bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-secondary)]">Linha anterior, já fixa: <code className="whitespace-pre-wrap">{task.previousLine}</code></p>}
-        {task.kind === 'code' && <p className="text-xs text-[var(--color-text-tertiary)]">Monte o pseudocódigo correspondente à resposta-modelo. A ordem das inicializações independentes pode variar na prática; aqui conferimos uma ordem-modelo.</p>}
+        {task.kind === 'code' && <p className="text-xs text-[var(--color-text-tertiary)]">{stage === 0 ? 'Ordene as linhas. A ordem das inicializações independentes pode variar na prática; aqui conferimos uma ordem-modelo.' : stage === 1 ? 'Lembre as linhas ocultas antes de consultar a resposta.' : 'Escreva este trecho inteiro de memória; depois compare sua lógica com o gabarito.'}</p>}
       </Card>
 
-      {task.kind === 'code' ? <div className="grid gap-4 lg:grid-cols-2">
+      {task.kind === 'code' && stage === 0 ? <div className="grid gap-4 lg:grid-cols-2">
           <Card padding="md" className="min-w-0">
             <h2 className="mb-3 font-semibold text-[var(--color-text-primary)]">Sua montagem ({selected.length}/{task.lines.length})</h2>
             <ol className="flex flex-col gap-2">
@@ -213,7 +288,18 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
               </button>)}
             </div>
           </Card>
-      </div> : <Card padding="md" className="space-y-3">
+      </div> : task.kind === 'code' && stage === 1 ? <Card padding="md" className="space-y-3">
+        <h2 className="font-semibold text-[var(--color-text-primary)]">Complete as linhas ocultas</h2>
+        <ol className="space-y-2">
+          {task.lines.map((line, position) => <li key={position} className="flex items-center gap-2">
+            <span className="mono w-6 shrink-0 text-xs text-[var(--color-text-tertiary)]">{position + 1}</span>
+            {hiddenLineIndices(task.lines.length).includes(position) ? <input aria-label={`Linha ${position + 1}`} type="text" spellCheck={false} disabled={locked} value={typedLines[position] ?? ''} onChange={(event) => { setTypedLines((before) => ({ ...before, [position]: event.target.value })); setState('editing'); setFeedback(''); setHint(''); }} className="mono min-w-0 flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-primary)]" placeholder="Escreva esta linha" /> : <code className="whitespace-pre-wrap break-words text-xs text-[var(--color-text-primary)]">{line}</code>}
+          </li>)}
+        </ol>
+      </Card> : task.kind === 'code' ? <Card padding="md" className="space-y-3">
+        <h2 className="font-semibold text-[var(--color-text-primary)]">Escreva o pseudocódigo sem pistas</h2>
+        <textarea aria-label="Seu pseudocódigo" spellCheck={false} disabled={locked} value={freeCode} onChange={(event) => setFreeCode(event.target.value)} rows={Math.max(6, task.lines.length + 1)} className="mono w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-3 text-xs leading-5 text-[var(--color-text-primary)]" placeholder="Escreva as linhas de memória..." />
+      </Card> : <Card padding="md" className="space-y-3">
         <h2 className="font-semibold text-[var(--color-text-primary)]">{task.stem}</h2>
         <div className="flex flex-col gap-2">
           {task.options.map((option) => <button key={option.id} type="button" disabled={locked} onClick={() => { setChoice(option.id); setFeedback(''); }} className={clsx('rounded-lg border p-3 text-left text-sm leading-relaxed transition-colors', choice === option.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:border-[var(--color-border-strong)]', locked && 'opacity-70')}>
@@ -225,11 +311,14 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       <Card padding="md" className="space-y-3">
         {feedback && <p role="status" className={clsx('text-sm font-medium', state === 'correct' ? 'text-emerald-500' : 'text-[var(--color-text-primary)]')}>{feedback}</p>}
         {hint && <p className="mono whitespace-pre-wrap rounded-lg bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-secondary)]">{hint}</p>}
-        {state === 'revealed' && task.kind === 'code' && <pre className="overflow-x-auto rounded-lg bg-[var(--color-bg-elevated)] p-3 text-xs leading-5 text-[var(--color-text-primary)]">{task.lines.join('\n')}</pre>}
+        {(state === 'revealed' || state === 'selfCheck') && task.kind === 'code' && <pre className="overflow-x-auto rounded-lg bg-[var(--color-bg-elevated)] p-3 text-xs leading-5 text-[var(--color-text-primary)]">{task.lines.join('\n')}</pre>}
         {locked && task.kind === 'choice' && <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]"><strong>Resposta:</strong> {task.options.find((option) => option.id === task.correctId)?.label}<br /><strong>Por quê:</strong> {task.explanation}</p>}
         {locked && <ExamAnswerPanel key={task.id} question={task.question} defaultOpen={false} />}
         <div className="flex flex-wrap gap-2">
-          {!locked ? <>
+          {state === 'selfCheck' ? <>
+            <Button onClick={() => { setState('correct'); setFeedback('Você indicou que acertou. O trecho será agendado para revisão.'); }}>Acertei a lógica sem consultar</Button>
+            <Button variant="secondary" onClick={() => { setState('revealed'); setHadError(true); setFeedback('Trecho marcado para revisão.'); }}>Ainda não acertei</Button>
+          </> : !locked ? <>
             <Button onClick={check}>Conferir</Button>
             {task.kind === 'code' && <Button variant="secondary" onClick={showHint}>Dica</Button>}
             <Button variant="ghost" onClick={reveal}>Mostrar resposta</Button>

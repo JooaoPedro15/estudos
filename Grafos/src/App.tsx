@@ -14,6 +14,7 @@ import { QuestionPage } from '@/features/study/QuestionPage';
 import { ExamListPage } from '@/features/exam/ExamListPage';
 import { ExamSimulator } from '@/features/exam/ExamSimulator';
 import { CodePuzzleSimulator } from '@/features/exam/CodePuzzleSimulator';
+import { CodeMemoryReviewPage } from '@/features/exam/CodeMemoryReviewPage';
 import { ProgressPage } from '@/features/progress/ProgressPage';
 import { GraphPlayground } from '@/features/playground/GraphPlayground';
 import { StudyPrioritiesPage } from '@/features/priorities/StudyPrioritiesPage';
@@ -37,6 +38,7 @@ function App() {
         <Route path="/questao/:id" element={<QuestionPage />} />
         <Route path="/simulado" element={<ExamListPage />} />
         <Route path="/simulado/codigo" element={<CodePuzzleSimulator />} />
+        <Route path="/simulado/revisao" element={<CodeMemoryReviewPage />} />
         <Route path="/simulado/:examId" element={<ExamSimulator />} />
         <Route path="/progresso" element={<ProgressPage />} />
         <Route path="/revisao-final" element={<Navigate to="/" replace />} />
