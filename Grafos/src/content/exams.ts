@@ -55,7 +55,7 @@ export const exams: Exam[] = [
     id: 'simulado-p2-equilibrado',
     prova: 'P2',
     title: 'Simulado P2 — misto aleatório',
-    basedOn: 'Sorteia questões recorrentes e de outros temas da P2. Uma prova diferente a cada início, com pesos originais do Prof. Silvio.',
+    basedOn: 'Sorteia combinações que somam 100%, com recorrentes e outros temas da P2. A chance de cada assunto não segue a frequência real nas provas; para isso use "P2 — o que mais cai".',
     suggestedDurationMinutes: 100,
     randomized: 'equilibrado',
     questions: [],
@@ -64,10 +64,29 @@ export const exams: Exam[] = [
     id: 'simulado-p2-recorrente',
     prova: 'P2',
     title: 'Simulado P2 — foco recorrente',
-    basedOn: 'Sorteia mais questões das famílias recorrentes, junto com outros temas da matéria. Pesos originais do Prof. Silvio.',
+    basedOn: 'Sorteia combinações que somam 100% com pelo menos duas questões de assuntos marcados como recorrentes. A chance de cada assunto não segue a frequência real nas provas; para isso use "P2 — o que mais cai".',
     suggestedDurationMinutes: 100,
     randomized: 'foco-recorrente',
     questions: [],
+  },
+  // --- P2: o que mais cai. Uma questão por assunto, do mais frequente ao menos, com o peso original.
+  {
+    id: 'simulado-p2-mais-cai',
+    prova: 'P2',
+    title: 'P2 — o que mais cai',
+    basedOn: 'Um representante de cada assunto que se repete nas provas de P2 do Prof. Silvio, do mais frequente (Prim/AGM, conectividade e componentes, caminho com restrição) ao menos. Fixo, sem sorteio, pesos originais (a soma passa de 100%).',
+    suggestedDurationMinutes: 120,
+    questions: [
+      { questionId: 'ps-2026-1-q3', weightPercent: 25 }, // Prim com aresta(s) obrigatória(s): 2024/2, 2025/1, 2026/1
+      { questionId: 'ps-2021-2-q3', weightPercent: 30 }, // Kruskal, Prim e Dijkstra na matriz: 2021/2, 20xx(p.7)
+      { questionId: 'ps-2021-2-q2', weightPercent: 30 }, // tipos de conectividade e Kosaraju: 2021/2, 20xx(p.6), 20xx(p.7)
+      { questionId: 'ps-2025-1-q3', weightPercent: 25 }, // acíclico via componentes fortemente conexos: 2024/2, 2025/1
+      { questionId: 'ps-20xx6-q4', weightPercent: 30 }, // caminho de maior capacidade (Max-Min): 20xx(p.6), 20xx(p.7)
+      { questionId: 'ps-2025-1-q2', weightPercent: 30 }, // caminho alternado (e λ-crescimento, 20xx(p.8)): 2025/1
+      { questionId: 'ps-2024-2-q1', weightPercent: 35 }, // diâmetro: 2024/2, 2025/1, 20xx(p.1)
+      { questionId: 'ps-2024-2-q2', weightPercent: 35 }, // serialização / ordem topológica: 2024/2, 20xx(p.8), + caminho crítico 20xx(p.6)
+      { questionId: 'ps-20xx8-q1', weightPercent: 20 }, // n vértices e k componentes: 20xx(p.1), 20xx(p.8)
+    ],
   },
 ];
 
