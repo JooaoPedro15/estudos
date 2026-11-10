@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
 import type { GraphData } from '@/content/types';
-import { computeForceLayout, type LaidOutVertex } from './layout';
+import { computeForceLayout, graphViewport, type LaidOutVertex } from './layout';
 
 export interface GraphVisualizerProps {
   graph: GraphData;
@@ -62,11 +62,11 @@ const R = 20;
 /** Preenchimento derivado da cor do estado: mantém o rótulo legível sobre o fundo escuro. */
 const tint = (color: string, percent: number) => `color-mix(in srgb, ${color} ${percent}%, var(--color-vertex-base))`;
 
-function ViewButton({ x, label, title, onClick }: { x: number; label: string; title: string; onClick: () => void }) {
+function ViewButton({ x, y, label, title, onClick }: { x: number; y: number; label: string; title: string; onClick: () => void }) {
   return (
     <g
       className="gv-view-button"
-      transform={`translate(${x} 10)`}
+      transform={`translate(${x} ${y})`}
       role="button"
       aria-label={title}
       onPointerDown={(e) => e.stopPropagation()}
@@ -131,6 +131,7 @@ export function GraphVisualizer({
     for (const [id, p] of Object.entries(layout)) out[id] = dragged[id] ? { ...p, ...dragged[id] } : p;
     return out;
   }, [layout, dragged]);
+  const viewport = useMemo(() => graphViewport(layout, width, height), [layout, width, height]);
 
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 });
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -141,7 +142,7 @@ export function GraphVisualizer({
   /** Pixels de tela por unidade do viewBox: o SVG é esticado para a largura do cartão. */
   const screenScale = () => {
     const rect = svgRef.current?.getBoundingClientRect();
-    return rect && rect.width ? Math.min(rect.width / width, rect.height / height) : 1;
+    return rect && rect.width ? Math.min(rect.width / viewport.width, rect.height / viewport.height) : 1;
   };
 
   const onVertexPointerDown = (id: string) => (e: React.PointerEvent) => {
@@ -167,8 +168,8 @@ export function GraphVisualizer({
     if (Math.hypot(e.clientX - ds.startX, e.clientY - ds.startY) > 4) ds.moved = true;
     if (ds.kind === 'vertex' && ds.id) {
       // Sem zoom, o vértice fica dentro da área visível para não sumir ao ser solto na borda.
-      const limit = (value: number, max: number) => (view.scale === 1 ? Math.min(max - R - 3, Math.max(R + 3, value)) : value);
-      if (ds.moved) setDragged((prev) => ({ ...prev, [ds.id!]: { x: limit(ds.origin.x + dx / view.scale, width), y: limit(ds.origin.y + dy / view.scale, height) } }));
+      const limit = (value: number, min: number, max: number) => (view.scale === 1 ? Math.min(max - R - 3, Math.max(min + R + 3, value)) : value);
+      if (ds.moved) setDragged((prev) => ({ ...prev, [ds.id!]: { x: limit(ds.origin.x + dx / view.scale, viewport.x, viewport.x + viewport.width), y: limit(ds.origin.y + dy / view.scale, viewport.y, viewport.y + viewport.height) } }));
     } else if (ds.kind === 'pan') {
       setView((v) => ({ ...v, tx: ds.origin.x + dx, ty: ds.origin.y + dy }));
     }
@@ -188,8 +189,8 @@ export function GraphVisualizer({
   const zoom = (factor: number) =>
     setView((v) => {
       const scale = Math.min(3, Math.max(0.4, v.scale * factor));
-      const cx = width / 2;
-      const cy = height / 2;
+      const cx = viewport.x + viewport.width / 2;
+      const cy = viewport.y + viewport.height / 2;
       return { scale, tx: cx - ((cx - v.tx) / v.scale) * scale, ty: cy - ((cy - v.ty) / v.scale) * scale };
     });
 
@@ -254,7 +255,7 @@ export function GraphVisualizer({
       ref={svgRef}
       width="100%"
       height={height}
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`${viewport.x} ${viewport.y} ${viewport.width} ${viewport.height}`}
       className={`gv-root ${className ?? ''}`}
       role={accessibleLabel ? 'img' : undefined}
       aria-label={accessibleLabel}
@@ -269,7 +270,7 @@ export function GraphVisualizer({
           <circle cx="1.5" cy="1.5" r="1" fill="var(--color-border-soft)" />
         </pattern>
       </defs>
-      <rect width={width} height={height} fill="url(#gv-dots)" />
+      <rect x={viewport.x} y={viewport.y} width={viewport.width} height={viewport.height} fill="url(#gv-dots)" />
 
       <g transform={`translate(${view.tx} ${view.ty}) scale(${view.scale})`}>
         {edges.map((e) => {
@@ -369,13 +370,14 @@ export function GraphVisualizer({
 
       {interactive && (
         <>
-          <ViewButton x={width - 68} label="−" title="Diminuir zoom" onClick={() => zoom(0.85)} />
-          <ViewButton x={width - 38} label="+" title="Aumentar zoom" onClick={() => zoom(1.18)} />
+          <ViewButton x={viewport.x + viewport.width - 68} y={viewport.y + 10} label="−" title="Diminuir zoom" onClick={() => zoom(0.85)} />
+          <ViewButton x={viewport.x + viewport.width - 38} y={viewport.y + 10} label="+" title="Aumentar zoom" onClick={() => zoom(1.18)} />
         </>
       )}
       {canDrag && moved && (
         <ViewButton
-          x={interactive ? width - 98 : width - 38}
+          x={viewport.x + viewport.width - (interactive ? 98 : 38)}
+          y={viewport.y + 10}
           label="↺"
           title="Voltar à posição original"
           onClick={() => {

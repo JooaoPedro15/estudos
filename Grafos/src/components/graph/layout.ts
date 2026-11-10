@@ -8,6 +8,23 @@ export interface LaidOutVertex {
   y: number;
 }
 
+/** Expande a área visível para incluir vértices e seus rótulos, mesmo quando
+ * uma questão reutiliza um desenho em um cartão mais baixo que o original. */
+export function graphViewport(positions: Record<string, LaidOutVertex>, width: number, height: number) {
+  const margin = 60; // raio dos vértices, notas e laços próximos à borda
+  let left = 0;
+  let top = 0;
+  let right = width;
+  let bottom = height;
+  for (const p of Object.values(positions)) {
+    left = Math.min(left, p.x - margin);
+    top = Math.min(top, p.y - margin);
+    right = Math.max(right, p.x + margin);
+    bottom = Math.max(bottom, p.y + margin);
+  }
+  return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
 /** Roda a simulação de forças de forma síncrona (sem animação contínua) até
  * estabilizar, e devolve posições fixas. Mantém a leitura do grafo estável —
  * sem "vibração" perpétua, que atrapalharia a leitura matemática. */
