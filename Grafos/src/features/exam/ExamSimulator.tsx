@@ -81,7 +81,9 @@ export function ExamSimulator() {
       })
       .filter((x): x is ExamItem => x !== null);
   }, [exam]);
-  const closedTaskCount = useMemo(() => buildClosedExamTasks(items).length, [items]);
+  const closedTasks = useMemo(() => buildClosedExamTasks(items), [items]);
+  const closedTaskCount = closedTasks.length;
+  const codeTaskCount = closedTasks.filter((task) => task.kind === 'code').length;
 
   const [phase, setPhase] = useState<Phase>('intro');
   const [format, setFormat] = useState<ExamFormat>('open');
@@ -200,6 +202,7 @@ export function ExamSimulator() {
           onToggleTimer={setTimerEnabled}
           allowClosed={exam.prova === 'P2'}
           closedTaskCount={closedTaskCount}
+          codeTaskCount={codeTaskCount}
           format={format}
           onFormatChange={setFormat}
           onStart={startExam}
@@ -264,6 +267,7 @@ function IntroScreen({
   onToggleTimer,
   allowClosed,
   closedTaskCount,
+  codeTaskCount,
   format,
   onFormatChange,
   onStart,
@@ -276,6 +280,7 @@ function IntroScreen({
   onToggleTimer: (v: boolean) => void;
   allowClosed: boolean;
   closedTaskCount: number;
+  codeTaskCount: number;
   format: ExamFormat;
   onFormatChange: (v: ExamFormat) => void;
   onStart: () => void;
@@ -304,7 +309,7 @@ function IntroScreen({
         </label>
         <label className={clsx('flex items-start gap-3 rounded-lg border p-3 text-sm', closedTaskCount > 0 && 'cursor-pointer', format === 'closed' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)]')}>
           <input type="radio" name="exam-format" checked={format === 'closed'} disabled={closedTaskCount === 0} onChange={() => onFormatChange('closed')} className="mt-0.5 accent-[var(--color-accent)]" />
-          <span><strong className="block text-[var(--color-text-primary)]">Fechado, com quebra-código</strong><span className="text-[var(--color-text-secondary)]">{closedTaskCount > 0 ? `Monte ${closedTaskCount} trecho(s) de pseudocódigo deste sorteio. Questões sem código ficam na versão aberta; você pode mostrar a resposta a qualquer momento.` : 'Este sorteio não tem pseudocódigo na resposta-modelo. Volte e sorteie outro para treinar códigos.'}</span></span>
+          <span><strong className="block text-[var(--color-text-primary)]">Fechado, com quebra-código</strong><span className="text-[var(--color-text-secondary)]">{closedTaskCount > 0 ? `Monte ${codeTaskCount} trecho(s) de código e responda ${closedTaskCount - codeTaskCount} questão(ões) de modelagem, justificativa ou exemplo. Você pode mostrar a resposta a qualquer momento.` : 'Este sorteio não tem itens fechados cadastrados.'}</span></span>
         </label>
       </fieldset>}
       <label className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)]">

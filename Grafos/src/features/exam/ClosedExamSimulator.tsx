@@ -21,7 +21,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 function initialBank(task: ClosedExamTask | undefined): number[] {
-  return task ? shuffle(task.lines.map((_, index) => index)) : [];
+  return task?.kind === 'code' ? shuffle(task.lines.map((_, index) => index)) : [];
 }
 
 export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEnabled }: {
@@ -35,6 +35,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
   const [index, setIndex] = useState(0);
   const [bank, setBank] = useState(() => initialBank(allTasks[0]));
   const [selected, setSelected] = useState<number[]>([]);
+  const [choice, setChoice] = useState<string | null>(null);
   const [state, setState] = useState<CheckState>('editing');
   const [hadError, setHadError] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -43,11 +44,13 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
   const [review, setReview] = useState<string[]>([]);
 
   const task = round[index];
-  const codeCount = allTasks.length;
+  const codeCount = allTasks.filter((item) => item.kind === 'code').length;
+  const choiceCount = allTasks.length - codeCount;
 
   function resetFor(next: ClosedExamTask) {
     setBank(initialBank(next));
     setSelected([]);
+    setChoice(null);
     setState('editing');
     setHadError(false);
     setFeedback('');
@@ -58,7 +61,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
   function next() {
     if (!task) return;
     if (state === 'correct' && !hadError) setFirstTry((count) => count + 1);
-    if (hadError || state === 'revealed') {
+    if (task.kind === 'code' && (hadError || state === 'revealed')) {
       setReview((before) => before.includes(task.id) ? before : [...before, task.id]);
     }
     const nextIndex = index + 1;
@@ -69,6 +72,18 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
 
   function check() {
     if (!task) return;
+    if (task.kind === 'choice') {
+      if (!choice) { setFeedback('Escolha uma alternativa antes de conferir.'); return; }
+      if (choice === task.correctId) {
+        setState('correct');
+        setFeedback('Resposta correta.');
+      } else {
+        setState('wrong');
+        setHadError(true);
+        setFeedback('Resposta incorreta. Veja a alternativa correta e a explicação.');
+      }
+      return;
+    }
     if (selected.length !== task.lines.length) {
       setFeedback('Coloque todas as linhas antes de conferir.');
       return;
@@ -87,7 +102,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
   }
 
   function showHint() {
-    if (!task) return;
+    if (task?.kind !== 'code') return;
     const wrong = selected.findIndex((line, position) => line !== position);
     const position = wrong >= 0 ? wrong : selected.length;
     if (position >= task.lines.length) {
@@ -102,7 +117,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     setState('revealed');
     setHadError(true);
     setHint('');
-    setFeedback('Resposta exibida. Esse código entrará na revisão final.');
+    setFeedback(task?.kind === 'code' ? 'Resposta exibida. Esse código entrará na revisão final.' : 'Resposta exibida. Confira a explicação abaixo.');
   }
 
   if (!task) {
@@ -128,8 +143,8 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     );
   }
 
-  const locked = state === 'correct' || state === 'revealed';
-  const available = bank.filter((line) => !selected.includes(line));
+  const locked = state === 'correct' || state === 'revealed' || (task.kind === 'choice' && state === 'wrong');
+  const available = task.kind === 'code' ? bank.filter((line) => !selected.includes(line)) : [];
 
   function addLine(line: number) {
     if (locked) return;
@@ -157,24 +172,24 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         <div>
           <Link to="/simulado" className="text-sm text-[var(--color-accent)] hover:underline">← Simulados</Link>
           <h1 className="mt-2 text-xl font-semibold text-[var(--color-text-primary)]">{examTitle} · quebra-código</h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">Desafio {index + 1} de {round.length} · {codeCount} trecho(s) de código neste sorteio</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Desafio {index + 1} de {round.length} · {codeCount} código(s) e {choiceCount} alternativa(s) neste sorteio</p>
         </div>
         {timerEnabled && <span className="mono text-sm text-[var(--color-text-secondary)]">⏱ {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, '0')}</span>}
       </header>
 
       <Card padding="md" className="space-y-3">
         <div className="flex flex-wrap gap-2 text-xs text-[var(--color-text-tertiary)]">
-          <Badge tone="success">Montar código</Badge>
+          <Badge tone={task.kind === 'code' ? 'success' : 'amber'}>{task.kind === 'code' ? 'Montar código' : task.dimension}</Badge>
           <span>Questão {task.questionNumber} · peso original {task.weightPercent}%</span>
-          <span>Código {task.blockNumber} · parte {task.partNumber}/{task.partCount}</span>
+          {task.kind === 'code' && <span>Código {task.blockNumber}{task.codeName ? ` · ${task.codeName}` : ''} · parte {task.partNumber}/{task.partCount}</span>}
         </div>
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">{task.question.prompt}</p>
         {task.question.displayGraphs && <GraphVisualizer graph={task.question.displayGraphs.a} interactive={false} showWeights height={230} />}
-        {task.previousLine && <p className="rounded-lg bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-secondary)]">Linha anterior, já fixa: <code className="whitespace-pre-wrap">{task.previousLine}</code></p>}
-        <p className="text-xs text-[var(--color-text-tertiary)]">Monte o pseudocódigo correspondente à resposta-modelo. A ordem das inicializações independentes pode variar na prática; aqui conferimos uma ordem-modelo.</p>
+        {task.kind === 'code' && task.previousLine && <p className="rounded-lg bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-secondary)]">Linha anterior, já fixa: <code className="whitespace-pre-wrap">{task.previousLine}</code></p>}
+        {task.kind === 'code' && <p className="text-xs text-[var(--color-text-tertiary)]">Monte o pseudocódigo correspondente à resposta-modelo. A ordem das inicializações independentes pode variar na prática; aqui conferimos uma ordem-modelo.</p>}
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {task.kind === 'code' ? <div className="grid gap-4 lg:grid-cols-2">
           <Card padding="md" className="min-w-0">
             <h2 className="mb-3 font-semibold text-[var(--color-text-primary)]">Sua montagem ({selected.length}/{task.lines.length})</h2>
             <ol className="flex flex-col gap-2">
@@ -198,17 +213,25 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
               </button>)}
             </div>
           </Card>
-      </div>
+      </div> : <Card padding="md" className="space-y-3">
+        <h2 className="font-semibold text-[var(--color-text-primary)]">{task.stem}</h2>
+        <div className="flex flex-col gap-2">
+          {task.options.map((option) => <button key={option.id} type="button" disabled={locked} onClick={() => { setChoice(option.id); setFeedback(''); }} className={clsx('rounded-lg border p-3 text-left text-sm leading-relaxed transition-colors', choice === option.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:border-[var(--color-border-strong)]', locked && 'opacity-70')}>
+            {option.label}
+          </button>)}
+        </div>
+      </Card>}
 
       <Card padding="md" className="space-y-3">
         {feedback && <p role="status" className={clsx('text-sm font-medium', state === 'correct' ? 'text-emerald-500' : 'text-[var(--color-text-primary)]')}>{feedback}</p>}
         {hint && <p className="mono whitespace-pre-wrap rounded-lg bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-secondary)]">{hint}</p>}
-        {state === 'revealed' && <pre className="overflow-x-auto rounded-lg bg-[var(--color-bg-elevated)] p-3 text-xs leading-5 text-[var(--color-text-primary)]">{task.lines.join('\n')}</pre>}
+        {state === 'revealed' && task.kind === 'code' && <pre className="overflow-x-auto rounded-lg bg-[var(--color-bg-elevated)] p-3 text-xs leading-5 text-[var(--color-text-primary)]">{task.lines.join('\n')}</pre>}
+        {locked && task.kind === 'choice' && <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]"><strong>Resposta:</strong> {task.options.find((option) => option.id === task.correctId)?.label}<br /><strong>Por quê:</strong> {task.explanation}</p>}
         {locked && <ExamAnswerPanel key={task.id} question={task.question} defaultOpen={false} />}
         <div className="flex flex-wrap gap-2">
           {!locked ? <>
             <Button onClick={check}>Conferir</Button>
-            <Button variant="secondary" onClick={showHint}>Dica</Button>
+            {task.kind === 'code' && <Button variant="secondary" onClick={showHint}>Dica</Button>}
             <Button variant="ghost" onClick={reveal}>Mostrar resposta</Button>
           </> : <Button onClick={next}>Próximo desafio</Button>}
         </div>
