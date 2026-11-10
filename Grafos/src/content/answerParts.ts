@@ -147,7 +147,7 @@ export interface ClozeToken { text: string; blank?: number; answer?: string }
 
 const STOPWORDS = new Set(['sobre', 'entre', 'então', 'quando', 'todos', 'todas', 'porque', 'também', 'qualquer', 'outro', 'outra', 'outros', 'outras', 'sendo', 'desse', 'dessa', 'deste', 'desta', 'apenas', 'ainda', 'assim', 'depois', 'antes', 'mesmo', 'mesma', 'mesmos', 'algum', 'alguma', 'esses', 'essas', 'estes', 'estas', 'aquele', 'aquela', 'seria', 'serem', 'estão', 'foram', 'possui', 'nesse', 'nessa', 'neste', 'nesta', 'pelos', 'pelas', 'cujas', 'cujos', 'which']);
 
-function hash(text: string): number {
+export function hash(text: string): number {
   let h = 5381;
   for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) >>> 0;
   return h;

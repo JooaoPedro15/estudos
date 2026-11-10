@@ -1,6 +1,6 @@
 import type { Question } from './types';
 import { codePuzzles } from './codePuzzles';
-import { answerParts, keyTerms, type AnswerPart } from './answerParts';
+import { answerParts, hash, keyTerms, type AnswerPart } from './answerParts';
 
 export interface ExamQuestionItem {
   question: Question;
@@ -70,7 +70,14 @@ export function buildClosedExamTasks(items: ExamQuestionItem[]): ClosedExamTask[
     }
     const parts = answerParts(question);
     if (!parts.some((part) => part.mode === 'code')) parts.push(...(extraCode[question.id] ?? []));
-    const outline = parts.map((part, index) => ({ id: `${question.id}:p${index}`, itemLabel: part.itemLabel, label: part.label }));
+    // O progresso é guardado pelo conteúdo da parte, não pela posição: mudar a divisão não herda etapa de outra parte.
+    const seen = new Map<string, number>();
+    const outline = parts.map((part) => {
+      const base = `${question.id}:${hash(part.units.join('\n'))}`;
+      const count = seen.get(base) ?? 0;
+      seen.set(base, count + 1);
+      return { id: count ? `${base}-${count}` : base, itemLabel: part.itemLabel, label: part.label };
+    });
     const terms = parts.map(keyTerms);
     const partTasks = parts.map((part, index): PartTask => ({
       kind: 'part', id: outline[index].id, question, questionNumber, weightPercent, part,
@@ -78,6 +85,6 @@ export function buildClosedExamTasks(items: ExamQuestionItem[]): ClosedExamTask[
       distractors: [...new Set(terms.flatMap((list, other) => other === index ? [] : list))].filter((term) => !terms[index].includes(term)),
     }));
     if (partTasks.length < 2) return partTasks;
-    return [...partTasks, { kind: 'full', id: `${question.id}:full`, question, questionNumber, weightPercent, outline, terms: [...new Set(terms.flat())] }];
+    return [...partTasks, { kind: 'full', id: `${question.id}:full:${hash(parts.map((part) => part.units.join('\n')).join('\n'))}`, question, questionNumber, weightPercent, outline, terms: [...new Set(terms.flat())] }];
   });
 }
