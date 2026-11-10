@@ -85,13 +85,19 @@ function codeParts(lines: string[], item: PromptItem | null): AnswerPart[] {
   });
 }
 
+/** Nome da parte sem entregar a resposta: "Excentricidade de v = maior distância…" vira "Excentricidade de v". */
+function subjectOf(line: string): string | undefined {
+  const subject = line.match(/^([A-ZÀ-Ú][^=.,;:()]{2,40}?)\s+(?:=|é|são)\s/)?.[1];
+  return subject && subject.split(/\s+/).length <= 5 ? subject : undefined;
+}
+
 function proseParts(lines: string[], item: PromptItem | null): AnswerPart[] {
   const groups: { label: string; units: string[] }[] = [];
   for (const line of lines) {
     const label = line.match(LABEL)?.[1];
     const current = groups[groups.length - 1];
     const startsNew = !current || (label && (STRONG_LABEL.test(label) || current.units.length >= 3));
-    if (startsNew) groups.push({ label: label ?? `${line.split(/\s+/).slice(0, 5).join(' ').replace(/[.,;:]$/, '')}…`, units: splitSentences(line) });
+    if (startsNew) groups.push({ label: label ?? subjectOf(line) ?? (groups.length === 0 ? 'Resposta' : 'Continuação'), units: splitSentences(line) });
     else current.units.push(...splitSentences(line));
   }
   return groups.flatMap((group) => {
