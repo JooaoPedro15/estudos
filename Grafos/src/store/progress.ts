@@ -92,3 +92,12 @@ export function topicWeight(state: ProgressState, topic: string, examLikelihoodB
   weight += Math.min(1.5, daysSince * 0.15);
   return weight * examLikelihoodBoost;
 }
+
+/** Estado bruto para o backup entre computadores. */
+export async function exportProgress(): Promise<ProgressState> {
+  return loadProgress();
+}
+
+export async function importProgress(state: ProgressState): Promise<void> {
+  await persist(state);
+}
