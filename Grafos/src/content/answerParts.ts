@@ -73,15 +73,10 @@ function codeParts(lines: string[], item: PromptItem | null): AnswerPart[] {
     else if (current.length) { functions.push(current); current = []; }
   }
   if (current.length) functions.push(current);
-  return functions.flatMap((fn) => {
-    const name = fn[0].trim().match(/^([A-Za-zÀ-ÿ_][\wÀ-ÿ]*)\s*\(/)?.[1];
-    const chunks = balanced(fn, 8);
-    return chunks.map((units, index): AnswerPart => ({
-      mode: 'code', itemLabel: item?.label ?? null, itemPrompt: item?.text ?? null,
-      label: `Pseudocódigo${name ? ` ${name}` : ''}${chunks.length > 1 ? ` (${index + 1}/${chunks.length})` : ''}`,
-      units,
-      previousUnit: index > 0 ? chunks[index - 1][chunks[index - 1].length - 1] : undefined,
-    }));
+  // Cada função é uma parte só: na prova ela é escrita inteira, e "decorar aos poucos" já a constrói linha por linha.
+  return functions.map((units): AnswerPart => {
+    const name = units[0].trim().match(/^([A-Za-zÀ-ÿ_][\wÀ-ÿ]*)\s*\(/)?.[1];
+    return { mode: 'code', itemLabel: item?.label ?? null, itemPrompt: item?.text ?? null, label: `Pseudocódigo${name ? ` ${name}` : ''}`, units };
   });
 }
 
