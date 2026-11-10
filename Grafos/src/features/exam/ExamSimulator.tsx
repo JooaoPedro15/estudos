@@ -401,8 +401,8 @@ function RunningScreen({
 
         {current.question.displayGraphs && (
           <div className={current.question.displayGraphs.b ? 'grid grid-cols-1 gap-4 md:grid-cols-2' : ''}>
-            <GraphVisualizer graph={current.question.displayGraphs.a} interactive={false} height={current.question.displayGraphs.b ? 240 : 300} />
-            {current.question.displayGraphs.b && <GraphVisualizer graph={current.question.displayGraphs.b} interactive={false} height={240} />}
+            <GraphVisualizer graph={current.question.displayGraphs.a} interactive={false} showWeights height={current.question.displayGraphs.b ? 240 : 300} />
+            {current.question.displayGraphs.b && <GraphVisualizer graph={current.question.displayGraphs.b} interactive={false} showWeights height={240} />}
           </div>
         )}
 
@@ -652,8 +652,8 @@ function ResultsScreen({ examTitle, results }: { examTitle: string; results: Gra
 
             {r.question.displayGraphs && (
               <div className={r.question.displayGraphs.b ? 'grid grid-cols-1 gap-4 md:grid-cols-2' : ''}>
-                <GraphVisualizer graph={r.question.displayGraphs.a} interactive={false} height={r.question.displayGraphs.b ? 200 : 260} />
-                {r.question.displayGraphs.b && <GraphVisualizer graph={r.question.displayGraphs.b} interactive={false} height={200} />}
+                <GraphVisualizer graph={r.question.displayGraphs.a} interactive={false} showWeights height={r.question.displayGraphs.b ? 200 : 260} />
+                {r.question.displayGraphs.b && <GraphVisualizer graph={r.question.displayGraphs.b} interactive={false} showWeights height={200} />}
               </div>
             )}
 

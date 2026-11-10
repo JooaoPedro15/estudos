@@ -1,6 +1,7 @@
 import type { Question } from '@/content/types';
 import { radiusDiameterCenter, stronglyConnectedComponents, eulerianClassification, dijkstra, topologicalSort, longestPathDAG } from '@/lib/graph';
 import { UG_SIX, UG_SIX_LAID_OUT, PROFESSOR_SCC_EXAMPLE, EULER_CIRCUIT_GRAPH, EULER_PATH_GRAPH, EULER_NONE_GRAPH, WEIGHTED_GRAPH, DAG_SEVEN } from './graphs';
+import { PC } from '@/content/pseudocode';
 
 const rdc = radiusDiameterCenter(UG_SIX);
 const sccResult = stronglyConnectedComponents(PROFESSOR_SCC_EXAMPLE);
@@ -63,8 +64,10 @@ export const conectividadeQuestions: Question[] = [
     source: { type: 'old_exam', file: '2022-1-exam.pdf' },
     professorStyleSimilarity: 'high',
     hints: ['O diâmetro é a MAIOR excentricidade do grafo — como se calcula excentricidade de um único vértice?', 'Vai precisar rodar BFS mais de uma vez.'],
-    solution:
-      'Para cada vértice v do grafo, rode uma BFS a partir de v e anote a maior distância alcançada (essa é a excentricidade de v). O diâmetro é o máximo dessas excentricidades sobre todos os vértices. Complexidade: O(V) execuções de BFS, cada uma O(V+E), total O(V·(V+E)).',
+    solution: `Busca em largura calcula distâncias em número de arestas:
+${PC.DISTANCIAS}
+${PC.DIAMETRO}
+Cada BFS descobre por níveis, então dist[u] é mínima. O máximo de cada linha é a excentricidade; o máximo entre as excentricidades é o diâmetro. Custo O(|V|(|V| + |E|)). Exemplo: no caminho a–b–c–d, as excentricidades são 3, 2, 2, 3; o diâmetro é 3.`,
   },
   {
     id: 'scc-01',
@@ -188,8 +191,9 @@ export const conectividadeQuestions: Question[] = [
     source: { type: 'old_exam', file: 'P1-TGC.pdf' },
     professorStyleSimilarity: 'high',
     hints: ['Confira o grau de cada vértice do grafo primeiro.', 'A estratégia do professor: percorrer evitando "queimar pontes" — só use uma aresta de corte quando não houver outra opção.'],
-    solution:
-      'Circuito euleriano existe ⟺ grafo conexo e todos os vértices com grau par. Aqui todos os graus são pares, logo existe. Método: a partir de um vértice qualquer, siga arestas priorizando sempre as que NÃO desconectam o grafo restante (evite pontes a menos que seja a única opção), até voltar ao vértice inicial — nesse ponto, se ainda restarem arestas não visitadas, repita o processo a partir de um vértice do circuito atual que ainda tenha arestas livres, inserindo o novo sub-circuito no ponto correspondente.',
+    solution: `Circuito euleriano existe se os vértices de grau não nulo estão conectados e todos têm grau par. Neste grafo, a condição vale. Use Fleury, evitando pontes do grafo restante sempre que houver alternativa:
+${PC.EULER}
+Cada aresta é usada uma vez. Evitar uma ponte quando existe outra escolha impede deixar arestas inacessíveis; a paridade garante que o percurso volta ao início.`,
   },
   {
     id: 'dij-01',

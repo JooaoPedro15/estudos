@@ -2,6 +2,7 @@ import type { Question, Source } from '@/content/types';
 import { baseAndAntiBase, dijkstra, kruskal, prim, stronglyConnectedComponents, widestPath } from '@/lib/graph';
 import { AULAO_CRITICO, K4_MENOS_E, SILVIO_MATRIZ, SLIDE_LINE_G, placed } from './graphs-p2';
 import { MATRIX_ABCDEF, provasReais } from './09-provas-reais';
+import { PC } from '@/content/pseudocode';
 
 // As 9 provas de P2 do Prof. Silvio (Materiais/Provas/Prova2), com o enunciado
 // transcrito. As respostas seguem o registro do material de aluna que o usuário
@@ -65,42 +66,75 @@ Fortemente conexo: existe caminho em ambas as direções para qualquer par de v�
 3. faça uma DFS em T, na ordem não crescente dos tempos de término;
 4. se todo o grafo for visitado em uma única DFS em T, G é fortemente conexo.`;
 
-const KOSARAJU = `Algoritmo de Kosaraju. Componente fortemente conexo: conjunto maximal de vértices tal que, para todo par (u, v), existe caminho de u para v e de v para u.
-1. Faça uma DFS em G marcando os tempos de início e término da visitação.
-2. Gere o grafo transposto T de G.
-3. Faça uma DFS em T, na ordem não crescente dos tempos de término.
-4. Cada conjunto de vértices visitado por uma DFS em T é um componente fortemente conexo de G.`;
+const KOSARAJU = `Componente fortemente conexo: conjunto maximal em que todo par tem caminhos nos dois sentidos.
+${PC.KOSARAJU}
+${PC.TRANSPOSTO}
+${PC.VISIT}
+Cada árvore da segunda DFS é uma componente. Tempo: O(|V| + |E|).`;
 
 const CICLO_SCC = `${KOSARAJU}
-Decisão: se algum componente tem 2 ou mais vértices, há caminho de ida e de volta entre eles, e ida + volta formam um ciclo. Se todos os componentes são unitários (e não há laço), G é acíclico. Logo: G é acíclico ⟺ o número de componentes fortemente conexos é igual a |V|.
+Pseudocódigo da decisão:
+\`\`\`
+TEM_CICLO_POR_SCC(G)
+  componentes = KOSARAJU(G)
+  for X ∈ componentes
+    if |X| > 1: return verdadeiro
+  for (v, v) ∈ E: return verdadeiro
+  return falso
+\`\`\`
+Justificativa: uma componente com mais de um vértice contém um ciclo; uma componente unitária só contém ciclo se houver laço. Logo, sem essas condições, G é acíclico.
 Exemplo: A → B → C → A, C → D. Componentes: {A, B, C} e {D}. Há componente com 3 vértices: G possui ciclo.`;
 
-const DIAMETRO_NAO_DIR = `Excentricidade de v = maior distância de v a qualquer outro vértice. Diâmetro = maior excentricidade.
-Passo a passo:
-1. Inicie uma busca em largura em um vértice v, atingindo todos os outros.
-2. A maior distância encontrada é a excentricidade de v.
-3. Repita para todos os vértices, anotando a excentricidade de cada um.
-4. A maior excentricidade é o diâmetro.
+const DIAMETRO_NAO_DIR = `Excentricidade de v = maior distância de v aos demais; diâmetro = maior excentricidade.
+${PC.DISTANCIAS}
+${PC.DIAMETRO}
+Como a BFS descobre cada vértice por níveis, cada dist[u] é a distância mínima. Repete-se a BFS para cada origem. Tempo: O(|V|(|V| + |E|)).
 Exemplo: estrela com centro c e folhas x, y, z. De x: c = 1, y = 2, z = 2, então ex = 2. De c: todos a 1, então ex = 1. De y e z: ex = 2. Diâmetro = 2.`;
 
-const DIAMETRO_DIR = `Mesmo procedimento do não direcionado, seguindo a direção das arestas na busca: para cada vértice v, busca em largura a partir de v; a maior distância é a excentricidade de v; a maior excentricidade é o diâmetro. Como G é fortemente conexo, toda busca alcança todos os vértices.
+const DIAMETRO_DIR = `Use o mesmo pseudocódigo DISTANCIAS e DIAMETRO do item a, mas N(w) contém apenas sucessores de w. Como G é fortemente conexo, cada BFS alcança todos os vértices.
 Exemplo: ciclo A → B → C → A. De A: B = 1, C = 2, então ex = 2. O mesmo vale para B e C. Diâmetro = 2.
 Se G não for fortemente conexo, existe par (u, v) sem caminho de u para v, a distância é ∞ e o diâmetro é ∞.`;
 
 const PRIM_E = `Solução sem alterar o Prim, só a entrada: troque o peso de e por um valor menor que o de todas as outras arestas (por exemplo, menor peso do grafo − 1) e rode o Prim normalmente.
-Passo a passo do Prim: comece com S = {um vértice}; escolha a aresta de menor peso com uma ponta em S e outra em V − S; adicione-a à solução e a outra ponta a S; pare quando |S| = |V|.
+Pseudocódigo:
+\`\`\`
+PRIM_COM_ARESTA(G, W, e):
+  se G é desconexo: retorne "não existe árvore geradora"
+  se E = {e}: retorne ({e}, (V, ∅))
+  M ← min{W(f) : f ∈ E, f ≠ e} − 1
+  W' ← cópia de W; W'(e) ← M
+  T ← PRIM(G, W')  // algoritmo original, sem alterações
+  retorne (T, T − {e})
+\`\`\`
+Prim começa em um vértice, adiciona a menor aresta que cruza do conjunto visitado para os demais e para com |V| − 1 arestas.
 Justificativa: e agora é a mais barata do grafo, logo é a mais barata de qualquer corte que atravessa; pela propriedade do corte, toda AGM contém e. Assim e está em T.
-Floresta: T tem |V| − 1 arestas. Retirando e, sobram duas árvores que cobrem todos os vértices: F = (V, E′ \\ {e}). Como e está em toda solução e seu peso é fixo, minimizar T é minimizar a soma das demais arestas, então F é mínima dentre as que, junto com e, ligam todo o grafo.`;
+Floresta: T tem |V| − 1 arestas. Retirando e, sobram duas árvores que cobrem todos os vértices: F = (V, E′ \\ {e}). Como e está em toda solução e seu peso é fixo, minimizar T é minimizar a soma das demais arestas, então F é mínima dentre as que, junto com e, ligam todo o grafo. A expressão "floresta geradora mínima de G − e" no enunciado só faz sentido nessa classe restrita; se G − e for conexo, sua floresta geradora mínima usual teria |V| − 1 arestas, mas F tem |V| − 2. Também é preciso fornecer pesos a G para usar Prim.`;
 
 const WIDEST = (() => {
   const g = placed({ s: [70, 160], a: [240, 60], b: [240, 270], t: [480, 160] }, [['s', 'a', 5], ['a', 't', 2], ['s', 'b', 3], ['b', 't', 4]]);
   const r = widestPath(g, 's');
-  return `Capacidade de um caminho = peso da sua aresta de menor peso. Queremos o maior dos menores (Max-Min). É uma adaptação do Dijkstra:
-1. valores[origem] = +∞ e valores[demais] = −∞; coloque a origem na fila de prioridade.
-2. Enquanto a fila não estiver vazia, extraia o vértice u de MAIOR valor.
-3. Para cada vizinho v de u: menor_custo = min(valores[u], W(u, v)); se menor_custo > valores[v], faça valores[v] = menor_custo, guarde u como predecessor e coloque v na fila.
-4. Ao terminar, valores[t] é a capacidade máxima; o caminho sai dos predecessores.
-Justificativa: ao passar por uma aresta, a capacidade só pode cair, então o vértice de maior valor na fila já tem sua resposta definitiva, como o de menor distância no Dijkstra.
+  return `Capacidade de um caminho = menor peso entre suas arestas. Queremos o maior desses mínimos (Max-Min).
+
+Pseudocódigo (fila de prioridade máxima):
+\`\`\`
+WIDEST_PATH(G, W, s, t):
+    para cada v em V: cap[v] ← −∞; pred[v] ← NULO
+    cap[s] ← +∞
+    Q ← {(s, +∞)}
+    enquanto Q não estiver vazia:
+        (u, c) ← EXTRAI_MAIOR(Q)
+        se c ≠ cap[u]: continue  // entrada antiga na fila
+        se u = t: retorne (cap[t], RECONSTRÓI(pred, t))
+        para cada aresta (u, v) em E:
+            candidato ← min(cap[u], W(u, v))
+            se candidato > cap[v]:
+                cap[v] ← candidato
+                pred[v] ← u
+                INSERE(Q, (v, candidato))
+    retorne "não há caminho de s a t"
+\`\`\`
+
+Justificativa: estender um caminho nunca aumenta sua capacidade. Assim, quando extraímos o maior valor da fila, ele já é definitivo. Cada atualização calcula o gargalo do caminho estendido. Tempo: O((|V| + |E|) log |V|) com fila de prioridade.
 Instância: arestas s–a = 5, a–t = 2, s–b = 3, b–t = 4. Caminho s–a–t: min(5, 2) = 2. Caminho s–b–t: min(3, 4) = 3. Resposta: capacidade ${r.capacities.t}, pelo caminho s–b–t.`;
 })();
 
@@ -164,12 +198,10 @@ Caminhos: ${['A', 'B', 'C', 'D', 'E'].map(pathFromF).join('; ')}.
 B e E empatam com 2 logo depois de F; qualquer um pode sair primeiro.`;
 
 const CAMINHO_CRITICO = `Modelagem: grafo direcionado e acíclico. Vértices: as disciplinas (atividades). Aresta (u, v): u é pré-requisito de v.
-Algoritmo (caminho crítico):
-1. identificamos a base: vértices com grau de entrada 0;
-2. removemos a base e suas arestas de saída; cada remoção é um período, porque essas disciplinas não dependem umas das outras e podem ser feitas em paralelo;
-3. repetimos até o grafo ficar vazio. Isso garante a ordem topológica.
-Se em alguma rodada não houver vértice com grau de entrada 0, há ciclo e não existe solução.
-Justificativa: um vértice só sai quando todos os seus pré-requisitos já saíram, então a contagem de rodadas é o número mínimo de períodos.
+Cada disciplina dura um período; independentes podem ocorrer em paralelo. O caminho crítico é a cadeia de pré-requisitos com mais disciplinas.
+${PC.ORDEM_TOPOLOGICA}
+${PC.TEMPO_CASA}
+Se a ordem contiver menos de |V| vértices, há ciclo de pré-requisitos e não há planejamento válido. Justificativa: na ordem topológica todos os pré-requisitos de v já foram processados; t[v] é o primeiro período em que v pode terminar. O máximo de t é o prazo mínimo. Tempo O(|V| + |E|).
 Exemplo: A → C, B → D, B → E, C → F, D → F, D → G, E → G. Rodada 1: {A, B}. Rodada 2: {C, D, E}. Rodada 3: {F, G}. Mínimo de 3 períodos. Uma ordem topológica: B A D C E G F (há várias formas de encontrá-la). Um caminho crítico: B → D → F.`;
 
 const SUBGRAFO = `Um subgrafo T de um grafo G consiste em um conjunto de nós e arestas que são subconjuntos do conjunto original de G: V′ ⊆ V e E′ ⊆ E.
@@ -275,14 +307,26 @@ Direto: se uma AGM T não contivesse e, T + e formaria um ciclo; trocando e por 
         weightPercent: 25,
         question: q('ps-2026-1-q3', 'P2-TGC.pdf', '2026/1-Q3', 25, 'agm-prim-kruskal', 'p2-prim-forcado',
           `Seja um G = (V, E) um grafo não-direcionado. Crie uma solução que use o algoritmo do Prim (sem alterá-lo) para encontrar uma árvore T = (V, E′) que seja um subgrafo de G de forma a garantir que um conjunto de arestas específico E1 ⊂ E (informado pelo usuário) sempre esteja presente em T e que F = (V, E′ \\ E1) seja uma floresta geradora mínima de G = (V, E \\ E1). Descreva em detalhes a sua solução justificando suas decisões.`,
-          `Solução sem alterar o Prim, só a entrada:
-1. Verifique que E1 não tem ciclo; se tiver, é impossível, porque T é uma árvore.
-2. Troque o peso de toda aresta de E1 por um valor menor que o de todas as arestas fora de E1 (por exemplo, menor peso do grafo − 1).
-3. Rode o Prim normalmente: S começa com um vértice; escolhe a aresta de menor peso de S para V − S; adiciona; para quando |S| = |V|.
-4. A resposta é T. F é T sem as arestas de E1.
+          `Para usar Prim, o grafo precisa ter pesos W; o enunciado não os explicita. Suponho G conexo e ponderado. Se E1 contém ciclo, nenhuma árvore pode conter todas essas arestas.
 
-Justificativa: suponha que uma aresta e = (u, v) de E1 não esteja em T. O caminho de u a v em T, junto com e, forma um ciclo. Como E1 não tem ciclo, esse caminho tem alguma aresta f fora de E1, de peso maior que o de e. Trocar f por e daria uma árvore de custo menor, o que contradiz T ser mínima. Logo T contém todo E1.
-Como E1 está em toda solução, com peso fixo, minimizar T é minimizar a soma das arestas fora de E1: F é mínima entre as que, junto com E1, ligam todo o grafo.`),
+Pseudocódigo (altera apenas os pesos de entrada; Prim fica intacto):
+\`\`\`
+PRIM_COM_ARESTAS(G, W, E1):
+  se G é desconexo: retorne "não existe árvore geradora"
+  se DFS em (V, E1) encontrar ciclo: retorne "impossível"
+  se E1 = ∅:
+    T ← PRIM(G, W); retorne (T, T)
+  se E − E1 = ∅: retorne (E1, (V, ∅))
+  M ← min{W(f) : f ∈ E − E1} − 1
+  W' ← cópia de W
+  para cada e ∈ E1: W'(e) ← M
+  T ← PRIM(G, W')
+  F ← (V, E(T) − E1)
+  retorne (T, F)
+\`\`\`
+Se E − E1 for vazio, E1 já é uma árvore geradora. Justificativa: como E1 é acíclico, se uma aresta forçada e faltar em T, o ciclo formado por T + e contém alguma f fora de E1; trocar f por e diminuiria o custo W', contradição. Logo T contém E1. Entre árvores que contêm E1, as arestas forçadas têm peso fixo, e Prim minimiza a soma das demais.
+
+Ressalva: F é mínima entre as florestas que, unidas a E1, formam uma árvore. Ela não é, em geral, a floresta geradora mínima usual de G − E1 (que poderia ter mais arestas).`),
       },
     ],
   },
@@ -306,16 +350,35 @@ Como E1 está em toda solução, com peso fixo, minimizar T é minimizar a soma 
         weightPercent: 30,
         question: q('ps-2025-1-q2', '2025-1-exam.pdf', '2025/1-Q2', 30, 'dijkstra', 'p2-caminho-restrito',
           `Seja G = (V, E) um grafo simples direcionado. Seja (G, W) um grafo ponderado em que W: E ↦ Z⁺. Um caminho é dito alternado se os seus pesos possuem valores alternados de forma que o peso da aresta i do caminho é menor que o peso da aresta i − 1 e i + 1, ou o peso da aresta i do caminho é maior que o peso da aresta i − 1 e i + 1. Por exemplo, a sequência [1, 3, 5] não é altenada, mas a sequência [1, 3, 2] é uma sequência alternada. Projete uma solução para encontrar em (G, W) o menor caminho alternado. Justifique todas as suas decisões.`,
-          `A resposta depende da última aresta usada, não só do vértice: chegar em v por uma aresta de peso 1 ou de peso 9 libera continuações diferentes. Por isso o Dijkstra não roda direto em G. Solução: modificar o algoritmo de Dijkstra sobre um grafo de estados.
+          `Para origem s e destino t, interpreto "menor caminho" como menor soma de pesos. O próximo peso permitido depende da última aresta e do sentido da alternância. Por isso cada estado é (e, próximo), onde próximo ∈ {SOBE, DESCE}; não basta guardar só o vértice.
 
-Modelagem: cada estado é (aresta e usada por último, direção), em que direção diz se a próxima aresta deve ser maior ou menor que e. De (e = (u, v), "sobe") há transição para (f = (v, x), "desce") se W(f) > W(e), com custo W(f); de (e, "desce") há transição para (f, "sobe") se W(f) < W(e), com custo W(f).
+Pseudocódigo (Dijkstra no grafo de estados, construído implicitamente):
+\`\`\`
+MENOR_ALTERNADO(G, W, s, t):
+  para cada e ∈ E e modo ∈ {SOBE, DESCE}:
+    dist[e, modo] ← +∞; pred[e, modo] ← NULO
+  Q ← fila de prioridade mínima vazia
+  para cada e = (s, v) ∈ E:
+    para modo ∈ {SOBE, DESCE}:
+      dist[e, modo] ← W(e); INSERE(Q, (W(e), e, modo))
+  enquanto Q ≠ ∅:
+    (d, e = (u, v), modo) ← EXTRAI_MENOR(Q)
+    se d ≠ dist[e, modo]: continue
+    para cada f = (v, x) ∈ E:
+      se modo = SOBE e W(f) > W(e): novo ← DESCE
+      senão se modo = DESCE e W(f) < W(e): novo ← SOBE
+      senão: continue
+      candidato ← d + W(f)
+      se candidato < dist[f, novo]:
+        dist[f, novo] ← candidato
+        pred[f, novo] ← (e, modo)
+        INSERE(Q, (candidato, f, novo))
+  escolha (e, modo) de menor dist com e terminando em t
+  se não existir valor finito: retorne "não há caminho alternado"
+  retorne (dist[e, modo], RECONSTRÓI(pred, e, modo))
+\`\`\`
 
-Passo a passo:
-1. Para cada aresta e que sai da origem s, crie os estados (e, sobe) e (e, desce), com distância W(e).
-2. Rode o Dijkstra nos estados: entre os não visitados, escolha o de menor distância acumulada e atualize os vizinhos com d[y] = min(d[y], d[x] + W(aresta de y)).
-3. A resposta para um vértice t é o menor valor entre os estados cuja aresta termina em t. Guarde predecessores para reconstruir o caminho.
-
-Justificativa: os pesos são positivos (W: E ↦ Z⁺), então o Dijkstra funciona no grafo de estados. Um caminho alternado de G corresponde exatamente a um caminho nesse grafo, com o mesmo custo.`),
+Justificativa: duas chegadas ao mesmo vértice podem permitir continuações diferentes. Os estados registram toda a informação necessária; cada transição preserva a alternância e soma o peso da nova aresta. Como W(e) > 0, Dijkstra é válido. Para s = t, o caminho vazio tem custo 0. Tempo O((|E| + T) log |E|), onde T é o número de pares de arestas consecutivas.`),
       },
       {
         weightPercent: 25,
@@ -544,17 +607,31 @@ d) Não. Auto-complementar tem |E| = n(n − 1)/4 = 14 · 13/4 = 45,5, que não 
         weightPercent: 30,
         question: q('ps-20xx8-q2', X, '20xx(p.8)-Q2', 30, 'dijkstra', 'p2-caminho-restrito',
           'Seja G = (V, E) um grafo simples direcionado. Seja (G, W) um grafo ponderado em que W: E ↦ Z⁺ e um parâmetro λ > 1. Um caminho é dito monotônico de λ-crescimento se ele é estritamente crescente em que o peso de um elemento é menor [corrigido à mão: MAIOR] que o elemento seguinte dividido por λ. Por exemplo, a sequência [2, 3, 7] não é monotônica de 2-crescimento mas a sequência [2, 3, 5] é uma sequência monotônica de 2-crescimento. Projete uma solução baseada em grafos para encontrar em (G, W) o menor caminho monotônico de λ-crescimento. Todas as suas decisões/escolhas devem ser bem justificadas.',
-          `Condição: a aresta seguinte f pode vir depois de e se W(e) < W(f) e W(e) > W(f)/λ. Confere com o enunciado: em [2, 3, 5], 2 > 3/2 e 3 > 5/2; em [2, 3, 7], 3 > 7/2 é falso.
+          `Para origem s e destino t, interpreto "menor caminho" como menor soma de pesos. Pela correção manuscrita, duas arestas consecutivas e, f devem satisfazer W(e) < W(f) < λ·W(e). Em [2, 3, 5] com λ = 2 isso vale; em [2, 3, 7], 7 < 2·3 é falso. A continuação depende do peso da última aresta, então cada aresta de G vira um estado.
 
-A condição depende da última aresta, então o Dijkstra não roda direto em G. Solução: Dijkstra em um grafo novo, em que cada vértice é uma aresta de G (a mesma ideia do grafo de linha).
+Pseudocódigo (Dijkstra nos estados/arestas):
+\`\`\`
+MENOR_LAMBDA_CRESCENTE(G, W, λ, s, t):
+  para cada e ∈ E: dist[e] ← +∞; pred[e] ← NULO
+  Q ← fila de prioridade mínima vazia
+  para cada e = (s, v) ∈ E:
+    dist[e] ← W(e); INSERE(Q, (W(e), e))
+  enquanto Q ≠ ∅:
+    (d, e = (u, v)) ← EXTRAI_MENOR(Q)
+    se d ≠ dist[e]: continue
+    para cada f = (v, x) ∈ E:
+      se W(e) < W(f) e W(f) < λ·W(e):
+        candidato ← d + W(f)
+        se candidato < dist[f]:
+          dist[f] ← candidato
+          pred[f] ← e
+          INSERE(Q, (candidato, f))
+  escolha e de menor dist[e] entre as arestas que terminam em t
+  se não existir valor finito: retorne "não há caminho válido"
+  retorne (dist[e], RECONSTRÓI(pred, e))
+\`\`\`
 
-Modelagem: há uma aresta de e = (u, v) para f = (v, x) se a condição acima vale, com custo W(f).
-Passo a passo:
-1. Cada aresta e que sai da origem s começa com distância W(e); as demais, com ∞.
-2. Rode o Dijkstra: entre os não visitados, escolha o de menor distância acumulada e atualize os vizinhos com d[f] = min(d[f], d[e] + W(f)).
-3. A resposta para t é o menor d[e] entre as arestas e que terminam em t. Guarde predecessores para reconstruir o caminho.
-
-Justificativa: os pesos são positivos, então o Dijkstra funciona. Todo caminho monotônico de G é um caminho no grafo novo, com o mesmo custo, e vice-versa.`),
+Justificativa: toda sequência de arestas aceita pelo algoritmo satisfaz a condição, e toda sequência válida aparece como caminho entre estados. O custo acumulado é a soma dos pesos originais. Como todos são positivos, Dijkstra encontra o menor custo. Para s = t, o caminho vazio custa 0. Tempo O((|E| + T) log |E|), com T pares de arestas consecutivas.`),
       },
       {
         weightPercent: 25,

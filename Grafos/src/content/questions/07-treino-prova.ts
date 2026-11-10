@@ -1,5 +1,6 @@
 import type { GraphData, Option, Question, Source, WalkthroughStep } from '@/content/types';
 import { distancesFrom, edgeBoundsForComponents, numberOfSubgraphsOfCompleteGraph, radiusDiameterCenter } from '@/lib/graph';
+import { PC } from '@/content/pseudocode';
 
 // Questões do "Treino de prova": só o que caiu nas 8 provas antigas do Prof.
 // Silvio (docs/exam-pattern.md), em duas formas — a pergunta como está na
@@ -858,8 +859,10 @@ const excentricidadeQuestions: Question[] = [
     source: exam('2024-1-exam.pdf', 'Q4(iv) (10%); também 2022/1-Q4 (20%)'),
     professorStyleSimilarity: 'high',
     hints: ['Distância em nº de arestas = BFS.', 'Excentricidade de v sai de uma BFS; diâmetro precisa de todas.'],
-    solution:
-      'Entrada: G = (V, E) não-direcionado simples. (1) diam ← 0. (2) Para cada v ∈ V: rode BFS a partir de v (fila iniciada com v, dist[v] = 0, dist[u] = dist[w] + 1 ao descobrir u pelo vizinho w); ε(v) ← max_u dist[u]; se algum u não foi alcançado, G é desconexo — pare (diâmetro indefinido). (3) diam ← max(diam, ε(v)). (4) Saída: diam. Custo O(|V|·(|V| + |E|)). Exemplo: caminho a–b–c–d: BFS de a dá 0,1,2,3 (ε = 3); de b dá 1,0,1,2 (ε = 2); de c: ε = 2; de d: ε = 3 ⇒ diâmetro 3.',
+    solution: `Entrada: G não direcionado simples. A BFS calcula as distâncias em número de arestas:
+${PC.DISTANCIAS}
+${PC.DIAMETRO}
+Se uma distância for −1, G é desconexo e adotamos diâmetro ∞. Custo O(|V|(|V| + |E|)). Exemplo: caminho a–b–c–d: excentricidades 3, 2, 2, 3 ⇒ diâmetro 3.`,
   },
 ];
 
@@ -1215,8 +1218,9 @@ const buscaQuestions: Question[] = [
     source: exam('2023-1-exam.pdf', 'Q5 (25%)'),
     professorStyleSimilarity: 'high',
     hints: ['Qual busca explora "por camadas de distância"?', 'Resumo, p.3: distâncias iniciam em −1, dist[v] = 0, fila = {v}.'],
-    solution:
-      'Busca em largura. (1) Para todo u: dist[u] ← −1; dist[v] ← 0; fila Q ← {v}. (2) Enquanto Q ≠ ∅: w ← remove o início de Q; para cada vizinho u de w com dist[u] = −1: dist[u] ← dist[w] + 1; insere u no fim de Q. (3) Saída: dist. Correção: a fila garante que todos os vértices a distância d são processados antes de qualquer um a distância d + 1, então o primeiro caminho que descobre u é o mais curto. Vértices com dist = −1 estão em outro componente. Custo O(|V| + |E|) com lista de adjacência.',
+    solution: `Busca em largura:
+${PC.DISTANCIAS}
+Saída: dist[u] para todo u; −1 indica inalcançável. A fila processa vértices por nível, então a primeira descoberta de u usa o menor número de arestas. Custo O(|V| + |E|) com lista de adjacência.`,
   },
 ];
 

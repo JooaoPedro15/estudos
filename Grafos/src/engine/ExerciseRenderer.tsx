@@ -55,8 +55,8 @@ export function ExerciseRenderer({ question, onComplete }: ExerciseRendererProps
 
       {question.displayGraphs && (
         <div className={question.displayGraphs.b ? 'grid grid-cols-1 gap-4 md:grid-cols-2' : ''}>
-          <GraphVisualizer graph={question.displayGraphs.a} interactive={false} height={question.displayGraphs.b ? 240 : 300} />
-          {question.displayGraphs.b && <GraphVisualizer graph={question.displayGraphs.b} interactive={false} height={240} />}
+          <GraphVisualizer graph={question.displayGraphs.a} interactive={false} showWeights height={question.displayGraphs.b ? 240 : 300} />
+          {question.displayGraphs.b && <GraphVisualizer graph={question.displayGraphs.b} interactive={false} showWeights height={240} />}
         </div>
       )}
 
