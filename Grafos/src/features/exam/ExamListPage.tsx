@@ -5,7 +5,7 @@ import type { ExamScope } from '@/content/types';
 import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
 import { codePuzzles } from '@/content/codePuzzles';
-import { dueCodeIds, loadCodeMemory } from '@/store/codeMemory';
+import { dueIds, loadMemory } from '@/store/answerMemory';
 
 function ExamCard({ exam }: { exam: Exam }) {
   return (
@@ -51,7 +51,7 @@ const REAL_EXAMS_TEXT: Record<ExamScope, { title: string; description: string }>
 /** Mostra os simulados sorteados da P2 em destaque e as provas reais da seleção ativa. */
 export function ExamListPage() {
   const active = useActiveExam();
-  const dueCount = dueCodeIds(loadCodeMemory()).length;
+  const dueCount = dueIds(loadMemory()).length;
   const p2Exams = allExams.filter((e) => e.prova === 'P2');
   const p1Exams = allExams.filter((e) => e.prova !== 'P2');
   const realExams = allRealExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
@@ -60,7 +60,7 @@ export function ExamListPage() {
       <header className="flex flex-col gap-1.5">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Provas e simulados</h1>
         <p className="max-w-2xl text-[var(--color-text-secondary)]">
-          Sorteie um simulado da P2 e escolha como responder: aberto, como na prova, ou com memorização progressiva dos códigos e perguntas de múltipla escolha.
+          Abra uma prova e escolha como responder: aberto, como no dia, ou no modo memorização, que faz você reconstruir a resposta-modelo inteira, uma questão por vez.
         </p>
       </header>
 
@@ -69,7 +69,7 @@ export function ExamListPage() {
           <h2 id="simulados" className="text-lg font-semibold text-[var(--color-text-primary)]">
             Simulados da P2
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">Escolha um tipo, sorteie as questões e depois selecione o formato aberto ou fechado. Os temas recorrentes aparecem junto com os demais.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Escolha um tipo, sorteie as questões e depois selecione o formato aberto ou de memorização. Os temas recorrentes aparecem junto com os demais.</p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {p2Exams.map((exam) => (
@@ -79,7 +79,7 @@ export function ExamListPage() {
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Simulado P2 — quebra-código</h2>
-                <Badge tone="success">fechado</Badge>
+                <Badge tone="success">montagem</Badge>
               </div>
               <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
                 Monte os passos de Kosaraju, Prim, Kruskal, Dijkstra, BFS, Fleury e caminho crítico. Os erros voltam para uma nova tentativa.
@@ -91,12 +91,12 @@ export function ExamListPage() {
           <Card padding="lg" className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Revisão de códigos da P2</h2>
+                <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Revisão espaçada</h2>
                 <Badge tone="amber">{dueCount} para revisar</Badge>
               </div>
-              <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">Retome os trechos já praticados quando chegar a hora. Acertos avançam de ordenar linhas para preencher lacunas e escrever sem pistas.</p>
+              <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">As partes das respostas que você já treinou voltam aqui: as que você errou mais vêm primeiro, e cada acerto aumenta o intervalo até a próxima vez.</p>
             </div>
-            <Link to="/simulado/revisao" className="mt-auto"><Button fullWidth>Revisar códigos</Button></Link>
+            <Link to="/simulado/revisao" className="mt-auto"><Button fullWidth>Revisar agora</Button></Link>
           </Card>
         </div>
       </section>
