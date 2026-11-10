@@ -13,9 +13,7 @@ export interface MemoryEntry {
 
 export type AnswerMemory = Record<string, MemoryEntry>;
 
-const STORAGE_KEY = 'grafos-answer-memory-v3';
-/** Formato anterior, sem a etapa de ordenar: lacunas era 1 e escrever era 2. */
-const OLD_STORAGE_KEY = 'grafos-answer-memory-v2';
+const STORAGE_KEY = 'grafos-answer-memory-v4';
 const MINUTE = 60 * 1000;
 /** Ao subir de etapa, a parte volta logo; depois de escrever de memória, o intervalo cresce. */
 const NEXT_STAGE_MINUTES = 10;
@@ -23,12 +21,8 @@ const REVIEW_MINUTES = [20, 60, 4 * 60, 24 * 60, 3 * 24 * 60, 7 * 24 * 60, 16 * 
 
 export function loadMemory(): AnswerMemory {
   try {
-    const current = localStorage.getItem(STORAGE_KEY);
-    const parsed: unknown = JSON.parse(current ?? localStorage.getItem(OLD_STORAGE_KEY) ?? '{}');
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    if (current === null) for (const value of Object.values(parsed) as Partial<MemoryEntry>[]) {
-      if (value && (value.stage === 1 || value.stage === 2)) value.stage = (value.stage + 1) as MemoryStage;
-    }
     return Object.fromEntries(Object.entries(parsed).filter((entry): entry is [string, MemoryEntry] => {
       const value = entry[1] as Partial<MemoryEntry>;
       return value && [0, 1, 2, 3].includes(value.stage as number)
