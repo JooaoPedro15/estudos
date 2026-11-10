@@ -41,7 +41,7 @@ const candidates = P2_SIMULATION_POOL.map((entry) => {
   const weight = originalWeights.get(entry.id);
   if (weight === undefined) throw new Error(`Peso original não encontrado: ${entry.id}`);
   const question = originalQuestions.get(entry.id)!;
-  return { ...entry, weight, hasCode: buildClosedExamTasks([{ question, weightPercent: weight }]).some((task) => task.kind === 'code') };
+  return { ...entry, weight, hasCode: buildClosedExamTasks([{ question, weightPercent: weight }]).some((task) => task.kind === 'part' && task.part.mode === 'code') };
 });
 
 type Candidate = (typeof candidates)[number];
