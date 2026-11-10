@@ -6,10 +6,10 @@ import { buildCloze, firstLetters, keyTerms, normalizeTerm } from '@/content/ans
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { Badge, Button, Card } from '@/components/ui';
 import { ExamAnswerPanel } from '@/engine/ExamAnswerPanel';
-import { dueIds, loadMemory, recordAttempt, saveMemory, type AnswerMemory, type MemoryStage } from '@/store/answerMemory';
+import { LAST_STAGE, dueIds, loadMemory, recordAttempt, saveMemory, type AnswerMemory, type MemoryStage } from '@/store/answerMemory';
 
 type CheckState = 'editing' | 'wrong' | 'correct' | 'revealed' | 'selfCheck';
-const stageNames = ['Decorar aos poucos', 'Completar lacunas', 'Escrever de memória'] as const;
+const stageNames = ['Decorar aos poucos', 'Ordenar', 'Completar lacunas', 'Escrever de memória'] as const;
 /** Depois de um erro a parte volta quase na hora; depois de um acerto que ainda precisa de confirmação, um pouco mais longe. */
 const GAP_AFTER_ERROR = 2;
 const GAP_AFTER_SUCCESS = 4;
@@ -24,8 +24,14 @@ function shuffle<T>(items: T[]): T[] {
   return out;
 }
 
-const minStageOf = (task: ClosedExamTask): MemoryStage => task.kind === 'full' ? 2 : 0;
-const stageOf = (task: ClosedExamTask, memory: AnswerMemory): MemoryStage => Math.max(minStageOf(task), memory[task.id]?.stage ?? 0) as MemoryStage;
+const minStageOf = (task: ClosedExamTask): MemoryStage => task.kind === 'full' ? LAST_STAGE : 0;
+/** Parte de um trecho só não tem o que ordenar: vai direto para as lacunas. */
+const skipsOrder = (task: ClosedExamTask): boolean => task.kind === 'part' && task.part.units.length < 2;
+function stageOf(task: ClosedExamTask, memory: AnswerMemory): MemoryStage {
+  const stage = Math.max(minStageOf(task), memory[task.id]?.stage ?? 0) as MemoryStage;
+  return stage === 1 && skipsOrder(task) ? 2 : stage;
+}
+const orderBank = (task: ClosedExamTask | undefined): number[] => task?.kind === 'part' ? shuffle(task.part.units.map((_, index) => index)) : [];
 /** Na primeira etapa a parte já abre na recitação cumulativa: duas linhas, esconde, repete, soma mais uma. */
 const drillFor = (task: ClosedExamTask | undefined, stage: MemoryStage) => task?.kind === 'part' && stage === 0 ? { count: Math.min(2, task.part.units.length), hidden: false } : null;
 
@@ -46,6 +52,8 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
   const [round, setRound] = useState(allTasks);
   const [index, setIndex] = useState(0);
   const [stage, setStage] = useState<MemoryStage>(() => allTasks[0] ? stageOf(allTasks[0], memory) : 0);
+  const [bank, setBank] = useState(() => orderBank(allTasks[0]));
+  const [selected, setSelected] = useState<number[]>([]);
   const [fills, setFills] = useState<Record<number, number>>({});
   const [wrongBlanks, setWrongBlanks] = useState<number[]>([]);
   const [choice, setChoice] = useState<string | null>(null);
@@ -72,7 +80,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
   }, [cloze, task]);
 
   function resetInputs(nextTask?: ClosedExamTask, nextStage: MemoryStage = 1) {
-    setFills({}); setWrongBlanks([]); setChoice(null); setFreeText('');
+    setBank(orderBank(nextTask)); setSelected([]); setFills({}); setWrongBlanks([]); setChoice(null); setFreeText('');
     setState('editing'); setHadError(false); setFeedback(''); setHint(''); setDrill(drillFor(nextTask, nextStage));
   }
 
@@ -95,8 +103,8 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       setMemory(currentMemory);
       saveMemory(currentMemory);
     }
-    // A parte sobe as três etapas dentro da própria questão; quem errou deve dois acertos escrevendo de memória.
-    const climbing = clean && task.kind === 'part' && stage < 2;
+    // A parte sobe as quatro etapas dentro da própria questão; quem errou deve dois acertos escrevendo de memória.
+    const climbing = clean && task.kind === 'part' && stage < LAST_STAGE;
     const remaining = !clean ? 2 : climbing ? owed[task.id] ?? 1 : (owed[task.id] ?? 1) - 1;
     setOwed((before) => ({ ...before, [task.id]: remaining }));
     let nextRound = round;
@@ -118,9 +126,21 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       else { setState('wrong'); setHadError(true); setFeedback('Resposta incorreta. Veja a alternativa correta e a explicação.'); }
       return;
     }
-    if (task.kind === 'full' || stage === 2) {
+    if (task.kind === 'full' || stage === LAST_STAGE) {
       setState('selfCheck');
       setFeedback('Compare com o gabarito. Vale a ideia completa e os termos certos, não as palavras idênticas.');
+      return;
+    }
+    if (stage === 1) {
+      if (selected.length !== task.part.units.length) { setFeedback('Coloque todos os trechos antes de conferir.'); return; }
+      const firstWrong = selected.findIndex((unit, position) => task.part.units[unit] !== task.part.units[position]);
+      if (firstWrong === -1) {
+        setState('correct');
+        setFeedback(hadError ? 'Agora está certo. Esta parte volta daqui a pouco para confirmar.' : 'Ordem correta de primeira! Ela volta daqui a pouco fechada, com lacunas.');
+      } else {
+        setState('wrong'); setHadError(true);
+        setFeedback(`Revise a partir do trecho ${firstWrong + 1}.`);
+      }
       return;
     }
     if (cloze.answers.some((_, blank) => fills[blank] === undefined)) { setFeedback('Preencha todas as lacunas antes de conferir.'); return; }
@@ -139,7 +159,13 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     if (!task || task.kind === 'choice') return;
     setHadError(true);
     if (task.kind === 'full') { setHint('Siga o esqueleto acima: escreva uma parte de cada vez, na ordem.'); return; }
-    if (stage === 2) { setHint(task.part.units.map(firstLetters).join('\n')); return; }
+    if (stage === LAST_STAGE) { setHint(task.part.units.map(firstLetters).join('\n')); return; }
+    if (stage === 1) {
+      const wrong = selected.findIndex((unit, position) => task.part.units[unit] !== task.part.units[position]);
+      const position = wrong >= 0 ? wrong : selected.length;
+      if (position < task.part.units.length) setHint(`Trecho ${position + 1}: ${task.part.units[position]}`);
+      return;
+    }
     const blank = cloze.answers.findIndex((answer, position) => fills[position] === undefined || normalizeTerm(wordBank[fills[position]]) !== normalizeTerm(answer));
     if (blank >= 0) setHint(`Lacuna ${blank + 1}: ${cloze.answers[blank]}`);
   }
@@ -156,7 +182,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       <p className="text-sm text-[var(--color-text-secondary)]">As partes que você treinou voltam aqui quando o intervalo vencer. Enquanto isso, memorize outra prova.</p>
       <Link to="/simulado"><Button>Voltar às provas</Button></Link>
     </Card>;
-    const pending = allTasks.filter((item) => item.kind !== 'choice' && stageOf(item, memory) < 2);
+    const pending = allTasks.filter((item) => item.kind !== 'choice' && stageOf(item, memory) < LAST_STAGE);
     return (
       <Card padding="lg" className="mx-auto max-w-2xl space-y-5">
         <Badge tone="success">Rodada concluída</Badge>
@@ -212,7 +238,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         {task.kind !== 'choice' && <div className="rounded-lg border border-[var(--color-border-soft)] bg-[var(--color-bg-elevated)] p-3">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Esqueleto da resposta — decore também esta ordem</p>
           <ol className="flex flex-wrap gap-1.5">
-            {task.outline.map((entry, position) => <li key={entry.id} className={clsx('rounded-md border px-2 py-1 text-xs', entry.id === task.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : (memory[entry.id]?.stage ?? 0) === 2 ? 'border-[var(--color-success)]/40 text-[var(--color-success)]' : 'border-[var(--color-border)] text-[var(--color-text-secondary)]')}>
+            {task.outline.map((entry, position) => <li key={entry.id} className={clsx('rounded-md border px-2 py-1 text-xs', entry.id === task.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : (memory[entry.id]?.stage ?? 0) === LAST_STAGE ? 'border-[var(--color-success)]/40 text-[var(--color-success)]' : 'border-[var(--color-border)] text-[var(--color-text-secondary)]')}>
               {position + 1}. {entry.itemLabel ? `${entry.itemLabel} ` : ''}{entry.label}
             </li>)}
           </ol>
@@ -226,7 +252,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         </div>
         {part!.itemPrompt && <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]"><strong>O que este item pede:</strong> {part!.itemPrompt}</p>}
         <div className="flex flex-wrap gap-1.5 pt-1">
-          {stageNames.map((name, position) => <button key={name} type="button" disabled={locked} onClick={() => { setStage(position as MemoryStage); resetInputs(task, position as MemoryStage); }} className={clsx('rounded-full border px-2.5 py-1 text-xs', position === stage ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : 'border-[var(--color-border)] text-[var(--color-text-tertiary)]', 'disabled:opacity-40')}>{position + 1}. {name}</button>)}
+          {stageNames.map((name, position) => <button key={name} type="button" disabled={locked || (position === 1 && skipsOrder(task))} onClick={() => { setStage(position as MemoryStage); resetInputs(task, position as MemoryStage); }} className={clsx('rounded-full border px-2.5 py-1 text-xs', position === stage ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : 'border-[var(--color-border)] text-[var(--color-text-tertiary)]', 'disabled:opacity-40')}>{position + 1}. {name}</button>)}
         </div>
         {part!.previousUnit && <p className="rounded-lg bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-secondary)]">Logo antes vem: <span className="whitespace-pre-wrap">{part!.previousUnit}</span></p>}
       </Card>}
@@ -251,7 +277,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
           {drill.hidden ? <>
             <Button onClick={() => {
               if (drill.count < part.units.length) setDrill({ count: drill.count + 1, hidden: false });
-              else if (stage === 0) { setDrill(null); setState('correct'); setFeedback('Parte inteira repetida de cabeça. Ela volta daqui a pouco fechada, para você completar as lacunas.'); }
+              else if (stage === 0) { setDrill(null); setState('correct'); setFeedback('Parte inteira repetida de cabeça. Ela volta daqui a pouco para você tentar sozinho, sem olhar.'); }
               else { setDrill(null); setFeedback('Parte inteira repetida de cabeça. Agora faça o exercício sem olhar.'); }
             }}>{drill.count < part.units.length ? 'Lembrei tudo: somar a próxima' : stage === 0 ? 'Lembrei tudo: parte decorada' : 'Lembrei tudo: ir para o exercício'}</Button>
             <Button variant="secondary" onClick={() => setDrill({ ...drill, hidden: false })}>Travei: ver de novo</Button>
@@ -262,10 +288,10 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         <div className="flex flex-col gap-2">
           {task.options.map((option) => <button key={option.id} type="button" disabled={locked} onClick={() => { setChoice(option.id); setFeedback(''); }} className={clsx('rounded-lg border p-3 text-left text-sm leading-relaxed transition-colors', choice === option.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:border-[var(--color-border-strong)]', locked && 'opacity-70')}>{option.label}</button>)}
         </div>
-      </Card> : task.kind === 'full' || stage === 2 ? <Card padding="md" className="space-y-3">
+      </Card> : task.kind === 'full' || stage === LAST_STAGE ? <Card padding="md" className="space-y-3">
         <h2 className="font-semibold text-[var(--color-text-primary)]">{task.kind === 'full' ? 'Escreva a resposta inteira' : 'Escreva esta parte sem pistas'}</h2>
         <textarea aria-label="Sua resposta" spellCheck={false} disabled={locked} value={freeText} onChange={(event) => setFreeText(event.target.value)} rows={task.kind === 'full' ? 12 : Math.max(5, part!.units.length + 2)} className={clsx('w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-3 text-sm leading-relaxed text-[var(--color-text-primary)]', part?.mode === 'code' && 'mono text-xs')} placeholder="Escreva de memória. Sem tempo? Diga em voz alta e toque em comparar." />
-      </Card> : stage === 1 ? <Card padding="md" className="space-y-4">
+      </Card> : stage === 2 ? <Card padding="md" className="space-y-4">
         <h2 className="font-semibold text-[var(--color-text-primary)]">Complete as lacunas</h2>
         <div className={clsx('flex flex-col gap-2 text-[var(--color-text-primary)]', part!.mode === 'code' ? 'mono text-xs leading-7' : 'text-sm leading-8')}>
           {cloze.units.map((tokens, unit) => <p key={unit} className="whitespace-pre-wrap">
@@ -275,7 +301,29 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         {!locked && <div className="flex flex-wrap gap-2 border-t border-[var(--color-border-soft)] pt-3">
           {wordBank.map((word, position) => <button key={position} type="button" disabled={Object.values(fills).includes(position) || activeBlank === -1} onClick={() => { setFills((before) => ({ ...before, [activeBlank]: position })); edit(); }} className={clsx('rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-2.5 py-1.5 hover:border-[var(--color-accent)] disabled:opacity-30', part!.mode === 'code' ? 'mono text-xs' : 'text-sm')}>{word}</button>)}
         </div>}
-      </Card> : null}
+      </Card> : stage === 1 ? <div className="grid gap-4 lg:grid-cols-2">
+        <Card padding="md" className="min-w-0">
+          <h2 className="mb-3 font-semibold text-[var(--color-text-primary)]">Sua montagem ({selected.length}/{part!.units.length})</h2>
+          <ol className="flex flex-col gap-2">
+            {selected.map((unit, position) => <li key={unit} className={clsx('flex min-w-0 items-center gap-2 rounded-lg border p-2', state === 'wrong' && part!.units[unit] !== part!.units[position] ? 'border-amber-500/70 bg-amber-500/10' : 'border-[var(--color-border)] bg-[var(--color-bg-elevated)]')}>
+              <span className="mono w-5 shrink-0 text-xs text-[var(--color-text-tertiary)]">{position + 1}</span>
+              <span className={clsx('min-w-0 flex-1 whitespace-pre-wrap break-words text-[var(--color-text-primary)]', part!.mode === 'code' ? 'mono text-xs leading-5' : 'text-sm leading-relaxed')}>{part!.units[unit]}</span>
+              {!locked && <span className="flex shrink-0 gap-1">
+                <button type="button" onClick={() => { if (position > 0) { setSelected((before) => { const copy = [...before]; [copy[position - 1], copy[position]] = [copy[position], copy[position - 1]]; return copy; }); edit(); } }} disabled={position === 0} aria-label={`Mover trecho ${position + 1} para cima`} className="control-btn h-8 w-8 disabled:opacity-30">↑</button>
+                <button type="button" onClick={() => { if (position < selected.length - 1) { setSelected((before) => { const copy = [...before]; [copy[position + 1], copy[position]] = [copy[position], copy[position + 1]]; return copy; }); edit(); } }} disabled={position === selected.length - 1} aria-label={`Mover trecho ${position + 1} para baixo`} className="control-btn h-8 w-8 disabled:opacity-30">↓</button>
+                <button type="button" onClick={() => { setSelected((before) => before.filter((_, i) => i !== position)); edit(); }} aria-label={`Remover trecho ${position + 1}`} className="control-btn h-8 w-8">×</button>
+              </span>}
+            </li>)}
+            {!locked && selected.length < part!.units.length && <li className="rounded-lg border border-dashed border-[var(--color-border)] p-3 text-center text-xs text-[var(--color-text-tertiary)]">Escolha o próximo trecho</li>}
+          </ol>
+        </Card>
+        <Card padding="md" className="min-w-0">
+          <h2 className="mb-3 font-semibold text-[var(--color-text-primary)]">Trechos embaralhados</h2>
+          <div className="flex flex-col gap-2">
+            {bank.filter((unit) => !selected.includes(unit)).map((unit) => <button key={unit} type="button" disabled={locked} onClick={() => { setSelected((before) => [...before, unit]); edit(); }} className={clsx('whitespace-pre-wrap break-words rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-2.5 text-left text-[var(--color-text-primary)] hover:border-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] disabled:opacity-50', part!.mode === 'code' ? 'mono text-xs leading-5' : 'text-sm leading-relaxed')}>{part!.units[unit]}</button>)}
+          </div>
+        </Card>
+      </div> : null}
 
       {!drill && <Card padding="md" className="space-y-3">
         {feedback && <p role="status" className={clsx('text-sm font-medium', state === 'correct' ? 'text-emerald-600' : 'text-[var(--color-text-primary)]')}>{feedback}</p>}
@@ -294,7 +342,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
             <Button onClick={() => { setState('correct'); setFeedback('Marcado como certo. O intervalo até a próxima revisão aumenta.'); }}>Acertei sem consultar</Button>
             <Button variant="secondary" onClick={() => { setState('revealed'); setHadError(true); setFeedback('Marcado para repetir: volta daqui a pouco.'); }}>Ainda não</Button>
           </> : !locked ? <>
-            <Button onClick={check}>{task.kind === 'full' || (task.kind === 'part' && stage === 2) ? 'Comparar com o gabarito' : 'Conferir'}</Button>
+            <Button onClick={check}>{task.kind === 'full' || (task.kind === 'part' && stage === LAST_STAGE) ? 'Comparar com o gabarito' : 'Conferir'}</Button>
             {task.kind !== 'choice' && <Button variant="secondary" onClick={showHint}>Dica</Button>}
             {part && <Button variant="secondary" onClick={() => { setDrill({ count: Math.min(2, part.units.length), hidden: false }); setHadError(true); setFeedback(''); setHint(''); }}>Decorar aos poucos</Button>}
             <Button variant="ghost" onClick={reveal}>Ver a resposta</Button>
