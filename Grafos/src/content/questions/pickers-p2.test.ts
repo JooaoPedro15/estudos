@@ -3,6 +3,7 @@ import { setActiveExam } from '@/store/activeExam';
 import { topicIdsForExam } from '@/content/modules';
 import { examFamiliesFor } from '@/content/examFamilies';
 import { exams, realExams } from '@/content/exams';
+import { provasSilvioP2 } from './12-p2-provas-silvio';
 import { isExamDrillQuestion, isOpenExamQuestion, pickNextExamDrill, pickQuickReview, questions } from './index';
 
 beforeAll(() => setActiveExam('P2'));
@@ -33,12 +34,16 @@ describe('P2', () => {
 
   it('simulados e prova real da P2: pesos somam 100 e as questões existem no banco', () => {
     const byId = new Map(questions.map((q) => [q.id, q]));
+    const originalWeights = new Map(provasSilvioP2.flatMap((prova) =>
+      prova.questions.map(({ question, weightPercent }) => [question.id, weightPercent] as const),
+    ));
     for (const exam of [...exams, ...realExams].filter((e) => e.prova === 'P2')) {
       const printed: Record<string, number> = { 'prova-silvio-20xx-p7': 105, 'prova-silvio-20xx-p8': 110 };
       expect(exam.questions.reduce((a, x) => a + x.weightPercent, 0), exam.id).toBe(printed[exam.id] ?? 100);
-      for (const { questionId } of exam.questions) {
+      for (const { questionId, weightPercent } of exam.questions) {
         expect(byId.get(questionId), questionId).toBeTruthy();
         expect(byId.get(questionId)!.examAnswer, questionId).toBeTruthy();
+        if (exam.kind !== 'real') expect(weightPercent, `${exam.id}: ${questionId}`).toBe(originalWeights.get(questionId));
       }
     }
   });
