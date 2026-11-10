@@ -103,7 +103,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       setMemory(currentMemory);
       saveMemory(currentMemory);
     }
-    // A parte sobe as quatro etapas dentro da própria questão; quem errou deve dois acertos escrevendo de memória.
+    // A parte sobe as quatro etapas em sequência, antes de passar para a próxima; quem errou deve dois acertos escrevendo de memória.
     const climbing = clean && task.kind === 'part' && stage < LAST_STAGE;
     const remaining = !clean ? 2 : climbing ? owed[task.id] ?? 1 : (owed[task.id] ?? 1) - 1;
     setOwed((before) => ({ ...before, [task.id]: remaining }));
@@ -112,7 +112,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       // A repetição fica dentro da mesma questão, antes da "resposta inteira".
       let limit = round.findIndex((item, position) => position > index && (item.question.id !== task.question.id || item.kind === 'full'));
       if (limit === -1) limit = round.length;
-      const position = Math.max(index + 1, Math.min(index + 1 + (clean ? GAP_AFTER_SUCCESS : GAP_AFTER_ERROR), limit));
+      const position = Math.max(index + 1, Math.min(index + 1 + (clean ? (climbing ? 0 : GAP_AFTER_SUCCESS) : GAP_AFTER_ERROR), limit));
       nextRound = [...round.slice(0, position), task, ...round.slice(position)];
     }
     show(nextRound, index + 1, currentMemory);
@@ -136,7 +136,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       const firstWrong = selected.findIndex((unit, position) => task.part.units[unit] !== task.part.units[position]);
       if (firstWrong === -1) {
         setState('correct');
-        setFeedback(hadError ? 'Agora está certo. Esta parte volta daqui a pouco para confirmar.' : 'Ordem correta de primeira! Ela volta daqui a pouco fechada, com lacunas.');
+        setFeedback(hadError ? 'Agora está certo. Esta parte volta daqui a pouco para confirmar.' : 'Ordem correta de primeira! Agora complete as lacunas desta mesma parte.');
       } else {
         setState('wrong'); setHadError(true);
         setFeedback(`Revise a partir do trecho ${firstWrong + 1}.`);
@@ -151,7 +151,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       setFeedback(`${wrong.length} lacuna(s) errada(s), marcadas em laranja. Toque nelas para trocar.`);
     } else {
       setState('correct');
-      setFeedback(hadError ? 'Agora está certo. Esta parte volta daqui a pouco para confirmar.' : 'Tudo certo de primeira! Ela volta daqui a pouco aberta, para você escrever de memória.');
+      setFeedback(hadError ? 'Agora está certo. Esta parte volta daqui a pouco para confirmar.' : 'Tudo certo de primeira! Agora escreva esta mesma parte de memória.');
     }
   }
 
@@ -277,7 +277,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
           {drill.hidden ? <>
             <Button onClick={() => {
               if (drill.count < part.units.length) setDrill({ count: drill.count + 1, hidden: false });
-              else if (stage === 0) { setDrill(null); setState('correct'); setFeedback('Parte inteira repetida de cabeça. Ela volta daqui a pouco para você tentar sozinho, sem olhar.'); }
+              else if (stage === 0) { setDrill(null); setState('correct'); setFeedback('Parte inteira repetida de cabeça. Siga para a próxima etapa desta mesma parte: ordenar.'); }
               else { setDrill(null); setFeedback('Parte inteira repetida de cabeça. Agora faça o exercício sem olhar.'); }
             }}>{drill.count < part.units.length ? 'Lembrei tudo: somar a próxima' : stage === 0 ? 'Lembrei tudo: parte decorada' : 'Lembrei tudo: ir para o exercício'}</Button>
             <Button variant="secondary" onClick={() => setDrill({ ...drill, hidden: false })}>Travei: ver de novo</Button>
@@ -346,7 +346,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
             {task.kind !== 'choice' && <Button variant="secondary" onClick={showHint}>Dica</Button>}
             {part && <Button variant="secondary" onClick={() => { setDrill({ count: Math.min(2, part.units.length), hidden: false }); setHadError(true); setFeedback(''); setHint(''); }}>Decorar aos poucos</Button>}
             <Button variant="ghost" onClick={reveal}>Ver a resposta</Button>
-          </> : <Button onClick={next}>Próximo</Button>}
+          </> : <Button onClick={next}>{state === 'correct' && !hadError && task.kind === 'part' && stage < LAST_STAGE ? 'Próxima etapa desta parte' : 'Próximo'}</Button>}
         </div>
       </Card>}
     </div>
