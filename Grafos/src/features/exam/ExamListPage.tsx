@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { exams as allExams, realExams as allRealExams } from '@/content/exams';
 import { useActiveExam } from '@/store/activeExam';
@@ -5,7 +6,7 @@ import type { ExamScope } from '@/content/types';
 import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
 import { codePuzzles } from '@/content/codePuzzles';
-import { dueIds, loadMemory } from '@/store/answerMemory';
+import { dueIds, loadMemory, resetMemory } from '@/store/answerMemory';
 
 function ExamCard({ exam }: { exam: Exam }) {
   return (
@@ -51,7 +52,7 @@ const REAL_EXAMS_TEXT: Record<ExamScope, { title: string; description: string }>
 /** Mostra os simulados sorteados da P2 em destaque e as provas reais da seleção ativa. */
 export function ExamListPage() {
   const active = useActiveExam();
-  const dueCount = dueIds(loadMemory()).length;
+  const [dueCount, setDueCount] = useState(() => dueIds(loadMemory()).length);
   const p2Exams = allExams.filter((e) => e.prova === 'P2');
   const p1Exams = allExams.filter((e) => e.prova !== 'P2');
   const realExams = allRealExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
@@ -96,7 +97,10 @@ export function ExamListPage() {
               </div>
               <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">As partes das respostas que você já treinou voltam aqui: as que você errou mais vêm primeiro, e cada acerto aumenta o intervalo até a próxima vez.</p>
             </div>
-            <Link to="/simulado/revisao" className="mt-auto"><Button fullWidth>Revisar agora</Button></Link>
+            <div className="mt-auto flex flex-col gap-2">
+              <Link to="/simulado/revisao"><Button fullWidth>Revisar agora</Button></Link>
+              <Button variant="ghost" fullWidth onClick={() => { if (window.confirm('Apagar todo o progresso da memorização? Todas as partes voltam para "Decorar aos poucos".')) { resetMemory(); setDueCount(0); } }}>Zerar progresso da memorização</Button>
+            </div>
           </Card>
         </div>
       </section>
