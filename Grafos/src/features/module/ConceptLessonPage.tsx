@@ -395,6 +395,15 @@ export function ConceptLessonPage() {
         </motion.div>
       )}
 
+      <motion.section variants={itemVariants} aria-labelledby="lesson-know">
+        <Card padding="lg" className="flex flex-col gap-3">
+          <h2 id="lesson-know" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
+            Comece por aqui · o essencial para a {module?.exam ?? 'P1'}
+          </h2>
+          <p className="text-base leading-relaxed text-[var(--color-text-primary)]">{topic.whatYouNeedToKnow}</p>
+        </Card>
+      </motion.section>
+
       {lessons[topic.id] ? (
         <motion.section variants={itemVariants} aria-label="Aprendizado por conceito">
           <GraphLesson key={topic.id} topic={topic} concepts={lessons[topic.id]} />
@@ -408,15 +417,6 @@ export function ConceptLessonPage() {
           </Card>
         </motion.section>
       )}
-
-      <motion.section variants={itemVariants} aria-labelledby="lesson-know">
-        <Card padding="lg" className="flex flex-col gap-3">
-          <h2 id="lesson-know" className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">
-            O que você precisa saber para a {module?.exam ?? 'P1'}
-          </h2>
-          <p className="text-base leading-relaxed text-[var(--color-text-primary)]">{topic.whatYouNeedToKnow}</p>
-        </Card>
-      </motion.section>
 
       {['matriz-adjacencia', 'matriz-incidencia', 'lista-adjacencia', 'isomorfismo', 'teoria-de-conjuntos', 'logica-proposicional', 'logica-de-predicados'].includes(topic.id) && (
         <motion.section variants={itemVariants} aria-label="Exploração livre">

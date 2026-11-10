@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, CircleHelp } from 'lucide-react';
 import { getModule } from '@/content/modules';
+import { moduleGuides } from '@/content/moduleGuides';
 import { topicsForModule } from '@/content/topics';
 import { Button, Card, ExamLikelihoodBadge } from '@/components/ui';
 import { ModuleArt } from './ModuleArt';
@@ -30,6 +31,7 @@ export function ModulePage() {
   }
 
   const topics = topicsForModule(module.id);
+  const guide = moduleGuides[module.id];
 
   return (
     <div className="flex flex-col gap-8">
@@ -50,6 +52,21 @@ export function ModulePage() {
         </div>
         <p className="max-w-2xl text-[var(--color-text-secondary)]">{module.description}</p>
       </motion.header>
+
+      {guide && (
+        <section aria-label="Comece por aqui" className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {([
+            ['Em poucas palavras', guide.idea],
+            ['Exemplo rápido', guide.example],
+            ['Confira se entendeu', guide.check],
+          ] as const).map(([title, text]) => (
+            <Card key={title} padding="lg" className="flex flex-col gap-2">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-strong)]">{title}</h2>
+              <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">{text}</p>
+            </Card>
+          ))}
+        </section>
+      )}
 
       <div className="flex flex-col gap-3">
         {topics.map((topic, i) => (

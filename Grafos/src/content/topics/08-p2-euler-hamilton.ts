@@ -18,7 +18,7 @@ export const eulerHamiltonTopics: Topic[] = [
     examEvidence:
       'Caiu em 2 provas antigas do Prof. Silvio (P1 2023/2-Q4, o detetive; P1 2026/1-Q2, 25%, "projete uma solução"), quando o assunto ainda vinha antes da P1. Neste semestre o cronograma põe em 17/09, na P2. A lista 2026/2 (Exercício 12, assassinato com portas) também cobra.',
     whatYouNeedToKnow:
-      'Eulerian tour (caminho euleriano): passa por toda ARESTA exatamente uma vez. Eulerian cycle (circuito euleriano): idem, começando e terminando no mesmo vértice. Teorema do slide: se G tem caminho euleriano, G tem no máximo dois vértices de grau ímpar. Para encontrar o caminho, o slide usa o Algoritmo de Fleury, que nunca atravessa uma ponte se houver outra opção.',
+      'Euler é sobre arestas: o caminho usa cada aresta uma vez; no circuito, volta ao ponto inicial. Num grafo conexo, todos os graus pares permitem um circuito; exatamente dois graus ímpares permitem um caminho aberto. Fleury constrói o percurso evitando uma ponte enquanto houver outra saída.',
     understand: [
       'Fleury (slide, quadro 33): (1) confira que G tem no máximo 2 vértices de grau ímpar; (2) comece num vértice v de grau ímpar, se houver; (3) enquanto E ≠ ∅: se há mais de uma aresta incidente em v, atravesse uma que NÃO seja ponte; senão, atravesse a única disponível; remova a aresta usada (E = E − {e}). Ponte (quadro 32) = aresta cuja remoção desconecta G: "temos que visitar todas as arestas de um lado da ponte antes de atravessá-la, porque não há volta".',
       'Paridade (Flash Cards do aulão): circuito euleriano ⟺ conexo e TODOS os graus pares; caminho euleriano aberto ⟺ conexo e EXATAMENTE 2 vértices de grau ímpar — o caminho começa num e termina no outro. O slide (quadro 31) enuncia a parte "no máximo dois ímpares".',
@@ -55,7 +55,7 @@ export const eulerHamiltonTopics: Topic[] = [
     examLikelihood: 'medium',
     examEvidence: 'Slide próprio (quadro 26) e dois exercícios de modelagem no slide (interruptores, DNA). Sem prova antiga que cobre hamiltoniano.',
     whatYouNeedToKnow:
-      'Hamiltonian tour: caminho em que cada VÉRTICE aparece exatamente uma vez. Para o hamiltoniano, o slide diz que decidir se existe é "not easy to decide" e encontrar é "not easy to compute" — o oposto do euleriano, que é "easy" nos dois casos.',
+      'Hamilton é sobre vértices: o caminho passa por cada vértice uma vez, podendo deixar arestas sem usar. É diferente de Euler, que usa todas as arestas. O teste de graus pares de Euler não decide se existe caminho hamiltoniano.',
     understand: [
       'Euler olha ARESTAS (cada uma exatamente uma vez); Hamilton olha VÉRTICES (cada um exatamente uma vez). Um caminho pode ser euleriano sem ser hamiltoniano e vice-versa.',
       'Questões algorítmicas (quadros 25–26): para o euleriano, "Does G contain an Euler tour? Easy to decide" e "Find an Euler tour: Easy to compute". Para o hamiltoniano, as mesmas perguntas são "Not easy to decide" e "Not easy to compute". O slide não dá um teorema de existência para hamiltoniano como dá para o euleriano.',
@@ -79,7 +79,7 @@ export const eulerHamiltonTopics: Topic[] = [
     examEvidence:
       'A P2 mais recente do Prof. Silvio (2026/1-Q1, 45%) é inteira sobre grafo de linha + euleriano/hamiltoniano. Segundo o aluno, foi a última matéria dada em 2026/2.',
     whatYouNeedToKnow:
-      'Seja G não direcionado e conexo. Os vértices de L(G) são as ARESTAS de G; dois vértices de L(G) são adjacentes se as arestas correspondentes são adjacentes em G (compartilham um vértice).',
+      'Para montar L(G), transforme cada aresta de G em um vértice. Ligue dois desses novos vértices quando as arestas originais se encontram numa ponta. Exemplo: se ab e bc existem em G, seus representantes são vizinhos em L(G), pois ambos tocam b.',
     understand: [
       'Definição (slide 13, quadro 34; lista, Exercício 20): cada aresta de G vira um vértice de L(G); liga-se dois deles quando as arestas compartilham uma ponta. No exemplo do slide, 6 arestas viram 6 vértices.',
       'Contagem (consequência da definição, não está escrita no slide): a aresta uv encosta em d(u) − 1 arestas por u e d(v) − 1 por v, logo seu grau em L(G) é d(u) + d(v) − 2. Cada vértice v gera C(d(v), 2) pares de arestas adjacentes, logo |E(L(G))| = Σ C(d(v), 2). L(K4) tem 6 vértices e 12 arestas (Exercício 20 da lista).',

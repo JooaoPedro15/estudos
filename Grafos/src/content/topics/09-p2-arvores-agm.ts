@@ -38,7 +38,7 @@ export const arvoresAgmTopics: Topic[] = [
     examLikelihood: 'medium',
     examEvidence: 'Aula de 23/09 (Árvores / Árvores geradoras / AGM). Teoremas de contagem costumam ser usados em justificativas.',
     whatYouNeedToKnow:
-      'Árvore: grafo não direcionado, conexo e sem ciclos. Floresta: grafo sem ciclos em que cada componente conexo é uma árvore. Toda árvore com n ≥ 1 vértices tem exatamente n − 1 arestas; uma floresta com n vértices e k árvores tem n − k arestas.',
+      'Árvore é um grafo ligado sem ciclos: há um único caminho entre cada par de vértices. Se há vários pedaços sem ciclos, temos uma floresta. Uma árvore de n vértices tem n − 1 arestas; uma floresta com n vértices em k pedaços tem n − k.',
     understand: [
       'Árvore = conexo + sem ciclos (quadro 3). Se falta conexidade, é floresta. Teorema (quadro 4): numa árvore existe exatamente um caminho entre qualquer par de vértices.',
       'Folha = vértice de grau 1 (às vezes os de grau 0 também contam); vértice interno = grau maior que 1. Teorema: toda árvore com pelo menos dois vértices tem pelo menos duas folhas.',
@@ -60,7 +60,7 @@ export const arvoresAgmTopics: Topic[] = [
     examLikelihood: 'medium',
     examEvidence: 'Aula de 23/09. Base da AGM.',
     whatYouNeedToKnow:
-      'Árvore geradora de um grafo não direcionado: subgrafo que é árvore e contém TODOS os vértices. G tem árvore geradora se e somente se é conexo. Ramo = aresta da árvore geradora; corda = aresta de G que não é ramo. Posto r = n − k (número de ramos).',
+      'Uma árvore geradora liga TODOS os vértices de G sem ciclo; por isso só existe se G for conexo. As arestas escolhidas são ramos; as que ficam de fora são cordas. Se G tem n vértices e k componentes, uma floresta geradora tem n − k ramos.',
     understand: [
       'Definição e teorema (quadros 6–7): G tem árvore geradora ⟺ G é conexo. Ida: os caminhos da árvore geradora também estão em G. Volta: construímos a árvore.',
       'Construção do slide (quadro 7): enquanto houver ciclo, escolha um e remova qualquer aresta dele; repita até não sobrar ciclo. O resultado continua conexo (lema) e não tem ciclo, logo é árvore e alcança todos os vértices. No exemplo: remove a–g do ciclo a–c–g–a e a–e do ciclo a–f–e–a.',
@@ -84,7 +84,7 @@ export const arvoresAgmTopics: Topic[] = [
     examLikelihood: 'medium',
     examEvidence: 'Aula de 21/09 ("Corte / Caminhos mínimos"). É a base da justificativa de por que Prim e Kruskal estão certos.',
     whatYouNeedToKnow:
-      'Corte: conjunto de arestas cuja remoção desconecta o grafo. Para S ⊂ V (não vazio, diferente de V), cut(S) = arestas (v, w) com v ∈ S e w ∈ V − S. Propriedade do corte: com custos distintos, a aresta mais barata de cut(S) está em toda AGM. Propriedade do ciclo: a aresta mais cara de um ciclo não está em nenhuma AGM.',
+      'Separe os vértices em dois lados S e V − S. As arestas que cruzam entre os lados formam cut(S). Com pesos distintos, a mais barata desse corte entra na AGM; a mais cara de um ciclo fica fora. É a ideia por trás de Prim e Kruskal.',
     understand: [
       'Corte (09, quadro 16; 11, quadro 18): conjunto de arestas cuja remoção desconecta o grafo em dois ou mais componentes. Todo S ⊂ V tem um corte associado, cut(S); apagar cut(S) separa S de V − S.',
       'Conectividade (09, quadros 17–18): conectividade de arestas λ(G) = menor nº de arestas cuja remoção desconecta; conectividade de vértices κ(G) = menor nº de vértices. Grafo K-conexo: κ = K. Grafo separável: κ = 1, e o vértice que desconecta é o ponto de articulação. Vale κ(G) ≤ λ(G) ≤ δ(G), onde δ é o menor grau.',
@@ -109,7 +109,7 @@ export const arvoresAgmTopics: Topic[] = [
     examEvidence:
       'Nas provas de P2 do Prof. Silvio: Kruskal, Prim e Dijkstra numa matriz (2021/2-Q3 e 20xx p.7-Q2), unicidade da AGM (2026/1-Q2, 2024/1) e Prim com aresta obrigatória nas 3 provas mais recentes com data (2024/2-Q3, 2025/1-Q4, 2026/1-Q3). A do Prof. Zenilton (2024/1-Q1) pediu modelar rodovias.',
     whatYouNeedToKnow:
-      'AGM: dado G não direcionado com custo c_e > 0 em cada aresta, achar T ⊆ E tal que (V, T) seja conexo e a soma dos custos seja a menor possível — a solução é uma árvore. Três algoritmos gulosos funcionam: Kruskal (arestas em ordem crescente, descarta a que cria ciclo), Prim (cresce a partir de um vértice pela aresta mais barata do corte) e Reverse-Delete (ordem decrescente, apaga a aresta se o grafo continuar conexo).',
+      'A AGM liga todos os vértices sem ciclo e com a menor SOMA de pesos. Prim começa em um vértice e acrescenta a aresta mais barata que sai da árvore atual. Kruskal olha todas as arestas da mais barata à mais cara e pula as que criariam ciclo. Reverse-Delete começa com todas e apaga as caras quando isso não desconecta o grafo.',
     understand: [
       'Problema (quadro 13): INSTANCE grafo não direcionado e c: E → R+; SOLUTION T ⊆ E com (V, T) conexo e Σ c_e mínima. Afirmação: a solução de custo mínimo é uma árvore.',
       'Prim (quadros 14 e 23), "Dijkstra-like": comece num vértice s, S = {s}, U = ∅. A cada passo, adicione a S o vértice v e a U a aresta e de menor custo entre as que ligam S a V − S (min c_e, e ∈ cut(S)). Pare quando S = V.',

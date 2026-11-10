@@ -137,8 +137,8 @@ export function ConceptDrillSession() {
         </Link>
       </div>
       <p className="-mt-2 text-xs text-[var(--color-text-tertiary)]">
-        Só definições do professor, uma atrás da outra. Abertas: escreve de memória e compara com a definição literal. Fechadas: múltipla
-        escolha e V/F sobre a mesma definição. Prioriza o que você errou ou ainda não viu.
+        Só definições do professor, uma atrás da outra. Abertas: escreva de memória e compare com a definição literal.
+        Fechadas: escolha a descrição correta entre alternativas; a definição literal aparece na correção. Prioriza o que você errou ou ainda não viu.
       </p>
 
       <ChipGroup label="Escopo" tone="danger" value={scope} onChange={(id) => changeScope(id as DefinitionScope)} options={SCOPE_OPTIONS} />

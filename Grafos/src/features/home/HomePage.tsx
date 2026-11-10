@@ -29,7 +29,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { icon: Flame, tone: 'danger', title: 'Treino de prova', description: { all: 'Provas e questões da P1 e da P2 para estudar todo o conteúdo.', P1: 'Só o que caiu nas 8 provas antigas (e variantes com números trocados). O que caiu mais, aparece mais.', P2: 'Questões no formato de prova: AGM, caminhos mínimos e euleriano, com resposta-modelo.' }, href: '/estudar/prova' },
   { icon: Target, tone: 'danger', title: 'Meus pontos fracos', description: 'Questões priorizadas onde seu desempenho é mais baixo.', href: '/estudar/pontos-fracos' },
   { icon: Dumbbell, tone: 'success', title: 'Prática livre', description: 'Questão atrás de questão, matéria toda, sem simulado nem tempo fixo — até você cansar.', href: '/estudar/pratica-livre' },
-  { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: 'Definições literais dos slides: abertas (escreve de memória e compara) e fechadas (múltipla escolha e V/F). Por módulo ou matéria inteira.', href: '/estudar/conceitos' },
+  { icon: Brain, tone: 'cyan', title: 'Decorar conceitos', description: 'Escreva definições de memória ou reconheça a correta entre alternativas. Por módulo ou matéria inteira.', href: '/estudar/conceitos' },
 ];
 
 const EXAM_LIKELIHOOD_RANK: Record<ExamLikelihood, number> = { low: 0, medium: 1, high: 2 };

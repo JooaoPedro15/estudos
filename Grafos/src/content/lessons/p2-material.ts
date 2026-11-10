@@ -180,9 +180,9 @@ const critico: GraphConcept[] = [
     step(AULAO_CRITICO, `Período 1: ${levels[0].join(', ')}. Período 2: ${levels[1].join(', ')}. Período 3: ${levels[2].join(', ')}.`, { groups: levels.map((l, i) => ({ label: `Período ${i + 1}`, vertexIds: l, color: [GREEN, AMBER, RED][i] })) }),
     step(AULAO_CRITICO, `Mínimo de ${levels.length} períodos, porque existe uma cadeia de ${levels.length} disciplinas dependentes: B → D → F.`, { sequence: ['B', 'D', 'F'], highlightEdgeIds: edgeIdsOf(AULAO_CRITICO, [['B', 'D'], ['D', 'F']]), edgeColorMap: colorAll(edgeIdsOf(AULAO_CRITICO, [['B', 'D'], ['D', 'F']]), RED) }),
   ], 'Modelando pré-requisitos'),
-  concept('cc-maior', 'Maior caminho com o sinal trocado', 'Para maior caminho em número de arestas, o resumo dá peso 1 a tudo, troca para −1 e aplica o Dijkstra em ordem, começando na base com maior fecho transitivo. No fim, inverte o sinal. A ordem é o que faz isso funcionar aqui, já que o Dijkstra comum não aceita negativos.', [2], [
-    step(AULAO_CRITICO, 'W = 1 em toda aresta; W′ = −W. A cadeia B → D → F tem comprimento −2.', { sequence: ['B', 'D', 'F'], highlightEdgeIds: edgeIdsOf(AULAO_CRITICO, [['B', 'D'], ['D', 'F']]), formula: 'W′ = −W' }),
-    step(AULAO_CRITICO, 'Invertendo o sinal da resposta: maior caminho com 2 arestas.', { sequence: ['B', 'D', 'F'], edgeColorMap: colorAll(edgeIdsOf(AULAO_CRITICO, [['B', 'D'], ['D', 'F']]), GREEN), formula: 'resposta = 2' }),
+  concept('cc-maior', 'Maior cadeia de dependências', 'Para achar o maior caminho, processe as tarefas em ordem topológica: uma tarefa só é examinada depois de todos os seus pré-requisitos. Se u → v, o caminho até v pode ganhar mais uma aresta: L[v] = max(L[v], L[u] + 1). O maior L é o comprimento procurado.', [2], [
+    step(AULAO_CRITICO, 'A e B começam sem pré-requisito: L[A] = L[B] = 0. Pela aresta B → D, atualize L[D] = 1.', { sequence: ['B', 'D'], highlightEdgeIds: edgeIdsOf(AULAO_CRITICO, [['B', 'D']]), formula: 'L[D] = max(0, L[B] + 1) = 1' }),
+    step(AULAO_CRITICO, 'Depois de processar D, a aresta D → F dá L[F] = 2. A cadeia B → D → F tem 2 arestas e 3 tarefas.', { sequence: ['B', 'D', 'F'], edgeColorMap: colorAll(edgeIdsOf(AULAO_CRITICO, [['B', 'D'], ['D', 'F']]), GREEN), formula: 'L[F] = max(1, L[D] + 1) = 2' }),
   ], 'Resumo, p. 13'),
 ];
 

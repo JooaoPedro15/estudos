@@ -5,13 +5,12 @@ import { topics } from '@/content/topics';
 
 /**
  * Questões FECHADAS geradas a partir do banco de definições, para treinar
- * reconhecimento além da recordação livre. Duas por conceito, ids estáveis
+ * reconhecimento além da recordação livre. Uma por conceito, id estável
  * (o progresso é rastreado por id):
  *
- *   defmc-<x>  — "qual é a definição de X?" (4 definições, 1 correta)
- *   defwho-<x> — "esta definição é de qual conceito?" (4 nomes)
- *
- * (Verdadeiro/falso foi retirado: 50% no chute, não treina reconhecer.)
+ *   defmc-<x>  — "qual descrição corresponde a X?" (4 descrições, 1 correta)
+ * A pergunta invertida (defwho) foi retirada: muitas definições literais
+ * começam com o nome do conceito, entregando a resposta no enunciado.
  *
  * Distratores vêm de conceitos do MESMO tópico (vizinhos que confundem:
  * walk/trail/path, injetora/sobrejetora…), depois do mesmo módulo, depois de
@@ -42,42 +41,34 @@ export function generateClosedQuestions(defs: DefinitionQuestion[]): Question[] 
 
     // 1) Reconhecer a definição entre quatro.
     const mcOptions = stableShuffle(
-      [{ id: 'correct', label: d.solution }, ...distractors.map((x, i) => ({ id: `d${i}`, label: x.solution }))],
+      [{ id: 'correct', label: descriptionWithoutName(d) }, ...distractors.map((x, i) => ({ id: `d${i}`, label: descriptionWithoutName(x) }))],
       `${d.id}:mc`,
     );
     out.push({
       ...base,
       id: `defmc-${key}`,
       type: 'MULTIPLE_CHOICE',
-      prompt: `Qual das alternativas é a definição de ${d.concept}, conforme o professor?`,
+      prompt: `Qual descrição corresponde a ${d.concept}?`,
       options: mcOptions,
       correctOptionId: 'correct',
       hints: [`A definição certa menciona: ${d.keyPoints[0]}.`, ...(d.keyPoints[1] ? [`E também: ${d.keyPoints[1]}.`] : [])],
-      solution: `Definição do professor: ${d.solution} As outras alternativas definem ${distractors.map((x) => x.concept).join(', ')}.`,
+      solution: `Definição do professor: ${d.solution} As outras alternativas descrevem ${distractors.map((x) => x.concept).join(', ')}.`,
     });
-
-    // 2) Da definição para o nome do conceito.
-    const whoOptions = stableShuffle(
-      [{ id: 'correct', label: d.concept }, ...distractors.map((x, i) => ({ id: `d${i}`, label: x.concept }))],
-      `${d.id}:who`,
-    );
-    out.push({
-      ...base,
-      id: `defwho-${key}`,
-      type: 'MULTIPLE_CHOICE',
-      prompt: `A definição "${d.solution}" — dada nos slides — corresponde a qual conceito?`,
-      options: whoOptions,
-      correctOptionId: 'correct',
-      hints: [`Repare em: ${d.keyPoints[0]}.`],
-      solution: `É a definição de ${d.concept}: ${d.solution}`,
-    });
-
   }
 
   return out;
 }
 
 export const closedDefinitionQuestions: Question[] = generateClosedQuestions(definitionQuestions);
+
+/** Esconde o nome do próprio conceito nas alternativas; a citação literal fica na correção. */
+export function descriptionWithoutName(definition: DefinitionQuestion): string {
+  const withoutHeading = definition.solution.replace(/^[^:]{1,70}:\s*/, '');
+  const name = definition.concept.replace(/\s*\([^)]*\)/g, '').trim();
+  if (!name) return withoutHeading;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return withoutHeading.replace(new RegExp(escaped, 'gi'), 'esse conceito');
+}
 
 /** Questão da "família definição": a aberta (DEFINITION) ou uma fechada gerada dela. */
 export function isDefinitionFamily(q: Question): boolean {

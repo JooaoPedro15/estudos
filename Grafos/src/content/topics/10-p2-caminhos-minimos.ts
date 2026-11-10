@@ -19,7 +19,7 @@ export const caminhosMinimosTopics: Topic[] = [
     examLikelihood: 'medium',
     examEvidence: 'Base de todas as questões de caminho mínimo. A P2 2024/1 (Q2) pede "os caminhos mínimos (tamanho e suas arestas) a partir do vértice 1 para todos os demais".',
     whatYouNeedToKnow:
-      'Dado um grafo direcionado com comprimento ℓ_e em cada aresta, o comprimento de um caminho é a soma dos comprimentos das suas arestas. O objetivo é achar o caminho mais curto de uma origem s até cada vértice. Grafo não direcionado: troque cada aresta por duas arestas direcionadas. Lx(y) = comprimento do menor caminho de x a y, ou ∞ se não existe caminho.',
+      'O custo de um caminho é a SOMA dos pesos de suas arestas. Queremos o menor custo da origem até cada destino. Exemplo: 2 + 5 custa 7, mesmo usando só duas arestas. Se não há caminho até um vértice, sua distância é ∞; guarde também as arestas do percurso quando a questão pedir o caminho.',
     understand: [
       'Problema (10, quadro 6): G = (V, E) direcionado e conexo, cada aresta com comprimento ℓ_e ≥ 0; n vértices, m arestas. Comprimento de um caminho = soma dos comprimentos das arestas. Não direcionado → cada aresta vira duas direcionadas. O comprimento pode significar custo, distância, combustível, pedágio (08, quadros 16–18).',
       'Mapa Lx (quadros 7–8): Lx(y) = comprimento do menor caminho de x a y, se existir; ∞ caso contrário. No exemplo do slide, Lx0 = (0, 3, ∞, 7, 5, 6, 8) para x0…x6 — x2 não é alcançável a partir de x0.',
@@ -43,7 +43,7 @@ export const caminhosMinimosTopics: Topic[] = [
     examLikelihood: 'high',
     examEvidence: 'Três aulas no cronograma (30/09, 01/10, 05/10). O slide propõe exercícios "execute by hand" (quadros 11 e 26).',
     whatYouNeedToKnow:
-      'Para comprimentos não negativos. Mantém o conjunto S dos vértices explorados, cuja distância d(u) já é definitiva. Começa com d[s] = 0 e S = {s}. A cada passo, escolhe o v fora de S que minimiza d′(v) = min{d[u] + W(u, v) : u ∈ S}, coloca v em S e fixa d[v] = d′(v). Para ter o caminho, guarde o predecessor u que deu o mínimo.',
+      'Use Dijkstra quando os pesos das arestas são não negativos. Comece com distância 0 na origem e ∞ nos demais. A cada passo, fixe o vértice ainda não explorado de menor distância e tente melhorar seus vizinhos somando o peso da aresta. Guarde o predecessor de cada melhoria para reconstruir o caminho.',
     understand: [
       'Atualização (quadro 11): depois de extrair y* (o de menor Lx fora de S), para cada vizinho y de y* fora de S faça Lx[y] := min{Lx[y], Lx[y*] + ℓ(y*, y)}. É a mesma conta de d′(v) = min{d[u] + W(e) : e = (u, v), u ∈ S} do quadro 15.',
       'Pesos negativos (quadro 18): "Algorithm cannot handle negative edge lengths". O quadro 22 mostra o Dijkstra falhando com uma aresta −6, e somar uma constante a todos os pesos também falha. Para isso existe o Bellman-Ford.',
@@ -70,7 +70,7 @@ export const caminhosMinimosTopics: Topic[] = [
     examLikelihood: 'medium',
     examEvidence: 'O aluno ouviu do professor que cai. Nenhuma das 9 provas de P2 do Prof. Silvio cobra; só a do Prof. Zenilton (2024/1, Q2) deu uma matriz com pesos negativos.',
     whatYouNeedToKnow:
-      'Resolve o caminho mínimo de origem única quando há pesos negativos, desde que não haja ciclo de custo negativo. Tabela d[i, v] = comprimento do menor caminho de s a v usando no máximo i arestas. d[0, s] = 0, demais ∞. Para i = 1 até n − 1: d[i, v] = d[i − 1, v] e, para cada aresta (w, v), d[i, v] = min{d[i, v], d[i − 1, w] + c_wv}. Custo O(mn).',
+      'Bellman-Ford aceita arestas de peso negativo. Cada linha da tabela permite usar uma aresta a mais: linha 0 só tem a origem, linha 1 alcança os vizinhos, e assim até n − 1. Para calcular uma linha, copie a anterior e teste cada aresta usando apenas valores da linha anterior. Se houver ciclo negativo alcançável, não existe menor custo finito para os destinos afetados.',
     understand: [
       'Por que outro algoritmo (quadros 21–22): agora os pesos podem ser negativos. O Dijkstra pode falhar com aresta negativa, e somar uma constante a todos os pesos para eliminá-los também falha (muda qual caminho é o menor).',
       'Ciclo negativo (quadro 23): se algum caminho de s a t passa por um ciclo de custo negativo, não existe menor caminho s–t; caso contrário, existe um que é simples. Bellman-Ford serve para pesos negativos "but no negative cycles".',

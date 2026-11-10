@@ -18,7 +18,7 @@ export const materialTopics: Topic[] = [
     examLikelihood: 'high',
     examEvidence: 'Caiu como "discorra sobre conectividade em grafos direcionados, apresente todos os tipos e como identificá-los" em 2021/2-Q2 e nas provas sem data das p. 6 e 7. É o primeiro item da lista de matéria do resumo.',
     whatYouNeedToKnow:
-      'Três tipos. Fracamente conexo: existe caminho entre quaisquer dois vértices ignorando a direção das arestas. Semi-fortemente conexo: para qualquer par (u, v), existe caminho de u para v OU de v para u. Fortemente conexo: existe caminho nos dois sentidos para qualquer par.',
+      'Em grafos com setas, pergunte para cada par se dá para ir e voltar. Fracamente conexo: tudo se liga se você ignorar as setas. Semi-fortemente conexo: para cada par, há caminho em pelo menos um sentido. Fortemente conexo: há caminho nos dois sentidos para cada par.',
     understand: [
       'Os três tipos, do mais fraco ao mais forte: todo fortemente conexo é semi-fortemente conexo, e todo semi-fortemente conexo é fracamente conexo.',
       'Identificar fracamente conexo (resumo, p. 3): crie o grafo subjacente S, com as arestas de G tratadas como não direcionadas; faça uma busca em profundidade a partir de um vértice qualquer; se todos forem visitados, G é fracamente conexo.',
@@ -46,7 +46,7 @@ export const materialTopics: Topic[] = [
     examLikelihood: 'high',
     examEvidence: 'Capacidade máxima caiu nas provas sem data das p. 6 e 7 (Q4, 30%). No resumo, aparece como "Algoritmos de Fluxo" com pseudocódigo próprio e o "Algoritmo Widest Path".',
     whatYouNeedToKnow:
-      'Max-Min é o maior dos menores: o caminho que maximiza a aresta de menor peso (a capacidade). Min-Max é o menor dos maiores: o caminho que minimiza a aresta de maior peso. Os dois são adaptações do Dijkstra: muda a conta da atualização e qual vértice sai da fila.',
+      'A capacidade de um caminho é o peso da sua aresta mais fraca. Exemplo: arestas 6, 9 e 3 dão capacidade 3. Max-Min escolhe, entre os caminhos, o de maior capacidade. Min-Max faz outra pergunta: em cada caminho olhe a MAIOR aresta e escolha o caminho cujo maior valor é o menor.',
     understand: [
       'Caso do cano (aulão, p. 5): um cano de vazão 3 ligado a um de vazão 10 só deixa passar 3. A capacidade de um caminho é sua MENOR aresta. Max-Min quer o caminho em que esse gargalo é o maior possível.',
       'Max-Min / Widest Path (resumo, p. 8 e 10): valores = +∞ na origem e −∞ nos demais. Enquanto houver vértice na fila, extraia o de MAIOR valor; para cada vizinho v: menor_custo = min(valores[u], W(u, v)); se menor_custo > valores[v], atualize. Em uma linha: W[u] = max(min(W[w], l(w, u)), W[u]).',
@@ -83,11 +83,11 @@ export const materialTopics: Topic[] = [
     examLikelihood: 'high',
     examEvidence: 'Caminho crítico caiu na prova sem data da p. 6 (Q3, 30%); serialização em 2024/2-Q2 e na prova da p. 8. O resumo escreve "+ caminho crítico" à mão na lista de matéria. Confirme com o professor se já foi dado neste semestre.',
     whatYouNeedToKnow:
-      'Caminho crítico: alcançar o vértice mais distante no menor tempo possível. Método: identifique a base (vértices com grau de entrada 0), remova a base e repita até o grafo ficar vazio. Isso garante a ordem topológica; cada rodada é um conjunto de tarefas que podem ser feitas em paralelo.',
+      'O caminho crítico é a cadeia de tarefas dependentes que demora mais para terminar. Se cada tarefa dura um período, faça juntas as que já têm todos os pré-requisitos concluídos; depois repita com as restantes. O número de rodadas é o prazo mínimo. Se sobrar um ciclo de dependências, não há planejamento válido.',
     understand: [
       'Por largura (aulão, p. 4): a cada rodada, retire todos os vértices com grau de entrada 0. No exemplo: {A, B}, depois {C, D, E}, depois {F, G}. Enquanto houver conjuntos de bases diferentes, adicione-os ao caminho. Há várias formas de escrever a ordem, como B A D C E G F.',
       'O número de rodadas é o tempo mínimo quando tudo que não depende entre si pode correr em paralelo. É o "número mínimo de períodos para se formar" da prova: disciplinas sem pré-requisito entre si são feitas juntas.',
-      'Maior caminho em número de arestas (resumo, p. 13): com W = 1, faça W′ = −W, aplique o Dijkstra seguindo uma ordem (ache a base e comece no vértice com maior fecho transitivo) e inverta o sinal da resposta.',
+      'Maior caminho em número de arestas: como as dependências formam um grafo sem ciclos, processe os vértices em ordem topológica. Comece com L[v] = 0 e, para cada aresta u → v, faça L[v] = max(L[v], L[u] + 1). O maior L é o número de arestas do maior caminho. O resumo propõe trocar 1 por −1 e usar “Dijkstra em ordem”; isso exige a ordem topológica — Dijkstra comum não funciona com pesos negativos.',
     ],
     commonPitfall: 'Remover um vértice só por rodada e perder os níveis: a contagem de rodadas depende de tirar TODA a base de uma vez.',
     sources: [AULAO(4, 'Caminho Crítico'), RESUMO(14, 'Caminho Crítico'), RESUMO(13, 'Maior caminho')],
