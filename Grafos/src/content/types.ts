@@ -295,6 +295,8 @@ export interface Exam {
   kind?: 'real' | 'montado';
   /** Prova a que o simulado pertence; ausente = P1. */
   prova?: ExamId;
+  /** Simulado gerado ao abrir; provas reais continuam com questões fixas. */
+  randomized?: 'equilibrado' | 'foco-recorrente';
 }
 
 // ---------------------------------------------------------------------------

@@ -48,7 +48,7 @@ export const P2_PRIORITIES: StudyPriority[] = [
     why: 'Treina escrever e justificar no tempo: em 2026/1, responder só V ou F anula a questão.',
     topics: [],
     practice: [
-      { label: 'Simulado: o que mais se repete', href: '/simulado/simulado-p2-b' },
+      { label: 'Simulado: foco recorrente', href: '/simulado/simulado-p2-recorrente' },
       { label: 'Prova 2024/2', href: '/simulado/prova-silvio-2024-2' },
       { label: 'Meus pontos fracos', href: '/estudar/pontos-fracos' },
     ],

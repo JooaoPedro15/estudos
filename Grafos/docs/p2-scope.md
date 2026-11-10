@@ -112,5 +112,5 @@ Motor (`src/lib/graph.ts`): `prim`, `kruskal`, `bellmanFord` (tabela `d[i, v]` d
 `floydWarshall` (matrizes `D(k)`), `fleury`, `bridges`, `cutSet`, `rankAndNullity`.
 Grafos dos slides em `src/content/questions/graphs-p2.ts`. Questões em
 `src/content/questions/10-p2.ts` (inclui a P2 2024/1 transcrita, Q1 e Q2), definições em
-`src/content/definitions/p2.ts`, simulados `simulado-p2-a` e `simulado-p2-b` em
+`src/content/definitions/p2.ts`, simulados sorteados `simulado-p2-equilibrado` e `simulado-p2-recorrente` em
 `src/content/exams.ts`.

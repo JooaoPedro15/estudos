@@ -12,13 +12,14 @@ function ExamCard({ exam }: { exam: Exam }) {
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{exam.title}</h2>
           {exam.kind === 'real' && <Badge tone="danger">literal</Badge>}
+          {exam.randomized && <Badge tone="success">sorteado</Badge>}
         </div>
         <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">{exam.basedOn}</p>
       </div>
       <dl className="mono flex flex-col gap-1.5 text-xs text-[var(--color-text-tertiary)]">
         <div className="flex justify-between border-b border-[var(--color-border-soft)] pb-1.5">
           <dt>Questões</dt>
-          <dd className="text-[var(--color-text-secondary)]">{exam.questions.length}</dd>
+          <dd className="text-[var(--color-text-secondary)]">{exam.randomized ? '3 a 5' : exam.questions.length}</dd>
         </div>
         <div className="flex justify-between">
           <dt>Duração sugerida</dt>
@@ -26,7 +27,7 @@ function ExamCard({ exam }: { exam: Exam }) {
         </div>
       </dl>
       <Link to={`/simulado/${exam.id}`} className="mt-auto">
-        <Button fullWidth>{exam.kind === 'real' ? 'Fazer esta prova' : 'Iniciar simulado'}</Button>
+        <Button fullWidth>{exam.kind === 'real' ? 'Fazer esta prova' : exam.randomized ? 'Sortear simulado' : 'Iniciar simulado'}</Button>
       </Link>
     </Card>
   );
@@ -45,10 +46,11 @@ const REAL_EXAMS_TEXT: Record<ExamScope, { title: string; description: string }>
   },
 };
 
-/** Lista as provas reais (literais) e os simulados montados da prova ativa — cada um leva ao simulador em `/simulado/:examId`. */
+/** Mostra os simulados sorteados da P2 em destaque e as provas reais da seleção ativa. */
 export function ExamListPage() {
   const active = useActiveExam();
-  const exams = allExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
+  const p2Exams = allExams.filter((e) => e.prova === 'P2');
+  const p1Exams = allExams.filter((e) => e.prova !== 'P2');
   const realExams = allRealExams.filter((e) => active === 'all' || (e.prova ?? 'P1') === active);
   return (
     <div className="flex flex-col gap-10">
@@ -60,6 +62,29 @@ export function ExamListPage() {
         </p>
       </header>
 
+      <section className="flex flex-col gap-4" aria-labelledby="simulados">
+        <div className="flex flex-col gap-1">
+          <h2 id="simulados" className="text-lg font-semibold text-[var(--color-text-primary)]">
+            Simulados da P2
+          </h2>
+          <p className="text-sm text-[var(--color-text-secondary)]">Escolha um tipo para sortear uma nova combinação de questões. Cada questão mantém o peso da prova original; os temas recorrentes aparecem junto com os demais.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {p2Exams.map((exam) => (
+            <ExamCard key={exam.id} exam={exam} />
+          ))}
+        </div>
+      </section>
+
+      {active !== 'P2' && (
+        <section className="flex flex-col gap-4" aria-labelledby="simulados-p1">
+          <h2 id="simulados-p1" className="text-lg font-semibold text-[var(--color-text-primary)]">Simulados da P1</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {p1Exams.map((exam) => <ExamCard key={exam.id} exam={exam} />)}
+          </div>
+        </section>
+      )}
+
       <section className="flex flex-col gap-4" aria-labelledby="provas-reais">
         <div className="flex flex-col gap-1">
           <h2 id="provas-reais" className="text-lg font-semibold text-[var(--color-text-primary)]">
@@ -69,20 +94,6 @@ export function ExamListPage() {
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {realExams.map((exam) => (
-            <ExamCard key={exam.id} exam={exam} />
-          ))}
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-4" aria-labelledby="simulados">
-        <div className="flex flex-col gap-1">
-          <h2 id="simulados" className="text-lg font-semibold text-[var(--color-text-primary)]">
-            Simulados montados
-          </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">Provas compostas com questões do banco no estilo do professor, peso somando 100%.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {exams.map((exam) => (
             <ExamCard key={exam.id} exam={exam} />
           ))}
         </div>

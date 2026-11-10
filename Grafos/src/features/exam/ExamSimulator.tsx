@@ -66,7 +66,8 @@ function formatElapsed(totalSeconds: number): string {
 /** Simulador de prova completa: ao contrário do `ExerciseRenderer`, NUNCA revela correção antes da entrega — corrige tudo de uma vez no final, como uma prova real. */
 export function ExamSimulator() {
   const { examId } = useParams<{ examId: string }>();
-  const exam = examId ? getExam(examId) : undefined;
+  // Congela o sorteio durante esta tentativa; um novo acesso gera outra prova.
+  const exam = useMemo(() => examId ? getExam(examId) : undefined, [examId]);
 
   const items = useMemo<ExamItem[]>(() => {
     if (!exam) return [];
