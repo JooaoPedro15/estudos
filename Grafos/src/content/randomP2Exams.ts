@@ -1,5 +1,6 @@
 import type { ExamQuestionRef } from './types';
 import { provasSilvioP2 } from './questions/12-p2-provas-silvio';
+import { buildClosedExamTasks } from './closedExamTasks';
 
 type Bucket = 'recorrente' | 'geral';
 export type P2SimulationMode = 'equilibrado' | 'foco-recorrente';
@@ -32,11 +33,15 @@ export const P2_SIMULATION_POOL: readonly { id: string; group: string; bucket: B
 const originalWeights = new Map(provasSilvioP2.flatMap((prova) =>
   prova.questions.map(({ question, weightPercent }) => [question.id, weightPercent] as const),
 ));
+const originalQuestions = new Map(provasSilvioP2.flatMap((prova) =>
+  prova.questions.map(({ question }) => [question.id, question] as const),
+));
 
 const candidates = P2_SIMULATION_POOL.map((entry) => {
   const weight = originalWeights.get(entry.id);
   if (weight === undefined) throw new Error(`Peso original não encontrado: ${entry.id}`);
-  return { ...entry, weight };
+  const question = originalQuestions.get(entry.id)!;
+  return { ...entry, weight, hasCode: buildClosedExamTasks([{ question, weightPercent: weight }]).length > 0 };
 });
 
 type Candidate = (typeof candidates)[number];
@@ -47,7 +52,7 @@ function combinations(mode: P2SimulationMode): Candidate[][] {
     if (total === 100) {
       const recurring = chosen.filter((q) => q.bucket === 'recorrente').length;
       const general = chosen.length - recurring;
-      if (chosen.length >= 3 && recurring >= 1 && general >= 1 &&
+      if (chosen.length >= 3 && recurring >= 1 && general >= 1 && chosen.some((q) => q.hasCode) &&
           (mode === 'equilibrado' ? general >= 2 : recurring >= 2)) result.push([...chosen]);
       return;
     }

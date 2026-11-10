@@ -58,7 +58,7 @@ export function ExamListPage() {
       <header className="flex flex-col gap-1.5">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Provas e simulados</h1>
         <p className="max-w-2xl text-[var(--color-text-secondary)]">
-          Os simulados tradicionais usam respostas abertas, como na prova. O treino de código permite montar os algoritmos por blocos e conferir a ordem.
+          Sorteie um simulado da P2 e escolha como responder: aberto, como na prova, ou fechado, montando os pseudocódigos em quebra-código.
         </p>
       </header>
 
@@ -67,7 +67,7 @@ export function ExamListPage() {
           <h2 id="simulados" className="text-lg font-semibold text-[var(--color-text-primary)]">
             Simulados da P2
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">Escolha um tipo para sortear uma nova combinação de questões. Cada questão mantém o peso da prova original; os temas recorrentes aparecem junto com os demais.</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Escolha um tipo, sorteie as questões e depois selecione o formato aberto ou fechado. Os temas recorrentes aparecem junto com os demais.</p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {p2Exams.map((exam) => (

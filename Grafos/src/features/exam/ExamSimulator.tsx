@@ -4,10 +4,12 @@ import clsx from 'clsx';
 import { Star } from 'lucide-react';
 import { getExam } from '@/content/exams';
 import { getQuestion } from '@/content/questions';
+import { buildClosedExamTasks } from '@/content/closedExamTasks';
 import type { ExerciseType, Question, QuestionAttempt } from '@/content/types';
 import { validateAnswer } from '@/engine/validate';
 import { scrambledOrder } from '@/engine/ordering';
 import { ExamAnswerPanel } from '@/engine/ExamAnswerPanel';
+import { ClosedExamSimulator } from './ClosedExamSimulator';
 import { TeachMePanel } from '@/engine/TeachMePanel';
 import { GraphVisualizer } from '@/components/graph/GraphVisualizer';
 import { recordAttempt } from '@/store/progress';
@@ -18,6 +20,7 @@ import { Badge, Button, Card } from '@/components/ui';
 // ---------------------------------------------------------------------------
 
 type Phase = 'intro' | 'running' | 'results';
+type ExamFormat = 'open' | 'closed';
 
 interface ExamItem {
   question: Question;
@@ -78,8 +81,10 @@ export function ExamSimulator() {
       })
       .filter((x): x is ExamItem => x !== null);
   }, [exam]);
+  const closedTaskCount = useMemo(() => buildClosedExamTasks(items).length, [items]);
 
   const [phase, setPhase] = useState<Phase>('intro');
+  const [format, setFormat] = useState<ExamFormat>('open');
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -193,11 +198,19 @@ export function ExamSimulator() {
           durationMinutes={exam.suggestedDurationMinutes}
           timerEnabled={timerEnabled}
           onToggleTimer={setTimerEnabled}
+          allowClosed={exam.prova === 'P2'}
+          closedTaskCount={closedTaskCount}
+          format={format}
+          onFormatChange={setFormat}
           onStart={startExam}
         />
       )}
 
-      {phase === 'running' && (
+      {phase === 'running' && format === 'closed' && (
+        <ClosedExamSimulator examTitle={exam.title} items={items} elapsedSeconds={elapsedSeconds} timerEnabled={timerEnabled} />
+      )}
+
+      {phase === 'running' && format === 'open' && (
         <RunningScreen
           examTitle={exam.title}
           items={items}
@@ -249,6 +262,10 @@ function IntroScreen({
   durationMinutes,
   timerEnabled,
   onToggleTimer,
+  allowClosed,
+  closedTaskCount,
+  format,
+  onFormatChange,
   onStart,
 }: {
   title: string;
@@ -257,6 +274,10 @@ function IntroScreen({
   durationMinutes: number;
   timerEnabled: boolean;
   onToggleTimer: (v: boolean) => void;
+  allowClosed: boolean;
+  closedTaskCount: number;
+  format: ExamFormat;
+  onFormatChange: (v: ExamFormat) => void;
   onStart: () => void;
 }) {
   return (
@@ -275,6 +296,17 @@ function IntroScreen({
           <dd className="mt-1 text-lg text-[var(--color-text-primary)]">{durationMinutes} min</dd>
         </div>
       </dl>
+      {allowClosed && <fieldset className="space-y-2">
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)]">Como você quer responder?</legend>
+        <label className={clsx('flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm', format === 'open' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)]')}>
+          <input type="radio" name="exam-format" checked={format === 'open'} onChange={() => onFormatChange('open')} className="mt-0.5 accent-[var(--color-accent)]" />
+          <span><strong className="block text-[var(--color-text-primary)]">Aberto, como na prova</strong><span className="text-[var(--color-text-secondary)]">Escreva a solução e compare com a resposta-modelo após entregar.</span></span>
+        </label>
+        <label className={clsx('flex items-start gap-3 rounded-lg border p-3 text-sm', closedTaskCount > 0 && 'cursor-pointer', format === 'closed' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)]')}>
+          <input type="radio" name="exam-format" checked={format === 'closed'} disabled={closedTaskCount === 0} onChange={() => onFormatChange('closed')} className="mt-0.5 accent-[var(--color-accent)]" />
+          <span><strong className="block text-[var(--color-text-primary)]">Fechado, com quebra-código</strong><span className="text-[var(--color-text-secondary)]">{closedTaskCount > 0 ? `Monte ${closedTaskCount} trecho(s) de pseudocódigo deste sorteio. Questões sem código ficam na versão aberta; você pode mostrar a resposta a qualquer momento.` : 'Este sorteio não tem pseudocódigo na resposta-modelo. Volte e sorteie outro para treinar códigos.'}</span></span>
+        </label>
+      </fieldset>}
       <label className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)]">
         <input
           type="checkbox"
@@ -285,8 +317,7 @@ function IntroScreen({
         Cronômetro opcional (conta o tempo decorrido — este professor não impõe um limite rígido)
       </label>
       <p className="text-xs leading-relaxed text-[var(--color-text-tertiary)]">
-        Este simulado é dissertativo, como as provas reais do professor: suas respostas só são reveladas e corrigidas depois que você
-        entregar a prova.
+        {format === 'open' ? 'Na versão aberta, as respostas só são reveladas depois que você entregar a prova.' : 'Na versão fechada, confira cada desafio na hora e revise os códigos em que errar.'}
       </p>
       <Button size="lg" onClick={onStart}>
         Iniciar simulado
