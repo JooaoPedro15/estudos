@@ -41,6 +41,15 @@ describe('memorização da resposta-modelo', () => {
     }
   });
 
+  it('cada passo tem identificador único e estável, para o progresso salvo não trocar de parte', () => {
+    for (const exam of realExams) {
+      const items = exam.questions.map((ref) => ({ question: getQuestion(ref.questionId)!, weightPercent: ref.weightPercent }));
+      const ids = buildClosedExamTasks(items).map((task) => task.id);
+      expect(new Set(ids).size, exam.id).toBe(ids.length);
+      expect(buildClosedExamTasks(items).map((task) => task.id), exam.id).toEqual(ids);
+    }
+  });
+
   it('as lacunas mudam a cada repetição e nunca ficam vazias', () => {
     for (const question of allQuestions) for (const part of answerParts(question)) {
       expect(buildCloze(part, 0).answers.length, `${question.id}: ${part.label}`).toBeGreaterThan(0);
