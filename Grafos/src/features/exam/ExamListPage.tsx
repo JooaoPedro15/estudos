@@ -7,6 +7,7 @@ import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
 import { codePuzzles } from '@/content/codePuzzles';
 import { dueIds, loadMemory, resetMemory } from '@/store/answerMemory';
+import { createBackupText, restoreBackupText } from '@/store/backup';
 
 function ExamCard({ exam }: { exam: Exam }) {
   return (
@@ -48,6 +49,37 @@ const REAL_EXAMS_TEXT: Record<ExamScope, { title: string; description: string }>
       'Enunciados transcritos das fotos, da mais recente para a mais antiga, com respostas no jeito do resumo e das resoluções. Só os gabaritos da 2024/1 são oficiais. No fim, uma prova do Prof. Zenilton, de outro professor.',
   },
 };
+
+/** Leva o progresso para outro computador: copia um texto aqui e cola lá. */
+function BackupCard() {
+  const [text, setText] = useState('');
+  const [message, setMessage] = useState('');
+  async function copy() {
+    const backup = await createBackupText();
+    try { await navigator.clipboard.writeText(backup); setMessage('Copiado. No outro computador, cole na caixa e toque em "Importar".'); }
+    catch { setText(backup); setMessage('Não consegui copiar sozinho: selecione o texto da caixa, copie e cole no outro computador.'); }
+  }
+  async function restore() {
+    if (!window.confirm('Substituir o progresso deste computador pelo do backup?')) return;
+    try {
+      const summary = await restoreBackupText(text);
+      setMessage(`Importado: ${summary.parts} parte(s) da memorização e ${summary.attempts} tentativa(s). Recarregando…`);
+      window.setTimeout(() => window.location.reload(), 800);
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Não foi possível importar.'); }
+  }
+  return (
+    <Card padding="lg" className="flex flex-col gap-3">
+      <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Levar progresso para outro computador</h2>
+      <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">O progresso fica salvo neste navegador. Copie aqui, envie para você mesmo (WhatsApp, e-mail) e cole no outro computador, abrindo o mesmo site.</p>
+      <textarea aria-label="Texto do backup" value={text} onChange={(event) => setText(event.target.value)} rows={3} spellCheck={false} placeholder="Cole aqui o backup vindo do outro computador" className="mono w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-2 text-xs text-[var(--color-text-primary)]" />
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={copy}>Copiar meu progresso</Button>
+        <Button variant="secondary" onClick={restore} disabled={!text.trim()}>Importar o texto colado</Button>
+      </div>
+      {message && <p role="status" className="text-sm text-[var(--color-text-primary)]">{message}</p>}
+    </Card>
+  );
+}
 
 /** Mostra os simulados sorteados da P2 em destaque e as provas reais da seleção ativa. */
 export function ExamListPage() {
@@ -104,6 +136,8 @@ export function ExamListPage() {
           </Card>
         </div>
       </section>
+
+      <BackupCard />
 
       {active !== 'P2' && (
         <section className="flex flex-col gap-4" aria-labelledby="simulados-p1">
