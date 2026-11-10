@@ -4,6 +4,7 @@ import { useActiveExam } from '@/store/activeExam';
 import type { ExamScope } from '@/content/types';
 import type { Exam } from '@/content/types';
 import { Badge, Button, Card } from '@/components/ui';
+import { codePuzzles } from '@/content/codePuzzles';
 
 function ExamCard({ exam }: { exam: Exam }) {
   return (
@@ -57,8 +58,7 @@ export function ExamListPage() {
       <header className="flex flex-col gap-1.5">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">Provas e simulados</h1>
         <p className="max-w-2xl text-[var(--color-text-secondary)]">
-          Todas as questões são abertas, como na prova. Cada uma tem o botão "Mostrar resposta" com a resposta-modelo — o texto a escrever na
-          folha, no registro das resoluções corrigidas, usando só os conceitos do professor.
+          Os simulados tradicionais usam respostas abertas, como na prova. O treino de código permite montar os algoritmos por blocos e conferir a ordem.
         </p>
       </header>
 
@@ -73,6 +73,19 @@ export function ExamListPage() {
           {p2Exams.map((exam) => (
             <ExamCard key={exam.id} exam={exam} />
           ))}
+          <Card padding="lg" className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Simulado P2 — quebra-código</h2>
+                <Badge tone="success">fechado</Badge>
+              </div>
+              <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
+                Monte os passos de Kosaraju, Prim, Kruskal, Dijkstra, BFS, Fleury e caminho crítico. Os erros voltam para uma nova tentativa.
+              </p>
+            </div>
+            <p className="mono text-xs text-[var(--color-text-tertiary)]">{codePuzzles.length} desafios · correção imediata · sem cronômetro</p>
+            <Link to="/simulado/codigo" className="mt-auto"><Button fullWidth>Montar os códigos</Button></Link>
+          </Card>
         </div>
       </section>
 

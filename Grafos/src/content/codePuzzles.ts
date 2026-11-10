@@ -1,0 +1,165 @@
+/** Blocos curtos para reconstruir os algoritmos cobrados nas provas de P2. */
+export interface CodePuzzle {
+  id: string;
+  title: string;
+  source: string;
+  prompt: string;
+  lines: string[];
+  why: string;
+}
+
+export const codePuzzles: CodePuzzle[] = [
+  {
+    id: 'kosaraju', title: 'Kosaraju', source: '2021/2 Q2(b); 2025/1 Q3',
+    prompt: 'Projete um algoritmo para identificar os componentes fortemente conexos de G.',
+    lines: [
+      'KOSARAJU(G):',
+      '  DFS em G, guardando a ordem de término dos vértices',
+      '  GT ← G com todas as arestas invertidas',
+      '  marcar todos os vértices como não visitados',
+      '  para v em ordem decrescente de término:',
+      '    se v não foi visitado:',
+      '      C ← vértices alcançados pela DFS em GT a partir de v',
+      '      registrar C como componente fortemente conexo',
+      '  retornar componentes',
+    ],
+    why: 'A ordem da primeira DFS e o grafo transposto fazem cada busca da segunda rodada identificar uma componente inteira.',
+  },
+  {
+    id: 'ciclo-scc', title: 'Ciclo usando Kosaraju', source: '2024/2 Q4; 2025/1 Q3',
+    prompt: 'É possível identificar se um grafo é acíclico usando o algoritmo para encontrar componentes fortemente conexos?',
+    lines: [
+      'TEM_CICLO_POR_SCC(G):',
+      '  componentes ← KOSARAJU(G)',
+      '  para cada componente C:',
+      '    se |C| > 1: retornar verdadeiro',
+      '  para cada vértice v:',
+      '    se existe aresta (v, v): retornar verdadeiro',
+      '  retornar falso',
+    ],
+    why: 'Uma componente com mais de um vértice contém ciclo. Uma componente unitária só contém ciclo se houver laço.',
+  },
+  {
+    id: 'kruskal', title: 'Kruskal', source: '2021/2 Q3(a); prova sem data p. 7 Q2(a)',
+    prompt: 'Encontre a árvore geradora mínima usando Kruskal e mostre o passo a passo.',
+    lines: [
+      'KRUSKAL(G, pesos):',
+      '  T ← ∅',
+      '  criar uma componente para cada vértice',
+      '  ordenar as arestas por peso crescente',
+      '  para cada aresta (u, v), nessa ordem:',
+      '    se u e v estão em componentes diferentes:',
+      '      adicionar (u, v) a T e unir as componentes',
+      '    se |T| = |V| − 1: parar',
+      '  retornar T',
+    ],
+    why: 'Só são adicionadas arestas que ligam componentes diferentes; assim não surge ciclo. A propriedade do corte justifica as escolhas mínimas.',
+  },
+  {
+    id: 'prim', title: 'Prim', source: '2021/2 Q3(b); prova sem data p. 7 Q2(b)',
+    prompt: 'Encontre a árvore geradora mínima usando Prim e mostre o passo a passo.',
+    lines: [
+      'PRIM(G, pesos, início):',
+      '  S ← {início}; T ← ∅',
+      '  enquanto |S| < |V|:',
+      '    escolher a aresta (u, v) de menor peso com u ∈ S e v ∉ S',
+      '    adicionar (u, v) a T',
+      '    adicionar v a S',
+      '  retornar T',
+    ],
+    why: 'Em cada passo, a menor aresta que cruza o corte entre S e V − S amplia a árvore sem criar ciclo.',
+  },
+  {
+    id: 'prim-forcado', title: 'Prim com aresta obrigatória', source: '2025/1 Q4',
+    prompt: 'Use Prim sem alterá-lo para garantir que uma aresta específica e esteja na árvore geradora.',
+    lines: [
+      'PRIM_COM_ARESTA(G, pesos, e):',
+      '  se G é desconexo: retornar "não existe árvore geradora"',
+      '  novosPesos ← cópia de pesos',
+      '  novosPesos[e] ← valor menor que o peso de todas as outras arestas',
+      '  T ← PRIM(G, novosPesos, qualquer vértice)',
+      '  F ← T sem a aresta e',
+      '  retornar T, F',
+    ],
+    why: 'A entrada muda, mas Prim não. A aresta e passa a ser obrigatória; entre árvores que a contêm, minimizar o total equivale a minimizar as demais arestas.',
+  },
+  {
+    id: 'dijkstra', title: 'Dijkstra', source: '2021/2 Q3(c); prova sem data p. 7 Q2(c)',
+    prompt: 'Encontre o menor caminho da origem para todos os vértices usando Dijkstra.',
+    lines: [
+      'DIJKSTRA(G, pesos, origem):',
+      '  para v ∈ V: dist[v] ← ∞; pred[v] ← nulo',
+      '  dist[origem] ← 0; Q ← V',
+      '  enquanto Q não está vazia:',
+      '    u ← vértice de Q com menor dist[u]; remover u de Q',
+      '    para cada aresta (u, v) com v ∈ Q:',
+      '      se dist[u] + peso(u, v) < dist[v]:',
+      '        dist[v] ← dist[u] + peso(u, v); pred[v] ← u',
+      '  retornar dist, pred',
+    ],
+    why: 'Com pesos não negativos, a menor distância retirada de Q é definitiva. A atualização de um vizinho é o relaxamento.',
+  },
+  {
+    id: 'bfs', title: 'Busca em largura: distâncias', source: 'Base para 2024/2 Q1 e prova sem data p. 1 Q3',
+    prompt: 'Encontre, em um grafo sem pesos, a distância da origem a cada vértice.',
+    lines: [
+      'BFS_DISTÂNCIAS(G, origem):',
+      '  para v ∈ V: dist[v] ← ∞',
+      '  dist[origem] ← 0; fila ← [origem]',
+      '  enquanto fila não está vazia:',
+      '    u ← retirar do início da fila',
+      '    para cada vizinho v de u:',
+      '      se dist[v] = ∞:',
+      '        dist[v] ← dist[u] + 1; inserir v no fim da fila',
+      '  retornar dist',
+    ],
+    why: 'A fila processa os vértices por níveis: distância 0, depois 1, depois 2. A primeira descoberta já fornece a menor distância.',
+  },
+  {
+    id: 'diametro', title: 'BFS e diâmetro', source: '2024/2 Q1; prova sem data p. 1 Q3',
+    prompt: 'Forneça um algoritmo passo a passo para calcular o diâmetro de um grafo não ponderado.',
+    lines: [
+      'DIAMETRO(G):',
+      '  diam ← 0',
+      '  para cada vértice v ∈ V:',
+      '    dist ← BFS_DISTÂNCIAS(G, v)',
+      '    se algum vértice é inalcançável: retornar ∞',
+      '    excentricidade ← maior valor em dist',
+      '    diam ← max(diam, excentricidade)',
+      '  retornar diam',
+    ],
+    why: 'BFS encontra distâncias mínimas em número de arestas. O diâmetro é a maior excentricidade entre todas as origens.',
+  },
+  {
+    id: 'fleury', title: 'Fleury: circuito euleriano', source: 'Prova sem data p. 8 Q3; P1 2026/1 Q2',
+    prompt: 'Projete uma solução para encontrar um circuito euleriano, caso exista.',
+    lines: [
+      'FLEURY_CIRCUITO(G):',
+      '  se os vértices de grau positivo não são conexos: retornar "não existe"',
+      '  se algum vértice tem grau ímpar: retornar "não existe"',
+      '  atual ← vértice de grau positivo; circuito ← [atual]',
+      '  enquanto ainda há arestas não usadas:',
+      '    se há uma única aresta disponível em atual: escolher essa aresta',
+      '    senão: escolher uma aresta disponível que não é ponte',
+      '    atravessar a aresta e acrescentar a outra ponta ao circuito',
+      '    remover a aresta usada; atual ← outra ponta',
+      '  retornar circuito',
+    ],
+    why: 'Todos os graus pares permitem voltar ao início. Evitar pontes enquanto há outra saída impede ficar preso antes de usar todas as arestas.',
+  },
+  {
+    id: 'caminho-critico', title: 'Caminho crítico', source: '2024/2 Q2; provas sem data p. 6 Q3 e p. 8 Q4',
+    prompt: 'Modele atividades com dependências e encontre o tempo mínimo para terminar todas, com atividades independentes em paralelo.',
+    lines: [
+      'CAMINHO_CRITICO(G, duração):',
+      '  ordem ← ORDEM_TOPOLÓGICA(G)',
+      '  se a ordem não contém todos os vértices: retornar "há ciclo"',
+      '  para v ∈ V: término[v] ← duração[v]',
+      '  para u em ordem:',
+      '    para cada aresta (u, v):',
+      '      término[v] ← max(término[v], término[u] + duração[v])',
+      '  retornar o maior valor de término',
+    ],
+    why: 'A ordem topológica garante que todos os pré-requisitos foram calculados antes da atividade. O maior término é o prazo do projeto.',
+  },
+];
