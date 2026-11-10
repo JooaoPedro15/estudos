@@ -39,7 +39,7 @@ describe('P2', () => {
       prova.questions.map(({ question, weightPercent }) => [question.id, weightPercent] as const),
     ));
     for (const exam of [...exams, ...realExams].filter((e) => e.prova === 'P2' && !e.randomized)) {
-      const printed: Record<string, number> = { 'prova-silvio-20xx-p7': 105, 'prova-silvio-20xx-p8': 110 };
+      const printed: Record<string, number> = { 'prova-silvio-20xx-p7': 105, 'prova-silvio-20xx-p8': 110, 'simulado-p2-mais-cai': 260 };
       expect(exam.questions.reduce((a, x) => a + x.weightPercent, 0), exam.id).toBe(printed[exam.id] ?? 100);
       for (const { questionId, weightPercent } of exam.questions) {
         expect(byId.get(questionId), questionId).toBeTruthy();

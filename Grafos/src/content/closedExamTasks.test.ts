@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { buildClosedExamTasks } from './closedExamTasks';
 import { answerParts, buildCloze } from './answerParts';
 import { drawP2Simulation } from './randomP2Exams';
-import { realExams } from './exams';
+import { exams, realExams } from './exams';
+import { provasSilvioP2 } from './questions/12-p2-provas-silvio';
 import { getQuestion } from './questions';
 
 const squash = (text: string): string => text.replace(/\s+/g, '');
@@ -65,5 +66,12 @@ describe('memorização da resposta-modelo', () => {
         expect(buildClosedExamTasks(items).some((task) => task.kind === 'part' && task.part.mode === 'code')).toBe(true);
       }
     }
+  });
+
+  it('o simulado "o que mais cai" usa só questões de provas reais de P2', () => {
+    const exam = [...exams, ...realExams].find((item) => item.id === 'simulado-p2-mais-cai')!;
+    const real = new Set(provasSilvioP2.flatMap((prova) => prova.questions.map(({ question }) => question.id)));
+    expect(exam.questions.length).toBe(9);
+    for (const ref of exam.questions) expect(real.has(ref.questionId), ref.questionId).toBe(true);
   });
 });
