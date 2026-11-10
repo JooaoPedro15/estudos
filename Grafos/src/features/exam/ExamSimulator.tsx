@@ -83,7 +83,7 @@ export function ExamSimulator() {
   }, [exam]);
   const closedTasks = useMemo(() => buildClosedExamTasks(items), [items]);
   const closedTaskCount = closedTasks.length;
-  const codeTaskCount = closedTasks.filter((task) => task.kind === 'code').length;
+  const closedQuestionCount = new Set(closedTasks.map((task) => task.question.id)).size;
 
   const [phase, setPhase] = useState<Phase>('intro');
   const [format, setFormat] = useState<ExamFormat>('open');
@@ -200,9 +200,9 @@ export function ExamSimulator() {
           durationMinutes={exam.suggestedDurationMinutes}
           timerEnabled={timerEnabled}
           onToggleTimer={setTimerEnabled}
-          allowClosed={exam.prova === 'P2'}
+          allowClosed={closedTaskCount > 0}
           closedTaskCount={closedTaskCount}
-          codeTaskCount={codeTaskCount}
+          closedQuestionCount={closedQuestionCount}
           format={format}
           onFormatChange={setFormat}
           onStart={startExam}
@@ -267,7 +267,7 @@ function IntroScreen({
   onToggleTimer,
   allowClosed,
   closedTaskCount,
-  codeTaskCount,
+  closedQuestionCount,
   format,
   onFormatChange,
   onStart,
@@ -280,7 +280,7 @@ function IntroScreen({
   onToggleTimer: (v: boolean) => void;
   allowClosed: boolean;
   closedTaskCount: number;
-  codeTaskCount: number;
+  closedQuestionCount: number;
   format: ExamFormat;
   onFormatChange: (v: ExamFormat) => void;
   onStart: () => void;
@@ -309,7 +309,7 @@ function IntroScreen({
         </label>
         <label className={clsx('flex items-start gap-3 rounded-lg border p-3 text-sm', closedTaskCount > 0 && 'cursor-pointer', format === 'closed' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)]')}>
           <input type="radio" name="exam-format" checked={format === 'closed'} disabled={closedTaskCount === 0} onChange={() => onFormatChange('closed')} className="mt-0.5 accent-[var(--color-accent)]" />
-          <span><strong className="block text-[var(--color-text-primary)]">Memorização progressiva</strong><span className="text-[var(--color-text-secondary)]">{closedTaskCount > 0 ? `${codeTaskCount} trecho(s) de código: primeiro ordenar, depois completar lacunas e por fim escrever de memória. Mais ${closedTaskCount - codeTaskCount} questão(ões) de modelagem, justificativa ou exemplo. A etapa fica salva; você pode mostrar a resposta a qualquer momento.` : 'Este sorteio não tem itens fechados cadastrados.'}</span></span>
+          <span><strong className="block text-[var(--color-text-primary)]">Memorização da resposta-modelo</strong><span className="text-[var(--color-text-secondary)]">{`Uma questão por vez, item por item (${closedQuestionCount} questão(ões), ${closedTaskCount} passos). Cada parte da resposta sobe de ordenar para completar lacunas e escrever de memória; o que você erra volta logo, e no fim de cada questão você escreve a resposta inteira.`}</span></span>
         </label>
       </fieldset>}
       <label className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)]">
@@ -322,7 +322,7 @@ function IntroScreen({
         Cronômetro opcional (conta o tempo decorrido — este professor não impõe um limite rígido)
       </label>
       <p className="text-xs leading-relaxed text-[var(--color-text-tertiary)]">
-        {format === 'open' ? 'Na versão aberta, as respostas só são reveladas depois que você entregar a prova.' : 'Na versão fechada, confira cada desafio na hora e revise os códigos em que errar.'}
+        {format === 'open' ? 'Na versão aberta, as respostas só são reveladas depois que você entregar a prova.' : 'Na memorização, cada parte é conferida na hora e os erros voltam até você acertar.'}
       </p>
       <Button size="lg" onClick={onStart}>
         Iniciar simulado
