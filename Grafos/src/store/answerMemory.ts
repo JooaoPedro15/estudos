@@ -1,4 +1,4 @@
-/** 0 = ordenar, 1 = completar lacunas, 2 = escrever de memória. */
+/** 0 = decorar aos poucos, 1 = completar lacunas (fechada), 2 = escrever de memória (aberta). */
 export type MemoryStage = 0 | 1 | 2;
 
 export interface MemoryEntry {

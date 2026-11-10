@@ -309,7 +309,7 @@ function IntroScreen({
         </label>
         <label className={clsx('flex items-start gap-3 rounded-lg border p-3 text-sm', closedTaskCount > 0 && 'cursor-pointer', format === 'closed' ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]' : 'border-[var(--color-border)]')}>
           <input type="radio" name="exam-format" checked={format === 'closed'} disabled={closedTaskCount === 0} onChange={() => onFormatChange('closed')} className="mt-0.5 accent-[var(--color-accent)]" />
-          <span><strong className="block text-[var(--color-text-primary)]">Memorização da resposta-modelo</strong><span className="text-[var(--color-text-secondary)]">{`Uma questão por vez, item por item (${closedQuestionCount} questão(ões), ${closedTaskCount} passos). Cada parte da resposta sobe de ordenar para completar lacunas e escrever de memória; o que você erra volta logo, e no fim de cada questão você escreve a resposta inteira.`}</span></span>
+          <span><strong className="block text-[var(--color-text-primary)]">Memorização da resposta-modelo</strong><span className="text-[var(--color-text-secondary)]">{`Uma questão por vez, item por item (${closedQuestionCount} questão(ões), ${closedTaskCount} passos). Cada parte da resposta passa por três etapas: decorar aos poucos, fechada com lacunas e aberta escrevendo de memória; o que você erra volta logo, e no fim de cada questão você escreve a resposta inteira.`}</span></span>
         </label>
       </fieldset>}
       <label className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)]">
