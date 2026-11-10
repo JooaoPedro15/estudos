@@ -62,3 +62,8 @@ export function dueIds(memory: AnswerMemory, now = Date.now()): string[] {
     .sort((a, b) => b[1].lapses - a[1].lapses || a[1].dueAt - b[1].dueAt)
     .map(([id]) => id);
 }
+
+/** Apaga todo o progresso da memorização, inclusive os formatos antigos. */
+export function resetMemory(): void {
+  try { ['grafos-answer-memory-v2', 'grafos-answer-memory-v3', STORAGE_KEY].forEach((key) => localStorage.removeItem(key)); } catch { /* Armazenamento indisponível. */ }
+}
