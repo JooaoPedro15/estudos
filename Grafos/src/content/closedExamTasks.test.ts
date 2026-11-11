@@ -74,4 +74,16 @@ describe('memorização da resposta-modelo', () => {
     expect(exam.questions.length).toBe(9);
     for (const ref of exam.questions) expect(real.has(ref.questionId), ref.questionId).toBe(true);
   });
+
+  it('a parte 2 de "o que mais cai" usa questões reais que não estão na parte 1', () => {
+    const find = (id: string) => [...exams, ...realExams].find((item) => item.id === id)!;
+    const first = new Set(find('simulado-p2-mais-cai').questions.map((ref) => ref.questionId));
+    const real = new Set(provasSilvioP2.flatMap((prova) => prova.questions.map(({ question }) => question.id)));
+    const second = find('simulado-p2-mais-cai-2');
+    expect(second.questions.length).toBe(8);
+    for (const ref of second.questions) {
+      expect(real.has(ref.questionId), ref.questionId).toBe(true);
+      expect(first.has(ref.questionId), ref.questionId).toBe(false);
+    }
+  });
 });
