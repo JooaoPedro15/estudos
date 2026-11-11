@@ -27,9 +27,25 @@ function shuffle<T>(items: T[]): T[] {
 const minStageOf = (task: ClosedExamTask): MemoryStage => task.kind === 'full' ? LAST_STAGE : 0;
 /** Parte de um trecho só não tem o que ordenar: vai direto para as lacunas. */
 const skipsOrder = (task: ClosedExamTask): boolean => task.kind === 'part' && task.part.units.length < 2;
-function stageOf(task: ClosedExamTask, memory: AnswerMemory): MemoryStage {
-  const stage = Math.max(minStageOf(task), memory[task.id]?.stage ?? 0) as MemoryStage;
-  return stage === 1 && skipsOrder(task) ? 2 : stage;
+const ENABLED_KEY = 'grafos-enabled-stages';
+const ALL_STAGES: MemoryStage[] = [0, 1, 2, 3];
+function loadEnabled(): MemoryStage[] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(ENABLED_KEY) ?? 'null');
+    if (Array.isArray(parsed)) {
+      const stages = ALL_STAGES.filter((item) => parsed.includes(item));
+      if (stages.length) return stages;
+    }
+  } catch { /* Armazenamento indisponível. */ }
+  return ALL_STAGES;
+}
+/** A etapa em que a parte abre: a primeira etapa escolhida a partir de onde ela parou. */
+function stageOf(task: ClosedExamTask, memory: AnswerMemory, enabled: MemoryStage[]): MemoryStage {
+  const stored = Math.max(minStageOf(task), memory[task.id]?.stage ?? 0);
+  if (task.kind !== 'part') return stored as MemoryStage;
+  const usable = enabled.filter((item) => !(item === 1 && skipsOrder(task)));
+  const pool = usable.length ? usable : [LAST_STAGE];
+  return (pool.find((item) => item >= stored) ?? pool[pool.length - 1]) as MemoryStage;
 }
 const orderBank = (task: ClosedExamTask | undefined): number[] => task?.kind === 'part' ? shuffle(task.part.units.map((_, index) => index)) : [];
 /** Na primeira etapa a parte já abre na recitação cumulativa: duas linhas, esconde, repete, soma mais uma. */
@@ -49,9 +65,11 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     return tasks.filter((task) => due.has(task.id));
   }, [items, onlyDue]);
   const [memory, setMemory] = useState(loadMemory);
+  const [enabled, setEnabled] = useState(loadEnabled);
+  const lastEnabled = Math.max(...enabled) as MemoryStage;
   const [round, setRound] = useState(allTasks);
   const [index, setIndex] = useState(0);
-  const [stage, setStage] = useState<MemoryStage>(() => allTasks[0] ? stageOf(allTasks[0], memory) : 0);
+  const [stage, setStage] = useState<MemoryStage>(() => allTasks[0] ? stageOf(allTasks[0], memory, enabled) : 0);
   const [bank, setBank] = useState(() => orderBank(allTasks[0]));
   const [selected, setSelected] = useState<number[]>([]);
   const [fills, setFills] = useState<Record<number, number>>({});
@@ -88,8 +106,8 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     setRound(nextRound);
     setIndex(nextIndex);
     const next = nextRound[nextIndex];
-    if (next) setStage(stageOf(next, currentMemory));
-    resetInputs(next, next ? stageOf(next, currentMemory) : 1);
+    if (next) setStage(stageOf(next, currentMemory, enabled));
+    resetInputs(next, next ? stageOf(next, currentMemory, enabled) : 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -99,12 +117,12 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
     setStats((before) => ({ clean: before.clean + (clean ? 1 : 0), total: before.total + 1 }));
     let currentMemory = memory;
     if (task.kind !== 'choice') {
-      currentMemory = recordAttempt(memory, task.id, clean, stage, minStageOf(task));
+      currentMemory = recordAttempt(memory, task.id, clean, task.kind === 'part' && stage >= lastEnabled ? LAST_STAGE : stage, minStageOf(task));
       setMemory(currentMemory);
       saveMemory(currentMemory);
     }
     // A parte sobe as quatro etapas em sequência, antes de passar para a próxima; quem errou deve dois acertos escrevendo de memória.
-    const climbing = clean && task.kind === 'part' && stage < LAST_STAGE;
+    const climbing = clean && task.kind === 'part' && stage < lastEnabled;
     const remaining = !clean ? 2 : climbing ? owed[task.id] ?? 1 : (owed[task.id] ?? 1) - 1;
     setOwed((before) => ({ ...before, [task.id]: remaining }));
     let nextRound = round;
@@ -116,6 +134,24 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       nextRound = [...round.slice(0, position), task, ...round.slice(position)];
     }
     show(nextRound, index + 1, currentMemory);
+  }
+
+  function toggleStage(position: MemoryStage) {
+    const nextEnabled = enabled.includes(position) ? enabled.filter((item) => item !== position) : ALL_STAGES.filter((item) => item === position || enabled.includes(item));
+    if (!nextEnabled.length) return;
+    setEnabled(nextEnabled);
+    try { localStorage.setItem(ENABLED_KEY, JSON.stringify(nextEnabled)); } catch { /* Armazenamento indisponível. */ }
+    if (task && task.kind === 'part' && state === 'editing' && !nextEnabled.includes(stage)) {
+      const nextStage = stageOf(task, memory, nextEnabled);
+      setStage(nextStage); resetInputs(task, nextStage);
+    }
+  }
+
+  function jumpTo(id: string) {
+    const at = round.findIndex((item) => item.id === id);
+    if (at >= 0) { show(round, at); return; }
+    const target = allTasks.find((item) => item.id === id);
+    if (target) show([...round.slice(0, index + 1), target, ...round.slice(index + 1)], index + 1);
   }
 
   function check() {
@@ -182,7 +218,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
       <p className="text-sm text-[var(--color-text-secondary)]">As partes que você treinou voltam aqui quando o intervalo vencer. Enquanto isso, memorize outra prova.</p>
       <Link to="/simulado"><Button>Voltar às provas</Button></Link>
     </Card>;
-    const pending = allTasks.filter((item) => item.kind !== 'choice' && stageOf(item, memory) < LAST_STAGE);
+    const pending = allTasks.filter((item) => item.kind !== 'choice' && stageOf(item, memory, enabled) < lastEnabled);
     return (
       <Card padding="lg" className="mx-auto max-w-2xl space-y-5">
         <Badge tone="success">Rodada concluída</Badge>
@@ -221,6 +257,11 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         {timerEnabled && <span className="mono text-sm text-[var(--color-text-secondary)]">⏱ {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, '0')}</span>}
       </header>
 
+      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Etapas que quero fazer">
+        <span className="text-xs font-semibold text-[var(--color-text-secondary)]">Etapas que quero fazer:</span>
+        {stageNames.map((name, position) => <button key={name} type="button" aria-pressed={enabled.includes(position as MemoryStage)} onClick={() => toggleStage(position as MemoryStage)} className={clsx('rounded-full border px-2.5 py-1 text-xs', enabled.includes(position as MemoryStage) ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : 'border-[var(--color-border)] text-[var(--color-text-tertiary)] line-through')}>{position + 1}. {name}</button>)}
+      </div>
+
       {questionStarts.length > 1 && <nav aria-label="Questões" className="flex flex-wrap gap-2">
         {questionStarts.map(({ position, number }) => <button key={position} type="button" onClick={() => show(round, position)} className={clsx('rounded-full border px-3 py-1 text-xs font-semibold', number === task.questionNumber && round[position].question.id === task.question.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]' : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)]')}>Questão {number}</button>)}
       </nav>}
@@ -238,9 +279,9 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
         {task.kind !== 'choice' && <div className="rounded-lg border border-[var(--color-border-soft)] bg-[var(--color-bg-elevated)] p-3">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Esqueleto da resposta — decore também esta ordem</p>
           <ol className="flex flex-wrap gap-1.5">
-            {task.outline.map((entry, position) => <li key={entry.id} className={clsx('rounded-md border px-2 py-1 text-xs', entry.id === task.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : (memory[entry.id]?.stage ?? 0) === LAST_STAGE ? 'border-[var(--color-success)]/40 text-[var(--color-success)]' : 'border-[var(--color-border)] text-[var(--color-text-secondary)]')}>
+            {task.outline.map((entry, position) => <li key={entry.id}><button type="button" onClick={() => jumpTo(entry.id)} className={clsx('rounded-md border px-2 py-1 text-left text-xs', entry.id === task.id ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] font-semibold text-[var(--color-accent)]' : (memory[entry.id]?.stage ?? 0) === LAST_STAGE ? 'border-[var(--color-success)]/40 text-[var(--color-success)]' : 'border-[var(--color-border)] text-[var(--color-text-secondary)]')}>
               {position + 1}. {entry.itemLabel ? `${entry.itemLabel} ` : ''}{entry.label}
-            </li>)}
+            </button></li>)}
           </ol>
         </div>}
       </Card>
@@ -346,7 +387,7 @@ export function ClosedExamSimulator({ examTitle, items, elapsedSeconds, timerEna
             {task.kind !== 'choice' && <Button variant="secondary" onClick={showHint}>Dica</Button>}
             {part && <Button variant="secondary" onClick={() => { setDrill({ count: Math.min(2, part.units.length), hidden: false }); setHadError(true); setFeedback(''); setHint(''); }}>Decorar aos poucos</Button>}
             <Button variant="ghost" onClick={reveal}>Ver a resposta</Button>
-          </> : <Button onClick={next}>{state === 'correct' && !hadError && task.kind === 'part' && stage < LAST_STAGE ? 'Próxima etapa desta parte' : 'Próximo'}</Button>}
+          </> : <Button onClick={next}>{state === 'correct' && !hadError && task.kind === 'part' && stage < lastEnabled ? 'Próxima etapa desta parte' : 'Próximo'}</Button>}
         </div>
       </Card>}
     </div>
