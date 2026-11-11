@@ -88,6 +88,24 @@ export const exams: Exam[] = [
       { questionId: 'ps-20xx8-q1', weightPercent: 20 }, // n vértices e k componentes: 20xx(p.1), 20xx(p.8)
     ],
   },
+  // --- P2: o segundo grupo que mais cai. Só assuntos que se repetem e que não estão em "o que mais cai".
+  {
+    id: 'simulado-p2-mais-cai-2',
+    prova: 'P2',
+    title: 'P2 — o que mais cai (parte 2)',
+    basedOn: 'Os outros assuntos que se repetem nas provas de P2 do Prof. Silvio e não estão em "o que mais cai": AGM (Prim/Kruskal), caminho com restrição, excentricidade e raio, caminho crítico, contagem, euleriano, subgrafo e fluxo máximo. Fixo, sem sorteio, pesos originais (a soma passa de 100%).',
+    suggestedDurationMinutes: 100,
+    questions: [
+      { questionId: 'ps-2026-1-q2', weightPercent: 30 }, // AGM com pesos distintos: Prim e Kruskal em 2021/2, 20xx(p.7), 2026/1
+      { questionId: 'ps-20xx8-q2', weightPercent: 30 }, // caminho com restrição (λ): 20xx(p.8)
+      { questionId: 'ps-2025-1-q1', weightPercent: 25 }, // excentricidade, raio, diâmetro e centro: 2025/1
+      { questionId: 'ps-20xx6-q3', weightPercent: 30 }, // caminho crítico: 20xx(p.6), 20xx(p.8)
+      { questionId: 'ps-2021-2-q1', weightPercent: 20 }, // contagem de arestas e graus: 2021/2, 20xx(p.1), 20xx(p.8)
+      { questionId: 'ps-2026-1-q1', weightPercent: 45 }, // euleriano e grafo de linha: 2026/1, 20xx(p.8)
+      { questionId: 'ps-2021-2-q4', weightPercent: 20 }, // subgrafo e subgrafo induzido: 2021/2, 20xx(p.6)
+      { questionId: 'ps-20xx7-q3', weightPercent: 25 }, // fluxo máximo: 20xx(p.7)
+    ],
+  },
 ];
 
 /** As 8 provas reais (2022/1 … 2026/1), literais, todas abertas — ver questions/09-provas-reais.ts. */
